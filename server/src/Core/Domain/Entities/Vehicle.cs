@@ -23,5 +23,6 @@ public class Vehicle : BaseEntity
     public required VehicleStatusEnum Status { get; set; }
     public required string Location { get; set; }
 
-    // Navigation properties TODO: Add navigation properties
+    // Navigation properties
+    public required VehicleGroup VehicleGroup { get; set; }
 }
