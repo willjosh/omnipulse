@@ -9,8 +9,8 @@ public class IssueAttachment
     public int UploadedBy { get; set; }
 
     public AttachmentTypeEnum FileType { get; set; }
-    public string FileName { get; set; } = string.Empty;
-    public string FilePath { get; set; } = string.Empty;
+    public required string FileName { get; set; }
+    public required string FilePath { get; set; }
     public int FileSize { get; set; }
     public string? Description { get; set; }
 
