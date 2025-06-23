@@ -1,1 +1,20 @@
-[![Open in Visual Studio Code](https://classroom.github.com/assets/open-in-vscode-2e0aaae1b6195c2367325f4f02e2d04e9abb55f0b24a779b69b11b9e10269abc.svg)](https://classroom.github.com/online_ide?assignment_repo_id=19706329&assignment_repo_type=AssignmentRepo)
+# Omnipulse
+
+# Getting Started
+
+To get started with the development, follow these steps:
+
+## Backend
+
+1. `cd server`
+2. Install C# Dev kit if you are using visual studio code
+3. Install Nuget Package Library extension
+4. Open the solution file in visual studio code
+5. Set the startup projects to Api project
+6. `dotnet run`
+
+## Frontend
+
+1. `cd client`
+2. run `npm install`
+3. run `npm run dev`
