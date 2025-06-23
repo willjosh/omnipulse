@@ -65,5 +65,8 @@
   .text-muted {
     color: var(--muted);
   }
+  .text-primary {
+    color: var(--primary-color);
+  }
 }
 
