@@ -3,7 +3,7 @@ using System;
 namespace Domain.Entities;
 using Domain.Entities.Enums;
 
-public class IssueAttachment
+public class IssueAttachment : BaseEntity
 {
     public int IssueId { get; set; }
     public int UploadedBy { get; set; }
@@ -15,5 +15,7 @@ public class IssueAttachment
     public string? Description { get; set; }
 
     // Navigation Properties
-    
+    public required Issue Issue { get; set; }
+
+    // TODO: Connects to User
 }
