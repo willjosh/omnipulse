@@ -5,10 +5,9 @@ public enum IssueCategoryEnum
     ENGINE,
     TRANSMISSION,
     BRAKES,
-    TIRES,
     ELECTRICAL,
     BODY,
-    INTERIOR,
-    FLUIDS,
-    FILTERS
+    TIRES,
+    HVAC,
+    OTHER
 }
