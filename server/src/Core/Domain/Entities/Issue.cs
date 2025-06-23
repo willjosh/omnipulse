@@ -16,7 +16,7 @@ public class Issue : BaseEntity
     public string? ResolutionNotes { get; set; }
 
     // Navigation Properties
-    public required ICollection<IssueAttachment> IssueAttachment { get; set; }
-    public required ICollection<WorkOrderIssue> WorkOrderIssue { get; set; }
+    public required ICollection<IssueAttachment> IssueAttachment { get; set; } = [];
+    public required ICollection<WorkOrderIssue> WorkOrderIssue { get; set; } = [];
     // TODO: Connect to Vehicle, User
 }
