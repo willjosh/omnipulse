@@ -24,12 +24,13 @@ cd "$BACKEND_DIR" || exit 1
 # Building
 echo "🧱 Backend - Build"
 dotnet build --nologo
+BACKEND_BUILD_RESULT=$?
 
 # Linting
 echo "🔍 Backend - Lint"
 dotnet format
 dotnet format --verify-no-changes --verbosity quiet
-BACKEND_RESULT=$?
+BACKEND_LINT_RESULT=$?
 
 # Testing
 echo "🧪 Backend - Test"
@@ -39,7 +40,7 @@ BACKEND_TEST_RESULT=$?
 cd ..
 
 # CHECKS
-if [ $FRONTEND_LINT_RESULT -ne 0 ] || [ $BACKEND_RESULT -ne 0 ] || [ $BACKEND_TEST_RESULT -ne 0 ]; then
+if [ $FRONTEND_LINT_RESULT -ne 0 ] || [ $BACKEND_LINT_RESULT -ne 0 ] || [ $BACKEND_TEST_RESULT -ne 0 ] || [ $BACKEND_BUILD_RESULT -ne 0 ]; then
     echo "❌ Pre-commit checks failed. Fix the issues before committing."
     exit 1
 fi
