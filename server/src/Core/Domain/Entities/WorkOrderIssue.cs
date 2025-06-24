@@ -4,8 +4,8 @@ namespace Domain.Entities;
 
 public class WorkOrderIssue : BaseEntity
 {
-    public int WorkOrderID { get; set; }
-    public int IssueID { get; set; }
+    public required int WorkOrderID { get; set; }
+    public required int IssueID { get; set; }
 
     // Navigation Properties
     public required Issue Issue { get; set; }
