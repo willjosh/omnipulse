@@ -11,7 +11,7 @@ public class MaintenanceHistory : BaseEntity
     public required DateTime ServiceDate { get; set; }
     public required double MileageAtService { get; set; }
     public string? Description { get; set; }
-    public required decimal Decimal { get; set; }
+    public required decimal Cost { get; set; }
     public required double LabourHours { get; set; }
     public string? Notes { get; set; }
 
