@@ -14,11 +14,11 @@ public class VehicleAlert : BaseEntity
     public required string Message { get; set; }
     public required AlertLevelEnum AlertLevel { get; set; }
 
-    public required bool IsAcknowledged { get; set; }
+    public required bool IsAcknowledged { get; set; } = false;
     public int? AcknowledgedBy { get; set; }
     public DateTime? AcknowledgedAt { get; set; }
     public DateTime? ExpiresAt { get; set; }
-    public required bool IsDismissed { get; set; }
+    public required bool IsDismissed { get; set; } = false;
 
     // Navigation Properties
     public required Vehicle Vehicle { get; set; }
