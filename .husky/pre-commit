@@ -1,1 +1,25 @@
-cd client && npx lint-staged
+BACKEND_DIR="server"
+FRONTEND_DIR="client"
+
+# FRONTEND LINTING
+echo "🔍 Linting frontend with lint-staged..." 
+cd "$FRONTEND_DIR" || exit 1
+npx lint-staged
+FRONTEND_RESULT=$?
+cd ..
+
+# BACKEND LINTING
+echo "🔍 Linting backend with dotnet format..."
+cd "$BACKEND_DIR" || exit 1
+dotnet format
+dotnet format --verify-no-changes --verbosity quiet
+BACKEND_RESULT=$?
+cd ..
+
+# CHECKS
+if [ $FRONTEND_RESULT -ne 0 ] || [ $BACKEND_RESULT -ne 0 ]; then
+    echo "❌ Pre-commit checks failed. Fix the issues before committing."
+    exit 1
+fi
+
+echo "✅ All pre-commit checks passed!"
