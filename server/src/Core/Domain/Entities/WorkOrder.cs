@@ -21,5 +21,6 @@ public class WorkOrder : BaseEntity
     public required double StartOdometer { get; set; }
     public double? EndOdometer { get; set; }
 
-    // TODO: Navigation properties
+    // Navigation properties
+    public required Vehicle Vehicle { get; set; }
 }
