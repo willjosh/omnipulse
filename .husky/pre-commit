@@ -8,7 +8,7 @@ FRONTEND_DIR="client"
 cd "$FRONTEND_DIR" || exit 1
 
 # Linting
-echo "🔍 Frontend - Linting"
+echo "🔍 Frontend - Lint"
 npx lint-staged
 FRONTEND_LINT_RESULT=$?
 
@@ -22,16 +22,17 @@ BACKEND_DIR="server"
 cd "$BACKEND_DIR" || exit 1
 
 # Building
+echo "🔍 Backend - Build"
 dotnet build --nologo
 
 # Linting
-echo "🔍 Backend - Linting"
+echo "🔍 Backend - Lint"
 dotnet format
 dotnet format --verify-no-changes --verbosity quiet
 BACKEND_RESULT=$?
 
 # Testing
-echo "🧪 Backend - Testing"
+echo "🧪 Backend - Test"
 dotnet test
 BACKEND_TEST_RESULT=$?
 
