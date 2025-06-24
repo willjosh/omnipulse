@@ -1,6 +1,3 @@
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
-
 BACKEND_DIR="server"
 FRONTEND_DIR="client"
 
@@ -14,7 +11,7 @@ cd ..
 # BACKEND LINTING
 echo "🔍 Linting backend with dotnet format..."
 cd "$BACKEND_DIR" || exit 1
-dotnet format --verify-no-changes
+dotnet format --verify-no-changes --verbosity quiet
 BACKEND_RESULT=$?
 cd ..
 
