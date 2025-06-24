@@ -1,23 +1,46 @@
-BACKEND_DIR="server"
-FRONTEND_DIR="client"
+#!/bin/sh
 
-# FRONTEND LINTING
-echo "🔍 Linting frontend with lint-staged..." 
+##############################
+########## FRONTEND ##########
+##############################
+
+FRONTEND_DIR="client"
 cd "$FRONTEND_DIR" || exit 1
+
+# Linting
+echo "🔍 Frontend - Lint"
 npx lint-staged
-FRONTEND_RESULT=$?
+FRONTEND_LINT_RESULT=$?
+
 cd ..
 
-# BACKEND LINTING
-echo "🔍 Linting backend with dotnet format..."
+#############################
+########## BACKEND ##########
+#############################
+
+BACKEND_DIR="server"
 cd "$BACKEND_DIR" || exit 1
+
+# Building
+echo "🧱 Backend - Build"
+dotnet build --nologo
+BACKEND_BUILD_RESULT=$?
+
+# Linting
+echo "🔍 Backend - Lint"
 dotnet format
 dotnet format --verify-no-changes --verbosity quiet
-BACKEND_RESULT=$?
+BACKEND_LINT_RESULT=$?
+
+# Testing
+echo "🧪 Backend - Test"
+dotnet test
+BACKEND_TEST_RESULT=$?
+
 cd ..
 
 # CHECKS
-if [ $FRONTEND_RESULT -ne 0 ] || [ $BACKEND_RESULT -ne 0 ]; then
+if [ $FRONTEND_LINT_RESULT -ne 0 ] || [ $BACKEND_LINT_RESULT -ne 0 ] || [ $BACKEND_TEST_RESULT -ne 0 ] || [ $BACKEND_BUILD_RESULT -ne 0 ]; then
     echo "❌ Pre-commit checks failed. Fix the issues before committing."
     exit 1
 fi

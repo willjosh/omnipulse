@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 import {
   LayoutDashboard,
   Car,
@@ -18,7 +18,7 @@ import {
   BarChart,
   ChevronDown,
   ChevronRight,
-} from 'lucide-react';
+} from "lucide-react";
 
 type NavItem = {
   label: string;
@@ -27,24 +27,24 @@ type NavItem = {
 };
 
 const navItems: NavItem[] = [
-  { label: 'Dashboard', icon: LayoutDashboard, hasDropdown: false },
-  { label: 'Vehicles', icon: Car, hasDropdown: true },
-  { label: 'Equipment', icon: Wrench, hasDropdown: true },
-  { label: 'Inspections', icon: ClipboardCheck, hasDropdown: true },
-  { label: 'Issues', icon: AlertTriangle, hasDropdown: true },
-  { label: 'Reminders', icon: Bell, hasDropdown: true },
-  { label: 'Service', icon: UserCog, hasDropdown: true },
-  { label: 'Contacts', icon: User, hasDropdown: true },
-  { label: 'Vendors', icon: Store, hasDropdown: true },
-  { label: 'Parts & Inventory', icon: Boxes, hasDropdown: true },
-  { label: 'Fuel & Energy', icon: Fuel, hasDropdown: true },
-  { label: 'Places', icon: MapPin, hasDropdown: true },
-  { label: 'Documents', icon: FileText, hasDropdown: true },
-  { label: 'Reports', icon: BarChart, hasDropdown: true },
+  { label: "Dashboard", icon: LayoutDashboard, hasDropdown: false },
+  { label: "Vehicles", icon: Car, hasDropdown: true },
+  { label: "Equipment", icon: Wrench, hasDropdown: true },
+  { label: "Inspections", icon: ClipboardCheck, hasDropdown: true },
+  { label: "Issues", icon: AlertTriangle, hasDropdown: true },
+  { label: "Reminders", icon: Bell, hasDropdown: true },
+  { label: "Service", icon: UserCog, hasDropdown: true },
+  { label: "Contacts", icon: User, hasDropdown: true },
+  { label: "Vendors", icon: Store, hasDropdown: true },
+  { label: "Parts & Inventory", icon: Boxes, hasDropdown: true },
+  { label: "Fuel & Energy", icon: Fuel, hasDropdown: true },
+  { label: "Places", icon: MapPin, hasDropdown: true },
+  { label: "Documents", icon: FileText, hasDropdown: true },
+  { label: "Reports", icon: BarChart, hasDropdown: true },
 ];
 
 const SideBar = () => {
-  const [activeItem, setActiveItem] = useState<string>('Vehicles');
+  const [activeItem, setActiveItem] = useState<string>("Vehicles");
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({
     Vehicles: true,
   });
@@ -83,44 +83,44 @@ const SideBar = () => {
             return (
               <li key={label}>
                 <div className="px-2">
-                    <button
-                        onClick={() => {
-                        handleClick(label);
-                        if (hasDropdown) toggleExpand(label);
-                        }}
-                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-all text-left ${
-                        isActive
-                            ? 'bg-[var(--primary-color)] text-white'
-                            : 'text-gray-700 hover:bg-[var(--primary-light)] hover:text-[var(--primary-color)]'
-                        }`}
-                    >
-                        <Icon size={18} />
-                        <span className="truncate flex-1">{label}</span>
-                        {hasDropdown &&
-                        (isExpanded ? (
-                            <ChevronDown size={16} className="text-inherit" />
-                        ) : (
-                            <ChevronRight size={16} className="text-inherit" />
-                        ))}
-                    </button>
+                  <button
+                    onClick={() => {
+                      handleClick(label);
+                      if (hasDropdown) toggleExpand(label);
+                    }}
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-all text-left ${
+                      isActive
+                        ? "bg-[var(--primary-color)] text-white"
+                        : "text-gray-700 hover:bg-[var(--primary-light)] hover:text-[var(--primary-color)]"
+                    }`}
+                  >
+                    <Icon size={18} />
+                    <span className="truncate flex-1">{label}</span>
+                    {hasDropdown &&
+                      (isExpanded ? (
+                        <ChevronDown size={16} className="text-inherit" />
+                      ) : (
+                        <ChevronRight size={16} className="text-inherit" />
+                      ))}
+                  </button>
                 </div>
 
                 {/* Children */}
                 {hasDropdown && isExpanded && (
-                    <ul className="ml-10 mt-1 space-y-1">
-                        <div className="px-2">
-                            <button
-                            onClick={() => handleClick(`${label} - Test`)}
-                            className={`w-full flex items-center gap-2 px-4 py-1.5 rounded-md transition-all text-left text-sm ${
-                            activeItem === `${label} - Test`
-                                ? 'bg-[var(--primary-color)] text-white'
-                                : 'text-gray-600 hover:bg-[var(--primary-light)] hover:text-[var(--primary-color)]'
-                            }`}
-                            >
-                            <span className="truncate">Test</span>
-                            </button>
-                        </div>
-                    </ul>
+                  <ul className="ml-10 mt-1 space-y-1">
+                    <div className="px-2">
+                      <button
+                        onClick={() => handleClick(`${label} - Test`)}
+                        className={`w-full flex items-center gap-2 px-4 py-1.5 rounded-md transition-all text-left text-sm ${
+                          activeItem === `${label} - Test`
+                            ? "bg-[var(--primary-color)] text-white"
+                            : "text-gray-600 hover:bg-[var(--primary-light)] hover:text-[var(--primary-color)]"
+                        }`}
+                      >
+                        <span className="truncate">Test</span>
+                      </button>
+                    </div>
+                  </ul>
                 )}
               </li>
             );
@@ -129,6 +129,6 @@ const SideBar = () => {
       </nav>
     </aside>
   );
-}
+};
 
-export default SideBar
+export default SideBar;
