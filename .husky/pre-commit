@@ -1,1 +1,10 @@
-cd client && npx lint-staged
+#!/usr/bin/env sh
+. "$(dirname "$0")/_/husky.sh"
+set -e
+
+# Frontend linting
+npx --no-install --prefix client \
+    lint-staged --allow-empty
+
+# Backend tests
+dotnet test --nologo --verbosity quiet server
