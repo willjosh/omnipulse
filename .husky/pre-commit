@@ -22,7 +22,7 @@ BACKEND_DIR="server"
 cd "$BACKEND_DIR" || exit 1
 
 # Building
-echo "🔍 Backend - Build"
+echo "🧱 Backend - Build"
 dotnet build --nologo
 
 # Linting
