@@ -7,10 +7,4 @@ public class SanityCheck
     {
         Assert.True(true);
     }
-
-    [Fact]
-    public void Fail()
-    {
-        Assert.True(false);
-    }
 }

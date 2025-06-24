@@ -1,10 +1,8 @@
-#!/usr/bin/env sh
-. "$(dirname "$0")/_/husky.sh"
+#!/bin/sh
 set -e
 
 # Frontend linting
-npx --no-install --prefix client \
-    lint-staged --allow-empty
+npx --prefix client lint-staged --allow-empty
 
 # Backend tests
-dotnet test --nologo --verbosity quiet server
+dotnet test server
