@@ -9,7 +9,7 @@ public class WorkOrderLineItem : BaseEntity
     public string? Description { get; set; }
     public required int Quantity { get; set; }
     public required double UnitCost { get; set; }
-    public required double TotalCost { get; set; }
+    public double TotalCost => Quantity * UnitCost;
     public double? LaborHours { get; set; }
 
     // Navigation properties
