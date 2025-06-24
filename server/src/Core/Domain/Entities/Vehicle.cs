@@ -13,6 +13,8 @@ public class Vehicle : BaseEntity
     public required string LicensePlate { get; set; }
     public required DateTime LicensePlateExpirationDate { get; set; }
     public required VehicleTypeEnum VehicleType { get; set; }
+    public required int VehicleGroupID { get; set; }
+    public required int AssignedTechnicianID { get; set; }
     public required string Trim { get; set; }
     public required double Mileage { get; set; }
     public required double EngineHours { get; set; }
@@ -25,4 +27,6 @@ public class Vehicle : BaseEntity
 
     // Navigation properties
     public required VehicleGroup VehicleGroup { get; set; }
+
+    // TODO: Add navigation properties for AssignedTechnician
 }
