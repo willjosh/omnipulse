@@ -29,7 +29,7 @@ public class Vehicle : BaseEntity
     public required VehicleGroup VehicleGroup { get; set; }
 
     public required ICollection<VehicleInspection> VehicleInspections { get; set; }
-    
+
     // TODO: Add navigation properties for AssignedTechnician
 
 }
