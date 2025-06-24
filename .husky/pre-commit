@@ -11,6 +11,7 @@ cd ..
 # BACKEND LINTING
 echo "🔍 Linting backend with dotnet format..."
 cd "$BACKEND_DIR" || exit 1
+dotnet format
 dotnet format --verify-no-changes --verbosity quiet
 BACKEND_RESULT=$?
 cd ..
