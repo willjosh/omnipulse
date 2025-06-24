@@ -7,7 +7,7 @@ public class VehicleDocument : BaseEntity
 {
     // FKs
     public required int VehicleID { get; set; }
-    public required int UploadedBy { get; set; }
+    public required int UploadedByUserID { get; set; }
 
     public required DocumentTypeEnum DocumentType { get; set; }
     public required string Title { get; set; }
