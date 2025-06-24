@@ -25,7 +25,3 @@ if [ $FRONTEND_RESULT -ne 0 ] || [ $BACKEND_RESULT -ne 0 ]; then
 fi
 
 echo "✅ All pre-commit checks passed!"
-
-
-
-
