@@ -15,7 +15,7 @@ public class VehicleAlert : BaseEntity
     public required AlertLevelEnum AlertLevel { get; set; }
 
     public required bool IsAcknowledged { get; set; } = false;
-    public int? AcknowledgedBy { get; set; }
+    public int? AcknowledgedByUserID { get; set; }
     public DateTime? AcknowledgedAt { get; set; }
     public DateTime? ExpiresAt { get; set; }
     public required bool IsDismissed { get; set; } = false;
