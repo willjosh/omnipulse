@@ -11,7 +11,7 @@ public class CheckListItem : BaseEntity
     public string? Description { get; set; }
     public required InputTypeEnum InputType { get; set; }
     public required Boolean IsMandatory { get; set; } = true;
-    
+
     // navigation properties
     public required InspectionType Inspection { get; set; }
     public required ICollection<InspectionChecklistResponse> InspectionChecklistResponses { get; set; }

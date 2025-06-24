@@ -12,8 +12,8 @@ public class InspectionChecklistResponse : BaseEntity
     public string? TextResponse { get; set; }
     public string? Note { get; set; }
     public required Boolean RequiresAttention { get; set; } = true;
-    
+
     // navigation properties
-    public required CheckListItem CheckListItem { get; set; } 
+    public required CheckListItem CheckListItem { get; set; }
     public required VehicleInspection VehicleInspection { get; set; }
 }

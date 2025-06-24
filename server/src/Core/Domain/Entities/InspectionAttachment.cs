@@ -12,7 +12,7 @@ public class InspectionAttachment : BaseEntity
     public required string FilePath { get; set; }
     public required string FileSize { get; set; }
     public string? Description { get; set; }
-    
+
     // navigation properties
     public required VehicleInspection VehicleInspection { get; set; }
     public required CheckListItem CheckListItem { get; set; }
