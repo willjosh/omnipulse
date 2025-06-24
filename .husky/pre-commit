@@ -1,4 +1,9 @@
-BACKEND_DIR="server"
+#!/bin/sh
+
+##############################
+########## FRONTEND ##########
+##############################
+
 FRONTEND_DIR="client"
 
 # FRONTEND LINTING
@@ -8,16 +13,29 @@ npx lint-staged
 FRONTEND_RESULT=$?
 cd ..
 
+#############################
+########## BACKEND ##########
+#############################
+
+BACKEND_DIR="server"
+
 # BACKEND LINTING
 echo "🔍 Linting backend with dotnet format..."
 cd "$BACKEND_DIR" || exit 1
+
 dotnet format
 dotnet format --verify-no-changes --verbosity quiet
 BACKEND_RESULT=$?
+
+# BACKEND TESTING
+echo "🧪 Running backend tests"
+dotnet test
+BACKEND_TEST_RESULT=$?
+
 cd ..
 
 # CHECKS
-if [ $FRONTEND_RESULT -ne 0 ] || [ $BACKEND_RESULT -ne 0 ]; then
+if [ $FRONTEND_RESULT -ne 0 ] || [ $BACKEND_RESULT -ne 0 ] || [ $BACKEND_TEST_RESULT -ne 0 ]; then
     echo "❌ Pre-commit checks failed. Fix the issues before committing."
     exit 1
 fi

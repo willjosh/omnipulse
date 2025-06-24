@@ -1,6 +1,6 @@
-"use client"
-import React, { useState } from 'react';
-import { Eye, EyeOff } from 'lucide-react';
+"use client";
+import React, { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 interface LoginFormData {
   email: string;
@@ -9,21 +9,21 @@ interface LoginFormData {
 
 const Login = () => {
   const [formData, setFormData] = useState<LoginFormData>({
-    email: '',
-    password: ''
+    email: "",
+    password: "",
   });
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleSubmit = () => {
-    console.log('Login attempt:', formData);
+    console.log("Login attempt:", formData);
     // Logic for login submission not yet implemented
   };
 
@@ -39,10 +39,13 @@ const Login = () => {
             omnipulse
           </h1>
         </div>
-        
+
         <div className="space-y-6">
           <div>
-            <label htmlFor="email" className="block font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="email"
+              className="block font-medium text-gray-700 mb-2"
+            >
               Email
             </label>
             <input
@@ -57,14 +60,17 @@ const Login = () => {
           </div>
 
           <div>
-            <label htmlFor="password" className="block font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="password"
+              className="block font-medium text-gray-700 mb-2"
+            >
               Password
             </label>
             <div className="relative">
               <input
                 id="password"
                 name="password"
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 value={formData.password}
                 onChange={handleInputChange}
                 placeholder="••••••••••••••••••••"
@@ -82,7 +88,7 @@ const Login = () => {
                 )}
               </button>
             </div>
-            <button 
+            <button
               type="button"
               className="text-sm text-gray-400 hover:text-gray-600 underline bg-transparent border-none cursor-pointer my-2"
             >

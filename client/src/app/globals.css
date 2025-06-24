@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  --background: #F6F6F6;
+  --background: #f6f6f6;
   --foreground: #171717;
 
   /* Primary Colors */
@@ -24,8 +24,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans, 'Inter', sans-serif);
-  --font-mono: var(--font-geist-mono, 'Menlo', monospace);
+  --font-sans: var(--font-geist-sans, "Inter", sans-serif);
+  --font-mono: var(--font-geist-mono, "Menlo", monospace);
 }
 
 @layer base {
@@ -36,7 +36,10 @@
     line-height: 1.5;
   }
 
-  h1, h2, h3, h4 {
+  h1,
+  h2,
+  h3,
+  h4 {
     color: var(--foreground);
     font-weight: 600;
   }
@@ -65,9 +68,8 @@
   .text-muted {
     color: var(--muted);
   }
-  
+
   .text-primary {
     color: var(--primary-color);
   }
 }
-
