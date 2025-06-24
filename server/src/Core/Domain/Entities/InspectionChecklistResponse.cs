@@ -15,4 +15,5 @@ public class InspectionChecklistResponse : BaseEntity
     
     // navigation properties
     public required CheckListItem CheckListItem { get; set; } 
+    public required VehicleInspection VehicleInspection { get; set; }
 }
