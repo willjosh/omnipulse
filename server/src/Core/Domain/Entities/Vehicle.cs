@@ -25,4 +25,5 @@ public class Vehicle : BaseEntity
 
     // Navigation properties
     public required VehicleGroup VehicleGroup { get; set; }
+    public required ICollection<VehicleInspection> VehicleInspections { get; set; }
 }
