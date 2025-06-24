@@ -1,8 +1,14 @@
 #!/bin/sh
 set -e
 
-# Frontend linting
+##############################
+########## FRONTEND ##########
+##############################
+
 npx --prefix client lint-staged --allow-empty
 
-# Backend tests
+#############################
+########## BACKEND ##########
+#############################
+
 dotnet test server
