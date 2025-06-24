@@ -12,9 +12,9 @@ public static class PersistenceServerRegistration
     {
         services.AddDbContext<OmnipulseDatabaseContext>(opt =>
         {
-            opt.UseSqlServer(config.GetConnectionString("OmnipulseDatabaseConnection")); 
+            opt.UseSqlServer(config.GetConnectionString("OmnipulseDatabaseConnection"));
         });
 
-        return services;     
+        return services;
     }
 }
