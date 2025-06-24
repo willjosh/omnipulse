@@ -21,7 +21,7 @@ public class Vehicle : BaseEntity
     public required double FuelCapacity { get; set; }
     public required FuelTypeEnum FuelType { get; set; }
     public required DateTime PurchaseDate { get; set; }
-    public required string PurchasePrice { get; set; }
+    public required double PurchasePrice { get; set; }
     public required VehicleStatusEnum Status { get; set; }
     public required string Location { get; set; }
 
