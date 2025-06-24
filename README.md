@@ -1,20 +1,28 @@
-# Omnipulse
-
-# Getting Started
-
-To get started with the development, follow these steps:
+# OMNIPULSE
 
 ## Backend
 
 1. `cd server`
-2. Install C# Dev kit if you are using visual studio code
-3. Install Nuget Package Library extension
-4. Open the solution file in visual studio code
+2. If you are using Visual Studio Code, install the official [C# Dev Kit](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csdevkit) extension from Microsoft
+3. Install the [NuGet Gallery](https://marketplace.visualstudio.com/items?itemName=patcx.vscode-nuget-gallery) extension
+4. Open "Solution Explorer"
 5. Set the startup projects to Api project
 6. `dotnet run`
 
 ## Frontend
 
-1. `cd client`
-2. run `npm install`
-3. run `npm run dev`
+```bash
+cd client
+npm install
+npm run dev
+```
+
+## Git hooks with Husky
+
+This project uses Husky to run pre-commit hooks.
+
+To install Husky, run the following command:
+
+```bash
+npm install
+```
