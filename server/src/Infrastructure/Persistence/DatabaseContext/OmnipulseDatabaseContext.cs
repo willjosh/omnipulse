@@ -26,6 +26,6 @@ public class OmnipulseDatabaseContext(DbContextOptions<OmnipulseDatabaseContext>
             }
         }
 
-        return await base.SaveChangesAsync(cancellationToken); 
-    } 
+        return await base.SaveChangesAsync(cancellationToken);
+    }
 }
