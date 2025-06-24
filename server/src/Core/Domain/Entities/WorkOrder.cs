@@ -4,22 +4,22 @@ using Domain.Entities.Enums;
 
 namespace Domain.Entities;
 
-public class WorkOrder
+public class WorkOrder : BaseEntity
 {
-    public required string WorkOrderNumber;
-    public required string Title;
-    public string? Description;
-    public required WorkTypeEnum WorkOrderType;
-    public required PriorityLevelEnum PriorityLevel;
-    public required WorkOrderStatusEnum Status;
-    public double? EstimatedCost;
-    public double? ActualCost;
-    public double? Estimated_Hours;
-    public double? ActualHours;
-    public DateTime? ScheduledStartDate;
-    public DateTime? ActualStartDate;
-    public required double StartOdometer;
-    public double? EndOdometer;
+    public required string WorkOrderNumber { get; set; }
+    public required string Title { get; set; }
+    public string? Description { get; set; }
+    public required WorkTypeEnum WorkOrderType { get; set; }
+    public required PriorityLevelEnum PriorityLevel { get; set; }
+    public required WorkOrderStatusEnum Status { get; set; }
+    public double? EstimatedCost { get; set; }
+    public double? ActualCost { get; set; }
+    public double? Estimated_Hours { get; set; }
+    public double? ActualHours { get; set; }
+    public DateTime? ScheduledStartDate { get; set; }
+    public DateTime? ActualStartDate { get; set; }
+    public required double StartOdometer { get; set; }
+    public double? EndOdometer { get; set; }
 
     // TODO: Navigation properties
 }
