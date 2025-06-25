@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Identity;
 
-public static class IdentityServiceRegistration 
+public static class IdentityServiceRegistration
 {
     public static IServiceCollection AddIdentityService(this IServiceCollection services, IConfiguration configuration)
     {

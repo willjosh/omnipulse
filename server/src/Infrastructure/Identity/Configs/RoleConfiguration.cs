@@ -14,7 +14,7 @@ public class RoleConfiguration : IEntityTypeConfiguration<IdentityRole>
             {
                 Id = "749b52f3-45b7-4613-bfa6-1fd13790ef01",
                 Name = "FleetManager",
-                NormalizedName = "FLEETMANAGER" 
+                NormalizedName = "FLEETMANAGER"
             },
             new IdentityRole
             {
