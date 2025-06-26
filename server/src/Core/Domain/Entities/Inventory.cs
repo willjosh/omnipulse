@@ -9,7 +9,7 @@ public class Inventory : BaseEntity
     public required int MaxStockLevel { get; set; }
     public required int ReorderPoint { get; set; }
     public required int LastRestockedDate { get; set; }
-    public decimal UnitCost { get; set; }
+    public required decimal UnitCost { get; set; }
 
     // Navigation Properties
     public required InventoryItemLocation InventoryItemLocation { get; set; }
