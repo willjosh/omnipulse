@@ -10,4 +10,5 @@ public class InspectionType : BaseEntity
 
     // navigation properties
     public required ICollection<VehicleInspection> VehicleInspections { get; set; }
+    public required ICollection<CheckListItem> CheckListItems { get; set; }
 }
