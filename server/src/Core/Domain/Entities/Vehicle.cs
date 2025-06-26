@@ -33,6 +33,7 @@ public class Vehicle : BaseEntity
     public required ICollection<MaintenanceHistory> MaintenanceHistories { get; set; }
 
     public required ICollection<VehicleServiceProgram> VehicleServicePrograms { get; set; }
+    public required ICollection<Issue> Issues { get; set; }
     // TODO: Add navigation properties for AssignedTechnician
 
 }
