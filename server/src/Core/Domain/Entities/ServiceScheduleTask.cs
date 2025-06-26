@@ -9,7 +9,7 @@ public class ServiceScheduleTask : BaseEntity
     public required int ServiceTaskID { get; set; }
 
     public required bool IsMandatory { get; set; } = true;
-    public required int SequenceOrder { get; set; } // TODO: Change to SequenceNumber?
+    public required int SequenceNumber { get; set; }
 
     // Navigation properties
     public required ServiceSchedule ServiceSchedule { get; set; }

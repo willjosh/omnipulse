@@ -12,7 +12,7 @@ public class ServiceReminder : BaseEntity
     public required string Title { get; set; }
     public string? Description { get; set; }
     public required DateTime DueDate { get; set; }
-    public required double DueMilage { get; set; }
+    public required double DueMileage { get; set; }
     public required double DueEngineHours { get; set; }
     public required PriorityLevelEnum PriorityLevel { get; set; }
     public required ReminderStatusEnum Status { get; set; }
