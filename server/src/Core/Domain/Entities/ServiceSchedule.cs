@@ -14,7 +14,7 @@ public class ServiceSchedule : BaseEntity
     public required bool IsActive { get; set; } = true;
 
     // Navigation properties
-    // public required ICollection<ServiceReminder> ServiceReminders { get; set; } = [];
-    // public required ICollection<ServiceScheduleTask> ServiceScheduleTasks { get; set; } = [];
+    public required ICollection<ServiceScheduleTask> ServiceScheduleTasks { get; set; } = [];
+    public required ICollection<ServiceReminder> ServiceReminders { get; set; } = [];
     // public required ServiceProgram ServiceProgram { get; set; }
 }
