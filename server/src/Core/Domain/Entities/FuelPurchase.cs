@@ -4,7 +4,7 @@ public class FuelPurchase : BaseEntity
 {
     public required int VehicleId { get; set; }
 
-    public required int PurchasedBy { get; set; }
+    public required int PurchasedByUserId { get; set; }
 
     public required DateTime PurchaseDate { get; set; }
 
@@ -20,6 +20,6 @@ public class FuelPurchase : BaseEntity
 
     public required string ReceiptNumber { get; set; }
 
-    public string? Text { get; set; }
+    public string? Notes { get; set; }
 
 }
