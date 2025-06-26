@@ -26,4 +26,6 @@ public class WorkOrder : BaseEntity
     public required Vehicle Vehicle { get; set; }
     public required ICollection<MaintenanceHistory> MaintenanceHistories { get; set; }
     public required ICollection<Invoice> Invoices { get; set; }
+    public required ICollection<WorkOrderIssue> WorkOrderIssues { get; set; }
+    public required ICollection<WorkOrderLineItem> workOrderLineItems { get; set; }
 }

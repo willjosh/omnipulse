@@ -18,4 +18,5 @@ public class InventoryItem : BaseEntity
 
     // navigation properties 
     public required ICollection<Inventory> Inventories { get; set; } = [];
+    public required ICollection<WorkOrderLineItem> WorkOrderLineItems { get; set; }
 }

@@ -17,7 +17,7 @@ public class Issue : BaseEntity
 
     // Navigation Properties
     public required ICollection<IssueAttachment> IssueAttachments { get; set; } = [];
-    public required ICollection<WorkOrderIssue> WorkOrderIssue { get; set; } = [];
+    public required ICollection<WorkOrderIssue> WorkOrderIssues { get; set; } = [];
     public required Vehicle Vehicle { get; set; }
 
     // TODO: Connect to ReportedByUserID

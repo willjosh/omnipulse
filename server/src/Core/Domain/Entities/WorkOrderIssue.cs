@@ -9,5 +9,5 @@ public class WorkOrderIssue : BaseEntity
 
     // Navigation Properties
     public required Issue Issue { get; set; }
-    // TODO: Connects to WorkOrder
+    public required WorkOrder WorkOrder { get; set; }
 }

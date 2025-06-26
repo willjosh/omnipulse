@@ -35,5 +35,9 @@ public class Vehicle : BaseEntity
     public required ICollection<VehicleServiceProgram> VehicleServicePrograms { get; set; }
     public required ICollection<Issue> Issues { get; set; }
     // TODO: Add navigation properties for AssignedTechnician
-
+    public required ICollection<VehicleAlert> VehicleAlerts { get; set; }
+    public required ICollection<VehicleAssignment> VehicleAssignments { get; set; }
+    public required ICollection<VehicleDocument> VehicleDocuments { get; set; }
+    public required ICollection<VehicleImage> VehicleImages { get; set; }
+    public required ICollection<WorkOrder> WorkOrders { get; set; }
 }
