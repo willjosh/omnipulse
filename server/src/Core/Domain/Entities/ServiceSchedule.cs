@@ -13,8 +13,8 @@ public class ServiceSchedule : BaseEntity
     public required int BufferDays { get; set; }
     public required bool IsActive { get; set; } = true;
 
-    // Navigation properties
+    // Navigation Properties
     public required ICollection<ServiceScheduleTask> ServiceScheduleTasks { get; set; } = [];
     public required ICollection<ServiceReminder> ServiceReminders { get; set; } = [];
-    // public required ServiceProgram ServiceProgram { get; set; }
+    public required ServiceProgram ServiceProgram { get; set; }
 }
