@@ -14,4 +14,5 @@ public class Inventory : BaseEntity
     // Navigation Properties
     public required InventoryItemLocation InventoryItemLocation { get; set; }
     public required InventoryItem InventoryItem { get; set; }
+    public required ICollection<InventoryTransaction> InventoryTransactions { get; set; }
 }
