@@ -2,13 +2,13 @@ namespace Domain.Entities;
 
 public class Inventory : BaseEntity
 {
-    public int InventoryItemID { get; set; }
-    public int InventoryItemLocationID { get; set; }
-    public int QuantityOnHand { get; set; }
-    public int MinStockLevel { get; set; }
-    public int MaxStockLevel { get; set; }
-    public int ReorderPoint { get; set; }
-    public int LastRestockedDate { get; set; }
+    public required int InventoryItemID { get; set; }
+    public required int InventoryItemLocationID { get; set; }
+    public required int QuantityOnHand { get; set; }
+    public required int MinStockLevel { get; set; }
+    public required int MaxStockLevel { get; set; }
+    public required int ReorderPoint { get; set; }
+    public required int LastRestockedDate { get; set; }
     public decimal UnitCost { get; set; }
 
     // Navigation Properties
