@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 ##############################
 ########## FRONTEND ##########
 ##############################
@@ -9,8 +11,17 @@ cd "$FRONTEND_DIR" || exit 1
 
 # Linting
 echo "🔍 Frontend - Lint"
-npx lint-staged
-FRONTEND_LINT_RESULT=$?
+npx lint-staged || {
+    echo "❌ Frontend - Lint failed"
+    exit 1
+}
+
+# Building
+echo "🧱 Frontend - Build"
+npm run build || {
+    echo "❌ Frontend - Build failed"
+    exit 1
+}
 
 cd ..
 
@@ -23,26 +34,26 @@ cd "$BACKEND_DIR" || exit 1
 
 # Building
 echo "🧱 Backend - Build"
-dotnet build --nologo
-BACKEND_BUILD_RESULT=$?
+dotnet build --nologo || {
+    echo "❌ Backend - Build failed"
+    exit 1
+}
 
 # Linting
 echo "🔍 Backend - Lint"
 dotnet format
-dotnet format --verify-no-changes --verbosity quiet
-BACKEND_LINT_RESULT=$?
+dotnet format --verify-no-changes --verbosity quiet || {
+    echo "❌ Backend - Lint failed"
+    exit 1
+}
 
 # Testing
 echo "🧪 Backend - Test"
-dotnet test
-BACKEND_TEST_RESULT=$?
+dotnet test || {
+    echo "❌ Backend - Test failed"
+    exit 1
+}
 
 cd ..
-
-# CHECKS
-if [ $FRONTEND_LINT_RESULT -ne 0 ] || [ $BACKEND_LINT_RESULT -ne 0 ] || [ $BACKEND_TEST_RESULT -ne 0 ] || [ $BACKEND_BUILD_RESULT -ne 0 ]; then
-    echo "❌ Pre-commit checks failed. Fix the issues before committing."
-    exit 1
-fi
 
 echo "✅ All pre-commit checks passed!"
