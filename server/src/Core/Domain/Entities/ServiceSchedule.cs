@@ -15,6 +15,5 @@ public class ServiceSchedule : BaseEntity
 
     // Navigation Properties
     public required ICollection<ServiceScheduleTask> ServiceScheduleTasks { get; set; } = [];
-    public required ICollection<ServiceReminder> ServiceReminders { get; set; } = [];
     public required ServiceProgram ServiceProgram { get; set; }
 }
