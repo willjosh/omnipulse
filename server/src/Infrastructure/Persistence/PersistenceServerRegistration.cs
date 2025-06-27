@@ -1,4 +1,6 @@
 using System;
+using Domain.Entities;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,6 +16,8 @@ public static class PersistenceServerRegistration
         {
             opt.UseSqlServer(config.GetConnectionString("OmnipulseDatabaseConnection"));
         });
+
+        services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<OmnipulseDatabaseContext>().AddDefaultTokenProviders();
 
         return services;
     }
