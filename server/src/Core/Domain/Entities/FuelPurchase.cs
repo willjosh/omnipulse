@@ -12,9 +12,9 @@ public class FuelPurchase : BaseEntity
 
     public required double Volume { get; set; }
 
-    public required double PricePerUnit { get; set; }
+    public required decimal PricePerUnit { get; set; }
 
-    public required float TotalCost { get; set; }
+    public required decimal TotalCost { get; set; }
 
     public required string FuelStation { get; set; }
 
