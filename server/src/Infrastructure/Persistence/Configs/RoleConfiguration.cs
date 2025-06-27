@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Identity.Configs;
+namespace Persistence.Configs;
 
 public class RoleConfiguration : IEntityTypeConfiguration<IdentityRole>
 {
