@@ -24,5 +24,5 @@ public class FuelPurchase : BaseEntity
 
     // navigation properties
     public required Vehicle Vehicle { get; set; }
-    // TODO add PurchasedByUserID
+    public required User User { get; set; }
 }
