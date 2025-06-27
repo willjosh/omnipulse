@@ -20,7 +20,7 @@ public class VehicleImageConfiguration : IEntityTypeConfiguration<VehicleImage>
         // Regular Indexes
         builder.HasIndex(vi => vi.VehicleID);
         builder.HasIndex(vi => vi.UploadedBy);
-        builder.HasIndex(vi => vi.CreatedAt); 
+        builder.HasIndex(vi => vi.CreatedAt);
 
         // Check Constraints
         builder.ToTable(t => t.HasCheckConstraint("CK_VehicleImage_FileSize", "FileSize > 0"));
