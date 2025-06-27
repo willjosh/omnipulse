@@ -16,5 +16,5 @@ public class IssueAttachment : BaseEntity
     // Navigation Properties
     public required Issue Issue { get; set; }
 
-    // TODO: Connects to UploadedByUserID
+    public required User User { get; set; }
 }
