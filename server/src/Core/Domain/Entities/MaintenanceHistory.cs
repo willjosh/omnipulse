@@ -18,6 +18,7 @@ public class MaintenanceHistory : BaseEntity
     // navigation properties
     public required Vehicle Vehicle { get; set; }
     public required WorkOrder WorkOrder { get; set; }
-    // public required ServiceTask ServiceTask { get; set; } 
-    // public required Technician Technician { get; set; } 
+    public required ServiceTask ServiceTask { get; set; }
+    public required User User { get; set; }
+    public required ICollection<InventoryTransaction> InventoryTransactions { get; set; } = [];
 }

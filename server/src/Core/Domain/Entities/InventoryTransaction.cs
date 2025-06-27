@@ -6,18 +6,18 @@ namespace Domain.Entities;
 
 public class InventoryTransaction : BaseEntity
 {
-    public int InventoryID { get; set; }
-    public int MaintenanceHistoryID { get; set; }
-    public TransactionTypeEnum TransactionType { get; set; }
-    public int Quantity { get; set; }
-    public decimal UnitCost { get; set; }
-    public decimal TotalCost { get; set; }
+    public required int InventoryID { get; set; }
+    public required int MaintenanceHistoryID { get; set; }
+    public required TransactionTypeEnum TransactionType { get; set; }
+    public required int Quantity { get; set; }
+    public required decimal UnitCost { get; set; }
+    public required decimal TotalCost { get; set; }
     public required string ReferenceNumber { get; set; }
-    public required string Notes { get; set; }
-    public int PerformedBy { get; set; }
+    public string? Notes { get; set; }
+    public required int PerformedByUserID { get; set; }
 
     // navigation properties
     public required Inventory Inventory { get; set; }
-    // TODO Add maintenance history id when maintenance table is created.
+    public required MaintenanceHistory MaintenanceHistory { get; set; }
 }
 

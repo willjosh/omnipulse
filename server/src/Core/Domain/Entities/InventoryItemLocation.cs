@@ -8,9 +8,9 @@ public class InventoryItemLocation : BaseEntity
     public required string Address { get; set; }
     public required double Longitude { get; set; }
     public required double Latitude { get; set; }
-    public int Capacity { get; set; }
-    public Boolean IsActive { get; set; } = true;
+    public required int Capacity { get; set; }
+    public required Boolean IsActive { get; set; } = true;
 
     // navigation properties
-    public ICollection<Inventory> Inventories { get; set; } = [];
+    public required ICollection<Inventory> Inventories { get; set; } = [];
 }

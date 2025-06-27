@@ -5,7 +5,7 @@ public class Issue : BaseEntity
 {
     public required int VehicleID { get; set; }
     public required int IssueNumber { get; set; }
-    public required int ReportedBy { get; set; }
+    public required int ReportedByUserID { get; set; }
     public required string Title { get; set; }
     public string? Description { get; set; }
     public required IssueCategoryEnum Category { get; set; }
@@ -16,7 +16,8 @@ public class Issue : BaseEntity
     public string? ResolutionNotes { get; set; }
 
     // Navigation Properties
-    public required ICollection<IssueAttachment> IssueAttachment { get; set; } = [];
-    public required ICollection<WorkOrderIssue> WorkOrderIssue { get; set; } = [];
-    // TODO: Connect to Vehicle, User
+    public required ICollection<IssueAttachment> IssueAttachments { get; set; } = [];
+    public required ICollection<WorkOrderIssue> WorkOrderIssues { get; set; } = [];
+    public required Vehicle Vehicle { get; set; }
+    public required User User { get; set; }
 }

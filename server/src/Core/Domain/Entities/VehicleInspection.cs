@@ -19,9 +19,7 @@ public class VehicleInspection : BaseEntity
     // navigation properties
     public required Vehicle Vehicle { get; set; }
     public required InspectionType InspectionType { get; set; }
-    public required ICollection<InspectionChecklistResponse> InspectionChecklistResponses { get; set; }
-    public required ICollection<InspectionAttachment> InspectionAttachments { get; set; }
-
-    // TODO:
-    // add navigation properties to TechnicianID
+    public required ICollection<InspectionChecklistResponse> InspectionChecklistResponses { get; set; } = [];
+    public required ICollection<InspectionAttachment> InspectionAttachments { get; set; } = [];
+    public required User User { get; set; }
 }

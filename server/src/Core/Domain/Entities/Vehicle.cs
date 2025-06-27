@@ -26,17 +26,17 @@ public class Vehicle : BaseEntity
     public required string Location { get; set; }
 
     // Navigation Properties
-    // public required User User { get; set; } // AssignedTechnician
+    public required User User { get; set; }
     public required VehicleGroup VehicleGroup { get; set; }
+    public required ICollection<VehicleImage> VehicleImages { get; set; } = [];
     public required ICollection<VehicleAssignment> VehicleAssignments { get; set; } = [];
     public required ICollection<VehicleDocument> VehicleDocuments { get; set; } = [];
-    // public required ICollection<VehicleImage> VehicleImages { get; set; } = [];
     public required ICollection<VehicleServiceProgram> VehicleServicePrograms { get; set; } = [];
     public required ICollection<ServiceReminder> ServiceReminders { get; set; } = [];
     public required ICollection<Issue> Issues { get; set; } = [];
     public required ICollection<WorkOrder> WorkOrders { get; set; } = [];
     public required ICollection<VehicleInspection> VehicleInspections { get; set; } = [];
-    // public required ICollection<FuelPurchase> FuelPurchases { get; set; } = [];
+    public required ICollection<FuelPurchase> FuelPurchases { get; set; } = [];
     public required ICollection<MaintenanceHistory> MaintenanceHistories { get; set; } = [];
     public required ICollection<VehicleAlert> VehicleAlerts { get; set; } = [];
 }

@@ -19,5 +19,5 @@ public class VehicleDocument : BaseEntity
 
     // Navigation Properties
     public required Vehicle Vehicle { get; set; }
-    // public required User User { get; set; }
+    public required User User { get; set; }
 }

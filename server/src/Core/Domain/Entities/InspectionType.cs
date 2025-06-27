@@ -9,5 +9,6 @@ public class InspectionType : BaseEntity
     public required Boolean IsActive { get; set; } = true;
 
     // navigation properties
-    public required ICollection<VehicleInspection> VehicleInspections { get; set; }
+    public required ICollection<VehicleInspection> VehicleInspections { get; set; } = [];
+    public required ICollection<CheckListItem> CheckListItems { get; set; } = [];
 }

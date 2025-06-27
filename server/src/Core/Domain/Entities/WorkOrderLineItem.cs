@@ -18,5 +18,5 @@ public class WorkOrderLineItem : BaseEntity
     // Navigation properties
     public required WorkOrder WorkOrder { get; set; }
     public required InventoryItem InventoryItem { get; set; }
-    // TODO: Service Task Navigation property
+    public required ServiceTask ServiceTask { get; set; }
 }
