@@ -14,7 +14,7 @@ public class Vehicle : BaseEntity
     public required DateTime LicensePlateExpirationDate { get; set; }
     public required VehicleTypeEnum VehicleType { get; set; }
     public required int VehicleGroupID { get; set; }
-    public required int AssignedTechnicianID { get; set; }
+    public int? AssignedTechnicianID { get; set; }
     public required string Trim { get; set; }
     public required double Mileage { get; set; }
     public required double EngineHours { get; set; }
@@ -26,7 +26,7 @@ public class Vehicle : BaseEntity
     public required string Location { get; set; }
 
     // Navigation Properties
-    public required User User { get; set; }
+    public User? User { get; set; }
     public required VehicleGroup VehicleGroup { get; set; }
     public required ICollection<VehicleImage> VehicleImages { get; set; } = [];
     public required ICollection<VehicleAssignment> VehicleAssignments { get; set; } = [];
@@ -36,7 +36,4 @@ public class Vehicle : BaseEntity
     public required ICollection<Issue> Issues { get; set; } = [];
     public required ICollection<WorkOrder> WorkOrders { get; set; } = [];
     public required ICollection<VehicleInspection> VehicleInspections { get; set; } = [];
-    public required ICollection<FuelPurchase> FuelPurchases { get; set; } = [];
-    public required ICollection<MaintenanceHistory> MaintenanceHistories { get; set; } = [];
-    public required ICollection<VehicleAlert> VehicleAlerts { get; set; } = [];
 }
