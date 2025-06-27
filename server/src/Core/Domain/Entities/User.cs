@@ -16,7 +16,6 @@ public class User : IdentityUser
     public required ICollection<WorkOrder> WorkOrders { get; set; } = [];
     public required ICollection<FuelPurchase> FuelPurchases { get; set; } = [];
     public required ICollection<MaintenanceHistory> MaintenanceHistories { get; set; } = [];
-    public required ICollection<Issue> Issues { get; set; } = [];
     public required ICollection<IssueAttachment> IssueAttachments { get; set; } = [];
     public required ICollection<VehicleAlert> VehicleAlerts { get; set; } = [];
     public required ICollection<VehicleAssignment> VehicleAssignments { get; set; } = [];
