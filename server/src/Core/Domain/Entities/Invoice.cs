@@ -17,6 +17,5 @@ public class Invoice
 
     // Navigation properties
     public required WorkOrder WorkOrder { get; set; }
-
-    // TODO: Add navigation properties for GeneratedBy
+    public required User User { get; set; }
 }
