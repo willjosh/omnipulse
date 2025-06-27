@@ -16,15 +16,15 @@ public class VehicleDocumentConfiguration : IEntityTypeConfiguration<VehicleDocu
         builder.Property(vd => vd.FileName).HasMaxLength(500);
         builder.Property(vd => vd.FilePath).HasMaxLength(500);
         builder.Property(vd => vd.Notes).HasMaxLength(1000);
-        builder.HasIndex(vd => vd.ExpiryDate);  
-        builder.HasIndex(vd => vd.CreatedAt);   
+        builder.HasIndex(vd => vd.ExpiryDate);
+        builder.HasIndex(vd => vd.CreatedAt);
 
         // Regular Indexes
         builder.HasIndex(vd => vd.DocumentType);
-        
+
         // Check Constraints
         builder.ToTable(t => t.HasCheckConstraint("CK_VehicleDocument_FileSize", "FileSize > 0"));
-        builder.ToTable(t => t.HasCheckConstraint("CK_VehicleDocument_ExpiryDate", 
+        builder.ToTable(t => t.HasCheckConstraint("CK_VehicleDocument_ExpiryDate",
             "ExpiryDate IS NULL OR ExpiryDate >= CreatedAt"));
 
         // Table Relationships
