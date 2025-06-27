@@ -14,6 +14,5 @@ public class CheckListItem : BaseEntity
 
     // navigation properties
     public required InspectionType Inspection { get; set; }
-    public required ICollection<InspectionChecklistResponse> InspectionChecklistResponses { get; set; }
     public required ICollection<InspectionAttachment> InspectionAttachments { get; set; }
 }
