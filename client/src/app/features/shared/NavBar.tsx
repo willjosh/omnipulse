@@ -1,9 +1,8 @@
-"use client"
-import React from 'react';
-import { Search, Bell, HelpCircle, Plus } from 'lucide-react';
+"use client";
+import React from "react";
+import { Search, Bell, HelpCircle, Plus } from "lucide-react";
 
 const NavBar = () => {
-
   return (
     <nav className="bg-white border-b border-gray-200 px-6 py-3">
       <div className="flex items-center justify-between">
@@ -39,6 +38,6 @@ const NavBar = () => {
       </div>
     </nav>
   );
-}
+};
 
-export default NavBar
+export default NavBar;
