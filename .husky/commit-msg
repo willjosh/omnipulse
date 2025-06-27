@@ -1,0 +1,9 @@
+#!/bin/sh
+
+echo "📝 Commit Message - Lint"
+npx --no -- commitlint --edit "$1" || {
+    echo "❌ Commit Message - Lint failed"
+    echo "Format:\n\t<Jira work item key> <type>: <subject>"
+    echo "Example:\n\tW18ADATE-123 feat: add login form"
+    exit 1
+}
