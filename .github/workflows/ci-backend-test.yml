@@ -1,0 +1,30 @@
+name: CI - Backend - Test
+
+on:
+  push:
+    paths: [ "server/**" ]
+  pull_request:
+    paths: [ "server/**" ]
+
+jobs:
+  build-and-test:
+    name: Build & Test Backend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Restore dependencies
+        run: dotnet restore server/omnipulse_server.sln
+
+      - name: Build solution
+        run: dotnet build server/omnipulse_server.sln --configuration Release --no-restore
+
+      - name: Run tests
+        run: dotnet test server --configuration Release --collect:"XPlat Code Coverage" --no-build --verbosity normal
