@@ -8,5 +8,4 @@ public class VehicleGroup : BaseEntity
     public string? Description { get; set; }
     public required bool IsActive { get; set; } = true;
 
-    public required ICollection<Vehicle> Vehicles { get; set; } = [];
 }
