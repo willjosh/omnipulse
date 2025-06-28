@@ -13,7 +13,6 @@ public class User : IdentityUser
     public required DateTime UpdatedAt { get; set; }
 
     // navigation properties
-    public required ICollection<WorkOrder> WorkOrders { get; set; } = [];
     public required ICollection<MaintenanceHistory> MaintenanceHistories { get; set; } = [];
     public required ICollection<IssueAttachment> IssueAttachments { get; set; } = [];
     public required ICollection<VehicleAlert> VehicleAlerts { get; set; } = [];

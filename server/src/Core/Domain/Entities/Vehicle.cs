@@ -34,6 +34,5 @@ public class Vehicle : BaseEntity
     public required ICollection<VehicleServiceProgram> VehicleServicePrograms { get; set; } = [];
     public required ICollection<ServiceReminder> ServiceReminders { get; set; } = [];
     public required ICollection<Issue> Issues { get; set; } = [];
-    public required ICollection<WorkOrder> WorkOrders { get; set; } = [];
     public required ICollection<VehicleInspection> VehicleInspections { get; set; } = [];
 }
