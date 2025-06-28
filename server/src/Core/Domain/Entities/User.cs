@@ -14,7 +14,6 @@ public class User : IdentityUser
 
     // navigation properties
     public required ICollection<WorkOrder> WorkOrders { get; set; } = [];
-    public required ICollection<IssueAttachment> IssueAttachments { get; set; } = [];
     public required ICollection<VehicleAlert> VehicleAlerts { get; set; } = [];
     public required ICollection<VehicleInspection> VehicleInspections { get; set; } = [];
     public required ICollection<Vehicle> Vehicles { get; set; } = [];
