@@ -7,7 +7,7 @@ public class VehicleAssignment : BaseEntity
 {
     // FKs
     public required int VehicleID { get; set; }
-    public required int AssignedToUserID { get; set; }
+    public required string AssignedToUserID { get; set; }
 
     public required DateTime AssignedDate { get; set; }
     public DateTime? UnassignedDate { get; set; }

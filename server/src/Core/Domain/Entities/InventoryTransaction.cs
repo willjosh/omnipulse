@@ -14,7 +14,7 @@ public class InventoryTransaction : BaseEntity
     public required decimal TotalCost { get; set; }
     public required string ReferenceNumber { get; set; }
     public string? Notes { get; set; }
-    public required int PerformedByUserID { get; set; }
+    public required string PerformedByUserID { get; set; }
 
     // navigation properties
     public required Inventory Inventory { get; set; }

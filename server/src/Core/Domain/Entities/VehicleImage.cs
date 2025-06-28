@@ -6,7 +6,7 @@ public class VehicleImage : BaseEntity
 {
     // FKs
     public required int VehicleID { get; set; }
-    public required int UploadedBy { get; set; }
+    public required string UploadedByUserID { get; set; }
 
     // Image
     public required string ImageLabel { get; set; }

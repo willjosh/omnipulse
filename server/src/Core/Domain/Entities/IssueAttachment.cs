@@ -6,7 +6,7 @@ using Domain.Entities.Enums;
 public class IssueAttachment : BaseEntity
 {
     public required int IssueID { get; set; }
-    public required int UploadedByUserID { get; set; }
+    public required string UploadedByUserID { get; set; }
     public required AttachmentTypeEnum FileType { get; set; }
     public required string FileName { get; set; }
     public required string FilePath { get; set; }
