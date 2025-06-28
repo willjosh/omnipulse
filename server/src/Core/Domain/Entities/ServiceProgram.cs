@@ -12,4 +12,5 @@ public class ServiceProgram : BaseEntity
 
     // navigation properties
     public required ICollection<VehicleServiceProgram> VehicleServicePrograms { get; set; } = [];
+    public required ICollection<ServiceSchedule> ServiceSchedules { get; set; } = [];
 }
