@@ -14,7 +14,7 @@ public class WorkOrder : BaseEntity
 
     public required int ServiceReminderID { get; set; }
 
-    public required int AssignedToUserID { get; set; }
+    public required string AssignedToUserID { get; set; }
 
     public required string Title { get; set; }
 

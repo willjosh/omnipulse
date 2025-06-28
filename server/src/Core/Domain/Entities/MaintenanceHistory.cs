@@ -7,7 +7,7 @@ public class MaintenanceHistory : BaseEntity
     public required int VehicleID { get; set; }
     public required int WorkOrderID { get; set; }
     public required int ServiceTaskID { get; set; }
-    public required int TechnicianID { get; set; }
+    public required string TechnicianID { get; set; }
     public required DateTime ServiceDate { get; set; }
     public required double MileageAtService { get; set; }
     public string? Description { get; set; }

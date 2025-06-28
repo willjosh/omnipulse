@@ -7,7 +7,7 @@ public class VehicleInspection : BaseEntity
 {
     public required int VehicleID { get; set; }
     public required int InspectionTypeID { get; set; }
-    public required int TechnicianID { get; set; }
+    public required string TechnicianID { get; set; }
     public required DateTime InspectionDate { get; set; }
     public required DateTime StartTime { get; set; }
     public required DateTime EndTime { get; set; }
