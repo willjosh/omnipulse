@@ -11,8 +11,8 @@ public class WorkOrderLineItem : BaseEntity
     public required LineItemTypeEnum ItemType { get; set; }
     public string? Description { get; set; }
     public required int Quantity { get; set; }
-    public required double UnitCost { get; set; }
-    public double TotalCost => Quantity * UnitCost;
+    public required decimal UnitCost { get; set; }
+    public decimal TotalCost => Quantity * UnitCost;
     public double? LaborHours { get; set; }
 
     // Navigation properties
