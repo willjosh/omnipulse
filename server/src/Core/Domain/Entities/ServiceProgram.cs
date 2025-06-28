@@ -11,6 +11,5 @@ public class ServiceProgram : BaseEntity
     public required MeterTypeEnum SecondaryMeterType { get; set; }
 
     // navigation properties
-    public required ICollection<VehicleServiceProgram> VehicleServicePrograms { get; set; } = [];
     public required ICollection<ServiceSchedule> ServiceSchedules { get; set; } = [];
 }
