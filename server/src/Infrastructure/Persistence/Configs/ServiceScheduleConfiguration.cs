@@ -46,11 +46,5 @@ public class ServiceScheduleConfiguration : IEntityTypeConfiguration<ServiceSche
             .WithMany(sp => sp.ServiceSchedules)
             .HasForeignKey(ss => ss.ServiceProgramID)
             .OnDelete(DeleteBehavior.Restrict);
-
-        builder
-            .HasMany(ss => ss.ServiceScheduleTasks)
-            .WithOne(sst => sst.ServiceSchedule)
-            .HasForeignKey(sst => sst.ServiceScheduleID)
-            .OnDelete(DeleteBehavior.Cascade);
     }
 }
