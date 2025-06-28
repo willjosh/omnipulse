@@ -19,7 +19,7 @@ public class VehicleImageConfiguration : IEntityTypeConfiguration<VehicleImage>
 
         // Regular Indexes
         builder.HasIndex(vi => vi.VehicleID);
-        builder.HasIndex(vi => vi.UploadedBy);
+        builder.HasIndex(vi => vi.UploadedByUserID);
         builder.HasIndex(vi => vi.CreatedAt);
 
         // Check Constraints
@@ -35,7 +35,7 @@ public class VehicleImageConfiguration : IEntityTypeConfiguration<VehicleImage>
         builder
             .HasOne(vi => vi.User)
             .WithMany()
-            .HasForeignKey(vi => vi.UploadedBy)
+            .HasForeignKey(vi => vi.UploadedByUserID)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }
