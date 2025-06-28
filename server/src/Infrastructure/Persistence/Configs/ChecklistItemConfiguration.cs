@@ -25,9 +25,6 @@ public class ChecklistItemConfiguration : IEntityTypeConfiguration<CheckListItem
         // Unique constraint to prevent duplicate items per inspection type
         builder.HasIndex(cli => new { cli.InspectionTypeID, cli.ItemName }).IsUnique();
 
-        // Check Constraints
-        builder.ToTable(t => t.HasCheckConstraint("CK_CheckListItem_DisplayOrder", "DisplayOrder >= 0"));
-
         // Table Relationships
         builder
             .HasOne(cli => cli.Inspection)
