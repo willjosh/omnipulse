@@ -7,7 +7,7 @@ public class VehicleAlert : BaseEntity
 {
     // FKs
     public required int VehicleID { get; set; }
-    public required int UserID { get; set; }
+    public required int CreatedByUserID { get; set; }
 
     public required AlertTypeEnum AlertType { get; set; }
     public required string Title { get; set; }
