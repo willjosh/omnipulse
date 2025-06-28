@@ -20,11 +20,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 
-type NavItem = {
-  label: string;
-  icon: React.ElementType;
-  hasDropdown: boolean;
-};
+type NavItem = { label: string; icon: React.ElementType; hasDropdown: boolean };
 
 const navItems: NavItem[] = [
   { label: "Dashboard", icon: LayoutDashboard, hasDropdown: false },
@@ -50,10 +46,7 @@ const SideBar = () => {
   });
 
   const toggleExpand = (label: string) => {
-    setExpandedItems((prev) => ({
-      ...prev,
-      [label]: !prev[label],
-    }));
+    setExpandedItems(prev => ({ ...prev, [label]: !prev[label] }));
   };
 
   const handleClick = (label: string) => {
