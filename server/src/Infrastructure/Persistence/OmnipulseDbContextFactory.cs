@@ -12,7 +12,7 @@ public class OmnipulseDbContextFactory : IDesignTimeDbContextFactory<OmnipulseDa
         var optionsBuilder = new DbContextOptionsBuilder<OmnipulseDatabaseContext>();
 
         // TODO: add db url
-        optionsBuilder.UseSqlServer("");
+        optionsBuilder.UseSqlServer("URL_HERE");
 
         return new OmnipulseDatabaseContext(optionsBuilder.Options);
     }
