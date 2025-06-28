@@ -4,7 +4,7 @@ public class FuelPurchase : BaseEntity
 {
     public required int VehicleId { get; set; }
 
-    public required int PurchasedByUserId { get; set; }
+    public required string PurchasedByUserId { get; set; }
 
     public required DateTime PurchaseDate { get; set; }
 

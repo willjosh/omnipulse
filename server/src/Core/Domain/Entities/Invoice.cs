@@ -6,7 +6,7 @@ namespace Domain.Entities;
 public class Invoice
 {
     public required int WorkOrderID { get; set; }
-    public required int GeneratedByUserID { get; set; }
+    public required string GeneratedByUserID { get; set; }
     public required string InvoiceNumber { get; set; }
     public required DateTime InvoiceDate { get; set; }
     public required decimal TotalAmount { get; set; }

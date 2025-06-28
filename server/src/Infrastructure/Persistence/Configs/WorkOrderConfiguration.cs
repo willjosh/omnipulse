@@ -46,8 +46,6 @@ public class WorkOrderConfiguration : IEntityTypeConfiguration<WorkOrder>
             "EstimatedCost IS NULL OR EstimatedCost >= 0"));
         builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrder_ActualCost",
             "ActualCost IS NULL OR ActualCost >= 0"));
-        builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrder_EstimatedHours",
-            "Estimated_Hours IS NULL OR Estimated_Hours >= 0"));
         builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrder_ActualHours",
             "ActualHours IS NULL OR ActualHours >= 0"));
         builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrder_StartOdometer",

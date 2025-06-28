@@ -38,8 +38,6 @@ public class WorkOrderLineItemConfiguration : IEntityTypeConfiguration<WorkOrder
             "UnitCost >= 0"));
         builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrderLineItem_LaborHours",
             "LaborHours IS NULL OR LaborHours >= 0"));
-        builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrderLineItem_SequenceNumber",
-            "SequenceNumber > 0"));
 
         // Table Relationships
         builder

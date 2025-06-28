@@ -14,7 +14,7 @@ public class Vehicle : BaseEntity
     public required DateTime LicensePlateExpirationDate { get; set; }
     public required VehicleTypeEnum VehicleType { get; set; }
     public required int VehicleGroupID { get; set; }
-    public int? AssignedTechnicianID { get; set; }
+    public string? AssignedTechnicianID { get; set; }
     public required string Trim { get; set; }
     public required double Mileage { get; set; }
     public required double EngineHours { get; set; }
