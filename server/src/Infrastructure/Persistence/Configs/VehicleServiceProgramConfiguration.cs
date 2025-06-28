@@ -24,8 +24,6 @@ public class VehicleServiceProgramConfiguration : IEntityTypeConfiguration<Vehic
         builder.HasIndex(vsp => new { vsp.IsActive, vsp.AssignedDate });
 
         // Check Constraints
-        builder.ToTable(t => t.HasCheckConstraint("CK_VehicleServiceProgram_Dates",
-            "UnassignedDate IS NULL OR UnassignedDate >= AssignedDate"));
         builder.ToTable(t => t.HasCheckConstraint("CK_VehicleServiceProgram_AssignedDate",
             "AssignedDate >= '2000-01-01' AND AssignedDate <= GETDATE()"));
 
