@@ -1,7 +1,10 @@
 using System;
+using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Features.Vehicle.Command.CreateVehicle;
 using Application.Features.Vehicles.Command.CreateVehicle;
+using Application.MappingProfiles;
+using AutoMapper;
 using Domain.Entities;
 using Moq;
 
@@ -11,10 +14,20 @@ public class CreateVehicleHandlerTest
 {
     private readonly Mock<IVehicleRepository> _mockVehicleRepository;
     private readonly CreateVehicleCommandHandler _createVehicleCommandHandler;
+    private readonly Mock<IAppLogger<CreateVehicleCommandHandler>> _mockLogger;
+
     public CreateVehicleHandlerTest()
     {
         _mockVehicleRepository = new();
-        _createVehicleCommandHandler = new(_mockVehicleRepository.Object);
+        _mockLogger = new();
+
+        var config = new MapperConfiguration(cfg =>
+        {
+            cfg.AddProfile<VehicleMappingProfile>();
+        });
+        var mapper = config.CreateMapper();
+
+        _createVehicleCommandHandler = new(_mockVehicleRepository.Object, mapper, _mockLogger.Object);
     }
 
     [Fact(Skip = "No Implementation yet")]
