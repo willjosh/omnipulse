@@ -2,6 +2,7 @@ using Application.Contracts.Persistence;
 using Application.Contracts.Logger;
 using MediatR;
 using AutoMapper;
+using Application.Exceptions;
 
 namespace Application.Features.Vehicles.Command.DeactivateVehicle;
 
@@ -18,8 +19,22 @@ public class DeactivateVehicleCommandHandler : IRequestHandler<DeactivateVehicle
         _mapper = mapper;
     }
 
-    public Task<int> Handle(DeactivateVehicleCommand request, CancellationToken cancellationToken)
+    public async Task<int> Handle(DeactivateVehicleCommand request, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        // Validate VehicleID
+        var vehicle = await _vehicleRepository.GetByIdAsync(request.VehicleID) ?? throw new EntityNotFoundException("Vehicle", "ID", request.VehicleID.ToString());
+        if (vehicle.Status == Domain.Entities.Enums.VehicleStatusEnum.INACTIVE)
+        {
+            throw new BadRequestException("Vehicle is already deactivated");
+        }
+
+        // Deactivate Vehicle
+        await _vehicleRepository.VehicleDeactivateAsync(request.VehicleID);
+
+        // Save Changes
+        await _vehicleRepository.SaveChangesAsync();
+
+        // Return VehicleID
+        return request.VehicleID;
     }
 }
