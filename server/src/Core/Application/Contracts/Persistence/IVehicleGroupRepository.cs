@@ -3,7 +3,7 @@ using Domain.Entities;
 
 namespace Application.Contracts.Persistence;
 
-public interface IVehicleGroupRepository: IGenericRepository<VehicleGroup>
+public interface IVehicleGroupRepository : IGenericRepository<VehicleGroup>
 {
 
 }
