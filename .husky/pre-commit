@@ -1,9 +1,11 @@
 #!/bin/sh
 
+FRONTEND_DIR="client"
+BACKEND_DIR="server"
+
 set -e
 
 branch="$(git rev-parse --abbrev-ref HEAD)"
-
 if [ "$branch" = "main" ]; then
   echo "❌ You can't commit directly to main - please check out a branch."
   exit 1
@@ -13,54 +15,62 @@ fi
 ########## FRONTEND ##########
 ##############################
 
-FRONTEND_DIR="client"
-cd "$FRONTEND_DIR" || exit 1
+run_frontend_checks() {
+    echo "====================\n\t⚙️ Running frontend checks\n===================="
+    cd "$FRONTEND_DIR" || exit 1
 
-# Linting
-echo "🔍 Frontend - Lint"
-npx lint-staged || {
-    echo "❌ Frontend - Lint failed"
-    exit 1
+    # Linting
+    echo "🔍 Frontend - Lint"
+    npx lint-staged || {
+        echo "❌ Frontend - Lint failed"
+        exit 1
+    }
+
+    # Building
+    echo "🧱 Frontend - Build"
+    npm run build || {
+        echo "❌ Frontend - Build failed"
+        exit 1
+    }
+
+    cd ..
 }
-
-# Building
-echo "🧱 Frontend - Build"
-npm run build || {
-    echo "❌ Frontend - Build failed"
-    exit 1
-}
-
-cd ..
 
 #############################
 ########## BACKEND ##########
 #############################
 
-BACKEND_DIR="server"
-cd "$BACKEND_DIR" || exit 1
+run_backend_checks() {
+    echo "====================\n\t⚙️ Running backend checks\n===================="
+    cd "$BACKEND_DIR" || exit 1
 
-# Building
-echo "🧱 Backend - Build"
-dotnet build --nologo || {
-    echo "❌ Backend - Build failed"
-    exit 1
+    # Building
+    echo "🧱 Backend - Build"
+    dotnet build --nologo || {
+        echo "❌ Backend - Build failed"
+        exit 1
+    }
+
+    # Linting
+    echo "🔍 Backend - Lint"
+    dotnet format
+    dotnet format --verify-no-changes --verbosity quiet || {
+        echo "❌ Backend - Lint failed"
+        exit 1
+    }
+
+    # Testing
+    echo "🧪 Backend - Test"
+    dotnet test || {
+        echo "❌ Backend - Test failed"
+        exit 1
+    }
+
+    cd ..
 }
 
-# Linting
-echo "🔍 Backend - Lint"
-dotnet format
-dotnet format --verify-no-changes --verbosity quiet || {
-    echo "❌ Backend - Lint failed"
-    exit 1
-}
-
-# Testing
-echo "🧪 Backend - Test"
-dotnet test || {
-    echo "❌ Backend - Test failed"
-    exit 1
-}
-
-cd ..
+staged_files=$(git diff --cached --name-only --diff-filter=ACM)
+echo "$staged_files" | grep -q "^$FRONTEND_DIR/" && run_frontend_checks
+echo "$staged_files" | grep -q "^$BACKEND_DIR/" && run_backend_checks
 
 echo "✅ All pre-commit checks passed!"
