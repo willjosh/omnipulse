@@ -30,7 +30,7 @@ public class DeleteVehicleHandlerTest
         _deactivateVehicleCommandHandler = new(_mockVehicleRepository.Object, _mockLogger.Object, mapper);
     }
 
-    [Fact(Skip = "No Implementation yet")]
+    [Fact]
     public async Task Handler_Should_Return_VehicleID_On_Deactivating_Vehicle_In_Active()
     {
         // Given 
@@ -84,7 +84,7 @@ public class DeleteVehicleHandlerTest
     }
 
 
-    [Fact(Skip = "No Implementation yet")]
+    [Fact]
     public async Task Handler_Should_Return_NotFoundException_On_InvalidVehicleID()
     {
         // Given
@@ -103,7 +103,7 @@ public class DeleteVehicleHandlerTest
         _mockVehicleRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
     }
 
-    [Fact(Skip = "No Implementation yet")]
+    [Fact]
     public async Task Handler_Should_Return_BadRequestException_On_Deactivating_Already_Deactivated_Vehicle()
     {
         // Given
@@ -155,7 +155,7 @@ public class DeleteVehicleHandlerTest
         _mockVehicleRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
     }
 
-    [Fact(Skip = "No Implementation yet")]
+    [Fact]
     public async Task Handler_Should_Return_VehicleID_On_Deactivating_Vehicle_In_Maintenance()
     {
         // Given 
@@ -208,7 +208,7 @@ public class DeleteVehicleHandlerTest
         _mockVehicleRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
-    [Fact(Skip = "No Implementation yet")]
+    [Fact]
     public async Task Handler_Should_Return_VehicleID_On_Deactivating_Vehicle_In_Out_Of_Service()
     {
         // Given 
