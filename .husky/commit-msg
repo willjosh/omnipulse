@@ -7,3 +7,5 @@ npx --no -- commitlint --edit "$1" || {
     echo "Example:\n\tW18ADATE-123 feat: add login form"
     exit 1
 }
+
+echo "✅ Commit Message - Lint passed!"
