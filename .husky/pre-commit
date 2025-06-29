@@ -72,7 +72,15 @@ run_backend_checks() {
 }
 
 staged_files=$(git diff --cached --name-only --diff-filter=ACM)
-echo "$staged_files" | grep -q "^$FRONTEND_DIR/" && run_frontend_checks
-echo "$staged_files" | grep -q "^$BACKEND_DIR/" && run_backend_checks
+printf "📄 Staged files:\n$staged_files\n"
+
+if echo "$staged_files" | grep -q "^$FRONTEND_DIR/"; then
+    run_frontend_checks
+fi
+
+if echo "$staged_files" | grep -q "^$BACKEND_DIR/"; then
+    run_backend_checks
+fi
+
 
 echo "✅ All pre-commit checks passed!"
