@@ -12,7 +12,6 @@
 
   <ItemGroup>
     <Folder Include="Features/Vehicles/Query/" />
-    <Folder Include="MappingProfiles/" />
     <Folder Include="Models/" />
   </ItemGroup>
 
