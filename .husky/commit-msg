@@ -1,5 +1,9 @@
 #!/bin/sh
 
+set -e
+
+echo "====================\n\t⚙️ Running commit-msg checks\n===================="
+
 echo "📝 Commit Message - Lint"
 npx --no -- commitlint --edit "$1" || {
     echo "❌ Commit Message - Lint failed"
