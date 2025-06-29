@@ -8,4 +8,4 @@ npx --no -- commitlint --edit "$1" || {
     exit 1
 }
 
-echo "✅ Commit Message - Lint passed!"
+echo "✅ All commit-msg checks passed!"
