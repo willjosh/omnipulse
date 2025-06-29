@@ -1,9 +1,15 @@
 #!/bin/sh
 
+set -e
+
+echo "========================================\n\t⚙️ Running commit-msg checks\n========================================"
+
 echo "📝 Commit Message - Lint"
 npx --no -- commitlint --edit "$1" || {
-    echo "❌ Commit Message - Lint failed"
+    echo "❌ Commit Message - Lint failed ❌"
     echo "Format:\n\t<Jira work item key> <type>: <subject>"
     echo "Example:\n\tW18ADATE-123 feat: add login form"
     exit 1
 }
+
+echo "✅ All commit-msg checks passed!"
