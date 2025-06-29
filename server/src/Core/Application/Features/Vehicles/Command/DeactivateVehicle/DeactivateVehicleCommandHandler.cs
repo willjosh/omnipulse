@@ -21,12 +21,6 @@ public class DeactivateVehicleCommandHandler : IRequestHandler<DeactivateVehicle
 
     public async Task<int> Handle(DeactivateVehicleCommand request, CancellationToken cancellationToken)
     {
-        // Validate Request
-        if (request.VehicleID <= 0)
-        {
-            throw new BadRequestException("VehicleID must be greater than 0");
-        }
-
         // Validate VehicleID
         var vehicle = await _vehicleRepository.GetByIdAsync(request.VehicleID) ?? throw new EntityNotFoundException("Vehicle", "ID", request.VehicleID.ToString());
         if (vehicle.Status == Domain.Entities.Enums.VehicleStatusEnum.INACTIVE)
