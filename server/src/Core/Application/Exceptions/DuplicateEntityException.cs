@@ -2,7 +2,7 @@ using System;
 
 namespace Application.Exceptions;
 
-public class DuplicateEntityException: Exception
+public class DuplicateEntityException : Exception
 {
     public string EntityName { get; }
     public string PropertyName { get; }
@@ -22,5 +22,5 @@ public class DuplicateEntityException: Exception
         EntityName = entityName;
         PropertyName = propertyName;
         PropertyValue = propertyValue;
-    } 
+    }
 }
