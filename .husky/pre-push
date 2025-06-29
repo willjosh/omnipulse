@@ -2,7 +2,7 @@
 
 set -e
 
-echo "====================\n\t⚙️ Running pre-push checks\n===================="
+echo "========================================\n\t⚙️ Running pre-push checks\n========================================"
 
 branch="$(git rev-parse --abbrev-ref HEAD)"
 

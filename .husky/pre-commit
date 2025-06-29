@@ -5,7 +5,7 @@ BACKEND_DIR="server"
 
 set -e
 
-echo "====================\n\t⚙️ Running pre-commit checks\n===================="
+echo "========================================\n\t⚙️ Running pre-commit checks\n========================================"
 
 branch="$(git rev-parse --abbrev-ref HEAD)"
 if [ "$branch" = "main" ]; then
@@ -18,7 +18,7 @@ fi
 ##############################
 
 run_frontend_checks() {
-    echo "====================\n\t⚙️ Running frontend checks\n===================="
+    echo "⚙️ Running frontend checks"
     cd "$FRONTEND_DIR" || exit 1
 
     # Linting
@@ -43,7 +43,7 @@ run_frontend_checks() {
 #############################
 
 run_backend_checks() {
-    echo "====================\n\t⚙️ Running backend checks\n===================="
+    echo "⚙️ Running backend checks"
     cd "$BACKEND_DIR" || exit 1
 
     # Building
