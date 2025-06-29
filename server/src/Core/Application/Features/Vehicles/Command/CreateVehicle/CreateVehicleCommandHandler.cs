@@ -1,6 +1,5 @@
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
-using Application.Features.Vehicle.Command.CreateVehicle;
 using AutoMapper;
 using MediatR;
 

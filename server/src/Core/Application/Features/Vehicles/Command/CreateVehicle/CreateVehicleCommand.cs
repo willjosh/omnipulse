@@ -2,7 +2,7 @@ using System;
 using Domain.Entities.Enums;
 using MediatR;
 
-namespace Application.Features.Vehicle.Command.CreateVehicle;
+namespace Application.Features.Vehicles.Command.CreateVehicle;
 
 public record CreateVehicleCommand(
    string Name,
@@ -20,7 +20,7 @@ public record CreateVehicleCommand(
    double FuelCapacity,
    FuelTypeEnum FuelType,
    DateTime PurchaseDate,
-   double PurchasePrice,
+   decimal PurchasePrice,
    VehicleStatusEnum Status,
    string Location
 ) : IRequest<int>;
