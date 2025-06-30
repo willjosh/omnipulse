@@ -12,11 +12,11 @@ public class UpdateVehicleCommandHandler : IRequestHandler<UpdateVehicleCommand,
     private readonly IMapper _mapper;
     private readonly IAppLogger<UpdateVehicleCommandHandler> _logger;
 
-    public UpdateVehicleCommandHandler(IVehicleRepository VehicleRepository, IMapper Mapper, IAppLogger<UpdateVehicleCommandHandler> Logger)
+    public UpdateVehicleCommandHandler(IVehicleRepository vehicleRepository, IMapper mapper, IAppLogger<UpdateVehicleCommandHandler> logger)
     {
-        _vehicleRepository = VehicleRepository;
-        _mapper = Mapper;
-        _logger = Logger;
+        _vehicleRepository = vehicleRepository;
+        _mapper = mapper;
+        _logger = logger;
     }
 
     public Task<int> Handle(UpdateVehicleCommand request, CancellationToken cancellationToken)
