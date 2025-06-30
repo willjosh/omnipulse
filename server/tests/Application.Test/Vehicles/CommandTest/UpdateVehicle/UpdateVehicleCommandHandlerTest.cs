@@ -6,6 +6,7 @@ using Application.Features.Vehicles.Command.UpdateVehicle;
 using Application.MappingProfiles;
 using AutoMapper;
 using Domain.Entities;
+using FluentValidation;
 using Moq;
 using Xunit;
 
@@ -13,22 +14,38 @@ namespace Application.Test.Vehicles.CommandTest.UpdateVehicle;
 
 public class UpdateVehicleCommandHandlerTest
 {
-    private readonly Mock<IVehicleRepository> _mockVehicleRepository;
+    // Command Handler
     private readonly UpdateVehicleCommandHandler _updateVehicleCommandHandler;
+
+    // Mock Repositories
+    private readonly Mock<IVehicleRepository> _mockVehicleRepository;
+    private readonly Mock<IVehicleGroupRepository> _mockVehicleGroupRepository;
+    private readonly Mock<IUserRepository> _mockUserRepository;
+
+    // Mock Validator
+    private readonly Mock<IValidator<UpdateVehicleCommand>> _mockValidator;
+
+    // Mock Logger
     private readonly Mock<IAppLogger<UpdateVehicleCommandHandler>> _mockLogger;
 
     public UpdateVehicleCommandHandlerTest()
     {
         _mockVehicleRepository = new();
+        _mockVehicleGroupRepository = new();
+        _mockUserRepository = new();
+        _mockValidator = new();
         _mockLogger = new();
 
-        var config = new MapperConfiguration(cfg =>
-        {
-            cfg.AddProfile<VehicleMappingProfile>();
-        });
+        var config = new MapperConfiguration(cfg => cfg.AddProfile<VehicleMappingProfile>());
         var mapper = config.CreateMapper();
 
-        _updateVehicleCommandHandler = new(_mockVehicleRepository.Object, mapper, _mockLogger.Object);
+        _updateVehicleCommandHandler = new(
+            _mockVehicleRepository.Object,
+            _mockVehicleGroupRepository.Object,
+            _mockUserRepository.Object,
+            _mockValidator.Object,
+            _mockLogger.Object,
+            mapper);
     }
 
     // Helper method to create valid command with minimal data
@@ -118,16 +135,38 @@ public class UpdateVehicleCommandHandlerTest
         };
     }
 
-    [Fact(Skip = "Handler not implemented yet")]
+    // Helper method to set up valid validation result
+    private void SetupValidValidation(UpdateVehicleCommand command)
+    {
+        var validResult = new FluentValidation.Results.ValidationResult();
+        _mockValidator.Setup(v => v.ValidateAsync(command, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(validResult);
+    }
+
+    // Helper method to set up validation failure
+    private void SetupInvalidValidation(UpdateVehicleCommand command, string propertyName, string errorMessage = "Validation failed")
+    {
+        var invalidResult = new FluentValidation.Results.ValidationResult(
+            [new FluentValidation.Results.ValidationFailure(propertyName, errorMessage)]
+        );
+        _mockValidator.Setup(v => v.ValidateAsync(command, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(invalidResult);
+    }
+
+    [Fact]
     public async Task Handler_Should_Return_VehicleID_On_Successfully_Updating_Vehicle()
     {
         // Given
         var command = CreateValidCommand();
         var existingVehicle = CreateExistingVehicle();
 
+        // Setup validation to pass
+        SetupValidValidation(command);
+
         _mockVehicleRepository.Setup(r => r.GetByIdAsync(command.VehicleID)).ReturnsAsync(existingVehicle);
         _mockVehicleRepository.Setup(r => r.VinExistAsync(command.VIN)).ReturnsAsync(false);
         _mockVehicleRepository.Setup(r => r.SaveChangesAsync()).ReturnsAsync(1);
+        _mockVehicleGroupRepository.Setup(r => r.ExistsAsync(command.VehicleGroupID)).ReturnsAsync(true);
 
         // When
         var result = await _updateVehicleCommandHandler.Handle(command, CancellationToken.None);
@@ -150,11 +189,14 @@ public class UpdateVehicleCommandHandlerTest
             Times.Once);
     }
 
-    [Fact(Skip = "Handler not implemented yet")]
+    [Fact]
     public async Task Handler_Should_Throw_EntityNotFoundException_On_Invalid_VehicleID()
     {
         // Given
         var command = CreateValidCommand(vehicleID: 999);
+
+        // Setup validation to pass
+        SetupValidValidation(command);
 
         _mockVehicleRepository.Setup(r => r.GetByIdAsync(command.VehicleID)).ReturnsAsync((Vehicle?)null);
 
@@ -169,12 +211,15 @@ public class UpdateVehicleCommandHandlerTest
         _mockVehicleRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
     }
 
-    [Fact(Skip = "Handler not implemented yet")]
+    [Fact]
     public async Task Handler_Should_Throw_DuplicateEntityException_On_Duplicate_VIN_From_Different_Vehicle()
     {
         // Given
         var command = CreateValidCommand(vin: "DUPLICATE1234567890");
         var existingVehicle = CreateExistingVehicle(vin: "ORIGINAL123456789"); // Different VIN
+
+        // Setup validation to pass
+        SetupValidValidation(command);
 
         _mockVehicleRepository.Setup(r => r.GetByIdAsync(command.VehicleID)).ReturnsAsync(existingVehicle);
         _mockVehicleRepository.Setup(r => r.VinExistAsync(command.VIN)).ReturnsAsync(true);
@@ -190,7 +235,7 @@ public class UpdateVehicleCommandHandlerTest
         _mockVehicleRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
     }
 
-    [Fact(Skip = "Handler not implemented yet")]
+    [Fact]
     public async Task Handler_Should_Allow_Update_With_Same_VIN_As_Current_Vehicle()
     {
         // Given - updating vehicle with the same VIN it already has (should be allowed)
@@ -198,8 +243,12 @@ public class UpdateVehicleCommandHandlerTest
         var command = CreateValidCommand(vin: sameVin);
         var existingVehicle = CreateExistingVehicle(vin: sameVin); // Same VIN
 
+        // Setup validation to pass
+        SetupValidValidation(command);
+
         _mockVehicleRepository.Setup(r => r.GetByIdAsync(command.VehicleID)).ReturnsAsync(existingVehicle);
         _mockVehicleRepository.Setup(r => r.SaveChangesAsync()).ReturnsAsync(1);
+        _mockVehicleGroupRepository.Setup(r => r.ExistsAsync(command.VehicleGroupID)).ReturnsAsync(true);
 
         // When
         var result = await _updateVehicleCommandHandler.Handle(command, CancellationToken.None);
@@ -212,11 +261,14 @@ public class UpdateVehicleCommandHandlerTest
         _mockVehicleRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
-    [Fact(Skip = "Handler not implemented yet")]
+    [Fact]
     public async Task Handler_Should_Check_Vehicle_Existence_Before_VIN_Duplication()
     {
         // Given - non-existent vehicle
         var command = CreateValidCommand();
+
+        // Setup validation to pass
+        SetupValidValidation(command);
 
         _mockVehicleRepository.Setup(r => r.GetByIdAsync(command.VehicleID)).ReturnsAsync((Vehicle?)null);
 
@@ -227,6 +279,29 @@ public class UpdateVehicleCommandHandlerTest
 
         // Verify that VIN check was not attempted since vehicle doesn't exist
         _mockVehicleRepository.Verify(r => r.GetByIdAsync(command.VehicleID), Times.Once);
+        _mockVehicleRepository.Verify(r => r.VinExistAsync(It.IsAny<string>()), Times.Never);
+        _mockVehicleRepository.Verify(r => r.Update(It.IsAny<Vehicle>()), Times.Never);
+        _mockVehicleRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
+    }
+
+    [Fact]
+    public async Task Handler_Should_Throw_BadRequestException_On_Validation_Failure()
+    {
+        // Given
+        var command = CreateValidCommand();
+
+        // Setup validation to fail
+        SetupInvalidValidation(command, "Name", "Vehicle name is required");
+
+        // When & Then
+        var exception = await Assert.ThrowsAsync<BadRequestException>(
+            () => _updateVehicleCommandHandler.Handle(command, CancellationToken.None)
+        );
+
+        Assert.Contains("Vehicle name is required", exception.Message);
+
+        // Verify that no repository methods were called due to validation failure
+        _mockVehicleRepository.Verify(r => r.GetByIdAsync(It.IsAny<int>()), Times.Never);
         _mockVehicleRepository.Verify(r => r.VinExistAsync(It.IsAny<string>()), Times.Never);
         _mockVehicleRepository.Verify(r => r.Update(It.IsAny<Vehicle>()), Times.Never);
         _mockVehicleRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
