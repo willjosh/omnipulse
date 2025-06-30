@@ -4,7 +4,7 @@ using FluentValidation;
 
 namespace Application.Features.Vehicles.Command.CreateVehicle;
 
-public class CreateVehicleCommandValidator: AbstractValidator<CreateVehicleCommand>
+public class CreateVehicleCommandValidator : AbstractValidator<CreateVehicleCommand>
 {
     public CreateVehicleCommandValidator()
     {
@@ -26,7 +26,7 @@ public class CreateVehicleCommandValidator: AbstractValidator<CreateVehicleComma
             .NotEmpty()
             .WithMessage("Vehicle model is required")
             .MinimumLength(1)
-            .MaximumLength(50) 
+            .MaximumLength(50)
             .WithMessage("Vehicle model must be between 1 and 50 characters");
 
         RuleFor(p => p.Year)
