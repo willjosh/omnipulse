@@ -2,8 +2,8 @@ using System;
 
 namespace Application.MappingProfiles;
 
-using Application.Features.Vehicle.Command.CreateVehicle;
-using Application.Features.Vehicle.Command.UpdateVehicle;
+using Application.Features.Vehicles.Command.UpdateVehicle;
+using Application.Features.Vehicles.Command.CreateVehicle;
 using AutoMapper;
 using Domain.Entities;
 
@@ -36,5 +36,7 @@ public class VehicleMappingProfile : Profile
             .ForMember(dest => dest.ServiceReminders, opt => opt.Ignore()) // Navigation collection
             .ForMember(dest => dest.Issues, opt => opt.Ignore()) // Navigation collection
             .ForMember(dest => dest.VehicleInspections, opt => opt.Ignore()); // Navigation collection
+
+
     }
 }

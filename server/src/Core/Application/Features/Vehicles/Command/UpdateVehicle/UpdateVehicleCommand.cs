@@ -2,7 +2,7 @@ using System;
 using Domain.Entities.Enums;
 using MediatR;
 
-namespace Application.Features.Vehicle.Command.UpdateVehicle;
+namespace Application.Features.Vehicles.Command.UpdateVehicle;
 
 public record UpdateVehicleCommand(
    int VehicleID,

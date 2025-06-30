@@ -2,8 +2,8 @@ namespace Domain.Entities.Enums;
 
 public enum VehicleStatusEnum
 {
-    ACTIVE,
-    MAINTENANCE,
-    OUT_OF_SERVICE,
-    INACTIVE
+    ACTIVE = 1,
+    MAINTENANCE = 2,
+    OUT_OF_SERVICE = 3,
+    INACTIVE = 4
 }

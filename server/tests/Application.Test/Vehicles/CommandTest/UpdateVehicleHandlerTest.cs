@@ -2,7 +2,6 @@ using System;
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
-using Application.Features.Vehicle.Command.UpdateVehicle;
 using Application.Features.Vehicles.Command.UpdateVehicle;
 using Application.MappingProfiles;
 using AutoMapper;
