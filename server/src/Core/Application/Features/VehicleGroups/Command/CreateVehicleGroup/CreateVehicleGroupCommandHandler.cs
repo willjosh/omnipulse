@@ -9,14 +9,14 @@ using MediatR;
 
 namespace Application.Features.VehicleGroups.Command.CreateVehicleGroup;
 
-public class CreateVehicleGroupHandler : IRequestHandler<CreateVehicleGroupCommand, int>
+public class CreateVehicleGroupCommandHandler : IRequestHandler<CreateVehicleGroupCommand, int>
 {
     private readonly IVehicleGroupRepository _vehicleGroupRepository;
     private readonly IMapper _mapper;
-    private readonly IAppLogger<CreateVehicleGroupHandler> _logger;
+    private readonly IAppLogger<CreateVehicleGroupCommandHandler> _logger;
     private readonly IValidator<CreateVehicleGroupCommand> _validator;
 
-    public CreateVehicleGroupHandler(IVehicleGroupRepository vehicleGroupRepository, IMapper mapper, IAppLogger<CreateVehicleGroupHandler> logger, IValidator<CreateVehicleGroupCommand> validator)
+    public CreateVehicleGroupCommandHandler(IVehicleGroupRepository vehicleGroupRepository, IMapper mapper, IAppLogger<CreateVehicleGroupCommandHandler> logger, IValidator<CreateVehicleGroupCommand> validator)
     {
         _vehicleGroupRepository = vehicleGroupRepository;
         _mapper = mapper;
