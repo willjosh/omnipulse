@@ -42,7 +42,7 @@ public class UpdateVehicleCommandHandler : IRequestHandler<UpdateVehicleCommand,
         if (!validationResult.IsValid)
         {
             var errorMessages = string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage));
-            _logger.LogWarning($"UpdateVehicleCommandHandler - Validation failed: {errorMessages}");
+            _logger.LogWarning($"UpdateVehicleCommand - Validation failed: {errorMessages}");
             throw new BadRequestException(errorMessages);
         }
 
@@ -50,7 +50,7 @@ public class UpdateVehicleCommandHandler : IRequestHandler<UpdateVehicleCommand,
         var existingVehicle = await _vehicleRepository.GetByIdAsync(request.VehicleID);
         if (existingVehicle == null)
         {
-            var errorMessage = $"UpdateVehicleCommandHandler - Vehicle ID not found: {request.VehicleID}";
+            var errorMessage = $"Vehicle ID not found: {request.VehicleID}";
             _logger.LogError(errorMessage);
             throw new EntityNotFoundException(typeof(Vehicle).ToString(), "VehicleID", request.VehicleID.ToString());
         }
@@ -67,7 +67,7 @@ public class UpdateVehicleCommandHandler : IRequestHandler<UpdateVehicleCommand,
         // Save changes
         await _vehicleRepository.SaveChangesAsync();
 
-        _logger.LogInformation($"UpdateVehicleCommandHandler - Successfully updated vehicle with ID: {request.VehicleID}");
+        _logger.LogInformation($"Successfully updated vehicle with ID: {request.VehicleID}");
 
         // Return vehicleID
         return existingVehicle.ID;
@@ -78,7 +78,7 @@ public class UpdateVehicleCommandHandler : IRequestHandler<UpdateVehicleCommand,
         // Check for duplicate VIN only if VIN is being changed
         if (request.VIN != existingVehicle.VIN && await _vehicleRepository.VinExistAsync(request.VIN))
         {
-            var errorMessage = $"UpdateVehicleCommandHandler - Vehicle VIN already exists: {request.VIN}";
+            var errorMessage = $"Vehicle VIN already exists: {request.VIN}";
             _logger.LogError(errorMessage);
             throw new DuplicateEntityException(typeof(Vehicle).ToString(), "VIN", request.VIN);
         }
@@ -86,18 +86,17 @@ public class UpdateVehicleCommandHandler : IRequestHandler<UpdateVehicleCommand,
         // Validate VehicleGroupID exists
         if (!await _vehicleGroupRepository.ExistsAsync(request.VehicleGroupID))
         {
-            var errorMessage = $"UpdateVehicleCommandHandler - VehicleGroup ID not found: {request.VehicleGroupID}";
+            var errorMessage = $"VehicleGroup ID not found: {request.VehicleGroupID}";
             _logger.LogError(errorMessage);
             throw new EntityNotFoundException(typeof(VehicleGroup).ToString(), "VehicleGroupID", request.VehicleGroupID.ToString());
         }
 
-        // Validate AssignedTechnicianID if provided (note: AssignedTechnicianID is not in UpdateVehicleCommand but exists in Vehicle entity)
-        // Since AssignedTechnicianID is not part of UpdateVehicleCommand, we'll preserve the existing value
-        if (!string.IsNullOrEmpty(existingVehicle.AssignedTechnicianID) && !await _userRepository.ExistsAsync(existingVehicle.AssignedTechnicianID))
+        // Validate AssignedTechnicianID if provided
+        if (!string.IsNullOrEmpty(request.AssignedTechnicianID) && !await _userRepository.ExistsAsync(request.AssignedTechnicianID))
         {
-            var errorMessage = $"UpdateVehicleCommandHandler - Assigned technician ID not found: {existingVehicle.AssignedTechnicianID}";
+            var errorMessage = $"Assigned technician ID not found: {request.AssignedTechnicianID}";
             _logger.LogError(errorMessage);
-            throw new EntityNotFoundException(typeof(User).ToString(), "AssignedTechnicianID", existingVehicle.AssignedTechnicianID);
+            throw new EntityNotFoundException(typeof(User).ToString(), "AssignedTechnicianID", request.AssignedTechnicianID);
         }
     }
 }

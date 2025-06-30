@@ -68,7 +68,8 @@ public class UpdateVehicleCommandHandlerTest
         DateTime? purchaseDate = null,
         double purchasePrice = 25000,
         Domain.Entities.Enums.VehicleStatusEnum status = Domain.Entities.Enums.VehicleStatusEnum.ACTIVE,
-        string location = "Updated Location"
+        string location = "Updated Location",
+        string? assignedTechnicianID = null
     )
     {
         return new UpdateVehicleCommand(
@@ -90,7 +91,8 @@ public class UpdateVehicleCommandHandlerTest
             PurchaseDate: purchaseDate ?? DateTime.UtcNow.AddDays(-30),
             PurchasePrice: purchasePrice,
             Status: status,
-            Location: location
+            Location: location,
+            AssignedTechnicianID: assignedTechnicianID
         );
     }
 

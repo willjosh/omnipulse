@@ -60,15 +60,23 @@ public class CreateVehicleCommandHandler : IRequestHandler<CreateVehicleCommand,
         // check for duplicate VIN in the db
         if (await _vehicleRepository.VinExistAsync(vehicle.VIN))
         {
-            var errorMessage = $"CreateVehicleCommandHandler - Vehicle VIN already exists: {vehicle.VIN}";
+            var errorMessage = $"Vehicle VIN already exists: {vehicle.VIN}";
             _logger.LogError(errorMessage);
             throw new DuplicateEntityException(typeof(Vehicle).ToString(), "VIN", vehicle.VIN);
+        }
+
+        // Check for duplicate License Plate
+        if (await _vehicleRepository.LicensePlateExistAsync(vehicle.LicensePlate))
+        {
+            var errorMessage = $"License plate already exists: {vehicle.LicensePlate}";
+            _logger.LogError(errorMessage);
+            throw new DuplicateEntityException(typeof(Vehicle).ToString(), "LicensePlate", vehicle.LicensePlate);
         }
 
         // validate groupID
         if (!await _vehicleGroupRepository.ExistsAsync(vehicle.VehicleGroupID))
         {
-            var errorMessage = $"CreateVehicleCommandHandler - VehicleGroup ID not found: {vehicle.VehicleGroupID}";
+            var errorMessage = $"VehicleGroup ID not found: {vehicle.VehicleGroupID}";
             _logger.LogError(errorMessage);
             throw new EntityNotFoundException(typeof(Vehicle).ToString(), "VehicleGroupID", vehicle.VehicleGroupID.ToString());
         }
@@ -76,7 +84,7 @@ public class CreateVehicleCommandHandler : IRequestHandler<CreateVehicleCommand,
         // validate technician if given
         if (!string.IsNullOrEmpty(vehicle.AssignedTechnicianID) && !await _userRepository.ExistsAsync(vehicle.AssignedTechnicianID))
         {
-            var errorMessage = $"CreateVehicleCommandHandler - Technician ID not found: {vehicle.AssignedTechnicianID}";
+            var errorMessage = $"Technician ID not found: {vehicle.AssignedTechnicianID}";
             _logger.LogError(errorMessage);
             throw new EntityNotFoundException(typeof(Vehicle).ToString(), "AssignedTechnicianID", vehicle.AssignedTechnicianID);
         }

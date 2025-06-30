@@ -23,5 +23,6 @@ public record UpdateVehicleCommand(
    DateTime PurchaseDate,
    double PurchasePrice,
    VehicleStatusEnum Status,
-   string Location
+   string Location,
+   string? AssignedTechnicianID
 ) : IRequest<int>;
