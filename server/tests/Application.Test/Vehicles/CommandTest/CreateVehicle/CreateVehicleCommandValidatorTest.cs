@@ -418,9 +418,8 @@ public class CreateVehicleCommandValidatorTest
     [Fact]
     public async Task Validator_Should_Fail_When_LicenseExpiration_Is_Before_PurchaseDate()
     {
-        // Given
-        var purchaseDate = DateTime.UtcNow;
-        var expirationDate = purchaseDate.AddDays(-1);
+        var purchaseDate = new DateTime(2023, 6, 1, 0, 0, 0, DateTimeKind.Utc);
+        var expirationDate = new DateTime(2023, 5, 31, 0, 0, 0, DateTimeKind.Utc); 
 
         var command = CreateValidCommand(
             purchaseDate: purchaseDate,
