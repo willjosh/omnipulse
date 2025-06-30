@@ -46,7 +46,7 @@ public class VehicleMappingProfile : Profile
             ))
             .ForMember(dest => dest.AssignedTechnicianName, opt => opt.MapFrom(
                 src => src.User != null ? src.User.FirstName + " " + src.User.LastName
-                : string.Empty
+                : "Not Assigned"
             ))
             .ForMember(dest => dest.AssignedTechnicianID, opt => opt.MapFrom(
                 src => src.AssignedTechnicianID ?? string.Empty
