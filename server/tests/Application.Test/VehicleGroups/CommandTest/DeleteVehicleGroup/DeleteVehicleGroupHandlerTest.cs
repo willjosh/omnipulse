@@ -30,7 +30,7 @@ public class DeleteVehicleGroupHandlerTest
         _deleteVehicleGroupCommandHandler = new(_mockVehicleGroupRepository.Object, _mockLogger.Object, mapper);
     }
 
-    [Fact(Skip = "Skipping this test for now")]
+    [Fact]
     public async Task Handle_Should_Return_VehicleGroupID_On_Success()
     {
         // Given
@@ -60,7 +60,7 @@ public class DeleteVehicleGroupHandlerTest
         _mockVehicleGroupRepository.Verify(repo => repo.SaveChangesAsync(), Times.Once);
     }
 
-    [Fact(Skip = "Skipping this test for now")]
+    [Fact]
     public async Task Handle_Should_Throw_EntityNotFoundException_On_InvalidVehicleGroupID()
     {
         // Given
