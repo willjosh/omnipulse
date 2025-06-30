@@ -78,10 +78,10 @@ public class CreateVehicleGroupHandlerTest
     {
         // Given
         var command = CreateValidCommand(name: "", description: "Test Description", isActive: true);
-        
+
         var validationResult = new FluentValidation.Results.ValidationResult();
         validationResult.Errors.Add(new FluentValidation.Results.ValidationFailure("Name", "Vehicle group name is required"));
-        
+
         _mockValidator.Setup(v => v.ValidateAsync(It.IsAny<CreateVehicleGroupCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(validationResult);
 
