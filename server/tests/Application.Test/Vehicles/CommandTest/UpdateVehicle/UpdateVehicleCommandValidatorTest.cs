@@ -33,7 +33,8 @@ public class UpdateVehicleCommandValidatorTest
         DateTime? purchaseDate = null,
         double purchasePrice = 25000,
         VehicleStatusEnum status = VehicleStatusEnum.ACTIVE,
-        string location = "Test Location")
+        string location = "Test Location",
+        string? assignedTechnicianID = null)
     {
         return new UpdateVehicleCommand(
             VehicleID: vehicleID,
@@ -54,7 +55,8 @@ public class UpdateVehicleCommandValidatorTest
             PurchaseDate: purchaseDate ?? new DateTime(2023, 1, 1, 0, 0, 0, DateTimeKind.Utc),
             PurchasePrice: purchasePrice,
             Status: status,
-            Location: location
+            Location: location,
+            AssignedTechnicianID: assignedTechnicianID
         );
     }
 
