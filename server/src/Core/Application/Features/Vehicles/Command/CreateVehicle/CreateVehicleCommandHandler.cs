@@ -1,6 +1,10 @@
+using System.ComponentModel.DataAnnotations;
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
+using Application.Exceptions;
 using AutoMapper;
+using Domain.Entities;
+using FluentValidation;
 using MediatR;
 
 namespace Application.Features.Vehicles.Command.CreateVehicle;
@@ -8,18 +12,73 @@ namespace Application.Features.Vehicles.Command.CreateVehicle;
 public class CreateVehicleCommandHandler : IRequestHandler<CreateVehicleCommand, int>
 {
     private readonly IVehicleRepository _vehicleRepository;
+    private readonly IUserRepository _userRepository;
+    private readonly IVehicleGroupRepository _vehicleGroupRepository;
     private readonly IMapper _mapper;
     private readonly IAppLogger<CreateVehicleCommandHandler> _logger;
+    private readonly IValidator<CreateVehicleCommand> _validator;
 
-    public CreateVehicleCommandHandler(IVehicleRepository VehicleRepository, IMapper Mapper, IAppLogger<CreateVehicleCommandHandler> Logger)
+    public CreateVehicleCommandHandler(IVehicleRepository vehicleRepository, IUserRepository userRepository, IVehicleGroupRepository vehicleGroupRepository, IMapper mapper, IAppLogger<CreateVehicleCommandHandler> logger, IValidator<CreateVehicleCommand> validator)
     {
-        _vehicleRepository = VehicleRepository;
-        _mapper = Mapper;
-        _logger = Logger;
+        _vehicleRepository = vehicleRepository;
+        _userRepository = userRepository;
+        _vehicleGroupRepository = vehicleGroupRepository;
+        _validator = validator;
+        _mapper = mapper;
+        _logger = logger;
     }
 
-    public Task<int> Handle(CreateVehicleCommand request, CancellationToken cancellationToken)
+    public async Task<int> Handle(CreateVehicleCommand request, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        // validate request
+        var validationResult = await _validator.ValidateAsync(request, cancellationToken);
+        if (!validationResult.IsValid)
+        {
+            var errorMessages = string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage));
+            _logger.LogWarning("Validation failed for CreateVehicleCommand: {ValidationErrors}", errorMessages);
+            throw new BadRequestException(errorMessages);
+        }
+
+        // map request to vehicle domain entity
+        var vehicle = _mapper.Map<Vehicle>(request);
+
+        // validate business rules
+        await ValidateBusinessRuleAsync(vehicle);
+
+        // add new vehicle
+        var newVehicle = await _vehicleRepository.AddAsync(vehicle);
+
+        // save changes
+        await _vehicleRepository.SaveChangesAsync();
+
+        // return vehicleID
+        return newVehicle.ID;
+    }
+
+    private async Task ValidateBusinessRuleAsync(Vehicle vehicle)
+    {
+        // check for duplicate VIN in the db
+        if (await _vehicleRepository.VinExistAsync(vehicle.VIN))
+        {
+            var errorMessage = $"Vehicle with VIN: {vehicle.VIN}, Already Exist";
+            _logger.LogError(errorMessage);
+            throw new DuplicateEntityException(typeof(Vehicle).ToString(), "VIN", vehicle.VIN);
+        }
+
+        // validate groupID
+        if (!await _vehicleGroupRepository.ExistsAsync(vehicle.VehicleGroupID))
+        {
+            var errorMessage = $"VehicleGroup Not Found ID: {vehicle.AssignedTechnicianID}";
+            _logger.LogError(errorMessage);
+            throw new EntityNotFoundException(typeof(Vehicle).ToString(), "VehicleGroupID", vehicle.VehicleGroupID.ToString());
+        }
+
+        // validate technician if given
+        if (!string.IsNullOrEmpty(vehicle.AssignedTechnicianID) && !await _userRepository.ExistsAsync(vehicle.AssignedTechnicianID))
+        {
+            var errorMessage = $"Technician Not Found ID: {vehicle.AssignedTechnicianID}";
+            _logger.LogError(errorMessage);
+            throw new EntityNotFoundException(typeof(Vehicle).ToString(), "AssignedTechnicianID", vehicle.AssignedTechnicianID);
+        }
     }
 }
