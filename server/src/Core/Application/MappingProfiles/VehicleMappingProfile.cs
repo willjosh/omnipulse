@@ -3,6 +3,7 @@ using System;
 namespace Application.MappingProfiles;
 
 using Application.Features.Vehicles.Command.CreateVehicle;
+using Application.Features.Vehicles.Query.GetVehicleDetails;
 using AutoMapper;
 using Domain.Entities;
 
@@ -23,6 +24,17 @@ public class VehicleMappingProfile : Profile
             .ForMember(dest => dest.Issues, opt => opt.Ignore()) // Navigation collection
             .ForMember(dest => dest.VehicleInspections, opt => opt.Ignore()); // Navigation collection
 
-
+        CreateMap<Vehicle, GetVehicleDetailsDTO>()
+            .ForMember(dest => dest.VehicleGroupName, opt => opt.MapFrom(
+                src => src.VehicleGroup != null ? src.VehicleGroup.Name
+                : string.Empty
+            ))
+            .ForMember(dest => dest.AssignedTechnicianName, opt => opt.MapFrom(
+                src => src.User != null ? src.User.FirstName + src.User.LastName
+                : string.Empty
+            ))
+            .ForMember(dest => dest.AssignedTechnicianID, opt => opt.MapFrom(
+                src => src.AssignedTechnicianID ?? string.Empty
+            ));
     }
 }
