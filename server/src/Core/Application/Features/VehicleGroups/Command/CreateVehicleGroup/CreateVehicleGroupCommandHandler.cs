@@ -24,8 +24,26 @@ public class CreateVehicleGroupCommandHandler : IRequestHandler<CreateVehicleGro
         _validator = validator;
     }
 
-    public Task<int> Handle(CreateVehicleGroupCommand request, CancellationToken cancellationToken)
+    public async Task<int> Handle(CreateVehicleGroupCommand request, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        // validate request
+        var validationResult = await _validator.ValidateAsync(request, cancellationToken);
+        if (!validationResult.IsValid)
+        {
+            var errorMessages = string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage));
+            _logger.LogWarning($"CreateVehicleGroupCommand - Validation failed: {errorMessages}");
+            throw new BadRequestException(errorMessages);
+        }
+
+        // map request to vehicle group domain entity
+        var vehicleGroup = _mapper.Map<VehicleGroup>(request);
+
+        // add new vehicle group
+        var newVehicleGroup = await _vehicleGroupRepository.AddAsync(vehicleGroup);
+
+        // save changes
+        await _vehicleGroupRepository.SaveChangesAsync();
+
+        return newVehicleGroup.ID;
     }
 }

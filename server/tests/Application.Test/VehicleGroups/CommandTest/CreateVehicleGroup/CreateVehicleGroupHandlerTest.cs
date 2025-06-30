@@ -42,7 +42,7 @@ public class CreateVehicleGroupHandlerTest
         return new CreateVehicleGroupCommand(name, description, isActive);
     }
 
-    [Fact(Skip = "Skipping this test for now")]
+    [Fact]
     public async Task Handle_Should_Return_VehicleGroupID_On_Success()
     {
         // Given
@@ -60,6 +60,8 @@ public class CreateVehicleGroupHandlerTest
 
         _mockVehicleGroupRepository.Setup(repo => repo.AddAsync(It.IsAny<VehicleGroup>())).ReturnsAsync(expectedVehicleGroup);
         _mockVehicleGroupRepository.Setup(repo => repo.SaveChangesAsync()).ReturnsAsync(1);
+        _mockValidator.Setup(v => v.ValidateAsync(It.IsAny<CreateVehicleGroupCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FluentValidation.Results.ValidationResult());
 
         // When
         var result = await _createVehicleGroupCommandHandler.Handle(command, CancellationToken.None);
@@ -71,11 +73,17 @@ public class CreateVehicleGroupHandlerTest
         _mockValidator.Verify(validator => validator.ValidateAsync(command, CancellationToken.None), Times.Once);
     }
 
-    [Fact(Skip = "Skipping this test for now")]
+    [Fact]
     public async Task Handle_Should_Throw_BadRequestException_On_Validation_Failure()
     {
         // Given
         var command = CreateValidCommand(name: "", description: "Test Description", isActive: true);
+        
+        var validationResult = new FluentValidation.Results.ValidationResult();
+        validationResult.Errors.Add(new FluentValidation.Results.ValidationFailure("Name", "Vehicle group name is required"));
+        
+        _mockValidator.Setup(v => v.ValidateAsync(It.IsAny<CreateVehicleGroupCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(validationResult);
 
         // When
         var exception = await Assert.ThrowsAsync<BadRequestException>(() => _createVehicleGroupCommandHandler.Handle(command, CancellationToken.None));
