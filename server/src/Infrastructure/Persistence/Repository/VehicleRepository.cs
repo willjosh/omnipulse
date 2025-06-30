@@ -20,7 +20,7 @@ public class VehicleRepository : GenericRepository<Vehicle>, IVehicleRepository
 
     public async Task VehicleDeactivateAsync(int VehicleID)
     {
-        var vehicle = await  _dbSet.FindAsync(VehicleID);
+        var vehicle = await _dbSet.FindAsync(VehicleID);
         if (vehicle != null)
         {
             vehicle.Status = VehicleStatusEnum.INACTIVE;

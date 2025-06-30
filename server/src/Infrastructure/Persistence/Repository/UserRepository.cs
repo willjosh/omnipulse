@@ -35,7 +35,7 @@ public class UserRepository : IUserRepository
         var user = await _userManager.FindByIdAsync(id);
         if (user == null)
             return IdentityResult.Failed(new IdentityError { Description = "User not found" });
-        
+
         return await _userManager.DeleteAsync(user);
     }
 
@@ -140,7 +140,7 @@ public class UserRepository : IUserRepository
         {
             await _roleManager.CreateAsync(new IdentityRole(role));
         }
-        
+
         return await _userManager.AddToRoleAsync((User)user, role);
     }
 
