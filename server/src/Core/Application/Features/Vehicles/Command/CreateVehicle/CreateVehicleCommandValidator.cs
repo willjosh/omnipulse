@@ -96,7 +96,7 @@ public class CreateVehicleCommandValidator : AbstractValidator<CreateVehicleComm
         RuleFor(p => p.PurchaseDate)
             .NotEmpty()
             .WithMessage("Purchase date is required")
-            .LessThanOrEqualTo(DateTime.Now)
+            .LessThanOrEqualTo(DateTime.UtcNow)
             .WithMessage("Purchase date cannot be in the future");
 
         RuleFor(p => p.PurchasePrice)
