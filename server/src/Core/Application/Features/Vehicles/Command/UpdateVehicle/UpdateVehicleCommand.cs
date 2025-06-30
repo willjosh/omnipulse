@@ -5,6 +5,7 @@ using MediatR;
 namespace Application.Features.Vehicle.Command.UpdateVehicle;
 
 public record UpdateVehicleCommand(
+   int VehicleID,
    string Name,
    string Make,
    string Model,
