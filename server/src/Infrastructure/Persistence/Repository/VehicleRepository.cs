@@ -1,4 +1,6 @@
 using Application.Contracts.Persistence;
+using Application.Models;
+using Application.Models.PaginationModels;
 using Domain.Entities;
 using Domain.Entities.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +11,11 @@ namespace Persistence.Repository;
 public class VehicleRepository : GenericRepository<Vehicle>, IVehicleRepository
 {
     public VehicleRepository(OmnipulseDatabaseContext context) : base(context) { }
+
+    public Task<PagedResult<Vehicle>> GetAllVehiclesPagedAsync(PaginationParameters parameters)
+    {
+        throw new NotImplementedException();
+    }
 
     public async Task<Vehicle?> GetVehicleWithDetailsAsync(int vehicleId)
     {
