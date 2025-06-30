@@ -18,7 +18,7 @@ public class GetVehicleDetailsQueryHandler : IRequestHandler<GetVehicleDetailsQu
         _vehicleRepository = vehicleRepository;
         _userRepository = userRepository;
         _mapper = mapper;
-        _logger = logger; 
+        _logger = logger;
     }
 
     public Task<GetVehicleDetailsDTO> Handle(GetVehicleDetailsQuery request, CancellationToken cancellationToken)
