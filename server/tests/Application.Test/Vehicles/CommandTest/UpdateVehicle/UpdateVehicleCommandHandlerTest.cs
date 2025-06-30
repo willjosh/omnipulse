@@ -28,7 +28,8 @@ public class UpdateVehicleCommandHandlerTest
     // Mock Logger
     private readonly Mock<IAppLogger<UpdateVehicleCommandHandler>> _mockLogger;
 
-    public UpdateVehicleCommandHandlerTest() {
+    public UpdateVehicleCommandHandlerTest()
+    {
         _mockVehicleRepository = new();
         _mockVehicleGroupRepository = new();
         _mockUserRepository = new();
@@ -68,7 +69,8 @@ public class UpdateVehicleCommandHandlerTest
         double purchasePrice = 25000,
         Domain.Entities.Enums.VehicleStatusEnum status = Domain.Entities.Enums.VehicleStatusEnum.ACTIVE,
         string location = "Updated Location"
-    ) {
+    )
+    {
         return new UpdateVehicleCommand(
             VehicleID: vehicleID,
             Name: name,
@@ -97,7 +99,8 @@ public class UpdateVehicleCommandHandlerTest
         int id = 123,
         string vin = "EXISTING1234567890",
         string name = "Original Vehicle"
-    ) {
+    )
+    {
         return new Vehicle()
         {
             ID = id,
@@ -133,14 +136,16 @@ public class UpdateVehicleCommandHandlerTest
     }
 
     // Helper method to set up valid validation result
-    private void SetupValidValidation(UpdateVehicleCommand command) {
+    private void SetupValidValidation(UpdateVehicleCommand command)
+    {
         var validResult = new FluentValidation.Results.ValidationResult();
         _mockValidator.Setup(v => v.ValidateAsync(command, It.IsAny<CancellationToken>()))
             .ReturnsAsync(validResult);
     }
 
     // Helper method to set up validation failure
-    private void SetupInvalidValidation(UpdateVehicleCommand command, string propertyName, string errorMessage = "Validation failed") {
+    private void SetupInvalidValidation(UpdateVehicleCommand command, string propertyName, string errorMessage = "Validation failed")
+    {
         var invalidResult = new FluentValidation.Results.ValidationResult(
             [new FluentValidation.Results.ValidationFailure(propertyName, errorMessage)]
         );
@@ -149,7 +154,8 @@ public class UpdateVehicleCommandHandlerTest
     }
 
     [Fact]
-    public async Task Handler_Should_Return_VehicleID_On_Successfully_Updating_Vehicle() {
+    public async Task Handler_Should_Return_VehicleID_On_Successfully_Updating_Vehicle()
+    {
         // Given
         var command = CreateValidCommand();
         var existingVehicle = CreateExistingVehicle();
@@ -184,7 +190,8 @@ public class UpdateVehicleCommandHandlerTest
     }
 
     [Fact]
-    public async Task Handler_Should_Throw_EntityNotFoundException_On_Invalid_VehicleID() {
+    public async Task Handler_Should_Throw_EntityNotFoundException_On_Invalid_VehicleID()
+    {
         // Given
         var command = CreateValidCommand(vehicleID: 999);
 
@@ -205,7 +212,8 @@ public class UpdateVehicleCommandHandlerTest
     }
 
     [Fact]
-    public async Task Handler_Should_Throw_DuplicateEntityException_On_Duplicate_VIN_From_Different_Vehicle() {
+    public async Task Handler_Should_Throw_DuplicateEntityException_On_Duplicate_VIN_From_Different_Vehicle()
+    {
         // Given
         var command = CreateValidCommand(vin: "DUPLICATE1234567890");
         var existingVehicle = CreateExistingVehicle(vin: "ORIGINAL123456789"); // Different VIN
@@ -228,7 +236,8 @@ public class UpdateVehicleCommandHandlerTest
     }
 
     [Fact]
-    public async Task Handler_Should_Allow_Update_With_Same_VIN_As_Current_Vehicle() {
+    public async Task Handler_Should_Allow_Update_With_Same_VIN_As_Current_Vehicle()
+    {
         // Given - updating vehicle with the same VIN it already has (should be allowed)
         var sameVin = "CURRENT123456789";
         var command = CreateValidCommand(vin: sameVin);
@@ -253,7 +262,8 @@ public class UpdateVehicleCommandHandlerTest
     }
 
     [Fact]
-    public async Task Handler_Should_Check_Vehicle_Existence_Before_VIN_Duplication() {
+    public async Task Handler_Should_Check_Vehicle_Existence_Before_VIN_Duplication()
+    {
         // Given - non-existent vehicle
         var command = CreateValidCommand();
 
@@ -275,7 +285,8 @@ public class UpdateVehicleCommandHandlerTest
     }
 
     [Fact]
-    public async Task Handler_Should_Throw_BadRequestException_On_Validation_Failure() {
+    public async Task Handler_Should_Throw_BadRequestException_On_Validation_Failure()
+    {
         // Given
         var command = CreateValidCommand();
 
