@@ -3,7 +3,4 @@ using MediatR;
 
 namespace Application.Features.Vehicles.Query.GetVehicleDetails;
 
-public class GetVehicleDetailsQuery : IRequest<GetVehicleDetailsDTO>
-{
-
-}
+public record GetVehicleDetailsQuery(int VehicleID) : IRequest<GetVehicleDetailsDTO> { }
