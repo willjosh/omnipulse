@@ -68,7 +68,7 @@ public class CreateVehicleCommandHandler : IRequestHandler<CreateVehicleCommand,
         // validate groupID
         if (!await _vehicleGroupRepository.ExistsAsync(vehicle.VehicleGroupID))
         {
-            var errorMessage = $"VehicleGroup Not Found ID: {vehicle.AssignedTechnicianID}";
+            var errorMessage = $"VehicleGroup Not Found ID: {vehicle.VehicleGroupID}";
             _logger.LogError(errorMessage);
             throw new EntityNotFoundException(typeof(Vehicle).ToString(), "VehicleGroupID", vehicle.VehicleGroupID.ToString());
         }
