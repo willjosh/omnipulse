@@ -1,11 +1,7 @@
-import NavBar from "./features/shared/NavBar";
-import SideBar from "./features/shared/SideBar";
+import React from "react";
 
-export default function Home() {
-  return (
-    <div>
-      <NavBar />
-      <SideBar />
-    </div>
-  );
-}
+const Home = () => {
+  return <div>Home</div>;
+};
+
+export default Home;
