@@ -7,16 +7,17 @@ using Application.MappingProfiles;
 using AutoMapper;
 using Domain.Entities;
 using Moq;
+using Xunit;
 
 namespace Application.Test.Vehicles.CommandTest;
 
-public class DeleteVehicleHandlerTest
+public class DeactivateVehicleHandlerTest
 {
     private readonly Mock<IVehicleRepository> _mockVehicleRepository;
     private readonly DeactivateVehicleCommandHandler _deactivateVehicleCommandHandler;
     private readonly Mock<IAppLogger<DeactivateVehicleCommandHandler>> _mockLogger;
 
-    public DeleteVehicleHandlerTest()
+    public DeactivateVehicleHandlerTest()
     {
         _mockVehicleRepository = new();
         _mockLogger = new();
