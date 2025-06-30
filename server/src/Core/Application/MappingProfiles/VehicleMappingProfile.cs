@@ -45,7 +45,7 @@ public class VehicleMappingProfile : Profile
                 : string.Empty
             ))
             .ForMember(dest => dest.AssignedTechnicianName, opt => opt.MapFrom(
-                src => src.User != null ? src.User.FirstName + src.User.LastName
+                src => src.User != null ? src.User.FirstName + " " + src.User.LastName
                 : string.Empty
             ))
             .ForMember(dest => dest.AssignedTechnicianID, opt => opt.MapFrom(
