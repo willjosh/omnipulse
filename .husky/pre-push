@@ -1,0 +1,14 @@
+#!/bin/sh
+
+set -e
+
+echo "========================================\n\t⚙️ Running pre-push checks\n========================================"
+
+branch="$(git rev-parse --abbrev-ref HEAD)"
+
+if [ "$branch" = "main" ]; then
+  echo "❌ You can't push directly to main - please check out a branch."
+  exit 1
+fi
+
+echo "✅ All pre-push checks passed!"

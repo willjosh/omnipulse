@@ -1,59 +1,59 @@
 #!/bin/sh
 
+FRONTEND_DIR="client"
+BACKEND_DIR="server"
+
 set -e
 
-##############################
-########## FRONTEND ##########
-##############################
+echo "========================================\n\t⚙️ Running pre-commit checks\n========================================"
 
-FRONTEND_DIR="client"
-cd "$FRONTEND_DIR" || exit 1
+branch="$(git rev-parse --abbrev-ref HEAD)"
+if [ "$branch" = "main" ]; then
+  echo "❌ You can't commit directly to main - please check out a branch."
+  exit 1
+fi
 
-# Linting
-echo "🔍 Frontend - Lint"
-npx lint-staged || {
-    echo "❌ Frontend - Lint failed"
+run_step() {
+  desc="$1"
+  shift
+  echo "$desc"
+  "$@" || {
+    echo "❌ $desc failed ❌"
     exit 1
+  }
 }
 
-# Building
-echo "🧱 Frontend - Build"
-npm run build || {
-    echo "❌ Frontend - Build failed"
-    exit 1
+run_frontend_checks() {
+    echo "⚙️ Frontend checks"
+    pushd "$FRONTEND_DIR" > /dev/null || exit 1
+
+    run_step "▶️ Frontend - Lint" npx lint-staged
+    run_step "▶️ Frontend - Build" npm run build
+
+    popd > /dev/null
 }
 
-cd ..
+run_backend_checks() {
+    echo "⚙️ Backend checks"
+    pushd "$BACKEND_DIR" > /dev/null || exit 1
 
-#############################
-########## BACKEND ##########
-#############################
+    run_step "▶️ Backend - Build" dotnet build --nologo
+    run_step "▶️ Backend - Format" dotnet format
+    run_step "▶️ Backend - Format (Verify no Changes)" dotnet format --verify-no-changes --verbosity quiet
+    run_step "▶️ Backend - Test" dotnet test
 
-BACKEND_DIR="server"
-cd "$BACKEND_DIR" || exit 1
-
-# Building
-echo "🧱 Backend - Build"
-dotnet build --nologo || {
-    echo "❌ Backend - Build failed"
-    exit 1
+    popd > /dev/null
 }
 
-# Linting
-echo "🔍 Backend - Lint"
-dotnet format
-dotnet format --verify-no-changes --verbosity quiet || {
-    echo "❌ Backend - Lint failed"
-    exit 1
-}
+staged_files=$(git diff --cached --name-only --diff-filter=ACM)
+printf "📄 Staged Files:\n$staged_files\n"
 
-# Testing
-echo "🧪 Backend - Test"
-dotnet test || {
-    echo "❌ Backend - Test failed"
-    exit 1
-}
+if echo "$staged_files" | grep -q "^$FRONTEND_DIR/"; then
+    run_frontend_checks
+fi
 
-cd ..
+if echo "$staged_files" | grep -q "^$BACKEND_DIR/"; then
+    run_backend_checks
+fi
 
 echo "✅ All pre-commit checks passed!"
