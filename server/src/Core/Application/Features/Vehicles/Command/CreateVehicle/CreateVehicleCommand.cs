@@ -22,5 +22,6 @@ public record CreateVehicleCommand(
    DateTime PurchaseDate,
    decimal PurchasePrice,
    VehicleStatusEnum Status,
-   string Location
+   string Location,
+   string? AssignedTechnicianID
 ) : IRequest<int>;
