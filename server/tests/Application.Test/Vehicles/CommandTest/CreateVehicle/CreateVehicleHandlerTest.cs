@@ -95,7 +95,7 @@ public class CreateVehicleHandlerTest
     private void SetupInvalidValidation(CreateVehicleCommand command, string propertyName = "Name", string errorMessage = "Validation failed")
     {
         var invalidResult = new FluentValidation.Results.ValidationResult(
-            new[] { new FluentValidation.Results.ValidationFailure(propertyName, errorMessage) }
+            [new FluentValidation.Results.ValidationFailure(propertyName, errorMessage)]
         );
         _mockValidator.Setup(v => v.ValidateAsync(command, CancellationToken.None))
                      .ReturnsAsync(invalidResult);
