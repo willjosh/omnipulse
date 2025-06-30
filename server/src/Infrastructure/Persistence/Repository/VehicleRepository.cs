@@ -20,7 +20,7 @@ public class VehicleRepository : GenericRepository<Vehicle>, IVehicleRepository
 
     public Task<bool> LicensePlateExistAsync(string licensePlate)
     {
-        return _dbSet.AnyAsync(v => v.LicensePlate == licensePlate); 
+        return _dbSet.AnyAsync(v => v.LicensePlate == licensePlate);
     }
 
     public async Task VehicleDeactivateAsync(int VehicleID)
