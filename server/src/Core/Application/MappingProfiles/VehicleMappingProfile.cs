@@ -25,7 +25,7 @@ public class VehicleMappingProfile : Profile
             .ForMember(dest => dest.VehicleInspections, opt => opt.Ignore()); // Navigation collection
 
         CreateMap<UpdateVehicleCommand, Vehicle>()
-            .ForMember(dest => dest.ID, opt => opt.Ignore()) // Don't map ID - will be auto-generated
+            .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.VehicleID)) // Map the command's VehicleID to the entity's ID
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore()) // Handled by BaseEntity
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore()) // Handled by BaseEntity
             .ForMember(dest => dest.VehicleGroup, opt => opt.Ignore()) // Navigation property
