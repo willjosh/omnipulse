@@ -26,5 +26,5 @@ public class GetAllVehicleDTO
     public required DateTime PurchaseDate { get; set; }
     public required decimal PurchasePrice { get; set; }
     public required VehicleStatusEnum Status { get; set; }
-    public required string Location { get; set; } 
+    public required string Location { get; set; }
 }
