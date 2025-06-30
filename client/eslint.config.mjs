@@ -23,11 +23,7 @@ export default defineConfig([
         process: true,
       },
     },
-    settings: {
-      react: {
-        version: "detect",
-      },
-    },
+    settings: { react: { version: "detect" } },
     plugins: {
       js,
       "@typescript-eslint": tseslint.plugin,
@@ -38,12 +34,15 @@ export default defineConfig([
       // ESLint + TS base
       ...js.configs.recommended.rules,
       ...tseslint.configs.recommended.rules,
+
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": ["error"],
       ...pluginReact.configs.recommended.rules,
       ...pluginPrettier.configs.recommended.rules,
 
       // Style
-      "semi": ["error", "always"],
-      "quotes": ["error", "double"],
+      semi: ["error", "always"],
+      quotes: ["error", "double"],
       "comma-dangle": ["error", "always-multiline"],
 
       // React 17+ JSX no longer needs React in scope
