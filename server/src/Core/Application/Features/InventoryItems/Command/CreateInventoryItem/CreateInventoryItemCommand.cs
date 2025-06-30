@@ -2,7 +2,7 @@ using System;
 using Domain.Entities.Enums;
 using MediatR;
 
-namespace Application.Features.InventoryItem.Command.CreateInventoryItem;
+namespace Application.Features.InventoryItems.Command.CreateInventoryItem;
 
 public record CreateInventoryItemCommand(
     string ItemNumber,
