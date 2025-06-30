@@ -14,9 +14,10 @@ public class GetVehicleDetailsDTO
     public required string LicensePlate { get; set; }
     public required DateTime LicensePlateExpirationDate { get; set; }
     public required VehicleTypeEnum VehicleType { get; set; }
+    public required int VehicleGroupID { get; set; }
     public required string VehicleGroupName { get; set; }
     public required string AssignedTechnicianName { get; set; }
-    public required string AssignedTechnicianID { get; set; }
+    public string? AssignedTechnicianID { get; set; }
     public required string Trim { get; set; }
     public required double Mileage { get; set; }
     public required double EngineHours { get; set; }
