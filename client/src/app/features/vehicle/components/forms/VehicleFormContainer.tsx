@@ -1,8 +1,8 @@
 "use client";
 import React from "react";
 import { useRouter } from "next/navigation";
-import { useVehicleFormStore } from "../store/VehicleFormStore";
-import { FormSection } from "../types/VehicleFormTypes";
+import { useVehicleFormStore } from "../../store/VehicleFormStore";
+import { FormSection } from "../../types/VehicleFormTypes";
 import VehicleDetailsForm from "./VehicleDetailsForm";
 import VehicleMaintenanceForm from "./VehicleMaintenanceForm";
 import VehicleLifecycleForm from "./VehicleLifecycleForm";

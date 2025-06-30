@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { useVehicleFormStore } from "../store/VehicleFormStore";
+import { useVehicleFormStore } from "../../store/VehicleFormStore";
 
 const VehicleSpecificationsForm: React.FC = () => {
   const { formData, updateSpecifications } = useVehicleFormStore();
