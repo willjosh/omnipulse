@@ -49,7 +49,7 @@ jobs:
       - name: Write to Job Summary
         run: cat server/tests/coverage/report/SummaryGithub.md >> $GITHUB_STEP_SUMMARY
 
-      - name: Add Coverage PR Comment
+      - name: Write Coverage PR Comment
         uses: marocchino/sticky-pull-request-comment@v2
         if: github.event_name == 'pull_request'
         with:
