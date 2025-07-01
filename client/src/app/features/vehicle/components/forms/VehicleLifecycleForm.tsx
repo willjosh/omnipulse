@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { useVehicleFormStore } from "../store/VehicleFormStore";
+import { useVehicleFormStore } from "../../store/VehicleFormStore";
 
 const VehicleLifecycleForm: React.FC = () => {
   const { formData, updateLifecycle } = useVehicleFormStore();
