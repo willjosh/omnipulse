@@ -2,7 +2,7 @@ using System;
 using Application.Features.Users.Command.CreateTechnician;
 using FluentValidation;
 
-namespace Application.Test.User.CommandTest.CreateTechnicianTest;
+namespace Application.Test.Users.CommandTest.CreateTechnicianTest;
 
 public class CreateTechnicianCommandValidatorTest
 {
