@@ -83,11 +83,15 @@ const VehicleList: React.FC = () => {
         let aValue = a[filters.sortBy as keyof VehicleListItem];
         let bValue = b[filters.sortBy as keyof VehicleListItem];
 
-        if (typeof aValue === "string") aValue = aValue.toLowerCase();
-        if (typeof bValue === "string") bValue = bValue.toLowerCase();
+        if (aValue == null && bValue == null) return 0;
+        if (aValue == null) return filters.sortOrder === "asc" ? 1 : -1;
+        if (bValue == null) return filters.sortOrder === "asc" ? -1 : 1;
 
-        if (aValue < bValue) return filters.sortOrder === "asc" ? -1 : 1;
-        if (aValue > bValue) return filters.sortOrder === "asc" ? 1 : -1;
+        const aString = String(aValue).toLowerCase();
+        const bString = String(bValue).toLowerCase();
+
+        if (aString < bString) return filters.sortOrder === "asc" ? -1 : 1;
+        if (aString > bString) return filters.sortOrder === "asc" ? 1 : -1;
         return 0;
       });
     }
@@ -288,7 +292,7 @@ const VehicleList: React.FC = () => {
         <h1 className="text-2xl font-semibold text-gray-900">Vehicles</h1>
         <div className="flex items-center gap-3">
           <OptionButton />
-          <PrimaryButton onClick={() => router.push("/vehicles/new")}>
+          <PrimaryButton onClick={() => router.push("/vehicles/create")}>
             <span>+</span>
             Add Vehicles
           </PrimaryButton>
