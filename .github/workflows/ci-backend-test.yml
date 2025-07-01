@@ -61,7 +61,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: test-results
+          name: test-results-${{ github.run_id }}
           path: |
             server/tests/coverage/**/*.trx
             server/tests/coverage/report/
