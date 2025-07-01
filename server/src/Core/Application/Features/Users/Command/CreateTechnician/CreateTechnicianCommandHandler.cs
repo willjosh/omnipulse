@@ -20,9 +20,9 @@ public class CreateTechnicianCommandHandler : IRequestHandler<CreateTechnicianCo
     private readonly IValidator<CreateTechnicianCommand> _validator;
 
     public CreateTechnicianCommandHandler(
-        IUserRepository userRepository, 
-        IMapper mapper, 
-        IAppLogger<CreateTechnicianCommandHandler> logger, 
+        IUserRepository userRepository,
+        IMapper mapper,
+        IAppLogger<CreateTechnicianCommandHandler> logger,
         IValidator<CreateTechnicianCommand> validator)
     {
         _userRepository = userRepository;
@@ -44,7 +44,7 @@ public class CreateTechnicianCommandHandler : IRequestHandler<CreateTechnicianCo
 
         // Map request to User
         var user = _mapper.Map<User>(request);
-        user.UserName = request.Email; 
+        user.UserName = request.Email;
         user.CreatedAt = DateTime.UtcNow;
         user.UpdatedAt = DateTime.UtcNow;
 
@@ -53,7 +53,7 @@ public class CreateTechnicianCommandHandler : IRequestHandler<CreateTechnicianCo
 
         // Add new technician
         var result = await _userRepository.AddAsync(user, request.Password);
-        
+
         // Check if creation succeeded
         if (!result.Succeeded)
         {

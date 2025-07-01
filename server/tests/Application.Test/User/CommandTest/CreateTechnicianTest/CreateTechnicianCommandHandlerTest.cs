@@ -81,13 +81,14 @@ public class CreateTechnicianCommandHandlerTest
         var command = CreateValidCommand();
 
         SetupValidValidation(command);
-        
+
         _mockUserRepository.Setup(r => r.EmailExistsAsync(command.Email))
             .ReturnsAsync(false);
-        
+
         // Mock AddAsync to succeed AND simulate UserManager populating the ID
         _mockUserRepository.Setup(r => r.AddAsync(It.IsAny<IdentityUser>(), command.Password))
-            .Callback<IdentityUser, string>((user, _) => {
+            .Callback<IdentityUser, string>((user, _) =>
+            {
                 user.Id = Guid.NewGuid().ToString();
             })
             .ReturnsAsync(CreateSuccessResult());
@@ -97,11 +98,11 @@ public class CreateTechnicianCommandHandlerTest
 
         // Then
         Assert.NotEqual(Guid.Empty, result);
-        
+
         // Verify all dependencies were called correctly
         _mockValidator.Verify(v => v.ValidateAsync(command, CancellationToken.None), Times.Once);
         _mockUserRepository.Verify(r => r.EmailExistsAsync(command.Email), Times.Once);
-        _mockUserRepository.Verify(r => r.AddAsync(It.Is<IdentityUser>(u => 
+        _mockUserRepository.Verify(r => r.AddAsync(It.Is<IdentityUser>(u =>
             u.Email == command.Email &&
             ((Domain.Entities.User)u).FirstName == command.FirstName &&
             ((Domain.Entities.User)u).LastName == command.LastName &&
@@ -117,7 +118,7 @@ public class CreateTechnicianCommandHandlerTest
         var command = CreateValidCommand();
 
         SetupValidValidation(command);
-        
+
         _mockUserRepository.Setup(r => r.EmailExistsAsync(command.Email))
             .ReturnsAsync(true); // Email already exists
 
@@ -140,7 +141,7 @@ public class CreateTechnicianCommandHandlerTest
     {
         // Given
         var command = CreateValidCommand();
-        
+
         SetupInvalidValidation(command, "FirstName", "First name is required");
 
         // When & Then
@@ -155,17 +156,17 @@ public class CreateTechnicianCommandHandlerTest
         _mockUserRepository.Verify(r => r.EmailExistsAsync(It.IsAny<string>()), Times.Never);
         _mockUserRepository.Verify(r => r.AddAsync(It.IsAny<IdentityUser>(), It.IsAny<string>()), Times.Never);
     }
-    
+
     [Fact]
     public async Task Handle_Should_Throw_Exception_When_Repository_Fails()
     {
         // Given
         var command = CreateValidCommand();
         SetupValidValidation(command);
-        
+
         _mockUserRepository.Setup(r => r.EmailExistsAsync(command.Email))
             .ReturnsAsync(false);
-        
+
         _mockUserRepository.Setup(r => r.AddAsync(It.IsAny<IdentityUser>(), It.IsAny<string>()))
             .ThrowsAsync(new Exception("Database connection failed"));
 
