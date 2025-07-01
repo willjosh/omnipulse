@@ -14,7 +14,7 @@ public class UpdateInventoryItemCommandValidatorTest
         _validator = new UpdateInventoryItemCommandValidator();
     }
 
-    private UpdateInventoryItemCommand CreateValidCommand(
+    private static UpdateInventoryItemCommand CreateValidCommand(
         int inventoryItemID = 123,
         string itemNumber = "ITEM-001-UPDATED",
         string itemName = "Updated Test Item",
