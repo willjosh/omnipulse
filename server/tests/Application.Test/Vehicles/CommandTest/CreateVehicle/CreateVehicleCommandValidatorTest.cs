@@ -1,6 +1,9 @@
 using System;
+
 using Application.Features.Vehicles.Command.CreateVehicle;
+
 using Domain.Entities.Enums;
+
 using Xunit;
 
 namespace Application.Test.Vehicles.CommandTest.CreateVehicle;

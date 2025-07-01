@@ -1,14 +1,20 @@
 using System;
+
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
 using Application.Features.InventoryItems.Command.CreateInventoryItem;
 using Application.MappingProfiles;
+
 using AutoMapper;
+
 using Domain.Entities;
 using Domain.Entities.Enums;
+
 using FluentValidation;
+
 using Moq;
+
 using Xunit;
 
 namespace Application.Test.InventoryItems.CommandTest.CreateInventoryItem;

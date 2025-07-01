@@ -1,12 +1,14 @@
 using System;
+
 using Application.Features.Users.Command.CreateTechnician;
+
 using FluentValidation;
 
 namespace Application.Test.Users.CommandTest.CreateTechnicianTest;
 
 public class CreateTechnicianCommandValidatorTest
 {
-    IValidator<CreateTechnicianCommand> _validator;
+    readonly IValidator<CreateTechnicianCommand> _validator;
     public CreateTechnicianCommandValidatorTest()
     {
         _validator = new CreateTechnicianCommandValidator();

@@ -1,10 +1,14 @@
 using System;
+
 using Application.Contracts.Persistence;
 using Application.Models;
 using Application.Models.PaginationModels;
+
 using Domain.Entities;
-using Persistence.DatabaseContext;
+
 using Microsoft.EntityFrameworkCore;
+
+using Persistence.DatabaseContext;
 
 namespace Persistence.Repository;
 

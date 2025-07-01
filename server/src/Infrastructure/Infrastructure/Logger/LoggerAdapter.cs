@@ -1,5 +1,7 @@
 using System;
+
 using Application.Contracts.Logger;
+
 using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Logger;

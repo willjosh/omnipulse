@@ -1,8 +1,12 @@
 using System;
 using System.Linq.Expressions;
+
 using Application.Contracts.Persistence;
+
 using Domain.Entities;
+
 using Microsoft.EntityFrameworkCore;
+
 using Persistence.DatabaseContext;
 
 namespace Persistence.Repository;

@@ -2,12 +2,17 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
+
 using AutoMapper;
+
 using Domain.Entities;
+
 using FluentValidation;
+
 using MediatR;
 
 namespace Application.Features.Users.Command.CreateTechnician;
