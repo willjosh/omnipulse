@@ -29,7 +29,8 @@ public class CreateInventoryItemCommandValidator : AbstractValidator<CreateInven
             .MaximumLength(100).WithMessage("Manufacturer part number must not exceed 100 characters");
 
         RuleFor(x => x.UniversalProductCode)
-            .Length(12).WithMessage("Universal Product Code must be exactly 12 characters");
+            .Length(12).WithMessage("Universal Product Code must be exactly 12 characters")
+            .When(x => !string.IsNullOrEmpty(x.UniversalProductCode));
 
         RuleFor(x => x.Supplier)
             .MaximumLength(100).WithMessage("Supplier must not exceed 100 characters");
