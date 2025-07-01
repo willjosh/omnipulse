@@ -38,7 +38,7 @@ jobs:
             --no-build \
             --verbosity normal \
             --collect:"XPlat Code Coverage" \
-            --logger:"xunit;LogFilePath=test-results.xml" \
+            --logger:"trx;LogFileName=test-results.trx" \
             --results-directory server/tests/coverage
 
       - name: Upload coverage reports to Codecov
@@ -58,6 +58,6 @@ jobs:
         with:
           name: test-results
           path: |
-            server/tests/coverage/**/test-results.xml
+            server/tests/coverage/**/test-results.trx
             server/tests/coverage/**/coverage.cobertura.xml
           retention-days: 30
