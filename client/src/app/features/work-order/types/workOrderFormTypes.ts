@@ -6,22 +6,33 @@ export interface WorkOrderDetailsData {
 }
 
 export interface WorkOrderSchedulingData {
-  scheduledStartDate: string;
+  issueDate: Date | null;
+  issueTime: string;
+  issuedBy: string;
+  scheduledStartDate: Date | null;
   scheduledStartTime: string;
-  actualStartDate: string;
+  actualStartDate: Date | null;
   actualStartTime: string;
-  expectedCompletionDate: string;
+  expectedCompletionDate: Date | null;
   expectedCompletionTime: string;
+  actualCompletionDate: Date | null;
+  actualCompletionTime: string;
+  sendReminder: boolean;
 }
 
 export interface WorkOrderOdometerData {
   startOdometer: number | null;
+  useStartOdometer: boolean;
 }
 
 export interface WorkOrderFormData {
   details: WorkOrderDetailsData;
   scheduling: WorkOrderSchedulingData;
   odometer: WorkOrderOdometerData;
+  invoiceNumber: string | number;
+  poNumber: string | number;
+  labels: string[];
+  vendor: string;
 }
 
 export enum WorkOrderFormSection {
@@ -30,29 +41,25 @@ export enum WorkOrderFormSection {
   ODOMETER = "odometer",
 }
 
-export const createEmptyWorkOrderDetailsData = (): WorkOrderDetailsData => ({
-  vehicleId: "",
-  status: "Open",
-  description: "",
-  assignedTo: "",
-});
-
-export const createEmptyWorkOrderSchedulingData =
-  (): WorkOrderSchedulingData => ({
-    scheduledStartDate: "",
+export const initialFormData: WorkOrderFormData = {
+  details: { vehicleId: "", status: "Open", description: "", assignedTo: "" },
+  scheduling: {
+    issueDate: new Date(),
+    issueTime: "",
+    issuedBy: "",
+    scheduledStartDate: new Date(),
     scheduledStartTime: "",
-    actualStartDate: "",
+    actualStartDate: new Date(),
     actualStartTime: "",
-    expectedCompletionDate: "",
+    expectedCompletionDate: new Date(),
     expectedCompletionTime: "",
-  });
-
-export const createEmptyWorkOrderOdometerData = (): WorkOrderOdometerData => ({
-  startOdometer: null,
-});
-
-export const createEmptyWorkOrderFormData = (): WorkOrderFormData => ({
-  details: createEmptyWorkOrderDetailsData(),
-  scheduling: createEmptyWorkOrderSchedulingData(),
-  odometer: createEmptyWorkOrderOdometerData(),
-});
+    actualCompletionDate: new Date(),
+    actualCompletionTime: "",
+    sendReminder: false,
+  },
+  odometer: { startOdometer: null, useStartOdometer: false },
+  invoiceNumber: "",
+  poNumber: "",
+  labels: [],
+  vendor: "",
+};
