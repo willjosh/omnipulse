@@ -20,17 +20,18 @@ public class PaginationValidator<T> : AbstractValidator<PaginationParameters>
         RuleFor(x => x.Search)
             .MaximumLength(100)
             .WithMessage("Search must not exceed 100 characters.");
-        
+
         // Custom sort fields per entity
         RuleFor(x => x.SortBy)
             .Must(sortBy => IsValidSortBy(sortBy, validSortFields))
             .WithMessage($"SortBy must be one of: {string.Join(", ", validSortFields)}");
     }
-    
+
     private static bool IsValidSortBy(string? sortBy, string[] ValidSortFields)
     {
-        if (sortBy == null) {
-            return true; 
+        if (sortBy == null)
+        {
+            return true;
         }
 
         return ValidSortFields.Contains(sortBy.ToLowerInvariant());
