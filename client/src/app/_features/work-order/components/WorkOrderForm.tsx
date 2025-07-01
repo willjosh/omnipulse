@@ -524,6 +524,81 @@ const WorkOrderHeader: React.FC = () => {
             />
           </Box>
         </Paper>
+        <Paper
+          elevation={1}
+          sx={{ p: 2, mx: 25, backgroundColor: "#fff", mt: 4 }}
+        >
+          <Typography variant="h6" fontWeight="bold" mb={2}>
+            Comments
+          </Typography>
+
+          <Box display="flex" gap={2} alignItems="flex-start">
+            <Box
+              sx={{
+                width: 40,
+                height: 40,
+                borderRadius: "50%",
+                backgroundColor: "#FF6B00",
+                color: "#fff",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: "bold",
+                fontSize: 14,
+              }}
+            >
+              LP
+            </Box>
+            <TextField
+              placeholder="Add an optional comment"
+              fullWidth
+              multiline
+              minRows={3}
+              size="small"
+              variant="outlined"
+            />
+          </Box>
+        </Paper>
+        <Box
+          mt={4}
+          mb={3}
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          mx={25}
+          py={2}
+          borderTop="1px solid #e0e0e0"
+        >
+          <Button color="primary" sx={{ textTransform: "none" }}>
+            Cancel
+          </Button>
+          <Box display="flex" gap={1}>
+            <Button
+              variant="outlined"
+              endIcon={<ChevronDown size={16} />}
+              onClick={handleMenuClick}
+              sx={{ textTransform: "none", minHeight: 36 }}
+            >
+              Save and ...
+            </Button>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+            >
+              <MenuItem onClick={handleMenuClose}>
+                Save & Continue Editing
+              </MenuItem>
+              <MenuItem onClick={handleMenuClose}>Save & Add Another</MenuItem>
+            </Menu>
+            <Button
+              variant="contained"
+              sx={{ textTransform: "none", minHeight: 36 }}
+            >
+              Save Work Order
+            </Button>
+          </Box>
+        </Box>
       </Box>
     </Box>
   );
