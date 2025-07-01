@@ -2,10 +2,10 @@ import { create } from "zustand";
 import {
   WorkOrderFormData,
   WorkOrderFormSection,
-  createEmptyWorkOrderFormData,
   WorkOrderDetailsData,
   WorkOrderSchedulingData,
   WorkOrderOdometerData,
+  initialFormData,
 } from "../types/workOrderFormTypes";
 
 interface WorkOrderFormStore {
@@ -22,7 +22,7 @@ interface WorkOrderFormStore {
 }
 
 export const useWorkOrderFormStore = create<WorkOrderFormStore>(set => ({
-  formData: createEmptyWorkOrderFormData(),
+  formData: initialFormData,
   currentSection: WorkOrderFormSection.DETAILS,
   showValidation: false,
 
@@ -55,7 +55,7 @@ export const useWorkOrderFormStore = create<WorkOrderFormStore>(set => ({
 
   resetForm: () =>
     set({
-      formData: createEmptyWorkOrderFormData(),
+      formData: initialFormData,
       currentSection: WorkOrderFormSection.DETAILS,
       showValidation: false,
     }),
