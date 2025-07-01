@@ -87,6 +87,12 @@ const VehicleList: React.FC = () => {
         if (aValue == null) return filters.sortOrder === "asc" ? 1 : -1;
         if (bValue == null) return filters.sortOrder === "asc" ? -1 : 1;
 
+        if (typeof aValue === "number" && typeof bValue === "number") {
+          return filters.sortOrder === "asc"
+            ? aValue - bValue
+            : bValue - aValue;
+        }
+
         const aString = String(aValue).toLowerCase();
         const bString = String(bValue).toLowerCase();
 
