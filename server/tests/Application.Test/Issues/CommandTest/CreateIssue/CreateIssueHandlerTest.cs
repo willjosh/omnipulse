@@ -67,17 +67,11 @@ public class CreateIssueHandlerTest
             .ReturnsAsync(invalidResult);
     }
 
-    [Fact]
-    public async Task Handle_Should_Return_IssueID_On_Success()
+    private Vehicle CreateTestVehicle(int vehicleId = 123)
     {
-        // Given
-        var command = CreateValidCommand();
-        SetupValidValidation(command);
-
-        // Setup valid vehicle and user
-        var validVehicle = new Vehicle
+        return new Vehicle
         {
-            ID = command.VehicleID,
+            ID = vehicleId,
             Name = "Test Vehicle",
             Make = "Toyota",
             Model = "Camry",
@@ -107,10 +101,13 @@ public class CreateIssueHandlerTest
             Issues = [],
             VehicleInspections = []
         };
+    }
 
-        var validUser = new User
+    private User CreateTestUser(string userId = "1234567890")
+    {
+        return new User
         {
-            Id = command.ReportedByUserID,
+            Id = userId,
             FirstName = "John",
             LastName = "Doe",
             HireDate = DateTime.UtcNow,
@@ -124,6 +121,15 @@ public class CreateIssueHandlerTest
             VehicleInspections = [],
             Vehicles = []
         };
+    }
+
+    [Fact]
+    public async Task Handle_Should_Return_IssueID_On_Success()
+    {
+        // Given
+        var command = CreateValidCommand();
+        SetupValidValidation(command);
+
 
         var expectedIssue = new Issue
         {
@@ -146,8 +152,8 @@ public class CreateIssueHandlerTest
             User = null! // Required but not used in test
         };
 
-        _mockVehicleRepository.Setup(r => r.GetByIdAsync(command.VehicleID)).ReturnsAsync(validVehicle);
-        _mockUserRepository.Setup(r => r.GetByIdAsync(command.ReportedByUserID)).ReturnsAsync(validUser);
+        _mockVehicleRepository.Setup(r => r.GetByIdAsync(command.VehicleID)).ReturnsAsync(CreateTestVehicle(command.VehicleID));
+        _mockUserRepository.Setup(r => r.GetByIdAsync(command.ReportedByUserID)).ReturnsAsync(CreateTestUser(command.ReportedByUserID));
         _mockIssueRepository.Setup(r => r.AddAsync(It.IsAny<Issue>())).ReturnsAsync(expectedIssue);
         _mockIssueRepository.Setup(r => r.SaveChangesAsync()).ReturnsAsync(1);
 
@@ -209,40 +215,7 @@ public class CreateIssueHandlerTest
         SetupValidValidation(command);
 
         // Setup valid vehicle but invalid user
-        var validVehicle = new Vehicle
-        {
-            ID = command.VehicleID,
-            Name = "Test Vehicle",
-            Make = "Toyota",
-            Model = "Camry",
-            Year = 2023,
-            VIN = "1234567890",
-            LicensePlate = "ABC123",
-            LicensePlateExpirationDate = DateTime.UtcNow.AddYears(1),
-            VehicleType = Domain.Entities.Enums.VehicleTypeEnum.CAR,
-            VehicleGroupID = 1,
-            Trim = "Base",
-            Mileage = 0,
-            EngineHours = 0,
-            FuelCapacity = 50,
-            FuelType = Domain.Entities.Enums.FuelTypeEnum.PETROL,
-            PurchaseDate = DateTime.UtcNow,
-            PurchasePrice = 25000,
-            Status = Domain.Entities.Enums.VehicleStatusEnum.ACTIVE,
-            Location = "Test Location",
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow,
-            VehicleGroup = null!,
-            VehicleImages = [],
-            VehicleAssignments = [],
-            VehicleDocuments = [],
-            VehicleServicePrograms = [],
-            ServiceReminders = [],
-            Issues = [],
-            VehicleInspections = []
-        };
-
-        _mockVehicleRepository.Setup(r => r.GetByIdAsync(command.VehicleID)).ReturnsAsync(validVehicle);
+        _mockVehicleRepository.Setup(r => r.GetByIdAsync(command.VehicleID)).ReturnsAsync(CreateTestVehicle(command.VehicleID));
         _mockUserRepository.Setup(r => r.GetByIdAsync(command.ReportedByUserID)).ReturnsAsync((User?)null);
 
         // When & Then
