@@ -23,4 +23,8 @@
     <ProjectReference Include="../../src/Core/Application/Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="User/QueryTest/" />
+  </ItemGroup>
+
 </Project>

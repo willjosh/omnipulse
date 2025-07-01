@@ -1,13 +1,16 @@
 "use client";
-import React from "react";
-import { useRouter } from "next/navigation";
+import React, { useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
 import { useVehicleFormStore } from "../../store/VehicleFormStore";
 import { FormSection } from "../../types/VehicleFormTypes";
+import { MOCK_VEHICLES } from "../../types/VehicleListTypes";
 import VehicleDetailsForm from "./VehicleDetailsForm";
 import VehicleMaintenanceForm from "./VehicleMaintenanceForm";
 import VehicleLifecycleForm from "./VehicleLifecycleForm";
 import VehicleFinancialForm from "./VehicleFinancialForm";
 import VehicleSpecificationsForm from "./VehicleSpecificationsForm";
+import PrimaryButton from "@/app/_features/shared/button/PrimaryButton";
+import SecondaryButton from "@/app/_features/shared/button/SecondaryButton";
 
 const steps = [
   { section: FormSection.DETAILS, label: "Details", isRequired: true },
@@ -21,15 +24,43 @@ const steps = [
   },
 ];
 
-const VehicleFormContainer: React.FC = () => {
+interface VehicleFormContainerProps {
+  mode: "create" | "edit";
+}
+
+const VehicleFormContainer: React.FC<VehicleFormContainerProps> = ({
+  mode,
+}) => {
   const router = useRouter();
+  const params = useParams();
   const {
     currentSection,
     setCurrentSection,
     isDetailsComplete,
     setShowValidation,
     resetForm,
+    initializeForEdit,
+    initializeForCreate,
+    mode: storeMode,
+    vehicleId,
   } = useVehicleFormStore();
+
+  // depends on what mode
+  useEffect(() => {
+    if (mode === "create") {
+      initializeForCreate();
+    } else if (mode === "edit" && params.id) {
+      const vehicleIdFromParams = params.id as string;
+      const vehicleData = MOCK_VEHICLES.find(v => v.id === vehicleIdFromParams);
+
+      if (vehicleData) {
+        initializeForEdit(vehicleIdFromParams, vehicleData);
+      } else {
+        console.error(`Vehicle with ID ${vehicleIdFromParams} not found`);
+        router.push("/vehicles");
+      }
+    }
+  }, [mode, params.id, initializeForEdit, initializeForCreate, router]);
 
   const currentStepIndex = steps.findIndex(
     step => step.section === currentSection,
@@ -65,8 +96,8 @@ const VehicleFormContainer: React.FC = () => {
       return;
     }
     setShowValidation(false);
-    // add TanStack React Query
-    console.log("Save and continue");
+    // TODO: add TanStack React Query for API calls
+    console.log(`${storeMode === "create" ? "Save" : "Update"} and continue`);
     handleNext();
   };
 
@@ -76,15 +107,21 @@ const VehicleFormContainer: React.FC = () => {
       return;
     }
     setShowValidation(false);
-    // add TanStack React Query
-    console.log("Save vehicle");
+    // TODO: add TanStack React Query for API calls
+    if (storeMode === "create") {
+      console.log("Save vehicle");
+    } else {
+      console.log(`Update vehicle ${vehicleId}`);
+    }
     resetForm();
     router.push("/vehicles");
   };
 
   const handleCancel = () => {
     resetForm();
-    console.log("Cancel adding new vehicle");
+    console.log(
+      `Cancel ${storeMode === "create" ? "adding new" : "editing"} vehicle`,
+    );
     router.push("/vehicles");
   };
 
@@ -105,8 +142,20 @@ const VehicleFormContainer: React.FC = () => {
     }
   };
 
+  const pageTitle =
+    storeMode === "create"
+      ? "Add New Vehicle"
+      : `Edit Vehicle${vehicleId ? ` - ${vehicleId}` : ""}`;
+  const saveButtonText =
+    storeMode === "create" ? "Save Vehicle" : "Update Vehicle";
+
   return (
     <div className="max-w-4xl mx-auto my-16">
+      {/* Page Title */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-semibold text-gray-900">{pageTitle}</h1>
+      </div>
+
       {/* Step Indicator */}
       <div className="mb-8">
         <div className="flex items-center justify-between">
@@ -121,7 +170,7 @@ const VehicleFormContainer: React.FC = () => {
 
             return (
               <div key={step.section} className="flex items-center">
-                {/* Progress Circle */}
+                {/* Show form progress */}
                 <div className="flex items-center">
                   <button
                     onClick={() => handleStepClick(step.section)}
@@ -174,45 +223,33 @@ const VehicleFormContainer: React.FC = () => {
         </div>
       </div>
 
-      {/* Form Details */}
+      {/* Show Form details */}
       <div className="rounded-2xl p-6 bg-white">
         {renderCurrentSection()}
 
         <div className="flex justify-between items-center pt-6 mt-6 border-t border-gray-200">
           <div className="flex space-x-3">
-            <button
-              onClick={handleCancel}
-              className="px-6 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              Cancel
-            </button>
+            <SecondaryButton onClick={handleCancel}>
+              <span>Cancel</span>
+            </SecondaryButton>
 
             {!isFirstStep && (
-              <button
-                onClick={handlePrevious}
-                className="px-6 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                Previous
-              </button>
+              <SecondaryButton onClick={handlePrevious}>
+                <span>Previous</span>
+              </SecondaryButton>
             )}
           </div>
 
           <div className="flex space-x-3">
             {!isLastStep && (
-              <button
-                onClick={handleSaveAndContinue}
-                className="px-6 py-2 text-sm font-medium text-white bg-[var(--primary-color)] rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Continue
-              </button>
+              <PrimaryButton onClick={handleSaveAndContinue}>
+                <span>Continue</span>
+              </PrimaryButton>
             )}
 
-            <button
-              onClick={handleSaveVehicle}
-              className="px-6 py-2 text-sm font-medium text-white bg-[var(--primary-color)] rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Save Vehicle
-            </button>
+            <PrimaryButton onClick={handleSaveVehicle}>
+              <span>{saveButtonText}</span>
+            </PrimaryButton>
           </div>
         </div>
       </div>
