@@ -10,7 +10,7 @@ public class UserMappingProfile : Profile
     public UserMappingProfile()
     {
         CreateMap<CreateTechnicianCommand, User>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore()) 
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.MaintenanceHistories, opt => opt.Ignore())
             .ForMember(dest => dest.IssueAttachments, opt => opt.Ignore())
             .ForMember(dest => dest.VehicleAssignments, opt => opt.Ignore())
