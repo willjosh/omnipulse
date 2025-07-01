@@ -32,14 +32,19 @@ public class InventoryItemConfiguration : IEntityTypeConfiguration<InventoryItem
         builder.Property(i => i.ManufacturerPartNumber).HasMaxLength(100);
         builder.Property(i => i.UniversalProductCode).HasMaxLength(12); // UPC-A: 12 digits
         builder.Property(i => i.Supplier).HasMaxLength(100);
-        builder.Property(i => i.CompatibleVehicleTypes).HasMaxLength(200);
 
         builder.Property(i => i.UnitCost).HasPrecision(18, 2);
 
+        // Configure enum properties
+        builder.Property(i => i.Category).HasConversion<int>();
+        builder.Property(i => i.UnitCostMeasurementUnit).HasConversion<int>();
+
+        // Unique Constraints with explicit names
         builder.HasIndex(i => i.ItemNumber)
             .IsUnique()
             .HasDatabaseName("IX_InventoryItems_ItemNumber_Unique");
 
+        // UPC should be unique but allow multiple NULLs
         builder.HasIndex(i => i.UniversalProductCode)
             .IsUnique()
             .HasDatabaseName("IX_InventoryItems_UniversalProductCode_Unique")
@@ -60,8 +65,10 @@ public class InventoryItemConfiguration : IEntityTypeConfiguration<InventoryItem
         // Composite index for common queries
         builder.HasIndex(i => new { i.IsActive, i.Category }).HasDatabaseName("IX_InventoryItems_IsActive_Category");
 
+        // Check constraints with database-agnostic approach
         builder.ToTable(t =>
         {
+            // Use CASE statements for better database compatibility
             t.HasCheckConstraint("CK_InventoryItem_UnitCost_NonNegative",
                 "([UnitCost] IS NULL OR [UnitCost] >= 0)");
 

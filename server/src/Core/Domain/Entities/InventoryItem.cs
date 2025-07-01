@@ -17,7 +17,6 @@ public class InventoryItem : BaseEntity
     public string? Supplier { get; set; }
     public double? WeightKG { get; set; }
     public required Boolean IsActive { get; set; } = true;
-    public string? CompatibleVehicleTypes { get; set; }
 
     // Navigation Properties
     public required ICollection<Inventory> Inventories { get; set; } = [];

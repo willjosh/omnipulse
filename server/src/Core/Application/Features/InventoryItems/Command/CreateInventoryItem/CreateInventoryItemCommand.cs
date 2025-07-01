@@ -16,6 +16,5 @@ public record CreateInventoryItemCommand(
     InventoryItemUnitCostMeasurementUnitEnum? UnitCostMeasurementUnit,
     string? Supplier,
     double? WeightKG,
-    bool IsActive,
-    string? CompatibleVehicleTypes
+    bool IsActive
 ) : IRequest<int>;
