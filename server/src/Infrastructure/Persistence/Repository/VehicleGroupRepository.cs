@@ -14,7 +14,7 @@ public class VehicleGroupRepository : GenericRepository<VehicleGroup>, IVehicleG
 
     public async Task<PagedResult<VehicleGroup>> GetAllVehicleGroupsPagedAsync(PaginationParameters parameters)
     {
-        var query = _dbSet.AsQueryable();
+        var query = _dbSet.AsNoTracking().AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(parameters.Search))
         {
