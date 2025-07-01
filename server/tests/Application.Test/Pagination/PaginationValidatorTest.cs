@@ -40,10 +40,10 @@ public class PaginationValidatorTest
 
         // Then
         Assert.False(result.IsValid);
-        Assert.Contains(result.Errors, e => e.PropertyName == "PageNumber" && 
+        Assert.Contains(result.Errors, e => e.PropertyName == "PageNumber" &&
                                            e.ErrorMessage.Contains("greater than 0"));
     }
- 
+
 
     [Theory]
     [InlineData(1)]
@@ -88,7 +88,7 @@ public class PaginationValidatorTest
 
         // Then
         Assert.False(result.IsValid);
-        Assert.Contains(result.Errors, e => e.PropertyName == "PageSize" && 
+        Assert.Contains(result.Errors, e => e.PropertyName == "PageSize" &&
                                            e.ErrorMessage.Contains("greater than 0"));
     }
 
@@ -123,7 +123,7 @@ public class PaginationValidatorTest
 
         // Then
         Assert.False(result.IsValid);
-        Assert.Contains(result.Errors, e => e.PropertyName == "Search" && 
+        Assert.Contains(result.Errors, e => e.PropertyName == "Search" &&
                                            e.ErrorMessage.Contains("100 characters"));
     }
 
