@@ -1,3 +1,5 @@
+import { VehicleStatus, MeterUnit } from "./VehicleFormTypes";
+
 export interface VehicleListItem {
   id: string;
   name: string;
@@ -5,11 +7,11 @@ export interface VehicleListItem {
   make: string;
   model: string;
   vin: string;
-  status: "Active" | "Inactive" | "In Shop" | "Out of Service";
+  status: VehicleStatus;
   type: string;
   group: string;
   currentMeter: number;
-  meterUnit: "mi" | "km" | "hr";
+  meterUnit: MeterUnit;
   licensePlate: string;
   fuelType: string;
   assignedOperator?: string;
@@ -30,7 +32,7 @@ export interface VehicleListFilters {
   sortOrder?: "asc" | "desc";
 }
 
-export const MOCK_VEHICLES = [
+export const MOCK_VEHICLES: VehicleListItem[] = [
   {
     id: "V001",
     name: "SYD-4501",
@@ -391,4 +393,4 @@ export const MOCK_VEHICLES = [
     location: "Canberra",
     lastServiceDate: "2024-07-19",
   },
-];
+] as const;

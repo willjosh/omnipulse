@@ -1,13 +1,21 @@
+export type VehicleStatus =
+  | "Active"
+  | "Inactive"
+  | "In Shop"
+  | "Out of Service";
+export type MeterUnit = "mi" | "km" | "hr";
+export type LoanLeaseType = "none" | "loan" | "lease";
+
 export interface VehicleDetailsData {
   vehicleName: string;
-  telematicsDevice: string;
-  vin: string;
-  licensePlate: string;
-  type: string;
-  fuelType: string;
   year: number | null;
   make: string;
   model: string;
+  vin: string;
+  type: string;
+  telematicsDevice: string;
+  licensePlate: string;
+  fuelType: string;
   trim: string;
   registrationState: string;
   labels: string;
