@@ -49,12 +49,19 @@ jobs:
       - name: Write to Job Summary
         run: cat server/tests/coverage/report/SummaryGithub.md >> $GITHUB_STEP_SUMMARY
 
+      - name: Create PR comment with coverage and artifact link
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "# [📊 Code Coverage Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" > pr-comment.md
+          echo "" >> pr-comment.md
+          cat server/tests/coverage/report/SummaryGithub.md >> pr-comment.md
+
       - name: Write Coverage PR Comment
         uses: marocchino/sticky-pull-request-comment@v2
         if: github.event_name == 'pull_request'
         with:
           recreate: true
-          path: server/tests/coverage/report/SummaryGithub.md
+          path: pr-comment.md
           header: coverage-report
 
       - name: Upload test results
