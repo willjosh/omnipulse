@@ -116,6 +116,8 @@ public class CreateInventoryItemCommandHandlerTest
         };
 
         _mockInventoryItemRepository.Setup(r => r.IsItemNumberUniqueAsync(command.ItemNumber)).ReturnsAsync(true);
+        _mockInventoryItemRepository.Setup(r => r.IsUniversalProductCodeUniqueAsync(command.UniversalProductCode)).ReturnsAsync(true);
+        _mockInventoryItemRepository.Setup(r => r.IsManufacturerPartNumberUniqueAsync(command.Manufacturer, command.ManufacturerPartNumber)).ReturnsAsync(true);
         _mockInventoryItemRepository.Setup(r => r.AddAsync(It.IsAny<InventoryItem>())).ReturnsAsync(expectedInventoryItem);
         _mockInventoryItemRepository.Setup(r => r.SaveChangesAsync()).ReturnsAsync(1);
 
@@ -126,6 +128,8 @@ public class CreateInventoryItemCommandHandlerTest
         Assert.Equal(expectedInventoryItem.ID, result);
         _mockValidator.Verify(v => v.ValidateAsync(command, CancellationToken.None), Times.Once);
         _mockInventoryItemRepository.Verify(r => r.IsItemNumberUniqueAsync(command.ItemNumber), Times.Once);
+        _mockInventoryItemRepository.Verify(r => r.IsUniversalProductCodeUniqueAsync(command.UniversalProductCode), Times.Once);
+        _mockInventoryItemRepository.Verify(r => r.IsManufacturerPartNumberUniqueAsync(command.Manufacturer, command.ManufacturerPartNumber), Times.Once);
         _mockInventoryItemRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
@@ -137,6 +141,9 @@ public class CreateInventoryItemCommandHandlerTest
         SetupValidValidation(command);
 
         _mockInventoryItemRepository.Setup(r => r.IsItemNumberUniqueAsync(command.ItemNumber)).ReturnsAsync(false);
+        // Note: Other uniqueness checks won't be reached since ItemNumber check fails first, but setting up for completeness
+        _mockInventoryItemRepository.Setup(r => r.IsUniversalProductCodeUniqueAsync(command.UniversalProductCode)).ReturnsAsync(true);
+        _mockInventoryItemRepository.Setup(r => r.IsManufacturerPartNumberUniqueAsync(command.Manufacturer, command.ManufacturerPartNumber)).ReturnsAsync(true);
 
         // When & Then
         await Assert.ThrowsAsync<DuplicateEntityException>(
@@ -154,6 +161,11 @@ public class CreateInventoryItemCommandHandlerTest
         // Given
         var command = CreateValidCommand();
         SetupInvalidValidation(command, "ItemNumber", "Item number is required");
+
+        // Note: Uniqueness checks won't be reached since validation fails first, but setting up for completeness
+        _mockInventoryItemRepository.Setup(r => r.IsItemNumberUniqueAsync(command.ItemNumber)).ReturnsAsync(true);
+        _mockInventoryItemRepository.Setup(r => r.IsUniversalProductCodeUniqueAsync(command.UniversalProductCode)).ReturnsAsync(true);
+        _mockInventoryItemRepository.Setup(r => r.IsManufacturerPartNumberUniqueAsync(command.Manufacturer, command.ManufacturerPartNumber)).ReturnsAsync(true);
 
         // When & Then
         await Assert.ThrowsAsync<BadRequestException>(
@@ -204,6 +216,7 @@ public class CreateInventoryItemCommandHandlerTest
         };
 
         _mockInventoryItemRepository.Setup(r => r.IsItemNumberUniqueAsync(command.ItemNumber)).ReturnsAsync(true);
+        // No need to setup UPC and MPN uniqueness checks since they are null
         _mockInventoryItemRepository.Setup(r => r.AddAsync(It.IsAny<InventoryItem>())).ReturnsAsync(expectedInventoryItem);
         _mockInventoryItemRepository.Setup(r => r.SaveChangesAsync()).ReturnsAsync(1);
 
@@ -215,5 +228,9 @@ public class CreateInventoryItemCommandHandlerTest
         Assert.Null(expectedInventoryItem.Description);
         Assert.Null(expectedInventoryItem.Category);
         Assert.Null(expectedInventoryItem.Manufacturer);
+        _mockInventoryItemRepository.Verify(r => r.IsItemNumberUniqueAsync(command.ItemNumber), Times.Once);
+        // Verify that UPC and MPN uniqueness checks are NOT called since values are null
+        _mockInventoryItemRepository.Verify(r => r.IsUniversalProductCodeUniqueAsync(It.IsAny<string>()), Times.Never);
+        _mockInventoryItemRepository.Verify(r => r.IsManufacturerPartNumberUniqueAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 }
