@@ -1,6 +1,6 @@
-using System;
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
+using Application.Exceptions;
 using Application.Features.Vehicles.Query.GetAllVehicle;
 using Application.MappingProfiles;
 using Application.Models;
@@ -8,21 +8,23 @@ using Application.Models.PaginationModels;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Entities.Enums;
+using FluentValidation;
 using Moq;
 
 namespace Application.Test.Vehicles.QueryTest.GetAllVehicle;
 
 public class GetAllVehicleQueryHandlerTest
 {
-
     private readonly Mock<IVehicleRepository> _mockVehicleRepository;
     private readonly GetAllVehicleQueryHandler _getAllVehicleQueryHandler;
     private readonly Mock<IAppLogger<GetAllVehicleQueryHandler>> _mockLogger;
+    private readonly Mock<IValidator<GetAllVehicleQuery>> _mockValidator;
 
     public GetAllVehicleQueryHandlerTest()
     {
         _mockVehicleRepository = new();
         _mockLogger = new();
+        _mockValidator = new();
 
         var config = new MapperConfiguration(cfg =>
         {
@@ -33,12 +35,31 @@ public class GetAllVehicleQueryHandlerTest
         _getAllVehicleQueryHandler = new GetAllVehicleQueryHandler(
             _mockVehicleRepository.Object,
             mapper,
-            _mockLogger.Object
+            _mockLogger.Object,
+            _mockValidator.Object
         );
     }
 
-    [Fact(Skip = "Not Implemented")]
-    public async Task Handler_Should_return_GetAllVehicleDTO_On_Success()
+    // Helper method to set up valid validation result
+    private void SetupValidValidation(GetAllVehicleQuery query)
+    {
+        var validResult = new FluentValidation.Results.ValidationResult();
+        _mockValidator.Setup(v => v.Validate(query))
+                     .Returns(validResult);
+    }
+
+    // Helper method to set up validation failure
+    private void SetupInvalidValidation(GetAllVehicleQuery query, string propertyName = "Parameters.PageNumber", string errorMessage = "Validation failed")
+    {
+        var invalidResult = new FluentValidation.Results.ValidationResult(
+            [new FluentValidation.Results.ValidationFailure(propertyName, errorMessage)]
+        );
+        _mockValidator.Setup(v => v.Validate(query))
+                     .Returns(invalidResult);
+    }
+
+    [Fact]
+    public async Task Handler_Should_Return_PagedResult_On_Success()
     {
         // Given
         var parameters = new PaginationParameters
@@ -51,6 +72,7 @@ public class GetAllVehicleQueryHandlerTest
         };
 
         var query = new GetAllVehicleQuery(parameters);
+        SetupValidValidation(query);
 
         // Create Vehicle entities (what the repository returns)
         var vehicleGroup = new VehicleGroup
@@ -115,8 +137,7 @@ public class GetAllVehicleQueryHandlerTest
                 Issues = [],
                 VehicleInspections = []
             },
-            new Vehicle
-            {
+            new() {
                 ID = 2,
                 CreatedAt = new DateTime(2023, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                 UpdatedAt = new DateTime(2023, 1, 1, 0, 0, 0, DateTimeKind.Utc),
@@ -159,14 +180,15 @@ public class GetAllVehicleQueryHandlerTest
             PageSize = 5
         };
 
-        _mockVehicleRepository.Setup(r => r.GetAllVehiclesPagedAsync(parameters)).ReturnsAsync(pagedVehicleEntities);
+        _mockVehicleRepository.Setup(r => r.GetAllVehiclesPagedAsync(parameters))
+                              .ReturnsAsync(pagedVehicleEntities);
 
         // When
         var result = await _getAllVehicleQueryHandler.Handle(query, CancellationToken.None);
 
         // Then  
         Assert.NotNull(result);
-        Assert.IsType<GetAllVehicleDTO>(result);
+        Assert.IsType<PagedResult<GetAllVehicleDTO>>(result);
 
         Assert.Equal(25, result.TotalCount);
         Assert.Equal(1, result.PageNumber);
@@ -200,11 +222,12 @@ public class GetAllVehicleQueryHandlerTest
         Assert.Equal(VehicleStatusEnum.ACTIVE, firstVehicle.Status);
         Assert.Equal("Sydney", firstVehicle.Location);
 
-        // Verify repository was called with correct parameters
+        // Verify mocks were called correctly
+        _mockValidator.Verify(v => v.Validate(query), Times.Once);
         _mockVehicleRepository.Verify(r => r.GetAllVehiclesPagedAsync(parameters), Times.Once);
     }
 
-    [Fact(Skip = "Not Implemented")]
+    [Fact]
     public async Task Handler_Should_Return_Empty_Result_When_No_Vehicles()
     {
         // Given
@@ -216,6 +239,7 @@ public class GetAllVehicleQueryHandlerTest
         };
 
         var query = new GetAllVehicleQuery(parameters);
+        SetupValidValidation(query);
 
         var emptyPagedResult = new PagedResult<Vehicle>
         {
@@ -240,9 +264,13 @@ public class GetAllVehicleQueryHandlerTest
         Assert.Equal(0, result.TotalPages);
         Assert.False(result.HasPreviousPage);
         Assert.False(result.HasNextPage);
+
+        // Verify mocks were called correctly
+        _mockValidator.Verify(v => v.Validate(query), Times.Once);
+        _mockVehicleRepository.Verify(r => r.GetAllVehiclesPagedAsync(parameters), Times.Once);
     }
 
-    [Fact(Skip = "Not Implemented")]
+    [Fact]
     public async Task Handler_Should_Handle_Different_Page_Sizes()
     {
         // Given
@@ -253,6 +281,7 @@ public class GetAllVehicleQueryHandlerTest
         };
 
         var query = new GetAllVehicleQuery(parameters);
+        SetupValidValidation(query);
 
         var pagedResult = new PagedResult<Vehicle>
         {
@@ -275,9 +304,13 @@ public class GetAllVehicleQueryHandlerTest
         Assert.Equal(4, result.TotalPages); // 10 / 3 = 4 pages (rounded up)
         Assert.True(result.HasPreviousPage);
         Assert.True(result.HasNextPage);
+
+        // Verify mocks were called correctly
+        _mockValidator.Verify(v => v.Validate(query), Times.Once);
+        _mockVehicleRepository.Verify(r => r.GetAllVehiclesPagedAsync(parameters), Times.Once);
     }
 
-    [Fact(Skip = "Not Implemented")]
+    [Fact]
     public async Task Handler_Should_Handle_Last_Page()
     {
         // Given
@@ -288,10 +321,11 @@ public class GetAllVehicleQueryHandlerTest
         };
 
         var query = new GetAllVehicleQuery(parameters);
+        SetupValidValidation(query);
 
         var pagedResult = new PagedResult<Vehicle>
         {
-            Items = [], // Empty for simplicity
+            Items = [], 
             TotalCount = 12,
             PageNumber = 3,
             PageSize = 5
@@ -307,8 +341,34 @@ public class GetAllVehicleQueryHandlerTest
         Assert.Equal(12, result.TotalCount);
         Assert.Equal(3, result.PageNumber);
         Assert.Equal(5, result.PageSize);
-        Assert.Equal(3, result.TotalPages); // 12 / 5 = 3 pages (rounded up)
+        Assert.Equal(3, result.TotalPages); 
         Assert.True(result.HasPreviousPage);
-        Assert.False(result.HasNextPage); // Last page
+        Assert.False(result.HasNextPage); 
+
+        // Verify mocks were called correctly
+        _mockValidator.Verify(v => v.Validate(query), Times.Once);
+        _mockVehicleRepository.Verify(r => r.GetAllVehiclesPagedAsync(parameters), Times.Once);
+    }
+
+    [Fact]
+    public async Task Handler_Should_Throw_BadRequestException_On_Validation_Failure()
+    {
+        // Given
+        var parameters = new PaginationParameters
+        {
+            PageNumber = 0, 
+            PageSize = 10
+        };
+
+        var query = new GetAllVehicleQuery(parameters);
+        SetupInvalidValidation(query, "Parameters.PageNumber", "Page number must be greater than 0");
+
+        // When & Then
+        await Assert.ThrowsAsync<BadRequestException>(
+            () => _getAllVehicleQueryHandler.Handle(query, CancellationToken.None)
+        );
+
+        _mockValidator.Verify(v => v.Validate(query), Times.Once);
+        _mockVehicleRepository.Verify(r => r.GetAllVehiclesPagedAsync(It.IsAny<PaginationParameters>()), Times.Never);
     }
 }
