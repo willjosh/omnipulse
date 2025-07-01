@@ -10,7 +10,7 @@ public class CheckListItem : BaseEntity
     public required string ItemName { get; set; }
     public string? Description { get; set; }
     public required InputTypeEnum InputType { get; set; }
-    public required Boolean IsMandatory { get; set; } = true;
+    public required bool IsMandatory { get; set; } = true;
 
     // navigation properties
     public required InspectionType Inspection { get; set; }

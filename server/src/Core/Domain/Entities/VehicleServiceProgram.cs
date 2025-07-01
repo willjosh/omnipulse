@@ -7,7 +7,7 @@ public class VehicleServiceProgram
     public required int VehicleID { get; set; }
     public required int ServiceProgramID { get; set; }
     public required DateTime AssignedDate { get; set; }
-    public required Boolean IsActive { get; set; }
+    public required bool IsActive { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

@@ -9,7 +9,7 @@ public class InventoryItemLocation : BaseEntity
     public required double Longitude { get; set; }
     public required double Latitude { get; set; }
     public required int Capacity { get; set; }
-    public required Boolean IsActive { get; set; } = true;
+    public required bool IsActive { get; set; } = true;
 
     // navigation properties
     public required ICollection<Inventory> Inventories { get; set; } = [];
