@@ -18,6 +18,7 @@ import { ChevronLeft, ChevronDown } from "lucide-react";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers";
+import { useWorkOrderFormStore } from "../store/workOrderFormStore";
 
 const WorkOrderHeader: React.FC = () => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -31,15 +32,8 @@ const WorkOrderHeader: React.FC = () => {
   };
 
   const vehicleOptions = ["1100 [2018 Toyota Prius]", "2100 [2016 Ford F-150]"];
-  const [vehicles, setVehicles] = React.useState<string | null>(null);
-
   const statusOptions = ["Open", "Pending", "Completed"];
-  const [status, setStatus] = React.useState<string | null>(null);
-
   const repairPriorityOptions = ["Scheduled", "Non-Scheduled", "Emergency"];
-  const [repairPriority, setRepairPriority] = React.useState<string | null>(
-    null,
-  );
 
   const userOptions = ["Licht Potato", "Andy Miller", "Carlos Garcia"];
   const timeOptions = [];
@@ -48,46 +42,12 @@ const WorkOrderHeader: React.FC = () => {
     timeOptions.push(`${hour % 12 || 12}:30${hour < 12 ? "am" : "pm"}`);
   }
 
-  const [issueDate, setIssueDate] = React.useState<Date | null>(new Date());
-  const [issueTime, setIssueTime] = React.useState<string | null>("");
-  const [issuedBy, setIssuedBy] = React.useState<string | null>(null);
-
-  const [scheduledStartDate, setScheduledStartDate] =
-    React.useState<Date | null>(new Date());
-  const [scheduledStartTime, setScheduledStartTime] = React.useState<
-    string | null
-  >("");
-  const [actualStartDate, setActualStartDate] = React.useState<Date | null>(
-    new Date(),
-  );
-  const [actualStartTime, setActualStartTime] = React.useState<string | null>(
-    "",
-  );
-  const [sendReminder, setSendReminder] = React.useState(false);
-
-  const [expectedCompletionDate, setExpectedCompletionDate] =
-    React.useState<Date | null>(new Date());
-  const [expectedCompletionTime, setExpectedCompletionTime] = React.useState<
-    string | null
-  >("");
-  const [actualCompletionDate, setActualCompletionDate] =
-    React.useState<Date | null>(new Date());
-  const [actualCompletionTime, setActualCompletionTime] = React.useState<
-    string | null
-  >("");
-  const [useStartOdometer, setUseStartOdometer] = React.useState(false);
-
   const assignedToOptions = ["Licht Potato", "Andy Miller", "Carlos Garcia"];
   const labelOptions = ["Test"];
   const vendorOptions = ["Elite Tire and Service Inc."];
 
-  const [assignedTo, setAssignedTo] = React.useState<string | null>(null);
-  const [labels, setLabels] = React.useState<string | null>(null);
-  const [vendor, setVendor] = React.useState<string | null>(null);
-  const [invoiceNumber, setInvoiceNumber] = React.useState<
-    number | string | null
-  >(0);
-  const [poNumber, setPoNumber] = React.useState<number | string | null>(0);
+  const { formData, updateDetails, updateScheduling, updateOdometer } =
+    useWorkOrderFormStore();
 
   return (
     <Box>
@@ -172,8 +132,10 @@ const WorkOrderHeader: React.FC = () => {
           </Typography>
           <Autocomplete
             options={vehicleOptions}
-            value={vehicles}
-            onChange={(e, newValue) => setVehicles(newValue)}
+            value={formData.details.vehicleId}
+            onChange={(e, newValue) =>
+              updateDetails({ vehicleId: newValue || "" })
+            }
             renderInput={params => (
               <TextField {...params} placeholder="Please select" size="small" />
             )}
@@ -185,8 +147,10 @@ const WorkOrderHeader: React.FC = () => {
           </Typography>
           <Autocomplete
             options={statusOptions}
-            value={status}
-            onChange={(e, newValue) => setStatus(newValue)}
+            value={formData.details.status}
+            onChange={(e, newValue) =>
+              updateDetails({ status: newValue || "Open" })
+            }
             renderInput={params => (
               <TextField {...params} placeholder="Please select" size="small" />
             )}
@@ -198,8 +162,10 @@ const WorkOrderHeader: React.FC = () => {
           </Typography>
           <Autocomplete
             options={repairPriorityOptions}
-            value={repairPriority}
-            onChange={(e, newValue) => setRepairPriority(newValue)}
+            value={formData.details.repairPriorityClass}
+            onChange={(e, newValue) =>
+              updateDetails({ repairPriorityClass: newValue || "" })
+            }
             renderInput={params => (
               <TextField {...params} placeholder="Please select" size="small" />
             )}
@@ -229,8 +195,10 @@ const WorkOrderHeader: React.FC = () => {
             <Box display="flex" gap={2} alignItems="center">
               <LocalizationProvider dateAdapter={AdapterDateFns}>
                 <DatePicker
-                  value={issueDate}
-                  onChange={newValue => setIssueDate(newValue)}
+                  value={formData.scheduling.issueDate || null}
+                  onChange={newValue =>
+                    updateScheduling({ issueDate: newValue || null })
+                  }
                   slotProps={{ textField: { size: "small" } }}
                   sx={{ flex: 3 }}
                 />
@@ -238,8 +206,10 @@ const WorkOrderHeader: React.FC = () => {
 
               <Autocomplete
                 options={timeOptions}
-                value={issueTime}
-                onChange={(e, newValue) => setIssueTime(newValue)}
+                value={formData.scheduling.issueTime}
+                onChange={(e, newValue) =>
+                  updateScheduling({ issueTime: newValue || "" })
+                }
                 renderInput={params => (
                   <TextField
                     {...params}
@@ -253,8 +223,10 @@ const WorkOrderHeader: React.FC = () => {
 
               <Autocomplete
                 options={userOptions}
-                value={issuedBy}
-                onChange={(e, newValue) => setIssuedBy(newValue)}
+                value={formData.scheduling.issuedBy}
+                onChange={(e, newValue) =>
+                  updateScheduling({ issuedBy: newValue || "" })
+                }
                 renderInput={params => (
                   <TextField
                     {...params}
@@ -286,16 +258,20 @@ const WorkOrderHeader: React.FC = () => {
 
             <Box display="flex" gap={2} alignItems="center">
               <DatePicker
-                value={scheduledStartDate}
-                onChange={newValue => setScheduledStartDate(newValue)}
+                value={formData.scheduling.scheduledStartDate || null}
+                onChange={newValue =>
+                  updateScheduling({ scheduledStartDate: newValue || null })
+                }
                 slotProps={{ textField: { size: "small" } }}
                 sx={{ flex: 3 }}
               />
 
               <Autocomplete
                 options={timeOptions}
-                value={scheduledStartTime}
-                onChange={(e, newValue) => setScheduledStartTime(newValue)}
+                value={formData.scheduling.scheduledStartTime || ""}
+                onChange={(e, newValue) =>
+                  updateScheduling({ scheduledStartTime: newValue || "" })
+                }
                 renderInput={params => (
                   <TextField
                     {...params}
@@ -309,15 +285,19 @@ const WorkOrderHeader: React.FC = () => {
 
               <Box sx={{ flex: 5 }} display="flex" gap={2}>
                 <DatePicker
-                  value={actualStartDate}
-                  onChange={newValue => setActualStartDate(newValue)}
+                  value={formData.scheduling.actualStartDate || null}
+                  onChange={newValue =>
+                    updateScheduling({ actualStartDate: newValue || null })
+                  }
                   slotProps={{ textField: { size: "small" } }}
                   sx={{ flex: 3 }}
                 />
                 <Autocomplete
                   options={timeOptions}
-                  value={actualStartTime}
-                  onChange={(e, newValue) => setActualStartTime(newValue)}
+                  value={formData.scheduling.actualStartTime || ""}
+                  onChange={(e, newValue) =>
+                    updateScheduling({ actualStartTime: newValue || "" })
+                  }
                   renderInput={params => (
                     <TextField
                       {...params}
@@ -334,8 +314,10 @@ const WorkOrderHeader: React.FC = () => {
             </Box>
             <Box display="flex" alignItems="center" mt={2}>
               <Checkbox
-                checked={sendReminder}
-                onChange={e => setSendReminder(e.target.checked)}
+                checked={formData.scheduling.sendReminder || false}
+                onChange={e =>
+                  updateScheduling({ sendReminder: e.target.checked })
+                }
                 sx={{ mt: -2.5 }}
               />
               <Box>
@@ -371,16 +353,20 @@ const WorkOrderHeader: React.FC = () => {
 
             <Box display="flex" gap={2} alignItems="center">
               <DatePicker
-                value={expectedCompletionDate}
-                onChange={newValue => setExpectedCompletionDate(newValue)}
+                value={formData.scheduling.expectedCompletionDate || null}
+                onChange={newValue =>
+                  updateScheduling({ expectedCompletionDate: newValue || null })
+                }
                 slotProps={{ textField: { size: "small" } }}
                 sx={{ flex: 3 }}
               />
 
               <Autocomplete
                 options={timeOptions}
-                value={expectedCompletionTime}
-                onChange={(e, newValue) => setExpectedCompletionTime(newValue)}
+                value={formData.scheduling.expectedCompletionTime || ""}
+                onChange={(e, newValue) =>
+                  updateScheduling({ expectedCompletionTime: newValue || "" })
+                }
                 renderInput={params => (
                   <TextField
                     {...params}
@@ -394,15 +380,19 @@ const WorkOrderHeader: React.FC = () => {
 
               <Box sx={{ flex: 5 }} display="flex" gap={2}>
                 <DatePicker
-                  value={actualCompletionDate}
-                  onChange={newValue => setActualCompletionDate(newValue)}
+                  value={formData.scheduling.actualCompletionDate || null}
+                  onChange={newValue =>
+                    updateScheduling({ actualCompletionDate: newValue || null })
+                  }
                   slotProps={{ textField: { size: "small" } }}
                   sx={{ flex: 3 }}
                 />
                 <Autocomplete
                   options={timeOptions}
-                  value={actualCompletionTime}
-                  onChange={(e, newValue) => setActualCompletionTime(newValue)}
+                  value={formData.scheduling.actualCompletionTime || ""}
+                  onChange={(e, newValue) =>
+                    updateScheduling({ actualCompletionTime: newValue || "" })
+                  }
                   renderInput={params => (
                     <TextField
                       {...params}
@@ -421,8 +411,10 @@ const WorkOrderHeader: React.FC = () => {
             {/* Use Start Odometer Checkbox */}
             <Box display="flex" alignItems="center" mt={2} mb={1}>
               <Checkbox
-                checked={useStartOdometer}
-                onChange={e => setUseStartOdometer(e.target.checked)}
+                checked={formData.odometer.useStartOdometer || false}
+                onChange={e =>
+                  updateOdometer({ useStartOdometer: e.target.checked })
+                }
                 sx={{ mt: -2.5 }}
               />
               <Box>
@@ -444,8 +436,10 @@ const WorkOrderHeader: React.FC = () => {
           </Typography>
           <Autocomplete
             options={assignedToOptions}
-            value={assignedTo}
-            onChange={(e, newValue) => setAssignedTo(newValue)}
+            value={formData.details.assignedTo || ""}
+            onChange={(e, newValue) =>
+              updateDetails({ assignedTo: newValue || "" })
+            }
             renderInput={params => (
               <TextField
                 {...params}
@@ -462,8 +456,10 @@ const WorkOrderHeader: React.FC = () => {
           </Typography>
           <Autocomplete
             options={labelOptions}
-            value={labels}
-            onChange={(e, newValue) => setLabels(newValue)}
+            value={formData.details.labels || ""}
+            onChange={(e, newValue) =>
+              updateDetails({ labels: newValue || "" })
+            }
             renderInput={params => (
               <TextField
                 {...params}
@@ -480,8 +476,10 @@ const WorkOrderHeader: React.FC = () => {
           </Typography>
           <Autocomplete
             options={vendorOptions}
-            value={vendor}
-            onChange={(e, newValue) => setVendor(newValue)}
+            value={formData.details.vendor || ""}
+            onChange={(e, newValue) =>
+              updateDetails({ vendor: newValue || "" })
+            }
             renderInput={params => (
               <TextField
                 {...params}
@@ -507,15 +505,19 @@ const WorkOrderHeader: React.FC = () => {
           </Box>
           <Box display="flex" gap={2} alignItems="center">
             <TextField
-              value={invoiceNumber}
-              onChange={e => setInvoiceNumber(e.target.value)}
+              value={formData.details.invoiceNumber ?? ""}
+              onChange={e =>
+                updateDetails({ invoiceNumber: Number(e.target.value) || 0 })
+              }
               fullWidth
               size="small"
               sx={{ flex: 5 }}
             />
             <TextField
-              value={poNumber}
-              onChange={e => setPoNumber(e.target.value)}
+              value={formData.details.poNumber ?? ""}
+              onChange={e =>
+                updateDetails({ poNumber: Number(e.target.value) || 0 })
+              }
               fullWidth
               size="small"
               sx={{ flex: 5 }}
