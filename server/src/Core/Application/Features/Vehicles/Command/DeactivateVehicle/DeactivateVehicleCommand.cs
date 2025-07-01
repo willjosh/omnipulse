@@ -1,4 +1,5 @@
 using System;
+
 using MediatR;
 
 namespace Application.Features.Vehicles.Command.DeactivateVehicle;

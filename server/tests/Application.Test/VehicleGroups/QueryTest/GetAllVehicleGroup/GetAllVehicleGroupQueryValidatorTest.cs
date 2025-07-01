@@ -1,7 +1,9 @@
 using System;
-using Application.Features.VehicleGroups.Query.GetAllVehicleGroup;
+
 using Application.Features.Shared;
+using Application.Features.VehicleGroups.Query.GetAllVehicleGroup;
 using Application.Models;
+
 using Xunit;
 
 namespace Application.Test.VehicleGroups.QueryTest.GetAllVehicleGroup;

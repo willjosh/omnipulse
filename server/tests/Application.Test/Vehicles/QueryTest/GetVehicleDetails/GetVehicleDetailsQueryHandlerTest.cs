@@ -3,9 +3,12 @@ using Application.Contracts.Persistence;
 using Application.Exceptions;
 using Application.Features.Vehicles.Query.GetVehicleDetails;
 using Application.MappingProfiles;
+
 using AutoMapper;
+
 using Domain.Entities;
 using Domain.Entities.Enums;
+
 using Moq;
 
 namespace Application.Test.Vehicles.QueryTest.GetVehicleDetails;

@@ -1,5 +1,7 @@
 using System;
+
 using Domain.Entities.Enums;
+
 using FluentValidation;
 
 namespace Application.Features.Vehicles.Command.CreateVehicle;

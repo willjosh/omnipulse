@@ -1,14 +1,19 @@
 using System;
+
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Features.VehicleGroups.Query.GetAllVehicleGroup;
-using Moq;
-using AutoMapper;
 using Application.MappingProfiles;
 using Application.Models;
-using Domain.Entities;
 using Application.Models.PaginationModels;
+
+using AutoMapper;
+
+using Domain.Entities;
+
 using FluentValidation;
+
+using Moq;
 
 namespace Application.Test.VehicleGroups.QueryTest.GetAllVehicleGroup;
 

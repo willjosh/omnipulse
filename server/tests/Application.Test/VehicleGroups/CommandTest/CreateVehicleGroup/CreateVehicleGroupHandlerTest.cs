@@ -1,12 +1,17 @@
 using System;
+
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
 using Application.Features.VehicleGroups.Command.CreateVehicleGroup;
 using Application.MappingProfiles;
+
 using AutoMapper;
+
 using Domain.Entities;
+
 using FluentValidation;
+
 using Moq;
 
 namespace Application.Test.VehicleGroups.CommandTest.CreateVehicleGroup;

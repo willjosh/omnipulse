@@ -1,13 +1,19 @@
 using System;
+
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
 using Application.Features.Vehicles.Command.UpdateVehicle;
 using Application.MappingProfiles;
+
 using AutoMapper;
+
 using Domain.Entities;
+
 using FluentValidation;
+
 using Moq;
+
 using Xunit;
 
 namespace Application.Test.Vehicles.CommandTest.UpdateVehicle;

@@ -1,14 +1,19 @@
 using System;
+
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
+using Application.Exceptions;
 using Application.Features.Issues.Command.CreateIssue;
 using Application.MappingProfiles;
-using Domain.Entities.Enums;
+
 using AutoMapper;
-using FluentValidation;
-using Moq;
+
 using Domain.Entities;
-using Application.Exceptions;
+using Domain.Entities.Enums;
+
+using FluentValidation;
+
+using Moq;
 
 namespace Application.Test.Issues.CommandTest.CreateIssue;
 
