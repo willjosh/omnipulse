@@ -2,9 +2,14 @@ name: CI - Backend - Test
 
 on:
   push:
-    paths: [ "server/**" ]
+    paths: ["server/**"]
   pull_request:
-    paths: [ "server/**" ]
+    paths: ["server/**"]
+
+# Required for OIDC authentication with Codecov
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
   build-and-test:
@@ -27,4 +32,32 @@ jobs:
         run: dotnet build server/omnipulse_server.sln --configuration Release --no-restore
 
       - name: Run tests
-        run: dotnet test server --configuration Release --collect:"XPlat Code Coverage" --no-build --verbosity normal
+        run: |
+          dotnet test server \
+            --configuration Release \
+            --no-build \
+            --verbosity normal \
+            --collect:"XPlat Code Coverage" \
+            --logger:"xunit;LogFilePath=test-results.xml" \
+            --results-directory server/tests/coverage
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          directory: server/tests/coverage
+          files: "**/coverage.cobertura.xml"
+          flags: backend,unittests
+          name: backend-coverage
+          fail_ci_if_error: true
+          verbose: true
+          use_oidc: true
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: |
+            server/tests/coverage/**/test-results.xml
+            server/tests/coverage/**/coverage.cobertura.xml
+          retention-days: 30
