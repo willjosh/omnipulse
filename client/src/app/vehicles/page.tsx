@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import VehicleList from "../features/vehicle/components/list/VehicleList";
+import VehicleList from "../_features/vehicle/components/list/VehicleList";
 
 const Vehicles = () => {
   return (
