@@ -2,9 +2,9 @@ name: CI - Backend - Test
 
 on:
   push:
-    paths: [ "server/**" ]
+    paths: ["server/**"]
   pull_request:
-    paths: [ "server/**" ]
+    paths: ["server/**"]
 
 jobs:
   build-and-test:
@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Check out repository
         uses: actions/checkout@v4
 
       - name: Set up .NET SDK
@@ -27,4 +27,49 @@ jobs:
         run: dotnet build server/omnipulse_server.sln --configuration Release --no-restore
 
       - name: Run tests
-        run: dotnet test server --configuration Release --collect:"XPlat Code Coverage" --no-build --verbosity normal
+        run: |
+          dotnet test server \
+            --configuration Release \
+            --no-build \
+            --verbosity normal \
+            --collect:"XPlat Code Coverage" \
+            --logger:"trx;LogFileName=test-results.trx" \
+            --results-directory server/tests/coverage
+
+      - name: Install ReportGenerator tool
+        run: dotnet tool install -g dotnet-reportgenerator-globaltool
+
+      - name: Generate code coverage report
+        run: |
+          reportgenerator \
+            -reports:"server/tests/coverage/**/coverage.cobertura.xml" \
+            -targetdir:"server/tests/coverage/report" \
+            -reporttypes:"Html,MarkdownSummaryGithub,Cobertura"
+
+      - name: Write to Job Summary
+        run: cat server/tests/coverage/report/SummaryGithub.md >> $GITHUB_STEP_SUMMARY
+
+      - name: Create PR comment with coverage and artifact link
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "# [📊 Code Coverage Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" > pr-comment.md
+          echo "" >> pr-comment.md
+          cat server/tests/coverage/report/SummaryGithub.md >> pr-comment.md
+
+      - name: Write Coverage PR Comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        if: github.event_name == 'pull_request'
+        with:
+          recreate: true
+          path: pr-comment.md
+          header: coverage-report
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-${{ github.run_id }}
+          path: |
+            server/tests/coverage/**/*.trx
+            server/tests/coverage/report/
+          retention-days: 30

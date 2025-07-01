@@ -12,6 +12,10 @@ public class OmnipulseDatabaseContext(DbContextOptions<OmnipulseDatabaseContext>
     public DbSet<InspectionAttachment> InspectionAttachments { get; set; }
     public DbSet<InspectionChecklistResponse> InspectionChecklistResponses { get; set; }
     public DbSet<InspectionType> InspectionTypes { get; set; }
+    public DbSet<Inventory> Inventories { get; set; }
+    public DbSet<InventoryItem> InventoryItems { get; set; }
+    public DbSet<InventoryItemLocation> InventoryItemLocations { get; set; }
+    public DbSet<InventoryTransaction> InventoryTransactions { get; set; }
     public DbSet<Invoice> Invoices { get; set; }
     public DbSet<IssueAttachment> IssueAttachments { get; set; }
     public DbSet<Issue> Issues { get; set; }
