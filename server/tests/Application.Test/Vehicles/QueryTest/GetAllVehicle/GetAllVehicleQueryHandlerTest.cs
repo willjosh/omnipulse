@@ -325,7 +325,7 @@ public class GetAllVehicleQueryHandlerTest
 
         var pagedResult = new PagedResult<Vehicle>
         {
-            Items = [], 
+            Items = [],
             TotalCount = 12,
             PageNumber = 3,
             PageSize = 5
@@ -341,9 +341,9 @@ public class GetAllVehicleQueryHandlerTest
         Assert.Equal(12, result.TotalCount);
         Assert.Equal(3, result.PageNumber);
         Assert.Equal(5, result.PageSize);
-        Assert.Equal(3, result.TotalPages); 
+        Assert.Equal(3, result.TotalPages);
         Assert.True(result.HasPreviousPage);
-        Assert.False(result.HasNextPage); 
+        Assert.False(result.HasNextPage);
 
         // Verify mocks were called correctly
         _mockValidator.Verify(v => v.Validate(query), Times.Once);
@@ -356,7 +356,7 @@ public class GetAllVehicleQueryHandlerTest
         // Given
         var parameters = new PaginationParameters
         {
-            PageNumber = 0, 
+            PageNumber = 0,
             PageSize = 10
         };
 
