@@ -1,7 +1,9 @@
 using System;
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
+using Application.Exceptions;
 using AutoMapper;
+using Domain.Entities;
 using FluentValidation;
 using MediatR;
 
@@ -22,8 +24,38 @@ public class UpdateVehicleGroupCommandHandler : IRequestHandler<UpdateVehicleGro
         _validator = validator;
     }
 
-    public Task<int> Handle(UpdateVehicleGroupCommand request, CancellationToken cancellationToken)
+    public async Task<int> Handle(UpdateVehicleGroupCommand request, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        // Validate request
+        var validationResult = await _validator.ValidateAsync(request, cancellationToken);
+        if (!validationResult.IsValid)
+        {
+            var errorMessages = string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage));
+            _logger.LogWarning($"UpdateVehicleGroupCommand - Validation failed: {errorMessages}");
+            throw new BadRequestException(errorMessages);
+        }
+
+        // Check if vehicle group exists
+        var vehicleGroup = await _vehicleGroupRepository.GetByIdAsync(request.VehicleGroupId);
+        if (vehicleGroup == null)
+        {
+            var errorMessage = $"Vehicle group ID not found: {request.VehicleGroupId}";
+            _logger.LogError(errorMessage);
+            throw new EntityNotFoundException(typeof(VehicleGroup).ToString(), "VehicleGroupId", request.VehicleGroupId.ToString());
+        }
+
+        // Map request to vehicle group entity (this will update the existing vehicle group properties)
+        _mapper.Map(request, vehicleGroup);
+
+        // Update vehicle group
+        _vehicleGroupRepository.Update(vehicleGroup);
+
+        // Save changes
+        await _vehicleGroupRepository.SaveChangesAsync();
+
+        _logger.LogInformation($"Successfully updated vehicle group with ID: {request.VehicleGroupId}");
+
+        // Return vehicle group ID
+        return vehicleGroup.ID;
     }
 }
