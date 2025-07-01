@@ -1,4 +1,5 @@
 using System;
+
 using Domain.Entities.Enums;
 
 namespace Application.Features.Vehicles.Query.GetVehicleDetails;

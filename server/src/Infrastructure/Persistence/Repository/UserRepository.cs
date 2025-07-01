@@ -1,8 +1,11 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+
 using Application.Contracts.Persistence;
+
 using Domain.Entities;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 

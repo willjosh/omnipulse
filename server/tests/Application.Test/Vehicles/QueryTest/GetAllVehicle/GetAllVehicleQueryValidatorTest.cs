@@ -1,8 +1,10 @@
 using System;
-using Application.Features.Vehicles.Query.GetAllVehicle;
+
 using Application.Features.Shared;
-using Xunit;
+using Application.Features.Vehicles.Query.GetAllVehicle;
 using Application.Models;
+
+using Xunit;
 
 namespace Application.Test.Vehicles.QueryTest.GetAllVehicle;
 

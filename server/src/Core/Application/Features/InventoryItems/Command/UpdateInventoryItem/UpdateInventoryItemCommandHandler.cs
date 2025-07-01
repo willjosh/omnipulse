@@ -1,9 +1,13 @@
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
+
 using AutoMapper;
+
 using Domain.Entities;
+
 using FluentValidation;
+
 using MediatR;
 
 namespace Application.Features.InventoryItems.Command.UpdateInventoryItem;

@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+
 using Domain.Entities.Enums;
 
 namespace Domain.Entities;
@@ -20,4 +21,3 @@ public class InventoryTransaction : BaseEntity
     public required Inventory Inventory { get; set; }
     public required MaintenanceHistory MaintenanceHistory { get; set; }
 }
-

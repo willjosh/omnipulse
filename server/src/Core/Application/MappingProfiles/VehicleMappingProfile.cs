@@ -2,12 +2,14 @@ using System;
 
 namespace Application.MappingProfiles;
 
-using Application.Features.Vehicles.Command.UpdateVehicle;
 using Application.Features.Vehicles.Command.CreateVehicle;
-using Application.Features.Vehicles.Query.GetVehicleDetails;
-using AutoMapper;
-using Domain.Entities;
+using Application.Features.Vehicles.Command.UpdateVehicle;
 using Application.Features.Vehicles.Query.GetAllVehicle;
+using Application.Features.Vehicles.Query.GetVehicleDetails;
+
+using AutoMapper;
+
+using Domain.Entities;
 
 public class VehicleMappingProfile : Profile
 {

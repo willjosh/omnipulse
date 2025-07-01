@@ -1,6 +1,9 @@
 using System;
+
 using Application.Features.Issues.Command.CreateIssue;
+
 using AutoMapper;
+
 using Domain.Entities;
 
 namespace Application.MappingProfiles;

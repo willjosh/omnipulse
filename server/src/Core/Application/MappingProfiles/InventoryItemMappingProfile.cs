@@ -1,7 +1,10 @@
 using System;
+
 using Application.Features.InventoryItems.Command.CreateInventoryItem;
 using Application.Features.InventoryItems.Command.UpdateInventoryItem;
+
 using AutoMapper;
+
 using Domain.Entities;
 
 namespace Application.MappingProfiles;
