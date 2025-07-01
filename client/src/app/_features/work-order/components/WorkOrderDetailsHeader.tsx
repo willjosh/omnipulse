@@ -79,8 +79,8 @@ export default function WorkOrderHeader({ workOrderId }: WorkOrderHeaderProps) {
         borderBottom: "1px solid #e0e0e0", // subtle border
         boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.06)", // soft shadow
         position: "sticky",
-        top: 0,
-        zIndex: 1100, // make sure it stays above
+        top: "64px",
+        zIndex: 30, // make sure it stays above
         px: 3,
         py: 2,
       }}
