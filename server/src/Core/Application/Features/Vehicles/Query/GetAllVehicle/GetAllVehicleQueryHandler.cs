@@ -33,7 +33,7 @@ public class GetAllVehicleQueryHandler : IRequestHandler<GetAllVehicleQuery, Pag
         if (!validationResult.IsValid)
         {
             var errorMessages = string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage));
-            _logger.LogWarning($"CreateVehicleCommand - Validation failed: {errorMessages}");
+            _logger.LogWarning($"GetAllVehicle - Validation failed: {errorMessages}");
             throw new BadRequestException(errorMessages);
         }
 
