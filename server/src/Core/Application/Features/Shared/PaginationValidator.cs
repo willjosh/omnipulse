@@ -29,7 +29,7 @@ public class PaginationValidator<T> : AbstractValidator<PaginationParameters>
 
     private static bool IsValidSortBy(string? sortBy, string[] ValidSortFields)
     {
-        if (sortBy == null)
+        if (string.IsNullOrWhiteSpace(sortBy))
         {
             return true;
         }
