@@ -44,27 +44,33 @@ public class CreateIssueCommandHandler : IRequestHandler<CreateIssueCommand, int
         // map request to issue domain entity
         var issue = _mapper.Map<Issue>(request);
 
-        // check if vehicle exists
-        var vehicle = await _vehicleRepository.GetByIdAsync(request.VehicleID);
-        if (vehicle == null)
-        {
-            _logger.LogWarning($"CreateIssueCommand - Vehicle not found: {request.VehicleID}");
-            throw new EntityNotFoundException(typeof(Vehicle).ToString(), "VehicleID", request.VehicleID.ToString());
-        }
+        // validate business rules
+        await ValidateBusinessRuleAsync(issue);
 
-        // check if user exists
-        var user = await _userRepository.GetByIdAsync(request.ReportedByUserID);
-        if (user == null)
-        {
-            _logger.LogWarning($"CreateIssueCommand - User not found: {request.ReportedByUserID}");
-            throw new EntityNotFoundException(typeof(User).ToString(), "ReportedByUserID", request.ReportedByUserID);
-        }
-
-        // add new issue (issue number will be auto-generated)
+        // add new issue
         var createdIssue = await _issueRepository.AddAsync(issue);
         await _issueRepository.SaveChangesAsync();
 
         _logger.LogInformation($"CreateIssueCommand - Issue created successfully with ID: {createdIssue.ID}");
         return createdIssue.ID;
+    }
+
+    private async Task ValidateBusinessRuleAsync(Issue issue)
+    {
+        // check if vehicle exists
+        var vehicle = await _vehicleRepository.GetByIdAsync(issue.VehicleID);
+        if (vehicle == null)
+        {
+            _logger.LogWarning($"CreateIssueCommand - Vehicle not found: {issue.VehicleID}");
+            throw new EntityNotFoundException(typeof(Vehicle).ToString(), "VehicleID", issue.VehicleID.ToString());
+        }
+
+        // check if user exists
+        var user = await _userRepository.GetByIdAsync(issue.ReportedByUserID);
+        if (user == null)
+        {
+            _logger.LogWarning($"CreateIssueCommand - User not found: {issue.ReportedByUserID}");
+            throw new EntityNotFoundException(typeof(User).ToString(), "ReportedByUserID", issue.ReportedByUserID);
+        }
     }
 }
