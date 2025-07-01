@@ -13,7 +13,7 @@ public class CreateInventoryItemCommandValidator : AbstractValidator<CreateInven
 
         RuleFor(x => x.ItemName)
             .NotEmpty().WithMessage("Item name is required")
-            .MaximumLength(250).WithMessage("Item name must not exceed 100 characters");
+            .MaximumLength(250).WithMessage("Item name must not exceed 250 characters");
 
         RuleFor(x => x.Description)
             .MaximumLength(500).WithMessage("Description must not exceed 500 characters");
