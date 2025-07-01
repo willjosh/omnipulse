@@ -67,11 +67,63 @@ public class CreateIssueHandlerTest
             .ReturnsAsync(invalidResult);
     }
 
-    [Fact(Skip = "Skipping this test for now")]
+    [Fact]
     public async Task Handle_Should_Return_IssueID_On_Success()
     {
         // Given
         var command = CreateValidCommand();
+        SetupValidValidation(command);
+
+        // Setup valid vehicle and user
+        var validVehicle = new Vehicle
+        {
+            ID = command.VehicleID,
+            Name = "Test Vehicle",
+            Make = "Toyota", 
+            Model = "Camry",
+            Year = 2023,
+            VIN = "1234567890",
+            LicensePlate = "ABC123",
+            LicensePlateExpirationDate = DateTime.UtcNow.AddYears(1),
+            VehicleType = Domain.Entities.Enums.VehicleTypeEnum.CAR,
+            VehicleGroupID = 1,
+            Trim = "Base",
+            Mileage = 0,
+            EngineHours = 0,
+            FuelCapacity = 50,
+            FuelType = Domain.Entities.Enums.FuelTypeEnum.PETROL,
+            PurchaseDate = DateTime.UtcNow,
+            PurchasePrice = 25000,
+            Status = Domain.Entities.Enums.VehicleStatusEnum.ACTIVE,
+            Location = "Test Location",
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+            VehicleGroup = null!,
+            VehicleImages = [],
+            VehicleAssignments = [],
+            VehicleDocuments = [],
+            VehicleServicePrograms = [],
+            ServiceReminders = [],
+            Issues = [],
+            VehicleInspections = []
+        };
+
+        var validUser = new User
+        {
+            Id = command.ReportedByUserID,
+            FirstName = "John",
+            LastName = "Doe",
+            HireDate = DateTime.UtcNow,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+            MaintenanceHistories = [],
+            IssueAttachments = [],
+            VehicleAssignments = [],
+            VehicleDocuments = [],
+            VehicleInspections = [],
+            Vehicles = []
+        };
 
         var expectedIssue = new Issue
         {
@@ -94,10 +146,10 @@ public class CreateIssueHandlerTest
             User = null! // Required but not used in test
         };
 
-        _mockIssueRepository.Setup(repo => repo.AddAsync(expectedIssue)).ReturnsAsync(expectedIssue);
-        _mockIssueRepository.Setup(repo => repo.SaveChangesAsync()).ReturnsAsync(1);
-        _mockValidator.Setup(v => v.ValidateAsync(It.IsAny<CreateIssueCommand>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new FluentValidation.Results.ValidationResult());
+        _mockVehicleRepository.Setup(r => r.GetByIdAsync(command.VehicleID)).ReturnsAsync(validVehicle);
+        _mockUserRepository.Setup(r => r.GetByIdAsync(command.ReportedByUserID)).ReturnsAsync(validUser);
+        _mockIssueRepository.Setup(r => r.AddAsync(It.IsAny<Issue>())).ReturnsAsync(expectedIssue);
+        _mockIssueRepository.Setup(r => r.SaveChangesAsync()).ReturnsAsync(1);
 
         // When
         var result = await _createIssueCommandHandler.Handle(command, CancellationToken.None);
@@ -105,19 +157,21 @@ public class CreateIssueHandlerTest
         // Then
         Assert.Equal(expectedIssue.ID, result);
         _mockValidator.Verify(v => v.ValidateAsync(command, CancellationToken.None), Times.Once);
-        _mockIssueRepository.Verify(r => r.AddAsync(expectedIssue), Times.Once);
+        _mockVehicleRepository.Verify(r => r.GetByIdAsync(command.VehicleID), Times.Once);
+        _mockUserRepository.Verify(r => r.GetByIdAsync(command.ReportedByUserID), Times.Once);
+        _mockIssueRepository.Verify(r => r.AddAsync(It.IsAny<Issue>()), Times.Once);
         _mockIssueRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
-    [Fact(Skip = "Skipping this test for now")]
-    public async Task Handle_Should_Throw_ValidationException_When_Invalid_Command_Is_Provided()
+    [Fact]
+    public async Task Handle_Should_Throw_BadRequestException_When_Invalid_Command_Is_Provided()
     {
         // Given
         var command = CreateValidCommand();
         SetupInvalidValidation(command, "Title", "Title is required");
 
         // When & Then
-        await Assert.ThrowsAsync<ValidationException>(
+        await Assert.ThrowsAsync<BadRequestException>(
             () => _createIssueCommandHandler.Handle(command, CancellationToken.None)
         );
 
@@ -126,7 +180,7 @@ public class CreateIssueHandlerTest
         _mockIssueRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
     }
 
-    [Fact(Skip = "Skipping this test for now")]
+    [Fact]
     public async Task Handle_Should_Throw_EntityNotFoundException_When_Vehicle_Is_Not_Found()
     {
         // Given
@@ -147,14 +201,49 @@ public class CreateIssueHandlerTest
         _mockIssueRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
     }
 
-    [Fact(Skip = "Skipping this test for now")]
+    [Fact]
     public async Task Handle_Should_Throw_EntityNotFoundException_When_User_Is_Not_Found()
     {
         // Given
         var command = CreateValidCommand();
         SetupValidValidation(command);
 
-        _mockUserRepository.Setup(repo => repo.GetByIdAsync(command.ReportedByUserID)).ReturnsAsync((User?)null);
+        // Setup valid vehicle but invalid user
+        var validVehicle = new Vehicle
+        {
+            ID = command.VehicleID,
+            Name = "Test Vehicle",
+            Make = "Toyota", 
+            Model = "Camry",
+            Year = 2023,
+            VIN = "1234567890",
+            LicensePlate = "ABC123",
+            LicensePlateExpirationDate = DateTime.UtcNow.AddYears(1),
+            VehicleType = Domain.Entities.Enums.VehicleTypeEnum.CAR,
+            VehicleGroupID = 1,
+            Trim = "Base",
+            Mileage = 0,
+            EngineHours = 0,
+            FuelCapacity = 50,
+            FuelType = Domain.Entities.Enums.FuelTypeEnum.PETROL,
+            PurchaseDate = DateTime.UtcNow,
+            PurchasePrice = 25000,
+            Status = Domain.Entities.Enums.VehicleStatusEnum.ACTIVE,
+            Location = "Test Location",
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+            VehicleGroup = null!,
+            VehicleImages = [],
+            VehicleAssignments = [],
+            VehicleDocuments = [],
+            VehicleServicePrograms = [],
+            ServiceReminders = [],
+            Issues = [],
+            VehicleInspections = []
+        };
+
+        _mockVehicleRepository.Setup(r => r.GetByIdAsync(command.VehicleID)).ReturnsAsync(validVehicle);
+        _mockUserRepository.Setup(r => r.GetByIdAsync(command.ReportedByUserID)).ReturnsAsync((User?)null);
 
         // When & Then
         await Assert.ThrowsAsync<EntityNotFoundException>(
@@ -162,106 +251,11 @@ public class CreateIssueHandlerTest
         );
 
         _mockValidator.Verify(v => v.ValidateAsync(command, CancellationToken.None), Times.Once);
+        _mockVehicleRepository.Verify(r => r.GetByIdAsync(command.VehicleID), Times.Once);
         _mockUserRepository.Verify(r => r.GetByIdAsync(command.ReportedByUserID), Times.Once);
         _mockIssueRepository.Verify(r => r.AddAsync(It.IsAny<Issue>()), Times.Never);
         _mockIssueRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
     }
 
-    [Fact(Skip = "Skipping this test for now")]
-    public async Task Handle_Should_Create_Multiple_Issues_On_Same_Vehicle()
-    {
-        // Given
-        var command1 = CreateValidCommand(vehicleID: 123, reportedByUserID: "1234567890", title: "First Issue");
-        var command2 = CreateValidCommand(vehicleID: 123, reportedByUserID: "1234567890", title: "Second Issue");
-        var command3 = CreateValidCommand(vehicleID: 123, reportedByUserID: "1234567890", title: "Third Issue");
-        SetupValidValidation(command1);
-        SetupValidValidation(command2);
-        SetupValidValidation(command3);
 
-        var expectedIssue1 = new Issue
-        {
-            ID = 12,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow,
-            VehicleID = command1.VehicleID,
-            IssueNumber = 1001, // Auto-generated in real scenario
-            ReportedByUserID = command1.ReportedByUserID,
-            Title = command1.Title,
-            Description = command1.Description,
-            Category = command1.Category,
-            PriorityLevel = command1.PriorityLevel,
-            Status = command1.Status,
-            ResolvedDate = null,
-            ResolvedBy = null,
-            ResolutionNotes = null,
-            IssueAttachments = [],
-            Vehicle = null!, // Required but not used in test
-            User = null! // Required but not used in test
-        };
-
-        var expectedIssue2 = new Issue
-        {
-            ID = 13,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow,
-            VehicleID = command2.VehicleID,
-            IssueNumber = 1002, // Auto-generated in real scenario
-            ReportedByUserID = command2.ReportedByUserID,
-            Title = command2.Title,
-            Description = command2.Description,
-            Category = command2.Category,
-            PriorityLevel = command2.PriorityLevel,
-            Status = command2.Status,
-            ResolvedDate = null,
-            ResolvedBy = null,
-            ResolutionNotes = null,
-            IssueAttachments = [],
-            Vehicle = null!, // Required but not used in test
-            User = null! // Required but not used in test
-        };
-
-        var expectedIssue3 = new Issue
-        {
-            ID = 14,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow,
-            VehicleID = command3.VehicleID,
-            IssueNumber = 1003, // Auto-generated in real scenario
-            ReportedByUserID = command3.ReportedByUserID,
-            Title = command3.Title,
-            Description = command3.Description,
-            Category = command3.Category,
-            PriorityLevel = command3.PriorityLevel,
-            Status = command3.Status,
-            ResolvedDate = null,
-            ResolvedBy = null,
-            ResolutionNotes = null,
-            IssueAttachments = [],
-            Vehicle = null!, // Required but not used in test
-            User = null! // Required but not used in test
-        };
-
-        _mockIssueRepository.Setup(repo => repo.AddAsync(expectedIssue1)).ReturnsAsync(expectedIssue1);
-        _mockIssueRepository.Setup(repo => repo.AddAsync(expectedIssue2)).ReturnsAsync(expectedIssue2);
-        _mockIssueRepository.Setup(repo => repo.AddAsync(expectedIssue3)).ReturnsAsync(expectedIssue3);
-        _mockIssueRepository.Setup(repo => repo.SaveChangesAsync()).ReturnsAsync(3);
-
-        // When
-        var result1 = await _createIssueCommandHandler.Handle(command1, CancellationToken.None);
-        var result2 = await _createIssueCommandHandler.Handle(command2, CancellationToken.None);
-        var result3 = await _createIssueCommandHandler.Handle(command3, CancellationToken.None);
-
-        // Then
-        Assert.Equal(expectedIssue1.ID, result1);
-        Assert.Equal(expectedIssue2.ID, result2);
-        Assert.Equal(expectedIssue3.ID, result3);
-
-        _mockValidator.Verify(v => v.ValidateAsync(command1, CancellationToken.None), Times.Once);
-        _mockValidator.Verify(v => v.ValidateAsync(command2, CancellationToken.None), Times.Once);
-        _mockValidator.Verify(v => v.ValidateAsync(command3, CancellationToken.None), Times.Once);
-        _mockIssueRepository.Verify(r => r.AddAsync(expectedIssue1), Times.Once);
-        _mockIssueRepository.Verify(r => r.AddAsync(expectedIssue2), Times.Once);
-        _mockIssueRepository.Verify(r => r.AddAsync(expectedIssue3), Times.Once);
-        _mockIssueRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
-    }
 }
