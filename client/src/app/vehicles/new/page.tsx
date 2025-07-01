@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import VehicleFormContainer from "@/app/features/vehicle/components/forms/VehicleFormContainer";
+import VehicleFormContainer from "@/app/_features/vehicle/components/forms/VehicleFormContainer";
 
 const page = () => {
   return (

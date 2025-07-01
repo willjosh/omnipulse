@@ -6,13 +6,13 @@ import {
   VehicleListFilters,
 } from "../../types/VehicleListTypes";
 import { MOCK_VEHICLES } from "../../types/VehicleListTypes";
-import DataTable from "@/app/features/shared/DataTable";
-import FilterBar from "@/app/features/shared/FilterBar";
-import TabNavigation from "@/app/features/shared/TabNavigation";
-import PaginationControls from "@/app/features/shared/PaginationControls";
-import ConfirmModal from "@/app/features/shared/ConfirmModal";
-import OptionButton from "@/app/features/shared/button/OptionButton";
-import PrimaryButton from "@/app/features/shared/button/PrimaryButton";
+import ConfirmModal from "@/app/_features/shared/ConfirmModal";
+import DataTable from "@/app/_features/shared/DataTable";
+import FilterBar from "@/app/_features/shared/FilterBar";
+import TabNavigation from "@/app/_features/shared/TabNavigation";
+import PaginationControls from "@/app/_features/shared/PaginationControls";
+import OptionButton from "@/app/_features/shared/button/OptionButton";
+import PrimaryButton from "@/app/_features/shared/button/PrimaryButton";
 import { vehicleTableColumns } from "./VehicleTableColumns";
 import { vehicleFilterConfig, vehicleTabConfig } from "./VehicleListFilters";
 

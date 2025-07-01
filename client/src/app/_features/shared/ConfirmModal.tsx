@@ -1,4 +1,3 @@
-// /shared/ConfirmModal.tsx
 import React, { useEffect } from "react";
 
 interface ConfirmModalProps {
