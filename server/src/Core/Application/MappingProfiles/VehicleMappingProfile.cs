@@ -7,6 +7,7 @@ using Application.Features.Vehicles.Command.CreateVehicle;
 using Application.Features.Vehicles.Query.GetVehicleDetails;
 using AutoMapper;
 using Domain.Entities;
+using Application.Features.Vehicles.Query.GetAllVehicle;
 
 public class VehicleMappingProfile : Profile
 {
@@ -40,6 +41,19 @@ public class VehicleMappingProfile : Profile
 
 
         CreateMap<Vehicle, GetVehicleDetailsDTO>()
+            .ForMember(dest => dest.VehicleGroupName, opt => opt.MapFrom(
+                src => src.VehicleGroup != null ? src.VehicleGroup.Name
+                : string.Empty
+            ))
+            .ForMember(dest => dest.AssignedTechnicianName, opt => opt.MapFrom(
+                src => src.User != null ? src.User.FirstName + " " + src.User.LastName
+                : "Not Assigned"
+            ))
+            .ForMember(dest => dest.AssignedTechnicianID, opt => opt.MapFrom(
+                src => src.AssignedTechnicianID ?? string.Empty
+            ));
+
+        CreateMap<Vehicle, GetAllVehicleDTO>()
             .ForMember(dest => dest.VehicleGroupName, opt => opt.MapFrom(
                 src => src.VehicleGroup != null ? src.VehicleGroup.Name
                 : string.Empty
