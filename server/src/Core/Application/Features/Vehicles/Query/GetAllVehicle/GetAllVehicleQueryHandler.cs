@@ -22,6 +22,7 @@ public class GetAllVehicleQueryHandler : IRequestHandler<GetAllVehicleQuery, Pag
 
     public Task<PagedResult<GetAllVehicleDTO>> Handle(GetAllVehicleQuery request, CancellationToken cancellationToken)
     {
+        // Validate the request
         throw new NotImplementedException();
     }
 }
