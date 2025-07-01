@@ -4,7 +4,7 @@ import { Search, Bell, HelpCircle, Plus } from "lucide-react";
 
 const NavBar = () => {
   return (
-    <nav className="bg-white border-b border-gray-200 px-6 py-3">
+    <nav className="sticky top-0 z-50 bg-white border-b border-gray-200 px-6 py-3">
       <div className="flex items-center justify-between">
         {/* Left side - Logo */}
         <div className="flex items-center w-1/6">
@@ -26,13 +26,13 @@ const NavBar = () => {
         {/* Right side - Icons */}
         <div className="flex items-center space-x-2">
           <button className="p-2 text-muted hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors">
-            <Bell className="w-5 h-5" />
+            <Bell className="size-5" />
           </button>
           <button className="p-2 text-muted hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors">
-            <HelpCircle className="w-5 h-5" />
+            <HelpCircle className="size-5" />
           </button>
           <button className="p-2 text-muted hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors">
-            <Plus className="w-5 h-5" />
+            <Plus className="size-5" />
           </button>
         </div>
       </div>
