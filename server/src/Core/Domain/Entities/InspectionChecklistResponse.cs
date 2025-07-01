@@ -11,7 +11,7 @@ public class InspectionChecklistResponse
     public required InspectionItemStatusEnum Status { get; set; }
     public string? TextResponse { get; set; }
     public string? Note { get; set; }
-    public required Boolean RequiresAttention { get; set; } = true;
+    public required bool RequiresAttention { get; set; } = true;
     public DateTime? ResponseDate { get; set; } = DateTime.UtcNow;
 
     // navigation properties
