@@ -79,7 +79,7 @@ public class CreateIssueHandlerTest
         {
             ID = command.VehicleID,
             Name = "Test Vehicle",
-            Make = "Toyota", 
+            Make = "Toyota",
             Model = "Camry",
             Year = 2023,
             VIN = "1234567890",
@@ -213,7 +213,7 @@ public class CreateIssueHandlerTest
         {
             ID = command.VehicleID,
             Name = "Test Vehicle",
-            Make = "Toyota", 
+            Make = "Toyota",
             Model = "Camry",
             Year = 2023,
             VIN = "1234567890",
