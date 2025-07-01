@@ -23,4 +23,8 @@
     <ProjectReference Include="../../src/Core/Application/Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="VehicleGroups/CommandTest/UpdateVehicleGroup/" />
+  </ItemGroup>
+
 </Project>
