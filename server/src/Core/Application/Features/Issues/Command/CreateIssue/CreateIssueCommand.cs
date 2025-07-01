@@ -1,5 +1,6 @@
-using MediatR;
 using Domain.Entities.Enums;
+
+using MediatR;
 
 namespace Application.Features.Issues.Command.CreateIssue;
 

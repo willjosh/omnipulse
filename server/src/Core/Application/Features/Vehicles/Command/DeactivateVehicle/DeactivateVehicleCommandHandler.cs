@@ -1,8 +1,10 @@
-using Application.Contracts.Persistence;
 using Application.Contracts.Logger;
-using MediatR;
-using AutoMapper;
+using Application.Contracts.Persistence;
 using Application.Exceptions;
+
+using AutoMapper;
+
+using MediatR;
 
 namespace Application.Features.Vehicles.Command.DeactivateVehicle;
 

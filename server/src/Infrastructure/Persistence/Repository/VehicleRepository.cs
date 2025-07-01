@@ -1,9 +1,12 @@
 using Application.Contracts.Persistence;
 using Application.Models;
 using Application.Models.PaginationModels;
+
 using Domain.Entities;
 using Domain.Entities.Enums;
+
 using Microsoft.EntityFrameworkCore;
+
 using Persistence.DatabaseContext;
 
 namespace Persistence.Repository;

@@ -1,21 +1,25 @@
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
+using Application.Exceptions;
 using Application.Features.Users.Command.CreateTechnician;
 using Application.MappingProfiles;
+
 using AutoMapper;
+
 using FluentValidation;
-using Moq;
+
 using Microsoft.AspNetCore.Identity;
-using Application.Exceptions;
+
+using Moq;
 
 namespace Application.Test.Users.CommandTest.CreateTechnicianTest;
 
 public class CreateTechnicianCommandHandlerTest
 {
-    Mock<IUserRepository> _mockUserRepository;
-    Mock<IAppLogger<CreateTechnicianCommandHandler>> _mockLogger;
-    Mock<IValidator<CreateTechnicianCommand>> _mockValidator;
-    CreateTechnicianCommandHandler _CreateTechnicianCommandHandler;
+    readonly Mock<IUserRepository> _mockUserRepository;
+    readonly Mock<IAppLogger<CreateTechnicianCommandHandler>> _mockLogger;
+    readonly Mock<IValidator<CreateTechnicianCommand>> _mockValidator;
+    readonly CreateTechnicianCommandHandler _CreateTechnicianCommandHandler;
 
     public CreateTechnicianCommandHandlerTest()
     {

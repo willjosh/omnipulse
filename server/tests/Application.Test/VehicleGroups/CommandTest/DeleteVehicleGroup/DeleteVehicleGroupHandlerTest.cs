@@ -1,11 +1,15 @@
 using System;
+
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
 using Application.Features.VehicleGroups.Command.DeleteVehicleGroup;
 using Application.MappingProfiles;
+
 using AutoMapper;
+
 using Domain.Entities;
+
 using Moq;
 
 namespace Application.Test.VehicleGroups.CommandTest.DeleteVehicleGroup;
