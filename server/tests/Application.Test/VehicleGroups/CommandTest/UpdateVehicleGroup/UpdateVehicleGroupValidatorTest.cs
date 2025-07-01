@@ -12,7 +12,7 @@ public class UpdateVehicleGroupValidatorTest
     {
         _validator = new UpdateVehicleGroupCommandValidator();
     }
-    
+
     private UpdateVehicleGroupCommand CreateValidCommand(
         int vehicleGroupId = 1,
         string name = "Test Group",
