@@ -85,7 +85,7 @@ export default function WorkOrderHeader({ workOrderId }: WorkOrderHeaderProps) {
         py: 2,
       }}
     >
-      <Breadcrumbs sx={{ mb: 1 }}>
+      <Breadcrumbs>
         <Link
           href="/work-orders"
           style={{
@@ -96,15 +96,14 @@ export default function WorkOrderHeader({ workOrderId }: WorkOrderHeaderProps) {
           }}
         >
           <ArrowBackIcon
-            fontSize="small"
-            sx={{ mr: 1, color: "text.secondary" }}
+            sx={{
+              mr: 0.5,
+              fontSize: "0.9rem",
+              verticalAlign: "middle",
+              color: "text.secondary",
+            }}
           />
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            component="span"
-            sx={{ fontSize: "1.1rem", lineHeight: 1.2 }}
-          >
+          <Typography variant="body2" color="text.secondary">
             Work Orders
           </Typography>
         </Link>
