@@ -57,24 +57,6 @@ jobs:
           path: server/tests/coverage/report/SummaryGithub.md
           header: coverage-report
 
-      - name: Deploy Coverage Report to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: server/tests/coverage/report
-          destination_dir: coverage
-          keep_files: false
-
-      - name: Add Coverage URL to Job Summary
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: |
-          echo "## 🌐 Live Coverage Report" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "📊 **Interactive Coverage Report:** https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/coverage/" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "> 🔗 Click the link above to view the full interactive HTML coverage report" >> $GITHUB_STEP_SUMMARY
-
       - name: Upload test results
         uses: actions/upload-artifact@v4
         if: always()
