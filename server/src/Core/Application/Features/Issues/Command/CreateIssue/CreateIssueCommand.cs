@@ -3,7 +3,7 @@ using Domain.Entities.Enums;
 
 namespace Application.Features.Issues.Command.CreateIssue;
 
-public record CreateIssueCommand(   
+public record CreateIssueCommand(
     int VehicleID,
     string ReportedByUserID,
     string Title,
