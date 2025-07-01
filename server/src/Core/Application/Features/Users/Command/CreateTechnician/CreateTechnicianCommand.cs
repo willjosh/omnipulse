@@ -7,4 +7,5 @@ public record CreateTechnicianCommand(
    string LastName,
    DateTime HireDate,
    bool IsActive = true
-) : IRequest<Guid> { }
+) : IRequest<Guid>
+{ }

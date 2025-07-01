@@ -17,8 +17,8 @@ public class CreateTechnicianCommandHandler : IRequestHandler<CreateTechnicianCo
     public CreateTechnicianCommandHandler(IUserRepository userRepository, IMapper mapper, IAppLogger<CreateTechnicianCommandHandler> logger, IValidator<CreateTechnicianCommand> validator)
     {
         _userRepository = userRepository;
-        _mapper = mapper; 
-        _logger = logger;            
+        _mapper = mapper;
+        _logger = logger;
         _validator = validator;
     }
 
