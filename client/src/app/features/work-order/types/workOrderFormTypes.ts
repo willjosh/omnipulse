@@ -1,8 +1,13 @@
 export interface WorkOrderDetailsData {
   vehicleId: string;
-  status: "Open" | "Pending" | "Completed";
+  status: string;
+  repairPriorityClass: string;
   description: string;
   assignedTo: string;
+  labels: string;
+  vendor: string;
+  invoiceNumber: number | string;
+  poNumber: number | string;
 }
 
 export interface WorkOrderSchedulingData {
@@ -29,10 +34,6 @@ export interface WorkOrderFormData {
   details: WorkOrderDetailsData;
   scheduling: WorkOrderSchedulingData;
   odometer: WorkOrderOdometerData;
-  invoiceNumber: string | number;
-  poNumber: string | number;
-  labels: string[];
-  vendor: string;
 }
 
 export enum WorkOrderFormSection {
@@ -42,7 +43,17 @@ export enum WorkOrderFormSection {
 }
 
 export const initialFormData: WorkOrderFormData = {
-  details: { vehicleId: "", status: "Open", description: "", assignedTo: "" },
+  details: {
+    vehicleId: "",
+    status: "Open",
+    repairPriorityClass: "",
+    description: "",
+    assignedTo: "",
+    invoiceNumber: "",
+    poNumber: "",
+    labels: "",
+    vendor: "",
+  },
   scheduling: {
     issueDate: new Date(),
     issueTime: "",
@@ -58,8 +69,4 @@ export const initialFormData: WorkOrderFormData = {
     sendReminder: false,
   },
   odometer: { startOdometer: null, useStartOdometer: false },
-  invoiceNumber: "",
-  poNumber: "",
-  labels: [],
-  vendor: "",
 };
