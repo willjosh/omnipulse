@@ -8,7 +8,7 @@ using Moq;
 using Microsoft.AspNetCore.Identity;
 using Application.Exceptions;
 
-namespace Application.Test.User.CommandTest.CreateTechnicianTest;
+namespace Application.Test.Users.CommandTest.CreateTechnicianTest;
 
 public class CreateTechnicianCommandHandlerTest
 {
