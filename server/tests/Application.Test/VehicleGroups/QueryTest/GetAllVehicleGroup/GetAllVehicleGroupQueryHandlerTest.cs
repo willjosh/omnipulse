@@ -75,7 +75,7 @@ public class GetAllVehicleGroupQueryHandlerTest
 
         var query = new GetAllVehicleGroupQuery(parameters);
         SetupValidValidation(query);
-        
+
         // Create VehicleGroup entities (what the repository returns)
         var vehicleGroupToyota = new VehicleGroup
         {
