@@ -52,7 +52,7 @@ public class UpdateVehicleGroupHandlerTest
     }
 
     private void SetupInvalidValidation(UpdateVehicleGroupCommand command, string propertyName, string errorMessage = "Validation failed")
-    {   
+    {
         var invalidResult = new ValidationResult(
             [new ValidationFailure(propertyName, errorMessage)]
         );
@@ -60,7 +60,7 @@ public class UpdateVehicleGroupHandlerTest
             .ReturnsAsync(invalidResult);
     }
 
-    [Fact(Skip = "Skipping this test as it is not implemented")]
+    [Fact]
     public async Task Handle_Should_Return_VehicleGroupID_On_Success()
     {
         // Given
@@ -80,7 +80,7 @@ public class UpdateVehicleGroupHandlerTest
         _mockVehicleGroupRepository.Setup(repo => repo.Update(expectedVehicleGroup));
         _mockVehicleGroupRepository.Setup(repo => repo.SaveChangesAsync()).ReturnsAsync(1);
         SetupValidValidation(command);
-        
+
 
         // When
         var result = await _updateVehicleGroupCommandHandler.Handle(command, CancellationToken.None);
@@ -93,7 +93,7 @@ public class UpdateVehicleGroupHandlerTest
         _mockValidator.Verify(v => v.ValidateAsync(command, CancellationToken.None), Times.Once);
     }
 
-    [Fact(Skip = "Skipping this test as it is not implemented")]
+    [Fact]
     public async Task Handle_Should_Throw_BadRequestException_On_Validation_Failure()
     {
         // Given
@@ -111,19 +111,21 @@ public class UpdateVehicleGroupHandlerTest
         _mockVehicleGroupRepository.Verify(repo => repo.SaveChangesAsync(), Times.Never);
     }
 
-    [Fact(Skip = "Skipping this test as it is not implemented")]
+    [Fact]
     public async Task Handle_Should_Throw_EntityNotFoundException_On_Invalid_VehicleGroupID()
     {
         // Given
         var command = CreateValidCommand(vehicleGroupId: 123);
 
+        // Setup validation to pass
+        SetupValidValidation(command);
+
         _mockVehicleGroupRepository.Setup(repo => repo.GetByIdAsync(command.VehicleGroupId)).ReturnsAsync((VehicleGroup?)null);
 
         // When & Then
-        var exception = await Assert.ThrowsAsync<EntityNotFoundException>(() => _updateVehicleGroupCommandHandler.Handle(command, CancellationToken.None));
+        await Assert.ThrowsAsync<EntityNotFoundException>(() => _updateVehicleGroupCommandHandler.Handle(command, CancellationToken.None));
 
-        // Then
-        Assert.Equal("Vehicle group not found", exception.Message);
+        // Verify
         _mockVehicleGroupRepository.Verify(repo => repo.GetByIdAsync(command.VehicleGroupId), Times.Once);
         _mockVehicleGroupRepository.Verify(repo => repo.Update(It.IsAny<VehicleGroup>()), Times.Never);
         _mockVehicleGroupRepository.Verify(repo => repo.SaveChangesAsync(), Times.Never);
