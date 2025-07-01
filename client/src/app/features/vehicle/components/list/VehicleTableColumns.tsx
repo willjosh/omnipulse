@@ -33,11 +33,12 @@ export const vehicleTableColumns = [
   {
     key: "name",
     header: "Name",
+    width: "220px",
     sortable: true,
     render: (vehicle: VehicleListItem) => (
       <div className="flex items-center">
-        <div className="flex-shrink-0 h-8 w-8">
-          <div className="h-8 w-8 rounded bg-gray-100 flex items-center justify-center text-sm">
+        <div className="flex-shrink-0">
+          <div className="size-8 rounded bg-gray-100 flex items-center justify-center text-sm">
             {getVehicleIcon(vehicle.type)}
           </div>
         </div>
@@ -49,49 +50,58 @@ export const vehicleTableColumns = [
       </div>
     ),
   },
-  { key: "year", header: "Year", sortable: true },
-  { key: "make", header: "Make", sortable: true },
-  { key: "model", header: "Model", sortable: true },
+  { key: "year", header: "Year", width: "80px", sortable: true },
+  { key: "make", header: "Make", width: "130px", sortable: true },
+  { key: "model", header: "Model", width: "120px", sortable: true },
   {
     key: "vin",
     header: "VIN",
+    width: "180px",
     render: (vehicle: VehicleListItem) => (
-      <span className="font-mono">{vehicle.vin}</span>
+      <span className="text-sm">{vehicle.vin}</span>
     ),
   },
   {
     key: "status",
     header: "Status",
+    width: "135px",
     sortable: true,
     render: (vehicle: VehicleListItem) => (
       <div className="flex items-center">
         <div
-          className={`h-2 w-2 rounded-full mr-2 ${getStatusDot(vehicle.status)}`}
+          className={`size-2 rounded-full mr-2 ${getStatusDot(vehicle.status)}`}
         ></div>
         <span>{vehicle.status}</span>
       </div>
     ),
   },
-  { key: "type", header: "Type", sortable: true },
-  { key: "group", header: "Group", sortable: true },
+  { key: "type", header: "Type", width: "100px", sortable: true },
+  { key: "group", header: "Group", width: "100px", sortable: true },
   {
     key: "currentMeter",
-    header: "Current Meter",
+    header: "Meter",
+    width: "120px",
     render: (vehicle: VehicleListItem) => (
-      <span className="text-blue-600 hover:text-blue-800 cursor-pointer underline">
+      <span className="text-primary hover:text-blue-800 cursor-pointer underline">
         {vehicle.currentMeter.toLocaleString()} {vehicle.meterUnit}
       </span>
     ),
   },
-  { key: "licensePlate", header: "License Plate", sortable: true },
+  {
+    key: "licensePlate",
+    header: "License Plate",
+    width: "140px",
+    sortable: true,
+  },
   {
     key: "assignedOperator",
-    header: "Assigned Operator",
+    header: "Operator",
+    width: "160px",
     render: (vehicle: VehicleListItem) =>
       vehicle.assignedOperator ? (
         <div className="flex items-center">
           <div className="flex-shrink-0 h-6 w-6">
-            <div className="h-6 w-6 rounded-full bg-blue-100 flex items-center justify-center">
+            <div className="size-6 rounded-full bg-blue-100 flex items-center justify-center">
               <span className="text-xs font-medium text-blue-800">
                 {vehicle.assignedOperator
                   .split(" ")
