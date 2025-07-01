@@ -99,7 +99,7 @@ public class CreateTechnicianCommandValidator : AbstractValidator<CreateTechnici
     {
         var minDate = new DateTime(1900, 1, 1);
         var maxDate = DateTime.UtcNow.Date;
-        
+
         return hireDate.Date >= minDate && hireDate.Date <= maxDate;
     }
 }

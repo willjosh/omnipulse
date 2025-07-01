@@ -100,10 +100,10 @@ public class CreateTechnicianCommandValidatorTest
     {
         // Given
         var command = CreateValidCommand(password: password);
-        
+
         // When
         var result = await _validator.ValidateAsync(command);
-        
+
         // Then
         Assert.False(result.IsValid);
         Assert.Contains(result.Errors, e => e.PropertyName == "Password");
