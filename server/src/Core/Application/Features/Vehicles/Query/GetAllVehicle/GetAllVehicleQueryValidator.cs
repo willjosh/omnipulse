@@ -9,7 +9,20 @@ public class GetAllVehicleQueryValidator : AbstractValidator<GetAllVehicleQuery>
 {
     public GetAllVehicleQueryValidator()
     {
-        var vehicleSortFields = new[] { "name", "make", "model", "year", "status" };
+        var vehicleSortFields = new[] {
+            "name",
+            "make",
+            "model",
+            "year",
+            "status",
+            "purchaseprice",
+            "mileage",
+            "enginehours",
+            "createdat",
+            "purchasedate",
+            "fuelcapacity",
+            "location"
+        };
 
         RuleFor(x => x.Parameters)
             .NotNull()
