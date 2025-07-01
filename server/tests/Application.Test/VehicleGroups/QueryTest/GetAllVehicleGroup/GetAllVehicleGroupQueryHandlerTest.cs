@@ -8,6 +8,7 @@ using Application.MappingProfiles;
 using Application.Models;
 using Domain.Entities;
 using Application.Models.PaginationModels;
+using FluentValidation;
 
 namespace Application.Test.VehicleGroups.QueryTest.GetAllVehicleGroup;
 
@@ -18,10 +19,13 @@ public class GetAllVehicleGroupQueryHandlerTest
     private readonly GetAllVehicleGroupQueryHandler _getAllVehicleGroupQueryHandler;
     private readonly Mock<IAppLogger<GetAllVehicleGroupQueryHandler>> _mockLogger;
     private readonly IMapper _mapper;
+
+    private readonly Mock<IValidator<GetAllVehicleGroupQuery>> _mockValidator;
     public GetAllVehicleGroupQueryHandlerTest()
     {
         _mockVehicleGroupRepository = new();
         _mockLogger = new();
+        _mockValidator = new();
 
         var config = new MapperConfiguration(cfg =>
         {
@@ -33,11 +37,30 @@ public class GetAllVehicleGroupQueryHandlerTest
         _getAllVehicleGroupQueryHandler = new GetAllVehicleGroupQueryHandler(
             _mockVehicleGroupRepository.Object,
             _mapper,
-            _mockLogger.Object
+            _mockLogger.Object,
+            _mockValidator.Object
         );
     }
 
-    [Fact(Skip = "Not Implemented")]
+    // Helper method to set up valid validation result
+    private void SetupValidValidation(GetAllVehicleGroupQuery query)
+    {
+        var validResult = new FluentValidation.Results.ValidationResult();
+        _mockValidator.Setup(v => v.Validate(query))
+                     .Returns(validResult);
+    }
+
+    // Helper method to set up validation failure
+    private void SetupInvalidValidation(GetAllVehicleGroupQuery query, string propertyName = "Parameters.PageNumber", string errorMessage = "Validation failed")
+    {
+        var invalidResult = new FluentValidation.Results.ValidationResult(
+            [new FluentValidation.Results.ValidationFailure(propertyName, errorMessage)]
+        );
+        _mockValidator.Setup(v => v.Validate(query))
+                     .Returns(invalidResult);
+    }
+
+    [Fact]
     public async Task Handler_Should_Return_GetAllVehicleGroupDTO_On_Success()
     {
         // Given
@@ -51,7 +74,8 @@ public class GetAllVehicleGroupQueryHandlerTest
         };
 
         var query = new GetAllVehicleGroupQuery(parameters);
-
+        SetupValidValidation(query);
+        
         // Create VehicleGroup entities (what the repository returns)
         var vehicleGroupToyota = new VehicleGroup
         {
@@ -94,7 +118,7 @@ public class GetAllVehicleGroupQueryHandlerTest
 
         // Then
         Assert.NotNull(result);
-        Assert.IsType<GetAllVehicleGroupDTO>(result);
+        Assert.IsType<PagedResult<GetAllVehicleGroupDTO>>(result);
 
         Assert.Equal(25, result.TotalCount);
         Assert.Equal(1, result.PageNumber);
@@ -105,28 +129,24 @@ public class GetAllVehicleGroupQueryHandlerTest
 
         // Check items
         Assert.Equal(2, result.Items.Count);
-        
+
         var firstVehicleGroup = result.Items[0];
         Assert.Equal(123, firstVehicleGroup.ID);
         Assert.Equal("Toyota", firstVehicleGroup.Name);
         Assert.Equal("Toyota vehicles", firstVehicleGroup.Description);
         Assert.True(firstVehicleGroup.IsActive);
-        Assert.Equal(DateTime.UtcNow, firstVehicleGroup.CreatedAt);
-        Assert.Equal(DateTime.UtcNow, firstVehicleGroup.UpdatedAt);
 
         var secondVehicleGroup = result.Items[1];
         Assert.Equal(456, secondVehicleGroup.ID);
         Assert.Equal("Honda", secondVehicleGroup.Name);
         Assert.Equal("Honda vehicles", secondVehicleGroup.Description);
         Assert.True(secondVehicleGroup.IsActive);
-        Assert.Equal(DateTime.UtcNow, secondVehicleGroup.CreatedAt);
-        Assert.Equal(DateTime.UtcNow, secondVehicleGroup.UpdatedAt);
 
         // Verify repository was called with correct parameters
         _mockVehicleGroupRepository.Verify(r => r.GetAllVehicleGroupsPagedAsync(parameters), Times.Once);
     }
 
-    [Fact(Skip = "Not Implemented")]
+    [Fact]
     public async Task Handler_Should_Return_Empty_Result_When_No_VehicleGroups()
     {
         // Given
@@ -139,6 +159,7 @@ public class GetAllVehicleGroupQueryHandlerTest
 
         var query = new GetAllVehicleGroupQuery(parameters);
 
+        SetupValidValidation(query);
         var emptyPagedResult = new PagedResult<VehicleGroup>
         {
             Items = [],
@@ -167,18 +188,19 @@ public class GetAllVehicleGroupQueryHandlerTest
         _mockVehicleGroupRepository.Verify(r => r.GetAllVehicleGroupsPagedAsync(parameters), Times.Once);
     }
 
-    [Fact(Skip = "Not Implemented")]
+    [Fact]
     public async Task Handler_Should_Handle_Different_Page_Sizes()
     {
         // Given
         var parameters = new PaginationParameters
         {
-            PageNumber = 2,
+            PageNumber = 1,
             PageSize = 3
         };
 
         var query = new GetAllVehicleGroupQuery(parameters);
 
+        SetupValidValidation(query);
         var vehicleGroupEntities = new List<VehicleGroup>
         {
             new VehicleGroup { ID = 1, Name = "Toyota", Description = "Toyota vehicles", IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
@@ -190,7 +212,7 @@ public class GetAllVehicleGroupQueryHandlerTest
         {
             Items = vehicleGroupEntities,
             TotalCount = 3,
-            PageNumber = 2,
+            PageNumber = 1,
             PageSize = 3
         };
 
@@ -202,7 +224,7 @@ public class GetAllVehicleGroupQueryHandlerTest
 
         // Then
         Assert.Equal(3, result.TotalCount);
-        Assert.Equal(2, result.PageNumber);
+        Assert.Equal(1, result.PageNumber);
         Assert.Equal(3, result.PageSize);
         Assert.Equal(1, result.TotalPages); // 3 / 3 = 1 page
         Assert.False(result.HasPreviousPage);
@@ -216,11 +238,9 @@ public class GetAllVehicleGroupQueryHandlerTest
         Assert.Equal("Toyota", firstVehicleGroup.Name);
         Assert.Equal("Toyota vehicles", firstVehicleGroup.Description);
         Assert.True(firstVehicleGroup.IsActive);
-        Assert.Equal(DateTime.UtcNow, firstVehicleGroup.CreatedAt);
-        Assert.Equal(DateTime.UtcNow, firstVehicleGroup.UpdatedAt);
     }
 
-    [Fact(Skip = "Not Implemented")]
+    [Fact]
     public async Task Handler_Should_Handle_Last_Page()
     {
         // Given
@@ -232,6 +252,7 @@ public class GetAllVehicleGroupQueryHandlerTest
 
         var query = new GetAllVehicleGroupQuery(parameters);
 
+        SetupValidValidation(query);
         var vehicleGroupEntities = new List<VehicleGroup>
         {
             new VehicleGroup { ID = 1, Name = "Toyota", Description = "Toyota vehicles", IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
