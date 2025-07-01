@@ -1,5 +1,3 @@
-using System;
-using System.Threading.Tasks;
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
@@ -54,7 +52,7 @@ public class GetVehicleDetailsQueryHandlerTest
             UpdatedAt = new DateTime(2023, 1, 1, 0, 0, 0, DateTimeKind.Utc),
         };
 
-        var expectedUser = new User
+        var expectedUser = new Domain.Entities.User
         {
             Id = "GUID123",
             FirstName = "John",

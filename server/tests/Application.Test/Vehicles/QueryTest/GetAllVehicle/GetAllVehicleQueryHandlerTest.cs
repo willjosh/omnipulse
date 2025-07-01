@@ -85,7 +85,7 @@ public class GetAllVehicleQueryHandlerTest
             UpdatedAt = DateTime.UtcNow
         };
 
-        var user = new User
+        var user = new Domain.Entities.User
         {
             Id = "GUID123",
             FirstName = "John",
