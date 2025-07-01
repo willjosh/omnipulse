@@ -14,7 +14,7 @@ public class VehicleInspection : BaseEntity
     public required double MileageAtInspection { get; set; }
     public required OverallStatusEnum OverallStatus { get; set; }
     public required string Notes { get; set; }
-    public required Boolean IsPassed { get; set; } = true;
+    public required bool IsPassed { get; set; } = true;
 
     // navigation properties
     public required Vehicle Vehicle { get; set; }

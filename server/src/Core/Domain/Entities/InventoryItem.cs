@@ -16,7 +16,7 @@ public class InventoryItem : BaseEntity
     public InventoryItemUnitCostMeasurementUnitEnum? UnitCostMeasurementUnit { get; set; }
     public string? Supplier { get; set; }
     public double? WeightKG { get; set; }
-    public required Boolean IsActive { get; set; } = true;
+    public required bool IsActive { get; set; } = true;
 
     // Navigation Properties
     public required ICollection<Inventory> Inventories { get; set; } = [];
