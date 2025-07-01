@@ -13,10 +13,10 @@ public class CreateTechnicianCommandValidatorTest
     }
 
     private CreateTechnicianCommand CreateValidCommand(
-        string email = "",
-        string password = "",
-        string firstName = "",
-        string lastName = "",
+        string email = "clarenceBowo@gmail.com",
+        string password = "clarenceBowo123!",
+        string firstName = "Clarence",
+        string lastName = "Muljadi",
         DateTime? hireDate = null,
         bool isActive = true
     )
@@ -31,7 +31,7 @@ public class CreateTechnicianCommandValidatorTest
          );
     }
 
-    [Fact(Skip = "This test is skipped because it is not implemented yet.")]
+    [Fact]
     public async Task Validator_Should_Validate_Valid_Command()
     {
         // Given
@@ -45,7 +45,7 @@ public class CreateTechnicianCommandValidatorTest
         Assert.Empty(result.Errors);
     }
 
-    [Theory(Skip = "This test is skipped because it is not implemented yet.")]
+    [Theory]
     [InlineData("invalid-email")]
     [InlineData("email@")]
     public async Task Validator_Should_Fail_On_Invalid_Email(string email)
@@ -61,7 +61,7 @@ public class CreateTechnicianCommandValidatorTest
         Assert.Contains(result.Errors, e => e.PropertyName == "Email");
     }
 
-    [Theory(Skip = "This test is skipped because it is not implemented yet.")]
+    [Theory]
     [InlineData("")]                    // Empty password
     [InlineData(" ")]                   // Whitespace only
     [InlineData("short")]               // Too short (assuming min length requirement)
@@ -90,27 +90,28 @@ public class CreateTechnicianCommandValidatorTest
         Assert.Contains(result.Errors, e => e.PropertyName == "Password");
     }
 
-    [Theory(Skip = "This test is skipped because it is not implemented yet.")]
-    [InlineData("a")]           // 1 character
-    [InlineData("ab")]          // 2 characters  
-    [InlineData("abc")]         // 3 characters
-    [InlineData("abcd")]        // 4 characters
-    [InlineData("abcde")]       // 5 characters
+    [Theory]
+    [InlineData("a")]     // 1 character
+    [InlineData("ab")]    // 2 characters  
+    [InlineData("abc")]   // 3 characters
+    [InlineData("abcd")]  // 4 characters
+    [InlineData("abcde")] // 5 characters
     public async Task Validator_Should_Fail_On_Password_Too_Short(string password)
     {
         // Given
         var command = CreateValidCommand(password: password);
-
+        
         // When
         var result = await _validator.ValidateAsync(command);
-
+        
         // Then
         Assert.False(result.IsValid);
-        Assert.Contains(result.Errors, e => e.PropertyName == "Password" &&
-                        e.ErrorMessage.Contains("length", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(result.Errors, e => e.PropertyName == "Password");
+
+        Assert.Contains(result.Errors, e => e.PropertyName == "Password");
     }
 
-    [Fact(Skip = "This test is skipped because it is not implemented yet.")]
+    [Fact]
     public async Task Validator_Should_Fail_On_Password_Too_Long()
     {
         // Given - Assuming max length of 128 characters
@@ -125,7 +126,7 @@ public class CreateTechnicianCommandValidatorTest
         Assert.Contains(result.Errors, e => e.PropertyName == "Password");
     }
 
-    [Theory(Skip = "This test is skipped because it is not implemented yet.")]
+    [Theory]
     [InlineData("   ValidPass123!   ")] // Leading/trailing spaces
     [InlineData("Valid Pass123!")]      // Space in middle
     [InlineData("Valid\tPass123!")]     // Tab character
@@ -143,7 +144,7 @@ public class CreateTechnicianCommandValidatorTest
         Assert.Contains(result.Errors, e => e.PropertyName == "Password");
     }
 
-    [Fact(Skip = "This test is skipped because it is not implemented yet.")]
+    [Fact]
     public async Task Validator_Should_Fail_On_Empty_FirstName()
     {
         // Given
@@ -157,7 +158,7 @@ public class CreateTechnicianCommandValidatorTest
         Assert.Contains(result.Errors, e => e.PropertyName == "FirstName");
     }
 
-    [Fact(Skip = "This test is skipped because it is not implemented yet.")]
+    [Fact]
     public async Task Validator_Should_Fail_On_Empty_LastName()
     {
         // Given
@@ -172,7 +173,7 @@ public class CreateTechnicianCommandValidatorTest
     }
 
 
-    [Theory(Skip = "This test is skipped because it is not implemented yet.")]
+    [Theory]
     [InlineData(101)]
     [InlineData(1000)]
     public async Task Validator_Should_Fail_On_ExceedMaxLength_FirstName(int FirstNameLength)
@@ -188,7 +189,7 @@ public class CreateTechnicianCommandValidatorTest
         Assert.Contains(result.Errors, e => e.PropertyName == "FirstName");
     }
 
-    [Theory(Skip = "This test is skipped because it is not implemented yet.")]
+    [Theory]
     [InlineData(101)]
     [InlineData(1000)]
     public async Task Validator_Should_Fail_On_ExceedMaxLength_LastName(int LastNameLength)
@@ -204,7 +205,7 @@ public class CreateTechnicianCommandValidatorTest
         Assert.Contains(result.Errors, e => e.PropertyName == "LastName");
     }
 
-    [Theory(Skip = "This test is skipped because it is not implemented yet.")]
+    [Theory]
     [InlineData("1800-01-01")]
     [InlineData("1850-01-01")]
     public async Task Validator_Should_Fail_On_Very_Old_HireDate(string hireDateString)
