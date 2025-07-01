@@ -23,10 +23,8 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
   onPreviousPage,
   onNextPage,
   className = "",
-  showPageNumbers = true,
   showItemCount = true,
 }) => {
-  // current page
   const startItem = totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
   const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
@@ -46,6 +44,7 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
       )}
 
       <div className="flex items-center">
+        {/* Previous Page Button */}
         <button
           onClick={onPreviousPage}
           disabled={currentPage <= 1}
@@ -67,12 +66,7 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
           </svg>
         </button>
 
-        {showPageNumbers && (
-          <span className="px-2 text-sm text-gray-500">
-            Page {currentPage} of {totalPages || 1}
-          </span>
-        )}
-
+        {/* Next Page Button */}
         <button
           onClick={onNextPage}
           disabled={currentPage >= totalPages}
