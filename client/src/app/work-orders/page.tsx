@@ -44,8 +44,7 @@ const WorkOrdersPage: React.FC = () => {
         display="flex"
         justifyContent="space-between"
         alignItems="center"
-        mb={2}
-        p={2}
+        px={2}
       >
         <Typography variant="h5" fontWeight="bold">
           Work Orders
@@ -105,8 +104,8 @@ const WorkOrdersPage: React.FC = () => {
           Filters
         </Button>
       </Box>
-      <Box overflow="auto" mt={2}>
-        <Divider sx={{ mb: 1 }} />
+      <Box overflow="auto" mt={2} height="70vh">
+        <Divider sx={{ mb: 1, width: "112.5%" }} />
         <Table>
           <TableHead>
             <TableRow sx={{ whiteSpace: "nowrap" }}>
