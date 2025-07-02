@@ -24,7 +24,6 @@ import { useWorkOrderListStore } from "@/app/_features/work-order/store/workOrde
 
 const WorkOrdersPage: React.FC = () => {
   const [status, setStatus] = useState("Open");
-  const rows: any[] = [];
 
   const handleStatusChange = (_: any, newValue: string) => {
     setStatus(newValue);
@@ -163,7 +162,7 @@ const WorkOrdersPage: React.FC = () => {
             })}
           </TableBody>
         </Table>
-        {rows.length === 0 && (
+        {workOrders.length === 0 && (
           <Box
             display="flex"
             flexDirection="column"
