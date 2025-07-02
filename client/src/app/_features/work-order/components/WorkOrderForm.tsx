@@ -22,6 +22,7 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers";
 import { useWorkOrderFormStore } from "../store/workOrderFormStore";
+import { useWorkOrderListStore } from "../store/workOrderListStore";
 
 const WorkOrderHeader: React.FC = () => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -49,10 +50,16 @@ const WorkOrderHeader: React.FC = () => {
   const labelOptions = ["Test"];
   const vendorOptions = ["Elite Tire and Service Inc."];
 
-  const { formData, updateDetails, updateScheduling, updateOdometer } =
-    useWorkOrderFormStore();
+  const {
+    formData,
+    updateDetails,
+    updateScheduling,
+    updateOdometer,
+    resetForm,
+  } = useWorkOrderFormStore();
 
   const router = useRouter();
+  const addWorkOrder = useWorkOrderListStore(state => state.addWorkOrder);
 
   const handleSaveWorkOrder = () => {
     const { vehicleId, status, repairPriorityClass } = formData.details;
@@ -72,10 +79,9 @@ const WorkOrderHeader: React.FC = () => {
       return;
     }
 
-    // Simulated save: Replace this with API POST request
-    console.log("Saving Work Order:", formData);
+    addWorkOrder(formData);
+    resetForm();
 
-    // Redirect to list page
     router.push("/work-orders");
   };
 
@@ -84,7 +90,7 @@ const WorkOrderHeader: React.FC = () => {
       <Box
         sx={{
           position: "sticky",
-          top: "64px", // Adjust this to match your NavBar height
+          top: "64px",
           zIndex: 40,
           bgcolor: "#fff",
           borderBottom: "1px solid #e0e0e0",
