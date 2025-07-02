@@ -33,7 +33,7 @@ export const WorkOrderDetailsPanel = ({
   workOrderId,
 }: {
   source?: "form" | "list";
-  workOrderId?: string;
+  workOrderId?: number;
 }) => {
   const { formData } = useWorkOrderFormStore();
   const { workOrders } = useWorkOrderListStore();
@@ -42,8 +42,7 @@ export const WorkOrderDetailsPanel = ({
     source === "form"
       ? formData
       : workOrderId
-        ? workOrders.find(order => String(order.id) === String(workOrderId))
-            ?.data
+        ? workOrders.find(order => order.id === workOrderId)?.data
         : workOrders[workOrders.length - 1]?.data;
 
   if (!data) return null; // Or fallback UI

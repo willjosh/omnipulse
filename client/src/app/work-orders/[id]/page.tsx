@@ -18,7 +18,7 @@ export default function WorkOrderPage() {
       <Box sx={{ bgcolor: "#f8f9fa", minHeight: "100vh", py: 3 }}>
         <Container maxWidth="xl">
           <Box display="flex" gap={3}>
-            <WorkOrderDetailsPanel source="list" />
+            <WorkOrderDetailsPanel source="list" workOrderId={workOrderId} />
           </Box>
         </Container>
       </Box>
