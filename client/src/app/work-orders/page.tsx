@@ -31,6 +31,8 @@ const WorkOrdersPage: React.FC = () => {
 
   const { workOrders } = useWorkOrderListStore();
 
+  const router = useRouter();
+
   return (
     <Box p={0}>
       <Box
@@ -121,7 +123,6 @@ const WorkOrdersPage: React.FC = () => {
           <TableBody>
             {workOrders.map(order => {
               const d = order.data;
-              const router = useRouter();
 
               return (
                 <TableRow
