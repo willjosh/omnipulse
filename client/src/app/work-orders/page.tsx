@@ -33,6 +33,11 @@ const WorkOrdersPage: React.FC = () => {
 
   const router = useRouter();
 
+  const filteredOrders =
+    status === "All"
+      ? workOrders
+      : workOrders.filter(order => order.data.details.status === status);
+
   return (
     <Box p={0}>
       <Box
@@ -163,7 +168,7 @@ const WorkOrdersPage: React.FC = () => {
             })}
           </TableBody>
         </Table>
-        {workOrders.length === 0 && (
+        {filteredOrders.length === 0 && (
           <Box
             display="flex"
             flexDirection="column"
