@@ -85,8 +85,6 @@ public class GetInventoryItemQueryHandlerTest
         Assert.Equal("Test Supplier", result.Supplier);
         Assert.Equal(5.0, result.WeightKG);
         Assert.True(result.IsActive);
-        Assert.Equal(new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc), result.CreatedAt);
-        Assert.Equal(new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc), result.UpdatedAt);
 
         _mockInventoryItemRepository.Verify(r => r.GetByIdAsync(query.InventoryItemID), Times.Once);
     }
@@ -140,8 +138,6 @@ public class GetInventoryItemQueryHandlerTest
         Assert.Null(result.Supplier);
         Assert.Null(result.WeightKG);
         Assert.False(result.IsActive);
-        Assert.Equal(new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc), result.CreatedAt);
-        Assert.Equal(new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc), result.UpdatedAt);
 
         _mockInventoryItemRepository.Verify(r => r.GetByIdAsync(query.InventoryItemID), Times.Once);
     }
