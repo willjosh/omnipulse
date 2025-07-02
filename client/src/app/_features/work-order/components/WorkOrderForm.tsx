@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useRouter } from "next/navigation";
 import {
   Box,
   Button,
@@ -8,13 +9,15 @@ import {
   TextField,
   Menu,
   MenuItem,
-  IconButton,
   Paper,
   Autocomplete,
   Divider,
   Checkbox,
+  Breadcrumbs,
 } from "@mui/material";
-import { ChevronLeft, ChevronDown } from "lucide-react";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import Link from "next/link";
+import { ChevronDown } from "lucide-react";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers";
@@ -49,25 +52,67 @@ const WorkOrderHeader: React.FC = () => {
   const { formData, updateDetails, updateScheduling, updateOdometer } =
     useWorkOrderFormStore();
 
+  const router = useRouter();
+
+  const handleSaveWorkOrder = () => {
+    const { vehicleId, status, repairPriorityClass } = formData.details;
+    const { issueDate } = formData.scheduling;
+
+    const missingFields = [];
+
+    if (!vehicleId) missingFields.push("Vehicle");
+    if (!status) missingFields.push("Status");
+    if (!repairPriorityClass) missingFields.push("Repair Priority Class");
+    if (!issueDate) missingFields.push("Issue Date");
+
+    if (missingFields.length > 0) {
+      alert(
+        `Please fill out the required fields:\n- ${missingFields.join("\n- ")}`,
+      );
+      return;
+    }
+
+    // Simulated save: Replace this with API POST request
+    console.log("Saving Work Order:", formData);
+
+    // Redirect to list page
+    router.push("/work-orders");
+  };
+
   return (
     <Box>
       <Box
         sx={{
           position: "sticky",
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 1000,
+          top: "64px", // Adjust this to match your NavBar height
+          zIndex: 40,
           bgcolor: "#fff",
           borderBottom: "1px solid #e0e0e0",
         }}
       >
-        <Box display="flex" alignItems="center" pt={1} pl={1}>
-          <IconButton>
-            <ChevronLeft size={16} />
-          </IconButton>
-          <Typography variant="body2">Work Orders</Typography>
-        </Box>
+        <Breadcrumbs sx={{ mb: 1, px: 2, pt: 2 }}>
+          <Link
+            href="/work-orders"
+            style={{
+              textDecoration: "none",
+              color: "#000",
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <ArrowBackIcon
+              sx={{
+                mr: 0.5,
+                fontSize: "0.9rem",
+                verticalAlign: "middle",
+                color: "text.secondary",
+              }}
+            />
+            <Typography variant="body2" color="text.secondary">
+              Work Orders
+            </Typography>
+          </Link>
+        </Breadcrumbs>
         <Box
           display="flex"
           justifyContent="space-between"
@@ -114,6 +159,7 @@ const WorkOrderHeader: React.FC = () => {
             <Button
               variant="contained"
               sx={{ textTransform: "none", minHeight: 36 }}
+              onClick={handleSaveWorkOrder}
             >
               Save Work Order
             </Button>
@@ -594,6 +640,7 @@ const WorkOrderHeader: React.FC = () => {
             <Button
               variant="contained"
               sx={{ textTransform: "none", minHeight: 36 }}
+              onClick={handleSaveWorkOrder}
             >
               Save Work Order
             </Button>
