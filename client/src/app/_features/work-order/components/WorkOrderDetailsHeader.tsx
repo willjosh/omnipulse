@@ -131,7 +131,7 @@ export default function WorkOrderHeader({ workOrderId }: WorkOrderHeaderProps) {
         </Box>
 
         <Box display="flex" alignItems="center" gap={1}>
-          <WatcherPanel />
+          <WatcherPanel currentUser="Licht Potato" />
 
           <Divider orientation="vertical" flexItem sx={{ mx: 1 }} />
 

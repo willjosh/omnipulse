@@ -13,9 +13,9 @@ import {
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { useState } from "react";
 
-const WatcherPanel = () => {
-  const currentUser = "Licht Potato"; // Replace with actual current user if available
+type WatcherPanelProps = { currentUser: string };
 
+const WatcherPanel = ({ currentUser }: WatcherPanelProps) => {
   const userOptions = [
     "Licht Potato",
     "Harry Styles",
