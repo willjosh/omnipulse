@@ -104,8 +104,8 @@ const WorkOrdersPage: React.FC = () => {
           Filters
         </Button>
       </Box>
-      <Box overflow="auto" mt={2} height="70vh">
-        <Divider sx={{ mb: 1, width: "112.5%" }} />
+      <Divider sx={{ mt: 1 }} />
+      <Box overflow="auto" height="70vh">
         <Table>
           <TableHead>
             <TableRow sx={{ whiteSpace: "nowrap" }}>
