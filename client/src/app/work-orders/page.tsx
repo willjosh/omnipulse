@@ -14,16 +14,29 @@ import {
   TableRow,
   TableCell,
   Divider,
+  TableBody,
 } from "@mui/material";
+import { useRouter } from "next/navigation";
 import { Plus, Filter, Search, Settings, ChevronDown } from "lucide-react";
+import { format } from "date-fns";
+import Link from "next/link";
+import { useWorkOrderListStore } from "@/app/_features/work-order/store/workOrderListStore";
 
 const WorkOrdersPage: React.FC = () => {
   const [status, setStatus] = useState("Open");
-  const rows: any[] = [];
 
   const handleStatusChange = (_: any, newValue: string) => {
     setStatus(newValue);
   };
+
+  const { workOrders } = useWorkOrderListStore();
+
+  const router = useRouter();
+
+  const filteredOrders =
+    status === "All"
+      ? workOrders
+      : workOrders.filter(order => order.data.details.status === status);
 
   return (
     <Box p={0}>
@@ -31,11 +44,18 @@ const WorkOrdersPage: React.FC = () => {
         display="flex"
         justifyContent="space-between"
         alignItems="center"
-        mb={2}
+        px={2}
       >
-        <Typography variant="h5">Work Orders</Typography>
+        <Typography variant="h5" fontWeight="bold">
+          Work Orders
+        </Typography>
         <Box display="flex" gap={1}>
-          <Button variant="contained" startIcon={<Plus />}>
+          <Button
+            variant="contained"
+            startIcon={<Plus />}
+            component={Link}
+            href="/work-orders/new"
+          >
             ADD WORK ORDER
           </Button>
           <IconButton>
@@ -59,7 +79,7 @@ const WorkOrdersPage: React.FC = () => {
           size="small"
           placeholder="Search"
           variant="outlined"
-          sx={{ borderRadius: 5, background: "#fff", width: 250 }}
+          sx={{ borderRadius: 5, background: "#fff", width: 250, ml: 2 }}
           InputProps={{ sx: { borderRadius: "50px" } }}
         />
         {["Status", "Vehicle", "Vehicle Group", "Service Tasks"].map(label => (
@@ -84,8 +104,8 @@ const WorkOrdersPage: React.FC = () => {
           Filters
         </Button>
       </Box>
-      <Box overflow="auto" mt={2}>
-        <Divider sx={{ mb: 1 }} />
+      <Divider sx={{ mt: 1 }} />
+      <Box overflow="auto" height="70vh">
         <Table>
           <TableHead>
             <TableRow sx={{ whiteSpace: "nowrap" }}>
@@ -104,8 +124,50 @@ const WorkOrdersPage: React.FC = () => {
               <TableCell>Labels</TableCell>
             </TableRow>
           </TableHead>
+          <TableBody>
+            {filteredOrders.map(order => {
+              const d = order.data;
+
+              return (
+                <TableRow
+                  key={order.id}
+                  hover
+                  sx={{
+                    cursor: "pointer",
+                    "&:hover": { backgroundColor: "#f0f0f0" },
+                  }}
+                  onClick={() => router.push(`/work-orders/${order.id}`)}
+                >
+                  <TableCell>{d.details.vehicleId}</TableCell>
+                  <TableCell>#{order.number}</TableCell>
+                  <TableCell>{d.details.status}</TableCell>
+                  <TableCell>{d.details.repairPriorityClass}</TableCell>
+                  <TableCell>—</TableCell>
+                  <TableCell>—</TableCell>
+                  <TableCell>
+                    {d.scheduling.issueDate
+                      ? format(new Date(d.scheduling.issueDate), "MM/dd/yyyy")
+                      : "—"}
+                  </TableCell>
+                  <TableCell>
+                    {d.scheduling.expectedCompletionDate
+                      ? format(
+                          new Date(d.scheduling.expectedCompletionDate),
+                          "MM/dd/yyyy",
+                        )
+                      : "—"}
+                  </TableCell>
+                  <TableCell>{d.details.assignedTo || "—"}</TableCell>
+                  <TableCell>1 watcher</TableCell>
+                  <TableCell>Jacob Silva</TableCell>
+                  <TableCell>RM0.00</TableCell>
+                  <TableCell>{d.details.labels || "—"}</TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
         </Table>
-        {rows.length === 0 && (
+        {filteredOrders.length === 0 && (
           <Box
             display="flex"
             flexDirection="column"
@@ -121,7 +183,12 @@ const WorkOrdersPage: React.FC = () => {
               Work Orders are used to plan and complete service needed for a
               particular vehicle.
             </Typography>
-            <Button variant="contained" startIcon={<Plus />}>
+            <Button
+              variant="contained"
+              startIcon={<Plus />}
+              component={Link}
+              href="/work-orders/new"
+            >
               ADD WORK ORDER
             </Button>
           </Box>
