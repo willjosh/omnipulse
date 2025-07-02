@@ -36,7 +36,7 @@ public class GetInventoryItemQueryHandler : IRequestHandler<GetInventoryItemQuer
         if (inventoryItem == null)
         {
             _logger.LogError($"InventoryItem with ID {request.InventoryItemID} not found.");
-            throw new EntityNotFoundException(typeof(InventoryItem).ToString(), "InventoryItemID", request.InventoryItemID.ToString());
+            throw new EntityNotFoundException(nameof(InventoryItem), "InventoryItemID", request.InventoryItemID.ToString());
         }
 
         // Map to GetInventoryItemDTO
