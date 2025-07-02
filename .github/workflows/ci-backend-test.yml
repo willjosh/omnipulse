@@ -52,7 +52,7 @@ jobs:
       - name: Create PR comment with coverage and artifact link
         if: github.event_name == 'pull_request'
         run: |
-          echo "# [📊 Code Coverage Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" > pr-comment.md
+          echo "# [📊 Backend - Code Coverage Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" > pr-comment.md
           echo "" >> pr-comment.md
           cat server/tests/coverage/report/SummaryGithub.md >> pr-comment.md
 
@@ -73,3 +73,4 @@ jobs:
             server/tests/coverage/**/*.trx
             server/tests/coverage/report/
           retention-days: 30
+          if-no-files-found: warn
