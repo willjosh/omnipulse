@@ -16,8 +16,10 @@ import {
   Divider,
   TableBody,
 } from "@mui/material";
+import { useRouter } from "next/navigation";
 import { Plus, Filter, Search, Settings, ChevronDown } from "lucide-react";
 import { format } from "date-fns";
+import Link from "next/link";
 import { useWorkOrderListStore } from "@/app/_features/work-order/store/workOrderListStore";
 
 const WorkOrdersPage: React.FC = () => {
@@ -37,10 +39,18 @@ const WorkOrdersPage: React.FC = () => {
         justifyContent="space-between"
         alignItems="center"
         mb={2}
+        p={2}
       >
-        <Typography variant="h5">Work Orders</Typography>
+        <Typography variant="h5" fontWeight="bold">
+          Work Orders
+        </Typography>
         <Box display="flex" gap={1}>
-          <Button variant="contained" startIcon={<Plus />}>
+          <Button
+            variant="contained"
+            startIcon={<Plus />}
+            component={Link}
+            href="/work-orders/new"
+          >
             ADD WORK ORDER
           </Button>
           <IconButton>
@@ -64,7 +74,7 @@ const WorkOrdersPage: React.FC = () => {
           size="small"
           placeholder="Search"
           variant="outlined"
-          sx={{ borderRadius: 5, background: "#fff", width: 250 }}
+          sx={{ borderRadius: 5, background: "#fff", width: 250, ml: 2 }}
           InputProps={{ sx: { borderRadius: "50px" } }}
         />
         {["Status", "Vehicle", "Vehicle Group", "Service Tasks"].map(label => (
@@ -112,8 +122,18 @@ const WorkOrdersPage: React.FC = () => {
           <TableBody>
             {workOrders.map(order => {
               const d = order.data;
+              const router = useRouter();
+
               return (
-                <TableRow key={order.id}>
+                <TableRow
+                  key={order.id}
+                  hover
+                  sx={{
+                    cursor: "pointer",
+                    "&:hover": { backgroundColor: "#f0f0f0" },
+                  }}
+                  onClick={() => router.push(`/work-orders/${order.id}`)}
+                >
                   <TableCell>{d.details.vehicleId}</TableCell>
                   <TableCell>#{order.number}</TableCell>
                   <TableCell>{d.details.status}</TableCell>
@@ -159,7 +179,12 @@ const WorkOrdersPage: React.FC = () => {
               Work Orders are used to plan and complete service needed for a
               particular vehicle.
             </Typography>
-            <Button variant="contained" startIcon={<Plus />}>
+            <Button
+              variant="contained"
+              startIcon={<Plus />}
+              component={Link}
+              href="/work-orders/new"
+            >
               ADD WORK ORDER
             </Button>
           </Box>
