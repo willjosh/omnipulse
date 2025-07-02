@@ -125,7 +125,7 @@ const WorkOrdersPage: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {workOrders.map(order => {
+            {filteredOrders.map(order => {
               const d = order.data;
 
               return (
