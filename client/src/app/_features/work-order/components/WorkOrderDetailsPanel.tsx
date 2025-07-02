@@ -2,6 +2,9 @@
 
 import { Box, Paper, Typography, Avatar, Link as MuiLink } from "@mui/material";
 import { useWorkOrderFormStore } from "../store/workOrderFormStore";
+import { useWorkOrderListStore } from "../store/workOrderListStore";
+
+type Source = "form" | "latest";
 
 const FieldRow = ({
   label,
@@ -27,9 +30,20 @@ const FieldRow = ({
   </Box>
 );
 
-export const WorkOrderDetailsPanel = () => {
+export const WorkOrderDetailsPanel = ({
+  source = "form",
+}: {
+  source?: Source;
+}) => {
   const { formData } = useWorkOrderFormStore();
-  const { details, scheduling } = formData;
+  const { workOrders } = useWorkOrderListStore();
+
+  const data =
+    source === "form" ? formData : workOrders[workOrders.length - 1]?.data;
+
+  if (!data) return null;
+
+  const { details, scheduling } = data;
 
   return (
     <Paper sx={{ width: "35%", borderRadius: 2, overflow: "hidden" }}>
