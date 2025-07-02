@@ -14,8 +14,11 @@ import {
   TableRow,
   TableCell,
   Divider,
+  TableBody,
 } from "@mui/material";
 import { Plus, Filter, Search, Settings, ChevronDown } from "lucide-react";
+import { format } from "date-fns";
+import { useWorkOrderListStore } from "@/app/_features/work-order/store/workOrderListStore";
 
 const WorkOrdersPage: React.FC = () => {
   const [status, setStatus] = useState("Open");
@@ -24,6 +27,8 @@ const WorkOrdersPage: React.FC = () => {
   const handleStatusChange = (_: any, newValue: string) => {
     setStatus(newValue);
   };
+
+  const { workOrders } = useWorkOrderListStore();
 
   return (
     <Box p={0}>
@@ -104,6 +109,39 @@ const WorkOrdersPage: React.FC = () => {
               <TableCell>Labels</TableCell>
             </TableRow>
           </TableHead>
+          <TableBody>
+            {workOrders.map(order => {
+              const d = order.data;
+              return (
+                <TableRow key={order.id}>
+                  <TableCell>{d.details.vehicleId}</TableCell>
+                  <TableCell>#{order.number}</TableCell>
+                  <TableCell>{d.details.status}</TableCell>
+                  <TableCell>{d.details.repairPriorityClass}</TableCell>
+                  <TableCell>—</TableCell>
+                  <TableCell>—</TableCell>
+                  <TableCell>
+                    {d.scheduling.issueDate
+                      ? format(new Date(d.scheduling.issueDate), "MM/dd/yyyy")
+                      : "—"}
+                  </TableCell>
+                  <TableCell>
+                    {d.scheduling.expectedCompletionDate
+                      ? format(
+                          new Date(d.scheduling.expectedCompletionDate),
+                          "MM/dd/yyyy",
+                        )
+                      : "—"}
+                  </TableCell>
+                  <TableCell>{d.details.assignedTo || "—"}</TableCell>
+                  <TableCell>1 watcher</TableCell>
+                  <TableCell>Jacob Silva</TableCell>
+                  <TableCell>RM0.00</TableCell>
+                  <TableCell>{d.details.labels || "—"}</TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
         </Table>
         {rows.length === 0 && (
           <Box
