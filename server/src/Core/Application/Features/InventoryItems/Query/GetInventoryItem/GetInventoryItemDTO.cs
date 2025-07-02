@@ -17,6 +17,4 @@ public class GetInventoryItemDTO
     public string? Supplier { get; set; }
     public double? WeightKG { get; set; }
     public required bool IsActive { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
 }
