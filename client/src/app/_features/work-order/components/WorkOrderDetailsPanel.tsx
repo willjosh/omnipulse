@@ -4,8 +4,6 @@ import { Box, Paper, Typography, Avatar, Link as MuiLink } from "@mui/material";
 import { useWorkOrderFormStore } from "../store/workOrderFormStore";
 import { useWorkOrderListStore } from "../store/workOrderListStore";
 
-type Source = "form" | "latest";
-
 const FieldRow = ({
   label,
   value,
@@ -32,16 +30,23 @@ const FieldRow = ({
 
 export const WorkOrderDetailsPanel = ({
   source = "form",
+  workOrderId,
 }: {
-  source?: Source;
+  source?: "form" | "list";
+  workOrderId?: string;
 }) => {
   const { formData } = useWorkOrderFormStore();
   const { workOrders } = useWorkOrderListStore();
 
   const data =
-    source === "form" ? formData : workOrders[workOrders.length - 1]?.data;
+    source === "form"
+      ? formData
+      : workOrderId
+        ? workOrders.find(order => String(order.id) === String(workOrderId))
+            ?.data
+        : workOrders[workOrders.length - 1]?.data;
 
-  if (!data) return null;
+  if (!data) return null; // Or fallback UI
 
   const { details, scheduling } = data;
 
