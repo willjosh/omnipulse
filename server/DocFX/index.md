@@ -2,10 +2,10 @@
 _layout: landing
 ---
 
-# This is the **HOMEPAGE**.
+# OMNIPULSE Backend Documentation
 
-Refer to [Markdown](http://daringfireball.net/projects/markdown/) for how to write markdown files.
+## 🔗 Quick Links
 
-## Quick Start Notes:
-
-1. Add images to the *images* folder if the file is referencing an image.
+- [Introduction](docs/introduction.md)
+- [Getting Started](docs/getting-started.md)
+- [GitHub Repository](https://github.com/unsw-cse-comp99-3900/capstone-project-25t2-3900-w18a-date)
