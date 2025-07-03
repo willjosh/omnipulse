@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
+using Domain.Entities;
+
 using Microsoft.AspNetCore.Identity;
 
 namespace Application.Contracts.Persistence;
@@ -10,43 +12,44 @@ namespace Application.Contracts.Persistence;
 public interface IUserRepository
 {
     // Basic CRUD operations (similar to generic but for Identity User)
-    Task<IdentityUser?> GetByIdAsync(string id);
-    Task<IReadOnlyList<IdentityUser>> GetAllAsync();
-    Task<IdentityResult> AddAsync(IdentityUser user, string password);
-    Task<IdentityResult> UpdateAsync(IdentityUser user);
+    Task<User?> GetByIdAsync(string id);
+    Task<IReadOnlyList<User>> GetAllAsync();
+    Task<IdentityResult> AddAsync(User user, string password);
+    Task<IdentityResult> UpdateAsync(User user);
     Task<IdentityResult> DeleteAsync(string id);
-    Task<IdentityResult> DeleteAsync(IdentityUser user);
+    Task<IdentityResult> AddAsyncWithRole(User user, string password, string role);
+    Task<IdentityResult> DeleteAsync(User user);
 
     // Identity-specific operations
-    Task<IdentityUser?> GetByEmailAsync(string email);
-    Task<IdentityUser?> GetByUsernameAsync(string username);
+    Task<User?> GetByEmailAsync(string email);
+    Task<User?> GetByUsernameAsync(string username);
     Task<bool> EmailExistsAsync(string email);
     Task<bool> UsernameExistsAsync(string username);
-    Task<bool> CheckPasswordAsync(IdentityUser user, string password);
-    Task<IdentityResult> ChangePasswordAsync(IdentityUser user, string currentPassword, string newPassword);
-    Task<IdentityResult> ResetPasswordAsync(IdentityUser user, string token, string newPassword);
+    Task<bool> CheckPasswordAsync(User user, string password);
+    Task<IdentityResult> ChangePasswordAsync(User user, string currentPassword, string newPassword);
+    Task<IdentityResult> ResetPasswordAsync(User user, string token, string newPassword);
 
     // Role operations
-    Task<IdentityResult> AddToRoleAsync(IdentityUser user, string role);
-    Task<IdentityResult> RemoveFromRoleAsync(IdentityUser user, string role);
-    Task<IList<string>> GetRolesAsync(IdentityUser user);
-    Task<bool> IsInRoleAsync(IdentityUser user, string role);
-    Task<IReadOnlyList<IdentityUser>> GetUsersInRoleAsync(string role);
+    Task<IdentityResult> AddToRoleAsync(User user, string role);
+    Task<IdentityResult> RemoveFromRoleAsync(User user, string role);
+    Task<IList<string>> GetRolesAsync(User user);
+    Task<bool> IsInRoleAsync(User user, string role);
+    Task<IReadOnlyList<User>> GetUsersInRoleAsync(string role);
 
     // Query operations
-    Task<IReadOnlyList<IdentityUser>> FindAsync(Expression<Func<IdentityUser, bool>> predicate);
-    Task<IdentityUser?> GetFirstOrDefaultAsync(Expression<Func<IdentityUser, bool>> predicate);
+    Task<IReadOnlyList<User>> FindAsync(Expression<Func<User, bool>> predicate);
+    Task<User?> GetFirstOrDefaultAsync(Expression<Func<User, bool>> predicate);
     Task<bool> ExistsAsync(string id);
     Task<int> CountAsync();
 
     // Token operations
-    Task<string> GenerateEmailConfirmationTokenAsync(IdentityUser user);
-    Task<string> GeneratePasswordResetTokenAsync(IdentityUser user);
-    Task<IdentityResult> ConfirmEmailAsync(IdentityUser user, string token);
+    Task<string> GenerateEmailConfirmationTokenAsync(User user);
+    Task<string> GeneratePasswordResetTokenAsync(User user);
+    Task<IdentityResult> ConfirmEmailAsync(User user, string token);
 
     // Status operations
-    Task<IReadOnlyList<IdentityUser>> GetActiveUsersAsync();
-    Task<IReadOnlyList<IdentityUser>> GetInactiveUsersAsync();
-    Task<IdentityResult> LockUserAsync(IdentityUser user, DateTimeOffset? lockoutEnd);
-    Task<IdentityResult> UnlockUserAsync(IdentityUser user);
+    Task<IReadOnlyList<User>> GetActiveUsersAsync();
+    Task<IReadOnlyList<User>> GetInactiveUsersAsync();
+    Task<IdentityResult> LockUserAsync(User user, DateTimeOffset? lockoutEnd);
+    Task<IdentityResult> UnlockUserAsync(User user);
 }

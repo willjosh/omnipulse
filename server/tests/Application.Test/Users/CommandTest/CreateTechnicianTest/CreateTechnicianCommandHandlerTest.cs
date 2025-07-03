@@ -6,6 +6,8 @@ using Application.MappingProfiles;
 
 using AutoMapper;
 
+using Domain.Entities;
+
 using FluentValidation;
 
 using Microsoft.AspNetCore.Identity;
@@ -90,11 +92,7 @@ public class CreateTechnicianCommandHandlerTest
             .ReturnsAsync(false);
 
         // Mock AddAsync to succeed AND simulate UserManager populating the ID
-        _mockUserRepository.Setup(r => r.AddAsync(It.IsAny<IdentityUser>(), command.Password))
-            .Callback<IdentityUser, string>((user, _) =>
-            {
-                user.Id = Guid.NewGuid().ToString();
-            })
+        _mockUserRepository.Setup(r => r.AddAsyncWithRole(It.IsAny<User>(), command.Password, UserRole.Technician))
             .ReturnsAsync(CreateSuccessResult());
 
         // When
@@ -106,13 +104,13 @@ public class CreateTechnicianCommandHandlerTest
         // Verify all dependencies were called correctly
         _mockValidator.Verify(v => v.ValidateAsync(command, CancellationToken.None), Times.Once);
         _mockUserRepository.Verify(r => r.EmailExistsAsync(command.Email), Times.Once);
-        _mockUserRepository.Verify(r => r.AddAsync(It.Is<IdentityUser>(u =>
+        _mockUserRepository.Verify(r => r.AddAsyncWithRole(It.Is<User>(u =>
             u.Email == command.Email &&
-            ((Domain.Entities.User)u).FirstName == command.FirstName &&
-            ((Domain.Entities.User)u).LastName == command.LastName &&
-            ((Domain.Entities.User)u).HireDate == command.HireDate &&
-            ((Domain.Entities.User)u).IsActive == command.IsActive
-        ), command.Password), Times.Once);
+            u.FirstName == command.FirstName &&
+            u.LastName == command.LastName &&
+            u.HireDate == command.HireDate &&
+            u.IsActive == command.IsActive
+        ), command.Password, UserRole.Technician), Times.Once);
     }
 
     [Fact]
@@ -137,7 +135,7 @@ public class CreateTechnicianCommandHandlerTest
         // Verify validation and email check were called but AddAsync was not
         _mockValidator.Verify(v => v.ValidateAsync(command, CancellationToken.None), Times.Once);
         _mockUserRepository.Verify(r => r.EmailExistsAsync(command.Email), Times.Once);
-        _mockUserRepository.Verify(r => r.AddAsync(It.IsAny<IdentityUser>(), It.IsAny<string>()), Times.Never);
+        _mockUserRepository.Verify(r => r.AddAsyncWithRole(It.IsAny<User>(), It.IsAny<string>(), UserRole.Technician), Times.Never);
     }
 
     [Fact]
@@ -158,7 +156,7 @@ public class CreateTechnicianCommandHandlerTest
         // Verify only validation was called
         _mockValidator.Verify(v => v.ValidateAsync(command, CancellationToken.None), Times.Once);
         _mockUserRepository.Verify(r => r.EmailExistsAsync(It.IsAny<string>()), Times.Never);
-        _mockUserRepository.Verify(r => r.AddAsync(It.IsAny<IdentityUser>(), It.IsAny<string>()), Times.Never);
+        _mockUserRepository.Verify(r => r.AddAsyncWithRole(It.IsAny<User>(), It.IsAny<string>(), UserRole.Technician), Times.Never);
     }
 
     [Fact]
@@ -171,7 +169,7 @@ public class CreateTechnicianCommandHandlerTest
         _mockUserRepository.Setup(r => r.EmailExistsAsync(command.Email))
             .ReturnsAsync(false);
 
-        _mockUserRepository.Setup(r => r.AddAsync(It.IsAny<IdentityUser>(), It.IsAny<string>()))
+        _mockUserRepository.Setup(r => r.AddAsyncWithRole(It.IsAny<User>(), It.IsAny<string>(), UserRole.Technician))
             .ThrowsAsync(new Exception("Database connection failed"));
 
         // When & Then
@@ -182,7 +180,6 @@ public class CreateTechnicianCommandHandlerTest
         // Verify the expected calls were made
         _mockValidator.Verify(v => v.ValidateAsync(command, CancellationToken.None), Times.Once);
         _mockUserRepository.Verify(r => r.EmailExistsAsync(command.Email), Times.Once);
-        _mockUserRepository.Verify(r => r.AddAsync(It.IsAny<IdentityUser>(), It.IsAny<string>()), Times.Once);
+        _mockUserRepository.Verify(r => r.AddAsyncWithRole(It.IsAny<User>(), It.IsAny<string>(), UserRole.Technician), Times.Once);
     }
-
 }
