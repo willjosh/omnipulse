@@ -27,7 +27,7 @@ public class UpdateTechnicianCommandHandler : IRequestHandler<UpdateTechnicianCo
         _userRepository = userRepository;
         _mapper = mapper;
         _logger = logger;
-        _validator = validator;    
+        _validator = validator;
     }
 
     public Task<string> Handle(UpdateTechnicianCommand request, CancellationToken cancellationToken)
