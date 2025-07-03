@@ -9,17 +9,21 @@ using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
+using Persistence.DatabaseContext;
+
 namespace Persistence.Repository;
 
 public class UserRepository : IUserRepository
 {
     private readonly UserManager<User> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly OmnipulseDatabaseContext _context;
 
-    public UserRepository(UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
+    public UserRepository(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, OmnipulseDatabaseContext context)
     {
         _userManager = userManager;
         _roleManager = roleManager;
+        _context = context;
     }
 
     // Basic CRUD Operations
@@ -202,6 +206,62 @@ public class UserRepository : IUserRepository
         var parameter = Expression.Parameter(typeof(User), predicate.Parameters[0].Name);
         var body = new ParameterReplacementVisitor(predicate.Parameters[0], parameter).Visit(predicate.Body);
         return Expression.Lambda<Func<User, bool>>(body, parameter);
+    }
+
+    public async Task<IdentityResult> AddAsyncWithRole(User user, string password, string role)
+    {
+        using var transaction = await _context.Database.BeginTransactionAsync();
+        try
+        {
+            // Try to create new user
+            var result = await _userManager.CreateAsync(user, password);
+            
+            // If result fails, return result (no rollback needed since nothing was committed)
+            if (!result.Succeeded)
+            {
+                return result;
+            }
+
+            // Assign role to user
+            var roleAssignResult = await _userManager.AddToRoleAsync(user, role);
+            
+            // If role assignment fails, rollback transaction and return error
+            if (!roleAssignResult.Succeeded)
+            {
+                await transaction.RollbackAsync();
+                
+                // Include original role assignment errors for better debugging
+                var combinedErrors = new List<IdentityError>
+                {
+                    new() { Code = "RoleAssignmentFailed", Description = $"Failed to assign role '{role}' to user." }
+                };
+                combinedErrors.AddRange(roleAssignResult.Errors);
+                
+                return IdentityResult.Failed([.. combinedErrors]);
+            }
+
+            // Both operations succeeded, commit the transaction
+            await transaction.CommitAsync();
+            return IdentityResult.Success;
+        }
+        catch (Exception ex)
+        {
+            // Rollback on any unexpected error
+            try
+            {
+                await transaction.RollbackAsync();
+            }
+            catch
+            {
+                // Ignore rollback errors - transaction might already be rolled back
+            }
+
+            return IdentityResult.Failed(new IdentityError
+            {
+                Code = "UnexpectedError",
+                Description = $"An unexpected error occurred while creating user with role: {ex.Message}"
+            });
+        }
     }
 
     // Helper class for expression conversion

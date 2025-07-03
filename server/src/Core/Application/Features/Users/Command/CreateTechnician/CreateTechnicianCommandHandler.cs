@@ -49,7 +49,6 @@ public class CreateTechnicianCommandHandler : IRequestHandler<CreateTechnicianCo
 
         // Map request to User
         var user = _mapper.Map<User>(request);
-        user.UserName = request.Email;
         user.CreatedAt = DateTime.UtcNow;
         user.UpdatedAt = DateTime.UtcNow;
 
@@ -57,7 +56,7 @@ public class CreateTechnicianCommandHandler : IRequestHandler<CreateTechnicianCo
         await ValidateBusinessRuleAsync(user);
 
         // Add new technician
-        var result = await _userRepository.AddAsync(user, request.Password);
+        var result = await _userRepository.AddAsyncWithRole(user, request.Password, UserRole.Technician);
 
         // Check if creation succeeded
         if (!result.Succeeded)

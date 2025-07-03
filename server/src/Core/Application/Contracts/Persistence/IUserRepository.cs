@@ -17,6 +17,7 @@ public interface IUserRepository
     Task<IdentityResult> AddAsync(User user, string password);
     Task<IdentityResult> UpdateAsync(User user);
     Task<IdentityResult> DeleteAsync(string id);
+    Task<IdentityResult> AddAsyncWithRole(User user, string password, string role);
     Task<IdentityResult> DeleteAsync(User user);
 
     // Identity-specific operations
