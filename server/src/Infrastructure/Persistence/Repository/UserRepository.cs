@@ -23,14 +23,14 @@ public class UserRepository : IUserRepository
     }
 
     // Basic CRUD Operations
-    public async Task<IdentityResult> AddAsync(IdentityUser user, string password)
+    public async Task<IdentityResult> AddAsync(User user, string password)
     {
-        return await _userManager.CreateAsync((User)user, password);
+        return await _userManager.CreateAsync(user, password);
     }
 
-    public async Task<IdentityResult> UpdateAsync(IdentityUser user)
+    public async Task<IdentityResult> UpdateAsync(User user)
     {
-        return await _userManager.UpdateAsync((User)user);
+        return await _userManager.UpdateAsync(user);
     }
 
     public async Task<IdentityResult> DeleteAsync(string id)
@@ -42,44 +42,44 @@ public class UserRepository : IUserRepository
         return await _userManager.DeleteAsync(user);
     }
 
-    public async Task<IdentityResult> DeleteAsync(IdentityUser user)
+    public async Task<IdentityResult> DeleteAsync(User user)
     {
-        return await _userManager.DeleteAsync((User)user);
+        return await _userManager.DeleteAsync(user);
     }
 
     // Query Operations
-    public async Task<IdentityUser?> GetByIdAsync(string id)
+    public async Task<User?> GetByIdAsync(string id)
     {
         return await _userManager.FindByIdAsync(id);
     }
 
-    public async Task<IdentityUser?> GetByEmailAsync(string email)
+    public async Task<User?> GetByEmailAsync(string email)
     {
         return await _userManager.FindByEmailAsync(email);
     }
 
-    public async Task<IdentityUser?> GetByUsernameAsync(string username)
+    public async Task<User?> GetByUsernameAsync(string username)
     {
         return await _userManager.FindByNameAsync(username);
     }
 
-    public async Task<IReadOnlyList<IdentityUser>> GetAllAsync()
+    public async Task<IReadOnlyList<User>> GetAllAsync()
     {
         var users = await _userManager.Users.ToListAsync();
-        return users.Cast<IdentityUser>().ToList();
+        return users.Cast<User>().ToList();
     }
 
-    public async Task<IdentityUser?> GetFirstOrDefaultAsync(Expression<Func<IdentityUser, bool>> predicate)
+    public async Task<User?> GetFirstOrDefaultAsync(Expression<Func<User, bool>> predicate)
     {
         var userPredicate = ConvertPredicate(predicate);
         return await _userManager.Users.FirstOrDefaultAsync(userPredicate);
     }
 
-    public async Task<IReadOnlyList<IdentityUser>> FindAsync(Expression<Func<IdentityUser, bool>> predicate)
+    public async Task<IReadOnlyList<User>> FindAsync(Expression<Func<User, bool>> predicate)
     {
         var userPredicate = ConvertPredicate(predicate);
         var users = await _userManager.Users.Where(userPredicate).ToListAsync();
-        return users.Cast<IdentityUser>().ToList();
+        return users.Cast<User>().ToList();
     }
 
     public async Task<int> CountAsync()
@@ -104,39 +104,39 @@ public class UserRepository : IUserRepository
     }
 
     // Password Operations
-    public async Task<bool> CheckPasswordAsync(IdentityUser user, string password)
+    public async Task<bool> CheckPasswordAsync(User user, string password)
     {
-        return await _userManager.CheckPasswordAsync((User)user, password);
+        return await _userManager.CheckPasswordAsync(user, password);
     }
 
-    public async Task<IdentityResult> ChangePasswordAsync(IdentityUser user, string currentPassword, string newPassword)
+    public async Task<IdentityResult> ChangePasswordAsync(User user, string currentPassword, string newPassword)
     {
-        return await _userManager.ChangePasswordAsync((User)user, currentPassword, newPassword);
+        return await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
     }
 
-    public async Task<IdentityResult> ResetPasswordAsync(IdentityUser user, string token, string newPassword)
+    public async Task<IdentityResult> ResetPasswordAsync(User user, string token, string newPassword)
     {
-        return await _userManager.ResetPasswordAsync((User)user, token, newPassword);
+        return await _userManager.ResetPasswordAsync(user, token, newPassword);
     }
 
-    public async Task<string> GeneratePasswordResetTokenAsync(IdentityUser user)
+    public async Task<string> GeneratePasswordResetTokenAsync(User user)
     {
-        return await _userManager.GeneratePasswordResetTokenAsync((User)user);
+        return await _userManager.GeneratePasswordResetTokenAsync(user);
     }
 
     // Email Operations
-    public async Task<string> GenerateEmailConfirmationTokenAsync(IdentityUser user)
+    public async Task<string> GenerateEmailConfirmationTokenAsync(User user)
     {
-        return await _userManager.GenerateEmailConfirmationTokenAsync((User)user);
+        return await _userManager.GenerateEmailConfirmationTokenAsync(user);
     }
 
-    public async Task<IdentityResult> ConfirmEmailAsync(IdentityUser user, string token)
+    public async Task<IdentityResult> ConfirmEmailAsync(User user, string token)
     {
-        return await _userManager.ConfirmEmailAsync((User)user, token);
+        return await _userManager.ConfirmEmailAsync(user, token);
     }
 
     // Role Operations
-    public async Task<IdentityResult> AddToRoleAsync(IdentityUser user, string role)
+    public async Task<IdentityResult> AddToRoleAsync(User user, string role)
     {
         // Ensure role exists
         if (!await _roleManager.RoleExistsAsync(role))
@@ -144,60 +144,60 @@ public class UserRepository : IUserRepository
             await _roleManager.CreateAsync(new IdentityRole(role));
         }
 
-        return await _userManager.AddToRoleAsync((User)user, role);
+        return await _userManager.AddToRoleAsync(user, role);
     }
 
-    public async Task<IdentityResult> RemoveFromRoleAsync(IdentityUser user, string role)
+    public async Task<IdentityResult> RemoveFromRoleAsync(User user, string role)
     {
-        return await _userManager.RemoveFromRoleAsync((User)user, role);
+        return await _userManager.RemoveFromRoleAsync(user, role);
     }
 
-    public async Task<IList<string>> GetRolesAsync(IdentityUser user)
+    public async Task<IList<string>> GetRolesAsync(User user)
     {
-        return await _userManager.GetRolesAsync((User)user);
+        return await _userManager.GetRolesAsync(user);
     }
 
-    public async Task<bool> IsInRoleAsync(IdentityUser user, string role)
+    public async Task<bool> IsInRoleAsync(User user, string role)
     {
-        return await _userManager.IsInRoleAsync((User)user, role);
+        return await _userManager.IsInRoleAsync(user, role);
     }
 
-    public async Task<IReadOnlyList<IdentityUser>> GetUsersInRoleAsync(string role)
+    public async Task<IReadOnlyList<User>> GetUsersInRoleAsync(string role)
     {
         var users = await _userManager.GetUsersInRoleAsync(role);
-        return users.Cast<IdentityUser>().ToList();
+        return users.Cast<User>().ToList();
     }
 
     // Lockout Operations
-    public async Task<IdentityResult> LockUserAsync(IdentityUser user, DateTimeOffset? lockoutEnd)
+    public async Task<IdentityResult> LockUserAsync(User user, DateTimeOffset? lockoutEnd)
     {
-        return await _userManager.SetLockoutEndDateAsync((User)user, lockoutEnd);
+        return await _userManager.SetLockoutEndDateAsync(user, lockoutEnd);
     }
 
-    public async Task<IdentityResult> UnlockUserAsync(IdentityUser user)
+    public async Task<IdentityResult> UnlockUserAsync(User user)
     {
-        return await _userManager.SetLockoutEndDateAsync((User)user, null);
+        return await _userManager.SetLockoutEndDateAsync(user, null);
     }
 
     // Custom Business Logic Methods
-    public async Task<IReadOnlyList<IdentityUser>> GetActiveUsersAsync()
+    public async Task<IReadOnlyList<User>> GetActiveUsersAsync()
     {
         var users = await _userManager.Users
             .Where(u => u.IsActive && (u.LockoutEnd == null || u.LockoutEnd <= DateTimeOffset.UtcNow))
             .ToListAsync();
-        return users.Cast<IdentityUser>().ToList();
+        return users.Cast<User>().ToList();
     }
 
-    public async Task<IReadOnlyList<IdentityUser>> GetInactiveUsersAsync()
+    public async Task<IReadOnlyList<User>> GetInactiveUsersAsync()
     {
         var users = await _userManager.Users
             .Where(u => !u.IsActive || (u.LockoutEnd != null && u.LockoutEnd > DateTimeOffset.UtcNow))
             .ToListAsync();
-        return users.Cast<IdentityUser>().ToList();
+        return users.Cast<User>().ToList();
     }
 
-    // Helper method to convert Expression<Func<IdentityUser, bool>> to Expression<Func<User, bool>>
-    private Expression<Func<User, bool>> ConvertPredicate(Expression<Func<IdentityUser, bool>> predicate)
+    // Helper method to convert Expression<Func<User, bool>> to Expression<Func<User, bool>>
+    private Expression<Func<User, bool>> ConvertPredicate(Expression<Func<User, bool>> predicate)
     {
         var parameter = Expression.Parameter(typeof(User), predicate.Parameters[0].Name);
         var body = new ParameterReplacementVisitor(predicate.Parameters[0], parameter).Visit(predicate.Body);
