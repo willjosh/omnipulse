@@ -1,0 +1,766 @@
+// OMNIPULSE Database Schema
+// WARNING: OUTDATED
+
+Table users {
+  id integer [primary key]
+  role role_enum
+  first_name varchar
+  last_name varchar
+  email varchar [unique]
+  phone varchar
+  employee_id varchar [unique, note: 'For technicians']
+  hourly_rate decimal [note: 'For technicians']
+  hire_date date
+  is_active boolean [default: true]
+  created_at timestamp
+  updated_at timestamp
+}
+
+// Vehicle related tables (renamed from fleets)
+Table vehicles {
+  id integer [primary key]
+  created_at timestamp
+  updated_at timestamp
+
+  // Basic vehicle info
+  name varchar
+  make varchar
+  model varchar
+  year integer
+  vin varchar [unique]
+  license_plate varchar [unique]
+  vehicle_type vehicle_type_enum
+  trim varchar
+  
+  // Tracking info
+  total_mileage double
+  engine_hours double
+  fuel_capacity double
+  fuel_type fuel_type_enum
+  purchase_date date
+  purchase_price double
+  status vehicle_status_enum
+  
+  // Assignment and location
+  assigned_technician_id integer [ref: > users.id]
+  vehicle_group_id integer [ref: > vehicle_groups.id]
+  location varchar [note: 'MY state']
+}
+
+// Vehicle Groups for organization
+Table vehicle_groups {
+  id integer [primary key]
+  created_at timestamp
+  updated_at timestamp
+  name varchar [unique]
+  description text
+  is_active boolean [default: true]
+}
+
+// Vehicle assignments to users (updated foreign key reference)
+Table vehicle_assignments {
+  id integer [primary key]
+  created_at timestamp
+  updated_at timestamp
+  vehicle_id integer [ref: > vehicles.id]
+  assigned_to integer [ref: > users.id]
+  
+  // Assignment details
+  assigned_date date
+  unassigned_date date
+  is_active boolean [default: true]
+  assignment_type assignment_type_enum
+  notes text
+}
+
+// Document management for vehicles (updated foreign key reference)
+Table vehicle_documents {
+  id integer [primary key]
+  created_at timestamp
+  updated_at timestamp
+  vehicle_id integer [ref: > vehicles.id]
+  uploaded_by integer [ref: > users.id]
+
+  // Document details
+  document_type document_type_enum
+  title varchar
+  file_name varchar
+  file_path varchar
+  file_size integer
+  expiry_date date
+  notes text
+}
+
+// Vehicle photos (updated foreign key reference)
+Table vehicle_photos {
+  id integer [primary key]
+  created_at timestamp
+  updated_at timestamp
+  vehicle_id integer [ref: > vehicles.id]
+  uploaded_by integer [ref: > users.id]
+  
+  // Photo details
+  photo_label varchar [note: 'Front, Back, Left, Right, Interior, etc.']
+  file_name varchar
+  file_path varchar
+  file_size integer
+}
+
+// Service Programs
+Table service_programs {
+  id integer [primary key]
+  created_at timestamp
+  updated_at timestamp
+  
+  // Program details
+  name varchar
+  oem_tag varchar [note: 'TOY, AUD, FOR, etc.']
+  primary_meter_type meter_type_enum
+  secondary_meter_type meter_type_enum [null]
+  description text
+  is_active boolean [default: true]
+}
+
+// Service Schedules within programs
+Table service_schedules {
+  id integer [primary key]
+  created_at timestamp
+  updated_at timestamp
+  service_program_id integer [ref: > service_programs.id]
+  
+  // Schedule details
+  name varchar
+  interval_mileage integer [null]
+  interval_days integer [null]
+  interval_hours integer [null]
+  buffer_mileage integer [note: 'Early reminder buffer']
+  buffer_days integer [note: 'Early reminder buffer']
+  is_active boolean [default: true]
+}
+
+// Service Tasks
+Table service_tasks {
+  id integer [primary key]
+  created_at timestamp
+  updated_at timestamp
+  
+  // Task details
+  name varchar
+  description text
+  estimated_labor_hours double
+  estimated_cost decimal
+  category service_category_enum
+  is_active boolean [default: true]
+}
+
+// Link tasks to schedules
+Table service_schedule_tasks {
+  id integer [primary key]
+  service_schedule_id integer [ref: > service_schedules.id]
+  service_task_id integer [ref: > service_tasks.id]
+  is_mandatory boolean [default: true]
+  sequence_order integer
+}
+
+// Vehicle assignments to service programs (updated foreign key reference)
+Table vehicle_service_programs {
+  id integer [primary key]
+  vehicle_id integer [ref: > vehicles.id]
+  service_program_id integer [ref: > service_programs.id]
+  assigned_date date
+  is_active boolean [default: true]
+}
+
+// Service reminders (auto-generated) (updated foreign key reference)
+Table service_reminders {
+  id integer [primary key]
+  created_at timestamp
+  updated_at timestamp
+  vehicle_id integer [ref: > vehicles.id]
+  service_schedule_id integer [ref: > service_schedules.id]
+  
+  // Reminder details
+  title varchar
+  description text
+  due_date date [null]
+  due_mileage double [null]
+  due_engine_hours double [null]
+  priority priority_enum
+  status reminder_status_enum
+  is_completed boolean [default: false]
+  completed_date timestamp [null]
+  
+  // Notification tracking
+  last_notification_sent timestamp [null]
+  notification_count integer [default: 0]
+}
+
+// Issues reported on vehicles (updated foreign key reference)
+Table issues {
+  id integer [primary key]
+  created_at timestamp
+  updated_at timestamp
+  vehicle_id integer [ref: > vehicles.id]
+  reported_by integer [ref: > users.id]
+  
+  // Issue details
+  issue_number int [unique, note: 'Auto-generated']
+  title varchar
+  description text
+  category issue_category_enum
+  priority_level priority_enum
+  status issue_status_enum
+  
+  // Resolution
+  resolved_date timestamp [null]
+  resolved_by integer [ref: > users.id]
+  resolution_notes text
+}
+
+// Issue photos/attachments
+Table issue_attachments {
+  id integer [primary key]
+  created_at timestamp
+  updated_at timestamp
+  issue_id integer [ref: > issues.id]
+  uploaded_by integer [ref: > users.id]
+  
+  // Attachment details
+  file_type attachment_type_enum
+  file_name varchar
+  file_path varchar
+  file_size integer
+  description text
+}
+
+// Work Orders (updated foreign key reference)
+Table work_orders {
+  id integer [primary key]
+  created_at timestamp
+  updated_at timestamp
+  vehicle_id integer [ref: > vehicles.id]
+  service_reminder_id integer [ref: > service_reminders.id, null]
+  assigned_technician_id integer [ref: > users.id, null]
+  created_by integer [ref: > users.id]
+  
+  // Work order details
+  work_order_number varchar [unique]
+  title varchar
+  description text
+  work_type work_type_enum [note: 'Scheduled or Unscheduled']
+  priority priority_enum
+  status work_order_status_enum
+  
+  // Cost and time tracking
+  estimated_cost decimal
+  actual_cost decimal
+  estimated_hours double
+  actual_hours double
+  
+  // Scheduling
+  scheduled_start_date date [null]
+  actual_start_date date [null]
+  scheduled_completion_date date [null]
+  actual_completion_date date [null]
+  
+  // Odometer tracking
+  start_odometer double [null]
+  completion_odometer double [null]
+}
+
+// Link work orders to issues
+Table work_order_issues {
+  id integer [primary key]
+  work_order_id integer [ref: > work_orders.id]
+  issue_id integer [ref: > issues.id]
+}
+
+// Work order line items (parts and labor)
+Table work_order_line_items {
+  id integer [primary key]
+  work_order_id integer [ref: > work_orders.id]
+  sparepart_id integer [ref: > spareparts.id, null]
+  service_task_id integer [ref: > service_tasks.id, null]
+  
+  // Line item details
+  item_type line_item_type_enum [note: 'Parts, Labor, or Both']
+  description varchar
+  quantity integer
+  unit_cost decimal
+  total_cost decimal
+  labour_hours double [null]
+}
+
+// Invoices for work orders
+Table invoices {
+  id integer [primary key]
+  created_at timestamp
+  updated_at timestamp
+  work_order_id integer [ref: > work_orders.id]
+  generated_by integer [ref: > users.id]
+  
+  // Invoice details
+  invoice_number varchar [unique]
+  issue_date date
+  total_amount decimal
+  tax_amount decimal [note: 'GST if configured']
+  status invoice_status_enum
+  
+  // Payment tracking
+  paid_date date [null]
+  payment_method varchar [null]
+}
+
+// Inspection types and templates
+Table inspection_types {
+  id integer [primary key]
+  created_at timestamp
+  updated_at timestamp
+  
+  // Type details
+  name varchar [note: 'Pre-trip, Post-trip, Weekly, Monthly, Annual, DOT']
+  description text
+  is_active boolean [default: true]
+}
+
+// Checklist items for inspections
+Table checklist_items {
+  id integer [primary key]
+  created_at timestamp
+  updated_at timestamp
+  inspection_type_id integer [ref: > inspection_types.id]
+  
+  // Checklist item details
+  category varchar [note: 'Lights, Brakes, Tires, etc.']
+  item_name varchar
+  description text
+  input_type input_type_enum [note: 'Pass/Fail, Yes/No, Text, Photo']
+  is_mandatory boolean [default: true]
+  sort_order integer
+}
+
+// Vehicle inspections (updated table name and foreign key reference)
+Table vehicle_inspections {
+  id integer [primary key]
+  created_at timestamp
+  updated_at timestamp
+  vehicle_id integer [ref: > vehicles.id]
+  inspection_type_id integer [ref: > inspection_types.id]
+  technician_id integer [ref: > users.id]
+  
+  // Inspection details
+  inspection_date date
+  start_time timestamp
+  end_time timestamp
+  mileage_at_inspection double
+  overall_status inspection_status_enum
+  notes text
+  is_passed boolean
+}
+
+// Inspection checklist responses (updated foreign key reference)
+Table inspection_checklist_responses {
+  id integer [primary key]
+  created_at timestamp
+  updated_at timestamp
+  vehicle_inspection_id integer [ref: > vehicle_inspections.id]
+  checklist_item_id integer [ref: > checklist_items.id]
+  
+  // Response details
+  status inspection_item_status_enum
+  text_response text [null]
+  notes text [null]
+  requires_attention boolean [default: false]
+}
+
+// Inspection photos and attachments (updated foreign key reference)
+Table inspection_attachments {
+  id integer [primary key]
+  created_at timestamp
+  updated_at timestamp
+  vehicle_inspection_id integer [ref: > vehicle_inspections.id]
+  checklist_item_id integer [ref: > checklist_items.id, null]
+  
+  // Attachment details
+  file_type attachment_type_enum
+  file_name varchar
+  file_path varchar
+  file_size integer
+  description text
+}
+
+// Inventory and spare parts
+Table spareparts {
+  id integer [primary key]
+  created_at timestamp
+  updated_at timestamp
+
+  // Spare part details
+  part_number varchar [unique]
+  part_name varchar
+  description text
+  category sparepart_category_enum
+  brand varchar
+  supplier varchar
+  unit_price decimal
+  measurement_unit varchar [note: 'each, litre, kg, etc.']
+  manufacturer_part_number varchar
+  manufacturer varchar
+  weight_kg double [null]
+  is_active boolean [default: true]
+  
+  // Compatibility (simplified - could be normalized further)
+  compatible_vehicle_types text [note: 'JSON array or comma-separated']
+}
+
+// Warehouse/storage locations
+Table warehouse_locations {
+  id integer [primary key]
+  created_at timestamp
+  updated_at timestamp
+
+  // Location details
+  location_name varchar
+  latitude double
+  longitude double
+  location_type warehouse_type_enum
+  address text
+  is_active boolean [default: true]
+}
+
+// Inventory levels by location
+Table inventories {
+  id integer [primary key]
+  created_at timestamp
+  updated_at timestamp
+  sparepart_id integer [ref: > spareparts.id]
+  warehouse_location_id integer [ref: > warehouse_locations.id]
+
+  // Stock levels
+  quantity_on_hand integer
+  min_stock_level integer [note: 'Reorder threshold']
+  max_stock_level integer
+  unit_cost decimal [note: 'Current unit cost at this location']
+  last_restocked_date date [null]
+}
+
+// Inventory movement tracking
+Table inventory_transactions {
+  id integer [primary key]
+  created_at timestamp
+  updated_at timestamp
+  inventory_id integer [ref: > inventories.id]
+  work_order_id integer [ref: > work_orders.id, null]
+  performed_by integer [ref: > users.id]
+  
+  // Transaction details
+  transaction_type transaction_type_enum
+  quantity integer [note: 'Positive for IN, negative for OUT']
+  unit_cost decimal
+  total_cost decimal
+  reference_number varchar [null]
+  notes text
+  previous_quantity integer
+  new_quantity integer
+}
+
+// Spare part photos
+Table sparepart_photos {
+  id integer [primary key]
+  created_at timestamp
+  updated_at timestamp
+  sparepart_id integer [ref: > spareparts.id]
+  uploaded_by integer [ref: > users.id]
+  
+  // Photo details
+  file_name varchar
+  file_path varchar
+  file_size integer
+  is_primary boolean [default: false]
+}
+
+// Fuel purchase logging (updated foreign key reference)
+Table fuel_purchases {
+  id integer [primary key]
+  created_at timestamp
+  updated_at timestamp
+  vehicle_id integer [ref: > vehicles.id]
+  purchased_by integer [ref: > users.id]
+
+  // Fuel purchase details
+  purchase_date date
+  odometer_reading double
+  volume double [note: 'litres or gallons']
+  price_per_unit decimal
+  total_cost decimal
+  fuel_station varchar
+  receipt_number varchar [null]
+  notes text [null]
+}
+
+// Maintenance history (derived from work orders) (updated foreign key reference)
+Table maintenance_histories {
+  id integer [primary key]
+  created_at timestamp
+  updated_at timestamp
+  vehicle_id integer [ref: > vehicles.id]
+  work_order_id integer [ref: > work_orders.id]
+  service_task_id integer [ref: > service_tasks.id, null]
+  technician_id integer [ref: > users.id]
+  
+  // Maintenance details
+  service_date date
+  mileage_at_service double
+  description text
+  cost decimal
+  labor_hours double
+  notes text
+}
+
+// Vehicle alerts and notifications (updated table name and foreign key reference)
+Table vehicle_alerts {
+  id integer [primary key]
+  created_at timestamp
+  updated_at timestamp
+  vehicle_id integer [ref: > vehicles.id, null]
+  user_id integer [ref: > users.id, null]
+  
+  // Alert details
+  alert_type alert_type_enum
+  title varchar
+  message text
+  severity severity_enum
+  is_acknowledged boolean [default: false]
+  acknowledged_by integer [ref: > users.id, null]
+  acknowledged_at timestamp [null]
+  
+  // Auto-dismiss
+  expires_at timestamp [null]
+  is_dismissed boolean [default: false]
+}
+
+// ENUMS (updated fleet_status_enum to vehicle_status_enum)
+Enum role_enum {
+  admin
+  fleet_manager
+  technician
+  driver
+  viewer
+}
+
+Enum vehicle_status_enum {
+  active
+  maintenance
+  out_of_service
+  sold
+  retired
+}
+
+Enum vehicle_type_enum {
+  truck
+  van
+  car
+  motorcycle
+  heavy_equipment
+  trailer
+}
+
+Enum fuel_type_enum {
+  petrol
+  diesel
+  electric
+  hybrid
+  lpg
+  cng
+}
+
+Enum meter_type_enum {
+  miles
+  kilometers
+  hours
+}
+
+Enum priority_enum {
+  low
+  medium
+  high
+  critical
+}
+
+Enum reminder_status_enum {
+  pending
+  due_soon
+  overdue
+  completed
+  cancelled
+}
+
+Enum issue_category_enum {
+  engine
+  transmission
+  brakes
+  electrical
+  body
+  tires
+  hvac
+  other
+}
+
+Enum issue_status_enum {
+  open
+  in_progress
+  resolved
+  closed
+  cancelled
+}
+
+Enum location_enum {
+  front
+  rear
+  driver_side
+  passenger_side
+  interior
+  exterior
+  engine_bay
+  undercarriage
+}
+
+Enum work_type_enum {
+  scheduled
+  unscheduled
+}
+
+Enum work_order_status_enum {
+  created
+  assigned
+  in_progress
+  waiting_parts
+  completed
+  cancelled
+  on_hold
+}
+
+Enum line_item_type_enum {
+  parts
+  labor
+  both
+}
+
+Enum invoice_status_enum {
+  draft
+  sent
+  paid
+  overdue
+  cancelled
+  voided
+}
+
+Enum input_type_enum {
+  pass_fail
+  yes_no
+  text
+  photo
+  numeric
+}
+
+Enum inspection_status_enum {
+  good
+  fair
+  poor
+  critical
+}
+
+Enum inspection_item_status_enum {
+  pass
+  fail
+  na
+  attention_required
+}
+
+Enum alert_type_enum {
+  maintenance_due
+  inspection_overdue
+  low_fuel_efficiency
+  breakdown
+  accident
+  scheduled_service
+  low_stock
+  vehicle_renewal
+}
+
+Enum severity_enum {
+  info
+  warning
+  error
+  critical
+}
+
+Enum maintenance_status_enum {
+  scheduled
+  in_progress
+  completed
+  cancelled
+  on_hold
+}
+
+Enum service_category_enum {
+  preventive
+  corrective
+  emergency
+  inspection
+  warranty
+}
+
+Enum document_type_enum {
+  registration
+  insurance
+  warranty
+  service_record
+  inspection_report
+  photo
+  manual
+  other
+}
+
+Enum assignment_type_enum {
+  permanent
+  temporary
+  pool_vehicle
+}
+
+Enum sparepart_category_enum {
+  engine
+  transmission
+  brakes
+  tires
+  electrical
+  body
+  interior
+  fluids
+  filters
+  belts
+  batteries
+  lights
+}
+
+Enum warehouse_type_enum {
+  main_warehouse
+  service_bay
+  mobile_unit
+  external_supplier
+}
+
+Enum transaction_type_enum {
+  stock_in
+  stock_out
+  transfer
+  adjustment
+  return
+}
+
+Enum attachment_type_enum {
+  photo
+  document
+  video
+  audio
+}
