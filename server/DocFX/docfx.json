@@ -14,7 +14,7 @@
     "template": ["default", "modern"],
     "globalMetadata": {
       "_appName": "OMNIPULSE",
-      "_appTitle": "OMNIPULSE API Documentation",
+      "_appTitle": "OMNIPULSE Backend Documentation",
       "_enableSearch": true,
       "pdf": true
     }
