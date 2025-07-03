@@ -489,4 +489,4 @@ $RECYCLE.BIN/
 
 # DocFX
 _site/
-DocFX/api/
+**/DocFX/api/
