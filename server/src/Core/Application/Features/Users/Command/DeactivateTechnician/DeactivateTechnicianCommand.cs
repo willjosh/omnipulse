@@ -4,4 +4,4 @@ using MediatR;
 
 namespace Application.Features.Users.Command.DeactivateTechnician;
 
-public record DeactivateTechnicianCommand(Guid Id) : IRequest<Guid> { }
+public record DeactivateTechnicianCommand(string Id) : IRequest<string> { }
