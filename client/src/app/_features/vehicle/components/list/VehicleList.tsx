@@ -15,6 +15,9 @@ import OptionButton from "@/app/_features/shared/button/OptionButton";
 import PrimaryButton from "@/app/_features/shared/button/PrimaryButton";
 import { vehicleTableColumns } from "./VehicleTableColumns";
 import { vehicleFilterConfig, vehicleTabConfig } from "./VehicleListFilters";
+import Details from "@/app/_features/shared/icons/Details";
+import Edit from "@/app/_features/shared/icons/Edit";
+import Archive from "@/app/_features/shared/icons/Archive";
 
 const VehicleList: React.FC = () => {
   const router = useRouter();
@@ -119,27 +122,7 @@ const VehicleList: React.FC = () => {
     {
       key: "view",
       label: "View Details",
-      icon: (
-        <svg
-          className="w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-          />
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-          />
-        </svg>
-      ),
+      icon: <Details />,
       onClick: (vehicle: VehicleListItem) => {
         router.push(`/vehicles/${vehicle.id}`);
       },
@@ -147,21 +130,7 @@ const VehicleList: React.FC = () => {
     {
       key: "edit",
       label: "Edit Vehicle",
-      icon: (
-        <svg
-          className="w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-          />
-        </svg>
-      ),
+      icon: <Edit />,
       onClick: (vehicle: VehicleListItem) => {
         router.push(`/vehicles/${vehicle.id}/edit`);
       },
@@ -170,27 +139,7 @@ const VehicleList: React.FC = () => {
       key: "archive",
       label: "Archive",
       variant: "danger" as const,
-      icon: (
-        <svg
-          className="w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M5 8l6 6 6-6H5zM3 4h18l-2 4H5L3 4z"
-          />
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M3 8v10a2 2 0 002 2h14a2 2 0 002-2V8"
-          />
-        </svg>
-      ),
+      icon: <Archive />,
       onClick: (vehicle: VehicleListItem) => {
         setConfirmModal({ isOpen: true, vehicle });
       },
