@@ -3,6 +3,7 @@ using System;
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
+using Application.Exceptions.UserException;
 using Application.Features.Users.Command.DeactivateTechnician;
 using Application.MappingProfiles;
 
@@ -37,7 +38,7 @@ public class DeactivateTechnicianHandlerTest
         _handler = new DeactivateTechnicianCommandHandler(_mockUserRepository.Object, mapper, _mockLogger.Object);
     }
 
-    [Fact(Skip = "Not Implemented")]
+    [Fact]
     public async Task Handle_ShouldDeactivateTechnician_WhenTechnicianExists()
     {
 
@@ -70,7 +71,7 @@ public class DeactivateTechnicianHandlerTest
             .ReturnsAsync(IdentityResult.Success);
 
         // // When
-        var result = await _handler.Handle(command, CancellationToken.None);  
+        var result = await _handler.Handle(command, CancellationToken.None);
 
         // // Then
         Assert.NotNull(result);
@@ -85,7 +86,7 @@ public class DeactivateTechnicianHandlerTest
         )), Times.Once);
     }
 
-    [Fact(Skip = "Not Implemented")]
+    [Fact]
     public async Task Handle_Should_Throw_EntityNotFoundException_When_Technician_Does_Not_Exist()
     {
         // Given
@@ -94,8 +95,42 @@ public class DeactivateTechnicianHandlerTest
 
         // When & Then
         await Assert.ThrowsAsync<EntityNotFoundException>(() => _handler.Handle(command, CancellationToken.None));
-        
+
         _mockUserRepository.Verify(r => r.GetByIdAsync(command.Id), Times.Once);
         _mockUserRepository.Verify(r => r.UpdateAsync(It.IsAny<User>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_Should_Throw_UpdateUserException_When_RepositoryUpdate_Fails()
+    {
+        // Given
+        var command = new DeactivateTechnicianCommand(Id: Guid.NewGuid().ToString());
+        var expectedUser = new User
+        {
+            Id = command.Id,
+            FirstName = "John",
+            LastName = "Doe",
+            Email = "John@gmail.com",
+            HireDate = DateTime.UtcNow,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+            MaintenanceHistories = [],
+            IssueAttachments = [],
+            VehicleAssignments = [],
+            VehicleDocuments = [],
+            VehicleInspections = [],
+            Vehicles = []
+        };
+
+        _mockUserRepository.Setup(r => r.GetByIdAsync(command.Id)).ReturnsAsync(expectedUser);
+        _mockUserRepository.Setup(r => r.UpdateAsync(It.IsAny<User>()))
+            .ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "Update failed" }));
+
+        // When & Then
+        await Assert.ThrowsAsync<UpdateUserException>(() => _handler.Handle(command, CancellationToken.None));
+
+        _mockUserRepository.Verify(r => r.GetByIdAsync(command.Id), Times.Once);
+        _mockUserRepository.Verify(r => r.UpdateAsync(It.IsAny<User>()), Times.Once);
     }
 }
