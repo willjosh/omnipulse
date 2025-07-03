@@ -4,6 +4,18 @@ using Domain.Entities.Enums;
 
 namespace Domain.Entities;
 
+/// <summary>
+/// Represents a vehicle entity in the fleet management system.
+/// </summary>
+/// <remarks>
+/// This is a core domain entity that contains all essential information about a fleet vehicle.
+///
+/// Key business rules:
+/// - VIN (Vehicle Identification Number) must be unique across the entire fleet
+/// - License plate must be unique and have a valid expiration date
+/// - Vehicle must belong to exactly one VehicleGroup
+/// - Mileage and engine hours can only increase over time
+/// </remarks>
 public class Vehicle : BaseEntity
 {
     public required string Name { get; set; }
