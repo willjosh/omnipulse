@@ -486,3 +486,7 @@ $RECYCLE.BIN/
 # Build artifacts
 **/bin/
 **/obj/
+
+# DocFX
+_site/
+DocFX/api/
