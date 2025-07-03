@@ -215,7 +215,7 @@ public class UserRepository : IUserRepository
         {
             // Try to create new user
             var result = await _userManager.CreateAsync(user, password);
-            
+
             // If result fails, return result (no rollback needed since nothing was committed)
             if (!result.Succeeded)
             {
@@ -224,19 +224,19 @@ public class UserRepository : IUserRepository
 
             // Assign role to user
             var roleAssignResult = await _userManager.AddToRoleAsync(user, role);
-            
+
             // If role assignment fails, rollback transaction and return error
             if (!roleAssignResult.Succeeded)
             {
                 await transaction.RollbackAsync();
-                
+
                 // Include original role assignment errors for better debugging
                 var combinedErrors = new List<IdentityError>
                 {
                     new() { Code = "RoleAssignmentFailed", Description = $"Failed to assign role '{role}' to user." }
                 };
                 combinedErrors.AddRange(roleAssignResult.Errors);
-                
+
                 return IdentityResult.Failed([.. combinedErrors]);
             }
 
