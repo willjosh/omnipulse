@@ -12,5 +12,5 @@ public record CreateIssueCommand(
     IssueCategoryEnum Category,
     IssueStatusEnum Status,
     string ReportedByUserID,
-    DateTime ReportedDate
+    DateTime? ReportedDate
 ) : IRequest<int>;
