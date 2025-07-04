@@ -6,6 +6,7 @@ public class Issue : BaseEntity
     public required int VehicleID { get; set; }
     public required int IssueNumber { get; set; }
     public required string ReportedByUserID { get; set; }
+    public required DateTime ReportedDate { get; set; } = DateTime.UtcNow;
     public required string Title { get; set; }
     public string? Description { get; set; }
     public required IssueCategoryEnum Category { get; set; }
@@ -17,6 +18,7 @@ public class Issue : BaseEntity
 
     // Navigation Properties
     public required ICollection<IssueAttachment> IssueAttachments { get; set; } = [];
+    public required ICollection<IssueAssignment> IssueAssignments { get; set; } = [];
     public required Vehicle Vehicle { get; set; }
     public required User User { get; set; }
 }
