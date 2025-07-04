@@ -18,7 +18,7 @@ public class IssueMappingProfile : Profile
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore()) // Handled by BaseEntity
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore()) // Handled by BaseEntity
             .ForMember(dest => dest.ResolvedDate, opt => opt.Ignore()) // Not set during creation
-            .ForMember(dest => dest.ResolvedBy, opt => opt.Ignore()) // Not set during creation
+            .ForMember(dest => dest.ResolvedByUserID, opt => opt.Ignore()) // Not set during creation
             .ForMember(dest => dest.ResolutionNotes, opt => opt.Ignore()) // Not set during creation
             .ForMember(dest => dest.IssueAttachments, opt => opt.Ignore()) // Navigation collection
             .ForMember(dest => dest.IssueAssignments, opt => opt.Ignore()) // Navigation collection

@@ -152,7 +152,7 @@ public class CreateIssueCommandHandlerTest
             PriorityLevel = command.PriorityLevel,
             Status = command.Status,
             ResolvedDate = null,
-            ResolvedBy = null,
+            ResolvedByUserID = null,
             ResolutionNotes = null,
             IssueAttachments = [],
             IssueAssignments = [],

@@ -13,7 +13,7 @@ public class Issue : BaseEntity
     public required PriorityLevelEnum PriorityLevel { get; set; }
     public required IssueStatusEnum Status { get; set; }
     public DateTime? ResolvedDate { get; set; }
-    public int? ResolvedBy { get; set; }
+    public string? ResolvedByUserID { get; set; }
     public string? ResolutionNotes { get; set; }
 
     // Navigation Properties
