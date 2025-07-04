@@ -17,7 +17,7 @@ using Moq;
 
 namespace Application.Test.Issues.CommandTest.CreateIssue;
 
-public class CreateIssueHandlerTest
+public class CreateIssueCommandHandlerTest
 {
     private readonly Mock<IIssueRepository> _mockIssueRepository;
     private readonly Mock<IVehicleRepository> _mockVehicleRepository;
@@ -26,7 +26,7 @@ public class CreateIssueHandlerTest
     private readonly Mock<IAppLogger<CreateIssueCommandHandler>> _mockLogger;
     private readonly Mock<IValidator<CreateIssueCommand>> _mockValidator;
 
-    public CreateIssueHandlerTest()
+    public CreateIssueCommandHandlerTest()
     {
         _mockIssueRepository = new();
         _mockVehicleRepository = new();

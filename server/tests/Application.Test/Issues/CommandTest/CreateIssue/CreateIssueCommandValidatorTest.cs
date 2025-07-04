@@ -9,11 +9,11 @@ using Xunit;
 
 namespace Application.Test.Issues.CommandTest.CreateIssue;
 
-public class CreateIssueValidatorTest
+public class CreateIssueCommandValidatorTest
 {
     private readonly CreateIssueCommandValidator _validator;
 
-    public CreateIssueValidatorTest()
+    public CreateIssueCommandValidatorTest()
     {
         _validator = new CreateIssueCommandValidator();
     }
