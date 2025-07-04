@@ -9,6 +9,14 @@ public record UpdateTechnicianCommand(
     string? FirstName,
     string? LastName,
     DateTime? HireDate,
-    bool? IsActive 
+    bool? IsActive
 ) : IRequest<string>
-{ }
+{
+    public bool ShouldUpdateFirstName => FirstName is not null;
+    public bool ShouldUpdateLastName => LastName is not null;
+    public bool ShouldUpdateHireDate => HireDate is not null;
+    public bool ShouldUpdateIsActive => IsActive is not null;
+    
+    public bool ShouldUpdate =>
+        ShouldUpdateFirstName || ShouldUpdateLastName || ShouldUpdateHireDate || ShouldUpdateIsActive;
+}

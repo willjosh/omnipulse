@@ -26,7 +26,6 @@ public class UpdateTechnicianValidatorTest
     {
         return new UpdateTechnicianCommand(
             Id: Guid.NewGuid().ToString(),
-            email,
             firstName,
             lastName,
             hireDate ?? DateTime.UtcNow,
@@ -63,35 +62,6 @@ public class UpdateTechnicianValidatorTest
         Assert.False(result.IsValid);
         Assert.Contains(result.Errors, e => e.PropertyName == "Email");
     }
-
-    [Fact(Skip = "Not implemented yet")]
-    public async Task Validator_Should_Fail_On_Empty_FirstName()
-    {
-        // Given
-        var command = CreateValidCommand(firstName: "");
-
-        // When
-        var result = await _validator.ValidateAsync(command);
-
-        // Then
-        Assert.False(result.IsValid);
-        Assert.Contains(result.Errors, e => e.PropertyName == "FirstName");
-    }
-
-    [Fact(Skip = "Not implemented yet")]
-    public async Task Validator_Should_Fail_On_Empty_LastName()
-    {
-        // Given
-        var command = CreateValidCommand(lastName: "");
-
-        // When
-        var result = await _validator.ValidateAsync(command);
-
-        // Then
-        Assert.False(result.IsValid);
-        Assert.Contains(result.Errors, e => e.PropertyName == "LastName");
-    }
-
 
     [Theory(Skip = "Not implemented yet")]
     [InlineData(101)]
