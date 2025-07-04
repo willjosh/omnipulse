@@ -11,6 +11,7 @@ using FluentValidation;
 
 using MediatR;
 
+namespace Application.Features.FuelLogging.Command.CreateFuelPurchase;
 
 public class CreateFuelPurchaseCommandHandler : IRequestHandler<CreateFuelPurchaseCommand, int>
 {
@@ -46,26 +47,28 @@ public class CreateFuelPurchaseCommandHandler : IRequestHandler<CreateFuelPurcha
         // map request to fuel purchase domain entity
         var fuelPurchase = _mapper.Map<FuelPurchase>(request);
 
-        //validate business rules 
+        // validate business rules
         await ValidateBusinessRuleAsync(fuelPurchase);
 
         // add new fuel purchase
-        var newfuelPurchase = await _fuelPurchaseRepository.AddAsync(fuelPurchase);
+        var newFuelPurchase = await _fuelPurchaseRepository.AddAsync(fuelPurchase);
 
         // save changes
         await _fuelPurchaseRepository.SaveChangesAsync();
 
-        return newfuelPurchase.ID;
+        _logger.LogInformation($"Successfully created fuel purchase with ID: {newFuelPurchase.ID}");
+
+        return newFuelPurchase.ID;
     }
 
     private async Task ValidateBusinessRuleAsync(FuelPurchase fuelPurchase)
     {
-        // validate staff who logged fuel 
+        // validate user who logged fuel
         if (!await _userRepository.ExistsAsync(fuelPurchase.PurchasedByUserId))
         {
-            var errorMessage = $"Staff ID not found: {fuelPurchase.PurchasedByUserId}";
+            var errorMessage = $"User ID not found: {fuelPurchase.PurchasedByUserId}";
             _logger.LogError(errorMessage);
-            throw new EntityNotFoundException(typeof(FuelPurchase).ToString(), "StaffId", fuelPurchase.PurchasedByUserId);
+            throw new EntityNotFoundException(nameof(User), "PurchasedByUserId", fuelPurchase.PurchasedByUserId);
         }
 
         // validate vehicle exists
@@ -73,14 +76,15 @@ public class CreateFuelPurchaseCommandHandler : IRequestHandler<CreateFuelPurcha
         {
             var errorMessage = $"Vehicle ID not found: {fuelPurchase.VehicleId}";
             _logger.LogError(errorMessage);
-            throw new EntityNotFoundException(typeof(FuelPurchase).ToString(), "VehicleId", fuelPurchase.VehicleId.ToString());
+            throw new EntityNotFoundException(nameof(Vehicle), "VehicleId", fuelPurchase.VehicleId.ToString());
         }
 
+        // Validate odometer reading is greater than previous reading
         if (!await _fuelPurchaseRepository.IsValidOdometerReading(fuelPurchase.VehicleId, fuelPurchase.OdometerReading))
         {
-            var errorMessages = "New odometer reading must be greater than last recorded reading.";
-            _logger.LogWarning($"CreateFuelPurchaseCommand - Validation failed: {errorMessages}");
-            throw new BadRequestException(errorMessages);
+            var errorMessage = "New odometer reading must be greater than last recorded reading.";
+            _logger.LogWarning($"CreateFuelPurchaseCommand - Odometer validation failed: {errorMessage}");
+            throw new BadRequestException(errorMessage);
         }
     }
 }
