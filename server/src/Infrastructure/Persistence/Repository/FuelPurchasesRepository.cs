@@ -16,8 +16,7 @@ public class FuelPurchasesRepository : GenericRepository<FuelPurchase>, IFuelPur
     public async Task<bool> IsValidOdometerReading(int vehicleId, double odometerReading)
     {
         var vehicle = await _dbSet.FindAsync(vehicleId);
-        if (vehicle != null) return odometerReading >= vehicle.OdometerReading;
-        return true;
+        return vehicle == null || odometerReading >= vehicle.OdometerReading;
     }
 
     public async Task<bool> IsReceiptNumberUniqueAsync(string receiptNumber)
