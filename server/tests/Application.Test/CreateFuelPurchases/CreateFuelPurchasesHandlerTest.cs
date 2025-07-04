@@ -14,48 +14,54 @@ using FluentValidation;
 
 using Moq;
 
-namespace Application.Test.FuelPurchases.CommandTest;
+using Xunit;
+
+namespace Application.Test.CreateFuelPurchases;
 
 public class CreateFuelPurchasesHandlerTest
 {
-    private readonly Mock<IFuelPurchaseRepository> _mockFuelPurchasesRepository;
     private readonly CreateFuelPurchaseCommandHandler _createFuelPurchasesCommandHandler;
-    private readonly Mock<IAppLogger<CreateFuelPurchaseCommandHandler>> _mockLogger;
-    private readonly Mock<IValidator<CreateFuelPurchaseCommand>> _mockValidator;
+    private readonly Mock<IFuelPurchaseRepository> _mockFuelPurchasesRepository;
     private readonly Mock<IVehicleRepository> _mockVehicleRepository;
     private readonly Mock<IUserRepository> _mockUserRepository;
+    private readonly Mock<IValidator<CreateFuelPurchaseCommand>> _mockValidator;
+    private readonly Mock<IAppLogger<CreateFuelPurchaseCommandHandler>> _mockLogger;
 
     public CreateFuelPurchasesHandlerTest()
     {
         _mockFuelPurchasesRepository = new();
-        _mockLogger = new();
-        _mockValidator = new();
         _mockVehicleRepository = new();
         _mockUserRepository = new();
+        _mockValidator = new();
+        _mockLogger = new();
 
-        var config = new MapperConfiguration(cfg =>
-        {
-            cfg.AddProfile<FuelPurchaseMappingProfile>();
-        });
+        var config = new MapperConfiguration(cfg => cfg.AddProfile<FuelPurchaseMappingProfile>());
         var mapper = config.CreateMapper();
 
-        _createFuelPurchasesCommandHandler = new(_mockFuelPurchasesRepository.Object, _mockVehicleRepository.Object, _mockUserRepository.Object, mapper, _mockLogger.Object, _mockValidator.Object);
+        _createFuelPurchasesCommandHandler = new(
+            _mockFuelPurchasesRepository.Object,
+            _mockVehicleRepository.Object,
+            _mockUserRepository.Object,
+            _mockValidator.Object,
+            _mockLogger.Object,
+            mapper);
     }
 
-    private CreateFuelPurchaseCommand CreateValidCommand(
-        int VehicleId = 1214,
-        string PurchasedByUserId = "1",
-        DateTime PurchaseDate = default,
-        double OdometerReading = 150000.75,
-        double Volume = 90.7,
-        decimal PricePerUnit = 5.19m,
-        decimal TotalCost = 470.733m,
-        string FuelStation = "Test Fuel Station",
-        string ReceiptNumber = "Test Receipt Number",
-        string? Notes = ""
+    private static CreateFuelPurchaseCommand CreateValidCommand(
+        int vehicleId = 1214,
+        string purchasedByUserId = "1",
+        DateTime? purchaseDate = null,
+        double odometerReading = 150000.75,
+        double volume = 90.7,
+        decimal pricePerUnit = 5.19m,
+        decimal totalCost = 470.733m,
+        string fuelStation = "Test Fuel Station",
+        string receiptNumber = "Test Receipt Number",
+        string? notes = ""
     )
     {
-        return new CreateFuelPurchaseCommand(VehicleId, PurchasedByUserId, new DateTime(2025, 2, 1), OdometerReading, Volume, PricePerUnit, TotalCost, FuelStation, ReceiptNumber, Notes);
+        var actualPurchaseDate = purchaseDate ?? new DateTime(2025, 1, 1);
+        return new CreateFuelPurchaseCommand(vehicleId, purchasedByUserId, actualPurchaseDate, odometerReading, volume, pricePerUnit, totalCost, fuelStation, receiptNumber, notes);
     }
 
     [Fact]
@@ -84,6 +90,7 @@ public class CreateFuelPurchasesHandlerTest
         };
 
         _mockFuelPurchasesRepository.Setup(r => r.IsValidOdometerReading(command.VehicleId, command.OdometerReading)).ReturnsAsync(true);
+        _mockFuelPurchasesRepository.Setup(r => r.IsReceiptNumberUniqueAsync(command.ReceiptNumber)).ReturnsAsync(true);
         _mockVehicleRepository.Setup(r => r.ExistsAsync(command.VehicleId)).ReturnsAsync(true);
         _mockUserRepository.Setup(r => r.ExistsAsync(command.PurchasedByUserId)).ReturnsAsync(true);
 
@@ -111,6 +118,9 @@ public class CreateFuelPurchasesHandlerTest
         var validationResult = new FluentValidation.Results.ValidationResult();
         validationResult.Errors.Add(new FluentValidation.Results.ValidationFailure("VehicleId", "Vehicle ID not found"));
 
+        // Setup mocks (though they won't be called due to validation failure)
+        _mockFuelPurchasesRepository.Setup(r => r.IsValidOdometerReading(command.VehicleId, command.OdometerReading)).ReturnsAsync(true);
+        _mockFuelPurchasesRepository.Setup(r => r.IsReceiptNumberUniqueAsync(command.ReceiptNumber)).ReturnsAsync(true);
         _mockVehicleRepository.Setup(r => r.ExistsAsync(command.VehicleId)).ReturnsAsync(false);
         _mockUserRepository.Setup(r => r.ExistsAsync(command.PurchasedByUserId)).ReturnsAsync(true);
 
@@ -134,6 +144,7 @@ public class CreateFuelPurchasesHandlerTest
         var command = CreateValidCommand();
 
         _mockFuelPurchasesRepository.Setup(r => r.IsValidOdometerReading(command.VehicleId, command.OdometerReading)).ReturnsAsync(false);
+        _mockFuelPurchasesRepository.Setup(r => r.IsReceiptNumberUniqueAsync(command.ReceiptNumber)).ReturnsAsync(true);
         _mockVehicleRepository.Setup(r => r.ExistsAsync(command.VehicleId)).ReturnsAsync(true);
         _mockUserRepository.Setup(r => r.ExistsAsync(command.PurchasedByUserId)).ReturnsAsync(true);
 
@@ -152,6 +163,30 @@ public class CreateFuelPurchasesHandlerTest
         _mockFuelPurchasesRepository.Verify(repo => repo.AddAsync(It.IsAny<FuelPurchase>()), Times.Never);
         _mockFuelPurchasesRepository.Verify(repo => repo.SaveChangesAsync(), Times.Never);
         _mockValidator.Verify(validator => validator.ValidateAsync(command, CancellationToken.None), Times.Once);
-        ;
+    }
+
+    [Fact]
+    public async Task Handle_Should_Throw_DuplicateEntityException_On_Duplicate_ReceiptNumber()
+    {
+        // Given
+        var command = CreateValidCommand();
+
+        _mockFuelPurchasesRepository.Setup(r => r.IsValidOdometerReading(command.VehicleId, command.OdometerReading)).ReturnsAsync(true);
+        _mockFuelPurchasesRepository.Setup(r => r.IsReceiptNumberUniqueAsync(command.ReceiptNumber)).ReturnsAsync(false);
+        _mockVehicleRepository.Setup(r => r.ExistsAsync(command.VehicleId)).ReturnsAsync(true);
+        _mockUserRepository.Setup(r => r.ExistsAsync(command.PurchasedByUserId)).ReturnsAsync(true);
+
+        _mockValidator.Setup(v => v.ValidateAsync(It.IsAny<CreateFuelPurchaseCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FluentValidation.Results.ValidationResult());
+
+        // When
+        var exception = await Assert.ThrowsAsync<DuplicateEntityException>(() => _createFuelPurchasesCommandHandler.Handle(command, CancellationToken.None));
+
+        // Then
+        Assert.Equal("ReceiptNumber", exception.PropertyName);
+        Assert.Equal(command.ReceiptNumber, exception.PropertyValue);
+        _mockFuelPurchasesRepository.Verify(repo => repo.AddAsync(It.IsAny<FuelPurchase>()), Times.Never);
+        _mockFuelPurchasesRepository.Verify(repo => repo.SaveChangesAsync(), Times.Never);
+        _mockValidator.Verify(validator => validator.ValidateAsync(command, CancellationToken.None), Times.Once);
     }
 }
