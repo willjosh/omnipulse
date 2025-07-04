@@ -19,7 +19,7 @@ using Xunit;
 
 namespace Application.Test.CreateFuelPurchases;
 
-public class CreateFuelPurchasesCommandHandlerTest
+public class CreateFuelPurchaseCommandHandlerTest
 {
     private readonly CreateFuelPurchaseCommandHandler _createFuelPurchasesCommandHandler;
     private readonly Mock<IFuelPurchaseRepository> _mockFuelPurchasesRepository;
@@ -28,7 +28,7 @@ public class CreateFuelPurchasesCommandHandlerTest
     private readonly Mock<IValidator<CreateFuelPurchaseCommand>> _mockValidator;
     private readonly Mock<IAppLogger<CreateFuelPurchaseCommandHandler>> _mockLogger;
 
-    public CreateFuelPurchasesCommandHandlerTest()
+    public CreateFuelPurchaseCommandHandlerTest()
     {
         _mockFuelPurchasesRepository = new();
         _mockVehicleRepository = new();

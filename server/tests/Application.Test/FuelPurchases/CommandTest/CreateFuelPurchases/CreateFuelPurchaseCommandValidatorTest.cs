@@ -6,11 +6,11 @@ using Domain.Entities;
 
 using Xunit;
 
-public class CreateFuelPurchasesCommandValidatorTest
+public class CreateFuelPurchaseCommandValidatorTest
 {
     private readonly CreateFuelPurchaseCommandValidator _validator;
 
-    public CreateFuelPurchasesCommandValidatorTest()
+    public CreateFuelPurchaseCommandValidatorTest()
     {
         _validator = new CreateFuelPurchaseCommandValidator();
     }
