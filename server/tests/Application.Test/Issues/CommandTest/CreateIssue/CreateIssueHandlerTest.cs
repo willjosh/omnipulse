@@ -46,15 +46,16 @@ public class CreateIssueHandlerTest
 
     private CreateIssueCommand CreateValidCommand(
         int vehicleID = 123,
-        string reportedByUserID = "1234567890",
         string title = "Test Issue Title",
         string? description = "Test Issue Description",
-        IssueCategoryEnum category = IssueCategoryEnum.BODY,
         PriorityLevelEnum priorityLevel = PriorityLevelEnum.CRITICAL,
-        IssueStatusEnum status = IssueStatusEnum.IN_PROGRESS
+        IssueCategoryEnum category = IssueCategoryEnum.BODY,
+        IssueStatusEnum status = IssueStatusEnum.IN_PROGRESS,
+        string reportedByUserID = "1234567890",
+        DateTime? reportedDate = null
     )
     {
-        return new CreateIssueCommand(vehicleID, reportedByUserID, title, description, category, priorityLevel, status);
+        return new CreateIssueCommand(vehicleID, title, description, priorityLevel, category, status, reportedByUserID, reportedDate);
     }
 
     private void SetupValidValidation(CreateIssueCommand command)
@@ -144,6 +145,7 @@ public class CreateIssueHandlerTest
             VehicleID = command.VehicleID,
             IssueNumber = 1001, // Auto-generated in real scenario
             ReportedByUserID = command.ReportedByUserID,
+            ReportedDate = command.ReportedDate ?? DateTime.UtcNow,
             Title = command.Title,
             Description = command.Description,
             Category = command.Category,
@@ -153,6 +155,7 @@ public class CreateIssueHandlerTest
             ResolvedBy = null,
             ResolutionNotes = null,
             IssueAttachments = [],
+            IssueAssignments = [],
             Vehicle = null!, // Required but not used in test
             User = null! // Required but not used in test
         };

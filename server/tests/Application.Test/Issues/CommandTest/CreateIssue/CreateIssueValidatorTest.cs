@@ -20,15 +20,16 @@ public class CreateIssueValidatorTest
 
     private CreateIssueCommand CreateValidCommand(
         int vehicleID = 123,
-        string reportedByUserID = "1234567890",
         string title = "Test Issue Title",
         string? description = "Test Issue Description",
-        IssueCategoryEnum category = IssueCategoryEnum.BODY,
         PriorityLevelEnum priorityLevel = PriorityLevelEnum.CRITICAL,
-        IssueStatusEnum status = IssueStatusEnum.IN_PROGRESS
+        IssueCategoryEnum category = IssueCategoryEnum.BODY,
+        IssueStatusEnum status = IssueStatusEnum.IN_PROGRESS,
+        string reportedByUserID = "1234567890",
+        DateTime? reportedDate = null
     )
     {
-        return new CreateIssueCommand(vehicleID, reportedByUserID, title, description, category, priorityLevel, status);
+        return new CreateIssueCommand(vehicleID, title, description, priorityLevel, category, status, reportedByUserID, reportedDate);
     }
 
     [Fact]
