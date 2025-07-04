@@ -11,6 +11,7 @@ using AutoMapper;
 using Domain.Entities;
 
 using FluentValidation;
+using FluentValidation.Results;
 
 using Moq;
 
@@ -97,7 +98,7 @@ public class CreateFuelPurchasesHandlerTest
         _mockFuelPurchasesRepository.Setup(repo => repo.AddAsync(It.IsAny<FuelPurchase>())).ReturnsAsync(expectedFuelPurchases);
         _mockFuelPurchasesRepository.Setup(repo => repo.SaveChangesAsync()).ReturnsAsync(1);
         _mockValidator.Setup(v => v.ValidateAsync(It.IsAny<CreateFuelPurchaseCommand>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new FluentValidation.Results.ValidationResult());
+            .ReturnsAsync(new ValidationResult());
 
         // When
         var result = await _createFuelPurchasesCommandHandler.Handle(command, CancellationToken.None);
@@ -115,8 +116,8 @@ public class CreateFuelPurchasesHandlerTest
         // Given
         var command = CreateValidCommand();
 
-        var validationResult = new FluentValidation.Results.ValidationResult();
-        validationResult.Errors.Add(new FluentValidation.Results.ValidationFailure("VehicleId", "Vehicle ID not found"));
+        var validationResult = new ValidationResult();
+        validationResult.Errors.Add(new ValidationFailure("VehicleId", "Vehicle ID not found"));
 
         // Setup mocks (though they won't be called due to validation failure)
         _mockFuelPurchasesRepository.Setup(r => r.IsValidOdometerReading(command.VehicleId, command.OdometerReading)).ReturnsAsync(true);
@@ -149,11 +150,11 @@ public class CreateFuelPurchasesHandlerTest
         _mockUserRepository.Setup(r => r.ExistsAsync(command.PurchasedByUserId)).ReturnsAsync(true);
 
         _mockValidator.Setup(v => v.ValidateAsync(It.IsAny<CreateFuelPurchaseCommand>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new FluentValidation.Results.ValidationResult());
+            .ReturnsAsync(new ValidationResult());
         _mockFuelPurchasesRepository.Setup(repo => repo.SaveChangesAsync()).ReturnsAsync(1);
 
-        var validationResult = new FluentValidation.Results.ValidationResult();
-        validationResult.Errors.Add(new FluentValidation.Results.ValidationFailure("OdometerReading", "New odometer reading must be greater than last recorded reading."));
+        var validationResult = new ValidationResult();
+        validationResult.Errors.Add(new ValidationFailure("OdometerReading", "New odometer reading must be greater than last recorded reading."));
 
         // When
         var exception = await Assert.ThrowsAsync<BadRequestException>(() => _createFuelPurchasesCommandHandler.Handle(command, CancellationToken.None));
@@ -177,7 +178,7 @@ public class CreateFuelPurchasesHandlerTest
         _mockUserRepository.Setup(r => r.ExistsAsync(command.PurchasedByUserId)).ReturnsAsync(true);
 
         _mockValidator.Setup(v => v.ValidateAsync(It.IsAny<CreateFuelPurchaseCommand>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new FluentValidation.Results.ValidationResult());
+            .ReturnsAsync(new ValidationResult());
 
         // When
         var exception = await Assert.ThrowsAsync<DuplicateEntityException>(() => _createFuelPurchasesCommandHandler.Handle(command, CancellationToken.None));
