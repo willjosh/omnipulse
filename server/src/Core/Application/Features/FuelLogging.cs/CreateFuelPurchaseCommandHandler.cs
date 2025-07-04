@@ -23,14 +23,20 @@ public class CreateFuelPurchaseCommandHandler : IRequestHandler<CreateFuelPurcha
     private readonly IAppLogger<CreateFuelPurchaseCommandHandler> _logger;
     private readonly IValidator<CreateFuelPurchaseCommand> _validator;
 
-    public CreateFuelPurchaseCommandHandler(IFuelPurchaseRepository fuelPurchaseRepository, IVehicleRepository vehicleRepository, IUserRepository userRepository, IMapper mapper, IAppLogger<CreateFuelPurchaseCommandHandler> logger, IValidator<CreateFuelPurchaseCommand> validator)
+    public CreateFuelPurchaseCommandHandler(
+        IFuelPurchaseRepository fuelPurchaseRepository,
+        IVehicleRepository vehicleRepository,
+        IUserRepository userRepository,
+        IValidator<CreateFuelPurchaseCommand> validator,
+        IAppLogger<CreateFuelPurchaseCommandHandler> logger,
+        IMapper mapper)
     {
         _fuelPurchaseRepository = fuelPurchaseRepository;
         _vehicleRepository = vehicleRepository;
         _userRepository = userRepository;
-        _mapper = mapper;
-        _logger = logger;
         _validator = validator;
+        _logger = logger;
+        _mapper = mapper;
     }
 
     public async Task<int> Handle(CreateFuelPurchaseCommand request, CancellationToken cancellationToken)
