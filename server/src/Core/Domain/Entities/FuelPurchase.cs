@@ -8,7 +8,7 @@ public class FuelPurchase : BaseEntity
     public required double OdometerReading { get; set; }
     public required double Volume { get; set; }
     public required decimal PricePerUnit { get; set; }
-    public required decimal TotalCost { get; set; }
+    public required decimal TotalCost { get; set; } // TODO: Can't this be calculated from Volume * PricePerUnit and thus not needed?
     public required string FuelStation { get; set; }
     public required string ReceiptNumber { get; set; }
     public string? Notes { get; set; }
