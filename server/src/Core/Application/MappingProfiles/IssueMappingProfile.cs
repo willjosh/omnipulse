@@ -21,6 +21,7 @@ public class IssueMappingProfile : Profile
             .ForMember(dest => dest.ResolvedBy, opt => opt.Ignore()) // Not set during creation
             .ForMember(dest => dest.ResolutionNotes, opt => opt.Ignore()) // Not set during creation
             .ForMember(dest => dest.IssueAttachments, opt => opt.Ignore()) // Navigation collection
+            .ForMember(dest => dest.IssueAssignments, opt => opt.Ignore()) // Navigation collection
             .ForMember(dest => dest.Vehicle, opt => opt.Ignore()) // Navigation property
             .ForMember(dest => dest.User, opt => opt.Ignore()); // Navigation property
     }

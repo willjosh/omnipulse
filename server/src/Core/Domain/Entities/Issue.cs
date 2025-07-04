@@ -6,7 +6,7 @@ public class Issue : BaseEntity
     public required int VehicleID { get; set; }
     public required int IssueNumber { get; set; }
     public required string ReportedByUserID { get; set; }
-    public required DateTime ReportedDate { get; set; } = DateTime.UtcNow;
+    public DateTime? ReportedDate { get; set; } = DateTime.UtcNow;
     public required string Title { get; set; }
     public string? Description { get; set; }
     public required IssueCategoryEnum Category { get; set; }
