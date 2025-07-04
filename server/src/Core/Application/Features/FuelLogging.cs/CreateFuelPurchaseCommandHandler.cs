@@ -85,6 +85,14 @@ public class CreateFuelPurchaseCommandHandler : IRequestHandler<CreateFuelPurcha
             throw new EntityNotFoundException(nameof(Vehicle), "VehicleId", fuelPurchase.VehicleId.ToString());
         }
 
+        // Check for duplicate receipt number
+        if (!await _fuelPurchaseRepository.IsReceiptNumberUniqueAsync(fuelPurchase.ReceiptNumber))
+        {
+            var errorMessage = $"Receipt number already exists: {fuelPurchase.ReceiptNumber}";
+            _logger.LogError(errorMessage);
+            throw new DuplicateEntityException(nameof(FuelPurchase), "ReceiptNumber", fuelPurchase.ReceiptNumber);
+        }
+
         // Validate odometer reading is greater than previous reading
         if (!await _fuelPurchaseRepository.IsValidOdometerReading(fuelPurchase.VehicleId, fuelPurchase.OdometerReading))
         {
