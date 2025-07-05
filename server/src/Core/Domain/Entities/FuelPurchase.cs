@@ -17,6 +17,9 @@ public class FuelPurchase : BaseEntity
     public required Vehicle Vehicle { get; set; }
     public required User User { get; set; }
 
+    /// <summary>
+    /// Calculates and updates the total cost of the fuel purchase based on the volume and price per unit.
+    /// </summary>
     public void CalculateTotalCost()
     {
         TotalCost = (decimal)Volume * PricePerUnit;
