@@ -4,7 +4,7 @@
 
 It contains:
 
-- **Use Cases / Features** (Commands, Queries, Handlers)
+- **Use Cases / Features** (Commands/Queries, Handlers)
 - **DTOs (Data Transfer Objects)**
 - **Validation Logic**
 - **Mapping Profiles**
