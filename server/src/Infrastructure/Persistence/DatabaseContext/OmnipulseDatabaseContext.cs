@@ -7,6 +7,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Persistence.DatabaseContext;
 
+/// <summary>
+/// Entity Framework Core <see cref="DbContext"/> for the application.
+/// Inherits from <see cref="IdentityDbContext{TUser}"/> to integrate ASP.NET Core Identity support for <see cref="User"/>.
+/// </summary>
+/// <remarks>
+/// <list type="bullet">
+/// <item>Registers <see cref="DbSet{TEntity}"/> properties for all aggregate roots in the domain.</item>
+/// <item>Applies entity configurations discovered via <see cref="ModelBuilder.ApplyConfigurationsFromAssembly"/> in <see cref="OnModelCreating"/>.</item>
+/// <item>Overrides <see cref="SaveChangesAsync(CancellationToken)"/> to automatically maintain <see cref="BaseEntity.CreatedAt"/> and <see cref="BaseEntity.UpdatedAt"/> timestamps.</item>
+/// </list>
+/// </remarks>
 public class OmnipulseDatabaseContext(DbContextOptions<OmnipulseDatabaseContext> options) : IdentityDbContext<User>(options)
 {
     public DbSet<CheckListItem> ChecklistItems { get; set; }
@@ -38,12 +49,18 @@ public class OmnipulseDatabaseContext(DbContextOptions<OmnipulseDatabaseContext>
     public DbSet<WorkOrderIssue> WorkOrderIssues { get; set; }
     public DbSet<WorkOrderLineItem> WorkOrderLineItems { get; set; }
 
+    /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
         builder.ApplyConfigurationsFromAssembly(typeof(OmnipulseDatabaseContext).Assembly);
     }
 
+    /// <summary>
+    /// Persists changes asynchronously whilst automatically updating auditing timestamps.
+    /// </summary>
+    /// <param name="cancellationToken">Optional cancellation token to cancel the operation.</param>
+    /// <returns>The number of state entries written to the database.</returns>
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         var entries = base.ChangeTracker.Entries<BaseEntity>()

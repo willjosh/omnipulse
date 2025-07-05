@@ -28,9 +28,7 @@ namespace Application.Features.Vehicles.Command.CreateVehicle;
 /// <param name="Status">The current operational status of the vehicle. See <see cref="VehicleStatusEnum"/> for options.</param>
 /// <param name="Location">The current location of the vehicle.</param>
 /// <param name="AssignedTechnicianID">Optional ID of the technician responsible for this vehicle.</param>
-/// <returns>
-/// Returns the ID of the newly created vehicle.
-/// </returns>
+/// <returns>The ID of the newly created vehicle.</returns>
 /// <remarks>
 /// This command implements the Command pattern using MediatR for creating vehicles.
 /// It validates business rules such as unique VIN and license plate constraints,

@@ -14,6 +14,21 @@ using MediatR;
 
 namespace Application.Features.Vehicles.Command.CreateVehicle;
 
+/// <summary>
+/// Handles the <see cref="CreateVehicleCommand"/> by validating the request, enforcing business rules, mapping it to a <see cref="Vehicle"/>, persisting the entity and returning its identifier.
+/// </summary>
+/// <remarks>
+/// <list type="bullet">
+/// <item>Implements the <see cref="IRequestHandler{TRequest,TResponse}"/> interface from the MediatR library, enabling the request/response mediator pattern (<see href="https://github.com/LuckyPennySoftware/MediatR?tab=readme-ov-file#registering-with-iservicecollection">AddMediatR registration</see>).
+///     <list type="bullet">
+///     <item><see href="https://refactoring.guru/design-patterns/mediator">Mediator Pattern</see></item>
+///     </list>
+/// </item>
+/// <item>Performs asynchronous validation using FluentValidation's <c>ValidateAsync</c> method (<see href="https://github.com/FluentValidation/FluentValidation/blob/main/docs/async.md">Asynchronous validation example</see>).</item>
+/// <item>Uses <see href="https://docs.automapper.io/en/latest/">AutoMapper</see> to transform the command into the domain <see cref="Vehicle"/> entity.</item>
+/// <item>Logs diagnostic information via the injected <see cref="IAppLogger{T}"/> and throws rich application exceptions on failure.</item>
+/// </list>
+/// </remarks>
 public class CreateVehicleCommandHandler : IRequestHandler<CreateVehicleCommand, int>
 {
     private readonly IVehicleRepository _vehicleRepository;
@@ -33,6 +48,15 @@ public class CreateVehicleCommandHandler : IRequestHandler<CreateVehicleCommand,
         _logger = logger;
     }
 
+    /// <summary>
+    /// Executes the command: validates input, checks domain/business constraints, persists the new vehicle and returns its ID.
+    /// </summary>
+    /// <param name="request">The <see cref="CreateVehicleCommand"/> containing vehicle details.</param>
+    /// <param name="cancellationToken">Token to observe while awaiting async operations.</param>
+    /// <returns>The ID of the newly created <see cref="Vehicle"/>.</returns>
+    /// <exception cref="BadRequestException">Thrown when validation fails.</exception>
+    /// <exception cref="DuplicateEntityException">Thrown when a VIN or licence plate already exists.</exception>
+    /// <exception cref="EntityNotFoundException">Thrown when a referenced <see cref="VehicleGroup"/> or <see cref="User"/> is not found.</exception>
     public async Task<int> Handle(CreateVehicleCommand request, CancellationToken cancellationToken)
     {
         // validate request
@@ -60,6 +84,12 @@ public class CreateVehicleCommandHandler : IRequestHandler<CreateVehicleCommand,
         return newVehicle.ID;
     }
 
+    /// <summary>
+    /// Validates domain-specific uniqueness and foreign-key constraints before persistence.
+    /// </summary>
+    /// <param name="vehicle">The <see cref="Vehicle"/> entity to validate.</param>
+    /// <exception cref="DuplicateEntityException">Thrown when VIN or licence plate duplicates are detected.</exception>
+    /// <exception cref="EntityNotFoundException">Thrown when related entities (<see cref="VehicleGroup"/>, <see cref="User"/>) are not found.</exception>
     private async Task ValidateBusinessRuleAsync(Vehicle vehicle)
     {
         // check for duplicate VIN in the db

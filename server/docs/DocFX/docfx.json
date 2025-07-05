@@ -2,7 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/dotnet/docfx/main/schemas/docfx.schema.json",
   "metadata": [
     {
-      "src": [{ "src": "../src", "files": ["**/*.csproj"] }],
+      "src": [{ "src": "../../src", "files": ["**/*.csproj"] }],
       "dest": "api",
       "properties": { "TargetFramework": "net9.0" }
     }
@@ -11,7 +11,8 @@
     "content": [{ "files": ["**/*.{md,yml}"], "exclude": ["_site/**"] }],
     "resource": [{ "files": ["images/**"] }],
     "output": "_site",
-    "template": ["default", "modern"],
+    "template": ["default", "modern", "templates/material"],
+    "postProcessors": ["ExtractSearchIndex"],
     "globalMetadata": {
       "_appName": "OMNIPULSE",
       "_appTitle": "OMNIPULSE Backend Documentation",
