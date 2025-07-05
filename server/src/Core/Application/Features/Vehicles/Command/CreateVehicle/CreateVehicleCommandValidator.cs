@@ -6,6 +6,14 @@ using FluentValidation;
 
 namespace Application.Features.Vehicles.Command.CreateVehicle;
 
+/// <summary>
+/// Validates <see cref="CreateVehicleCommand"/> using <see href="https://docs.fluentvalidation.net/en/latest/">FluentValidation</see> rules.
+/// </summary>
+/// <remarks>
+/// <list type="bullet">
+/// <item><see href="https://docs.fluentvalidation.net/en/latest/start.html">Creating a validator</see></item>
+/// </list>
+/// </remarks>
 public class CreateVehicleCommandValidator : AbstractValidator<CreateVehicleCommand>
 {
     public CreateVehicleCommandValidator()
