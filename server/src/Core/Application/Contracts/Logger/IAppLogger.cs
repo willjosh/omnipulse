@@ -2,6 +2,10 @@ using System;
 
 namespace Application.Contracts.Logger;
 
+/// <summary>
+/// Defines a generic application logger for logging information, warnings, errors, debug, critical, and trace messages.
+/// </summary>
+/// <typeparam name="T">The type whose name is used for the logger category.</typeparam>
 public interface IAppLogger<T>
 {
     void LogInformation(string message);
