@@ -11,6 +11,9 @@ using AutoMapper;
 
 using Domain.Entities;
 
+/// <summary>
+/// <see href="https://docs.automapper.io/en/latest/">AutoMapper</see> profile for configuring mappings between <see cref="Vehicle"/> and application layer commands and queries.
+/// </summary>
 public class VehicleMappingProfile : Profile
 {
     public VehicleMappingProfile()
