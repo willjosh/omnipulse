@@ -6,7 +6,7 @@ namespace Application.Features.Users.Command.UpdateTechnician;
 
 public class UpdateTechnicianCommandValidator : AbstractValidator<UpdateTechnicianCommand>
 {
-    public  UpdateTechnicianCommandValidator()
+    public UpdateTechnicianCommandValidator()
     {
         RuleFor(x => x.Id)
             .NotEmpty().WithMessage("Id is required.");

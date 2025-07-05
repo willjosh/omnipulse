@@ -53,7 +53,7 @@ public class UpdateTechnicianCommandHandler : IRequestHandler<UpdateTechnicianCo
         if (!request.ShouldUpdate)
         {
             _logger.LogInformation($"UpdateTechnician - No updates needed for user with ID: {user.Id}");
-            return user.Id;     
+            return user.Id;
         }
 
         // update user properties
@@ -82,10 +82,10 @@ public class UpdateTechnicianCommandHandler : IRequestHandler<UpdateTechnicianCo
         var result = await _userRepository.UpdateAsync(user);
 
         if (!result.Succeeded)
-        { 
+        {
             var errors = string.Join(", ", result.Errors.Select(e => e.Description));
             _logger.LogError($"UpdateTechnician - User update failed: {errors}");
-            throw new InvalidOperationException($"Failed to update user: {errors}");    
+            throw new InvalidOperationException($"Failed to update user: {errors}");
         }
         _logger.LogInformation($"UpdateTechnician - Successfully updated user with ID: {user.Id}");
 

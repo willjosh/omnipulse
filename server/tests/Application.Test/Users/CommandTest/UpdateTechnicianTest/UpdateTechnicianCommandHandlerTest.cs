@@ -60,8 +60,8 @@ public class UpdateTechnicianCommandHandlerTest
     static UpdateTechnicianCommand CreateValidCommand(
         string? id = null,
         string? firstName = null,
-        string? lastName = null,  
-        DateTime? hireDate = null,  
+        string? lastName = null,
+        DateTime? hireDate = null,
         bool? isActive = null
     )
     {
@@ -70,7 +70,7 @@ public class UpdateTechnicianCommandHandlerTest
             id ?? Guid.NewGuid().ToString(),
             firstName,
             lastName,
-            hireDate,  
+            hireDate,
             isActive
         );
     }
@@ -107,10 +107,10 @@ public class UpdateTechnicianCommandHandlerTest
         var returnedUser = new User
         {
             Id = command.Id,
-            FirstName = "OriginalFirstName",    
-            LastName = "OriginalLastName",      
-            HireDate = new DateTime(2020, 1, 1), 
-            IsActive = false,                   
+            FirstName = "OriginalFirstName",
+            LastName = "OriginalLastName",
+            HireDate = new DateTime(2020, 1, 1),
+            IsActive = false,
             CreatedAt = DateTime.UtcNow.AddYears(-1),
             UpdatedAt = DateTime.UtcNow.AddYears(-1),
             Email = "valid@gmail.com",
@@ -136,7 +136,7 @@ public class UpdateTechnicianCommandHandlerTest
             _mockUserRepository.Verify(r => r.UpdateAsync(It.IsAny<User>()), Times.Never);
         }
         else
-        {            
+        {
             _mockUserRepository.Verify(r => r.UpdateAsync(It.Is<User>(u =>
                 u.Id == command.Id &&
                 (command.FirstName == null || u.FirstName == command.FirstName) &&
@@ -157,18 +157,18 @@ public class UpdateTechnicianCommandHandlerTest
         );
 
         _mockUserRepository.Setup(r => r.GetByIdAsync(command.Id))
-            .ReturnsAsync((User?)null); 
+            .ReturnsAsync((User?)null);
 
         // When & Then
         await Assert.ThrowsAsync<EntityNotFoundException>(
             () => _updateTechnicianCommandHandler.Handle(command, CancellationToken.None)
         );
-    
+
         _mockValidator.Verify(v => v.ValidateAsync(command, CancellationToken.None), Times.Once);
         _mockUserRepository.Verify(r => r.GetByIdAsync(It.IsAny<string>()), Times.Once);
         _mockUserRepository.Verify(r => r.UpdateAsync(It.IsAny<User>()), Times.Never);
     }
-    
+
     [Fact(Skip = "not implemented yet")]
     public async Task Handle_Should_Throw_BadRequestException_On_Validation_Fail()
     {

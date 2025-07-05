@@ -16,7 +16,7 @@ public record UpdateTechnicianCommand(
     public bool ShouldUpdateLastName => LastName is not null;
     public bool ShouldUpdateHireDate => HireDate is not null;
     public bool ShouldUpdateIsActive => IsActive is not null;
-    
+
     public bool ShouldUpdate =>
         ShouldUpdateFirstName || ShouldUpdateLastName || ShouldUpdateHireDate || ShouldUpdateIsActive;
 }
