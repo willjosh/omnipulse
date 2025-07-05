@@ -1,7 +1,7 @@
 {
   "vehicles": [
     {
-      "ID": 1,
+      "id": 1,
       "CreatedAt": "2023-01-10T09:00:00Z",
       "UpdatedAt": "2024-06-01T12:00:00Z",
       "Name": "Fleet Van 1",
@@ -25,7 +25,7 @@
       "Location": "Sydney Depot"
     },
     {
-      "ID": 2,
+      "id": 2,
       "CreatedAt": "2022-03-12T10:30:00Z",
       "UpdatedAt": "2024-05-20T15:00:00Z",
       "Name": "City Car 2",
@@ -49,7 +49,7 @@
       "Location": "Melbourne Branch"
     },
     {
-      "ID": 3,
+      "id": 3,
       "CreatedAt": "2023-07-01T08:00:00Z",
       "UpdatedAt": "2024-06-10T11:00:00Z",
       "Name": "Electric Delivery",
@@ -73,7 +73,7 @@
       "Location": "Brisbane Hub"
     },
     {
-      "ID": 4,
+      "id": 4,
       "CreatedAt": "2019-05-20T14:00:00Z",
       "UpdatedAt": "2024-01-15T09:00:00Z",
       "Name": "Heavy Duty Truck",
@@ -97,7 +97,7 @@
       "Location": "Perth Yard"
     },
     {
-      "ID": 5,
+      "id": 5,
       "CreatedAt": "2021-09-05T13:00:00Z",
       "UpdatedAt": "2024-06-15T10:00:00Z",
       "Name": "Family SUV",
