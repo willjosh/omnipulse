@@ -7,7 +7,7 @@ namespace Application.Features.ServiceTasks.Command.CreateServiceTask;
 /// <summary>
 /// Validates <see cref="CreateServiceTaskCommand"/>
 /// </summary>
-public class CreateServiceTaskCommandValidator : AbstractValidator<CreateServiceTaskCommand>
+public sealed class CreateServiceTaskCommandValidator : AbstractValidator<CreateServiceTaskCommand>
 {
     public CreateServiceTaskCommandValidator()
     {

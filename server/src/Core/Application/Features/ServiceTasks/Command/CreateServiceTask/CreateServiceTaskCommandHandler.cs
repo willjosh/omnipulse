@@ -15,7 +15,7 @@ namespace Application.Features.ServiceTasks.Command.CreateServiceTask;
 /// <summary>
 /// Handles the <see cref="CreateServiceTaskCommand"/>
 /// </summary>
-public class CreateServiceTaskCommandHandler : IRequestHandler<CreateServiceTaskCommand, int>
+public sealed class CreateServiceTaskCommandHandler : IRequestHandler<CreateServiceTaskCommand, int>
 {
     private readonly IServiceTaskRepository _serviceTaskRepository;
     private readonly IMapper _mapper;
