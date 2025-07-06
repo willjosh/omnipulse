@@ -15,7 +15,7 @@ server.get("/vehicles", (req, res) => {
   // Get query parameters
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
-  const sortBy = req.query.sortBy || "ID";
+  const sortBy = req.query.sortBy || "id";
   const sortOrder = req.query.sortOrder || "asc";
   const search = req.query.search || "";
 
@@ -81,7 +81,7 @@ server.get("/vehicles/:id", (req, res) => {
   const db = router.db;
   const vehicle = db
     .get("vehicles")
-    .find({ ID: parseInt(req.params.id) })
+    .find({ id: parseInt(req.params.id) })
     .value();
 
   if (vehicle) {

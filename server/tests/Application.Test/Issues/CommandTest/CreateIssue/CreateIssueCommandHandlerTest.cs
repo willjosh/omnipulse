@@ -34,10 +34,7 @@ public class CreateIssueCommandHandlerTest
         _mockLogger = new();
         _mockValidator = new();
 
-        var config = new MapperConfiguration(cfg =>
-        {
-            cfg.AddProfile<IssueMappingProfile>();
-        });
+        var config = new MapperConfiguration(cfg => cfg.AddProfile<IssueMappingProfile>());
 
         var mapper = config.CreateMapper();
 

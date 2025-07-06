@@ -33,10 +33,7 @@ public class CreateVehicleHandlerTest
         _mockVehicleGroupRepository = new();
         _mockValidator = new();
 
-        var config = new MapperConfiguration(cfg =>
-        {
-            cfg.AddProfile<VehicleMappingProfile>();
-        });
+        var config = new MapperConfiguration(cfg => cfg.AddProfile<VehicleMappingProfile>());
         var mapper = config.CreateMapper();
 
         _createVehicleCommandHandler = new(_mockVehicleRepository.Object, _mockUserRepository.Object, _mockVehicleGroupRepository.Object, mapper, _mockLogger.Object, _mockValidator.Object);

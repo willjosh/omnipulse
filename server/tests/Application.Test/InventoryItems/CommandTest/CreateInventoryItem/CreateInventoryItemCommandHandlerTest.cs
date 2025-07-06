@@ -33,10 +33,7 @@ public class CreateInventoryItemCommandHandlerTest
         _mockValidator = new();
         _mockLogger = new();
 
-        var config = new MapperConfiguration(cfg =>
-        {
-            cfg.AddProfile<InventoryItemMappingProfile>();
-        });
+        var config = new MapperConfiguration(cfg => cfg.AddProfile<InventoryItemMappingProfile>());
         _mapper = config.CreateMapper();
 
         _createInventoryItemCommandHandler = new(

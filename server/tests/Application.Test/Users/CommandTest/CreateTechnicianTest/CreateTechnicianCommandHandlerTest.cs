@@ -29,10 +29,7 @@ public class CreateTechnicianCommandHandlerTest
         _mockLogger = new();
         _mockValidator = new();
 
-        var config = new MapperConfiguration(cfg =>
-        {
-            cfg.AddProfile<UserMappingProfile>();
-        });
+        var config = new MapperConfiguration(cfg => cfg.AddProfile<UserMappingProfile>());
         var mapper = config.CreateMapper();
 
         _CreateTechnicianCommandHandler = new CreateTechnicianCommandHandler(

@@ -6,7 +6,7 @@ import OptionButton from "@/app/_features/shared/button/OptionButton";
 import PrimaryButton from "@/app/_features/shared/button/PrimaryButton";
 import { vehicleTableColumns } from "./VehicleTableColumns";
 import { useVehicles } from "@/app/hooks/Vehicle/useVehicles";
-import { Vehicle } from "@/app/hooks/Vehicle/vehicleType";
+import { Vehicle, VehicleWithLabels } from "@/app/hooks/Vehicle/vehicleType";
 import TabNavigation from "@/app/_features/shared/TabNavigation";
 import { vehicleTabConfig } from "./VehicleListFilters";
 import PaginationControls from "@/app/_features/shared/PaginationControls";
@@ -134,7 +134,7 @@ const VehicleList: React.FC = () => {
         />
       </div>
 
-      <DataTable<Vehicle>
+      <DataTable<VehicleWithLabels>
         data={vehicles || []}
         columns={vehicleTableColumns}
         selectedItems={selectedVehicles}
