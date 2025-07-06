@@ -1,10 +1,6 @@
-using System;
-
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
-
-using AutoMapper;
 
 using Domain.Entities;
 
@@ -16,13 +12,11 @@ public class DeleteIssueCommandHandler : IRequestHandler<DeleteIssueCommand, int
 {
     private readonly IIssueRepository _issueRepository;
     private readonly IAppLogger<DeleteIssueCommandHandler> _logger;
-    private readonly IMapper _mapper;
 
-    public DeleteIssueCommandHandler(IIssueRepository issueRepository, IAppLogger<DeleteIssueCommandHandler> logger, IMapper mapper)
+    public DeleteIssueCommandHandler(IIssueRepository issueRepository, IAppLogger<DeleteIssueCommandHandler> logger)
     {
         _issueRepository = issueRepository;
         _logger = logger;
-        _mapper = mapper;
     }
 
     public async Task<int> Handle(DeleteIssueCommand request, CancellationToken cancellationToken)

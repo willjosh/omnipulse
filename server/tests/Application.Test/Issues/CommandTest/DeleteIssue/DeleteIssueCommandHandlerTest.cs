@@ -1,13 +1,8 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
 using Application.Features.Issues.Command.DeleteIssue;
-
-using AutoMapper;
 
 using Domain.Entities;
 
@@ -22,15 +17,12 @@ public class DeleteIssueCommandHandlerTest
     private readonly Mock<IIssueRepository> _mockIssueRepository;
     private readonly DeleteIssueCommandHandler _handler;
     private readonly Mock<IAppLogger<DeleteIssueCommandHandler>> _mockLogger;
-    private readonly IMapper _mapper;
 
     public DeleteIssueCommandHandlerTest()
     {
         _mockIssueRepository = new();
         _mockLogger = new();
-        var config = new MapperConfiguration(cfg => { }); // No mapping needed for delete
-        _mapper = config.CreateMapper();
-        _handler = new DeleteIssueCommandHandler(_mockIssueRepository.Object, _mockLogger.Object, _mapper);
+        _handler = new DeleteIssueCommandHandler(_mockIssueRepository.Object, _mockLogger.Object);
     }
 
     [Fact]
