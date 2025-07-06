@@ -27,10 +27,7 @@ public class DeactivateVehicleHandlerTest
         _mockVehicleRepository = new();
         _mockLogger = new();
 
-        var config = new MapperConfiguration(cfg =>
-        {
-            cfg.AddProfile<VehicleMappingProfile>();
-        });
+        var config = new MapperConfiguration(cfg => cfg.AddProfile<VehicleMappingProfile>());
         var mapper = config.CreateMapper();
 
         _deactivateVehicleCommandHandler = new(_mockVehicleRepository.Object, _mockLogger.Object, mapper);

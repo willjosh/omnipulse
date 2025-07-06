@@ -30,10 +30,7 @@ public class GetAllVehicleQueryHandlerTest
         _mockLogger = new();
         _mockValidator = new();
 
-        var config = new MapperConfiguration(cfg =>
-        {
-            cfg.AddProfile<VehicleMappingProfile>();
-        });
+        var config = new MapperConfiguration(cfg => cfg.AddProfile<VehicleMappingProfile>());
         var mapper = config.CreateMapper();
 
         _getAllVehicleQueryHandler = new GetAllVehicleQueryHandler(
