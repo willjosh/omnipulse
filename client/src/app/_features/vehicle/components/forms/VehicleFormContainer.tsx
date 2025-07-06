@@ -9,6 +9,7 @@ import {
   useVehicleFormStatus,
   useVehicleFormReferenceData,
 } from "../../store/VehicleFormStore";
+import { useVehicles } from "@/app/hooks/Vehicle/useVehicles"; // Add this import
 import {
   Vehicle,
   VehicleTypeEnum,
@@ -72,6 +73,9 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
     useVehicleFormValidation();
   const { isLoading, isDirty, vehicleId } = useVehicleFormStatus();
   const { vehicleGroups, technicians } = useVehicleFormReferenceData();
+
+  // Add the useVehicles hook to get mutation functions
+  const { createVehicleMutation, updateVehicleMutation } = useVehicles();
 
   // Store actions
   const {
@@ -148,26 +152,41 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
       setLoading(true);
 
       if (onSave) {
+        // Use the provided onSave callback
         const commandData =
           formMode === "create" ? toCreateCommand() : toUpdateCommand();
         await onSave(commandData);
       } else {
-        const commandData =
-          formMode === "create" ? toCreateCommand() : toUpdateCommand();
-        console.log(
-          `${formMode === "create" ? "Create" : "Update"} vehicle:`,
-          commandData,
-        );
+        // Use the React Query mutations directly
+        if (formMode === "create") {
+          const commandData = toCreateCommand();
+          await createVehicleMutation.mutateAsync(commandData);
+          console.log("Vehicle created successfully:", commandData);
+        } else {
+          const commandData = toUpdateCommand();
+          await updateVehicleMutation.mutateAsync(commandData);
+          console.log("Vehicle updated successfully:", commandData);
+        }
       }
 
       resetForm();
       router.push("/vehicles");
     } catch (error) {
       console.error("Error saving vehicle:", error);
+      // You might want to show an error message to the user here
+      setValidationErrors({
+        general: "Failed to save vehicle. Please try again.",
+      });
     } finally {
       setLoading(false);
     }
   };
+
+  // Update the loading state to include mutation loading states
+  const isSaving =
+    isLoading ||
+    createVehicleMutation.isPending ||
+    updateVehicleMutation.isPending;
 
   const handleCancel = () => {
     if (isDirty) {
@@ -206,6 +225,12 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
         {isDirty && (
           <p className="text-sm text-amber-600 mt-1">
             You have unsaved changes
+          </p>
+        )}
+        {/* Show error message if there's a general error */}
+        {validationErrors.general && (
+          <p className="text-sm text-red-600 mt-1">
+            {validationErrors.general}
           </p>
         )}
       </div>
@@ -838,10 +863,12 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
 
           {/* Form Actions */}
           <div className="flex justify-between items-center pt-6 border-t border-gray-200">
-            <SecondaryButton onClick={handleCancel}>Cancel</SecondaryButton>
+            <SecondaryButton onClick={handleCancel} disabled={isSaving}>
+              Cancel
+            </SecondaryButton>
 
-            <PrimaryButton onClick={handleSaveVehicle}>
-              {isLoading ? "Saving..." : saveButtonText}
+            <PrimaryButton onClick={handleSaveVehicle} disabled={isSaving}>
+              {isSaving ? "Saving..." : saveButtonText}
             </PrimaryButton>
           </div>
         </form>
