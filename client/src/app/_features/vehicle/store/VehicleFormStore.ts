@@ -1,229 +1,370 @@
 import { create } from "zustand";
+import { subscribeWithSelector } from "zustand/middleware";
 import {
-  VehicleFormData,
-  FormSection,
-  createEmptyVehicleFormData,
-  VehicleDetailsData,
-  VehicleMaintenanceData,
-  VehicleLifecycleData,
-  VehicleFinancialData,
-  VehicleSpecificationsData,
-} from "../types/VehicleFormTypes";
-import { VehicleListItem } from "../types/VehicleListTypes";
+  Vehicle,
+  CreateVehicleCommand,
+  UpdateVehicleCommand,
+  VehicleTypeEnum,
+  FuelTypeEnum,
+  VehicleStatusEnum,
+} from "@/app/hooks/Vehicle/vehicleType";
 
-interface VehicleFormStore {
-  formData: VehicleFormData;
-  currentSection: FormSection;
-  showValidation: boolean;
-  mode: "create" | "edit";
-  vehicleId: string | null;
+interface VehicleFormData {
+  // Basic vehicle information
+  vehicleName: string;
+  year: number;
+  make: string;
+  model: string;
+  vin: string;
+  type: VehicleTypeEnum;
+  licensePlate: string;
+  licensePlateExpirationDate: string;
+  fuelType: FuelTypeEnum;
+  trim: string;
+  status: VehicleStatusEnum;
 
-  updateDetails: (data: Partial<VehicleDetailsData>) => void;
-  updateMaintenance: (data: Partial<VehicleMaintenanceData>) => void;
-  updateLifecycle: (data: Partial<VehicleLifecycleData>) => void;
-  updateFinancial: (data: Partial<VehicleFinancialData>) => void;
-  updateSpecifications: (data: Partial<VehicleSpecificationsData>) => void;
-  setCurrentSection: (section: FormSection) => void;
-  setShowValidation: (show: boolean) => void;
-  resetForm: () => void;
-  initializeForEdit: (vehicleId: string, vehicleData: VehicleListItem) => void;
-  initializeForCreate: () => void;
+  // Vehicle group and assignment
+  vehicleGroupID: number;
+  vehicleGroupName: string;
+  assignedTechnicianID: string | null;
+  assignedTechnicianName: string;
 
-  isDetailsComplete: () => boolean;
+  // Operational data - changed to nullable
+  mileage: number | null;
+  engineHours: number | null;
+  fuelCapacity: number | null;
+  location: string;
+
+  // Financial data
+  purchaseDate: string;
+  purchasePrice: number;
 }
 
-// Helper function for current front end implementation
-const mapVehicleListItemToFormData = (
-  vehicle: VehicleListItem,
-): VehicleFormData => {
+interface VehicleGroup {
+  id: number;
+  name: string;
+}
+
+interface Technician {
+  id: string;
+  name: string;
+}
+
+interface VehicleFormStore {
+  // State
+  formData: VehicleFormData;
+  showValidation: boolean;
+  mode: "create" | "edit";
+  vehicleId: number | null;
+  isLoading: boolean;
+  isDirty: boolean;
+  validationErrors: Record<string, string>;
+
+  // Reference data
+  vehicleGroups: VehicleGroup[];
+  technicians: Technician[];
+
+  // Actions
+  updateFormData: (data: Partial<VehicleFormData>) => void;
+  setShowValidation: (show: boolean) => void;
+  setLoading: (loading: boolean) => void;
+  setValidationErrors: (errors: Record<string, string>) => void;
+  setVehicleGroups: (groups: VehicleGroup[]) => void;
+  setTechnicians: (technicians: Technician[]) => void;
+  resetForm: () => void;
+  initializeForEdit: (vehicleId: number, vehicleData: Vehicle) => void;
+  initializeForCreate: () => void;
+
+  // Validation
+  isFormComplete: () => boolean;
+  isFormValid: () => boolean;
+
+  // Data transformation
+  toCreateCommand: () => CreateVehicleCommand;
+  toUpdateCommand: () => UpdateVehicleCommand;
+}
+
+// Create empty form data - changed to use null for numeric fields
+const createEmptyFormData = (): VehicleFormData => ({
+  vehicleName: "",
+  year: new Date().getFullYear(),
+  make: "",
+  model: "",
+  vin: "",
+  type: VehicleTypeEnum.CAR,
+  licensePlate: "",
+  licensePlateExpirationDate: "",
+  fuelType: FuelTypeEnum.PETROL,
+  trim: "",
+  status: VehicleStatusEnum.ACTIVE,
+  vehicleGroupID: 0,
+  vehicleGroupName: "",
+  assignedTechnicianID: null,
+  assignedTechnicianName: "",
+  mileage: null,
+  engineHours: null,
+  fuelCapacity: null,
+  location: "",
+  purchaseDate: "",
+  purchasePrice: 0,
+});
+
+// Mapping function from API Vehicle to form data
+const mapVehicleToFormData = (vehicle: Vehicle): VehicleFormData => {
   return {
-    details: {
-      vehicleName: vehicle.name,
-      year: vehicle.year,
-      make: vehicle.make,
-      model: vehicle.model,
-      vin: vehicle.vin,
-      type: vehicle.type,
-      telematicsDevice: "",
-      licensePlate: vehicle.licensePlate,
-      fuelType: vehicle.fuelType,
-      trim: "",
-      registrationState: "",
-      labels: "",
-      status: vehicle.status,
-      group: vehicle.group,
-      ownership: "",
-    },
-    maintenance: { serviceProgram: "" },
-    lifecycle: {
-      inServiceDate: "",
-      inServiceOdometer: vehicle.currentMeter,
-      estimatedServiceLifeMonths: null,
-      estimatedServiceLifeMeter: null,
-      estimatedResaleValue: null,
-      outOfServiceDate: "",
-      outOfServiceOdometer: null,
-    },
-    financial: {
-      purchaseVendor: "",
-      purchaseDate: "",
-      purchasePrice: null,
-      odometer: vehicle.currentMeter, // Map current meter
-      notes: "",
-      loanLeaseType: "none",
-    },
-    specifications: {
-      // All specifications start empty since not available in list data
-      width: null,
-      height: null,
-      length: null,
-      interiorVolume: null,
-      passengerVolume: null,
-      cargoVolume: null,
-      groundClearance: null,
-      bedLength: null,
-      curbWeight: null,
-      grossVehicleWeightRating: null,
-      towingCapacity: null,
-      maxPayload: null,
-      epaCity: "",
-      epaHighway: "",
-      epaCombined: "",
-      engineSummary: "",
-      engineBrand: "",
-      aspiration: "",
-      blockType: "",
-      bore: null,
-      camType: "",
-      compression: "",
-      cylinders: null,
-      displacement: "",
-      fuelInduction: "",
-      maxHp: null,
-      maxTorque: "",
-      redlineRpm: null,
-      stroke: "",
-      valves: "",
-      transmissionSummary: "",
-      transmissionBrand: "",
-      transmissionType: "",
-      transmissionGears: "",
-      driveType: "",
-      brakeSystem: "",
-      frontTrackWidth: "",
-      rearTrackWidth: "",
-      wheelbase: null,
-      frontWheelDiameter: "",
-      rearWheelDiameter: "",
-      rearAxle: "",
-      frontTireType: "",
-      frontTirePsi: "",
-      rearTireType: "",
-      rearTirePsi: "",
-      fuelQuality: "",
-      fuelTank1Capacity: null,
-      fuelTank2Capacity: null,
-      oilCapacity: "",
-    },
+    vehicleName: vehicle.Name,
+    year: vehicle.Year,
+    make: vehicle.Make,
+    model: vehicle.Model,
+    vin: vehicle.VIN,
+    type: vehicle.VehicleType,
+    licensePlate: vehicle.LicensePlate,
+    licensePlateExpirationDate: vehicle.LicensePlateExpirationDate,
+    fuelType: vehicle.FuelType,
+    trim: vehicle.Trim,
+    status: vehicle.Status,
+    vehicleGroupID: vehicle.VehicleGroupID,
+    vehicleGroupName: vehicle.VehicleGroupName,
+    assignedTechnicianID: vehicle.AssignedTechnicianID ?? null,
+    assignedTechnicianName: vehicle.AssignedTechnicianName,
+    mileage: vehicle.Mileage,
+    engineHours: vehicle.EngineHours,
+    fuelCapacity: vehicle.FuelCapacity,
+    location: vehicle.Location,
+    purchaseDate: vehicle.PurchaseDate,
+    purchasePrice: vehicle.PurchasePrice,
   };
 };
 
-export const useVehicleFormStore = create<VehicleFormStore>((set, get) => ({
-  formData: createEmptyVehicleFormData(),
-  currentSection: FormSection.DETAILS,
-  showValidation: false,
-  mode: "create",
-  vehicleId: null,
+// Basic validation for required fields - updated to handle nullable numbers
+const validateFormData = (
+  formData: VehicleFormData,
+): Record<string, string> => {
+  const errors: Record<string, string> = {};
 
-  updateDetails: data =>
-    set(state => ({
-      formData: {
-        ...state.formData,
-        details: { ...state.formData.details, ...data },
-      },
-    })),
+  if (!formData.vehicleName.trim()) {
+    errors.vehicleName = "Vehicle name is required";
+  }
 
-  updateMaintenance: data =>
-    set(state => ({
-      formData: {
-        ...state.formData,
-        maintenance: { ...state.formData.maintenance, ...data },
-      },
-    })),
+  if (!formData.vin.trim()) {
+    errors.vin = "VIN is required";
+  } else if (formData.vin.length !== 17) {
+    errors.vin = "VIN must be 17 characters long";
+  }
 
-  updateLifecycle: data =>
-    set(state => ({
-      formData: {
-        ...state.formData,
-        lifecycle: { ...state.formData.lifecycle, ...data },
-      },
-    })),
+  if (!formData.licensePlate.trim()) {
+    errors.licensePlate = "License plate is required";
+  }
 
-  updateFinancial: data =>
-    set(state => ({
-      formData: {
-        ...state.formData,
-        financial: { ...state.formData.financial, ...data },
-      },
-    })),
+  if (!formData.licensePlateExpirationDate) {
+    errors.licensePlateExpirationDate =
+      "License plate expiration date is required";
+  }
 
-  updateSpecifications: data =>
-    set(state => ({
-      formData: {
-        ...state.formData,
-        specifications: { ...state.formData.specifications, ...data },
-      },
-    })),
+  if (
+    !formData.year ||
+    formData.year < 1900 ||
+    formData.year > new Date().getFullYear() + 1
+  ) {
+    errors.year = "Valid year is required";
+  }
 
-  setCurrentSection: section => set({ currentSection: section }),
+  if (!formData.make.trim()) {
+    errors.make = "Make is required";
+  }
 
-  setShowValidation: show => set({ showValidation: show }),
+  if (!formData.model.trim()) {
+    errors.model = "Model is required";
+  }
 
-  resetForm: () =>
-    set({
-      formData: createEmptyVehicleFormData(),
-      currentSection: FormSection.DETAILS,
-      showValidation: false,
-      mode: "create",
-      vehicleId: null,
-    }),
+  if (!formData.trim.trim()) {
+    errors.trim = "Trim is required";
+  }
 
-  initializeForEdit: (vehicleId: string, vehicleData: VehicleListItem) =>
-    set({
-      mode: "edit",
-      vehicleId,
-      formData: mapVehicleListItemToFormData(vehicleData),
-      currentSection: FormSection.DETAILS,
-      showValidation: false,
-    }),
+  if (formData.vehicleGroupID === 0) {
+    errors.vehicleGroupID = "Vehicle group is required";
+  }
 
-  initializeForCreate: () =>
-    set({
-      mode: "create",
-      vehicleId: null,
-      formData: createEmptyVehicleFormData(),
-      currentSection: FormSection.DETAILS,
-      showValidation: false,
-    }),
+  // Updated validation for nullable numeric fields
+  if (formData.mileage !== null && formData.mileage < 0) {
+    errors.mileage = "Mileage cannot be negative";
+  }
 
-  isDetailsComplete: () => {
-    const details = get().formData.details;
-    const requiredFields = [
-      "vehicleName",
-      "vin",
-      "licensePlate",
-      "type",
-      "fuelType",
-      "year",
-      "make",
-      "model",
-      "trim",
-      "registrationState",
-    ];
+  if (formData.engineHours !== null && formData.engineHours < 0) {
+    errors.engineHours = "Engine hours cannot be negative";
+  }
 
-    return requiredFields.every(field => {
-      const value = details[field as keyof VehicleDetailsData];
-      return value !== "" && value !== null && value !== undefined;
-    });
-  },
-}));
+  if (formData.fuelCapacity !== null && formData.fuelCapacity <= 0) {
+    errors.fuelCapacity = "Fuel capacity must be greater than 0";
+  }
+
+  if (!formData.location.trim()) {
+    errors.location = "Location is required";
+  }
+
+  if (!formData.purchaseDate) {
+    errors.purchaseDate = "Purchase date is required";
+  }
+
+  if (formData.purchasePrice < 0) {
+    errors.purchasePrice = "Purchase price cannot be negative";
+  }
+
+  return errors;
+};
+
+export const useVehicleFormStore = create<VehicleFormStore>()(
+  subscribeWithSelector((set, get) => ({
+    // Initial state
+    formData: createEmptyFormData(),
+    showValidation: false,
+    mode: "create",
+    vehicleId: null,
+    isLoading: false,
+    isDirty: false,
+    validationErrors: {},
+    vehicleGroups: [],
+    technicians: [],
+
+    // Update actions with dirty tracking
+    updateFormData: data =>
+      set(state => ({
+        formData: { ...state.formData, ...data },
+        isDirty: true,
+        validationErrors: {}, // Clear errors on update
+      })),
+
+    setShowValidation: show => set({ showValidation: show }),
+
+    setLoading: loading => set({ isLoading: loading }),
+
+    setValidationErrors: errors => set({ validationErrors: errors }),
+
+    setVehicleGroups: groups => set({ vehicleGroups: groups }),
+
+    setTechnicians: technicians => set({ technicians }),
+
+    resetForm: () =>
+      set({
+        formData: createEmptyFormData(),
+        showValidation: false,
+        mode: "create",
+        vehicleId: null,
+        isDirty: false,
+        validationErrors: {},
+      }),
+
+    initializeForEdit: (vehicleId, vehicleData) =>
+      set({
+        mode: "edit",
+        vehicleId,
+        formData: mapVehicleToFormData(vehicleData),
+        showValidation: false,
+        isDirty: false,
+        validationErrors: {},
+      }),
+
+    initializeForCreate: () =>
+      set({
+        mode: "create",
+        vehicleId: null,
+        formData: createEmptyFormData(),
+        showValidation: false,
+        isDirty: false,
+        validationErrors: {},
+      }),
+
+    // Validation methods
+    isFormComplete: () => {
+      const errors = validateFormData(get().formData);
+      return Object.keys(errors).length === 0;
+    },
+
+    isFormValid: () => {
+      const errors = validateFormData(get().formData);
+      return Object.keys(errors).length === 0;
+    },
+
+    // Data transformation methods - updated to handle nullable values
+    toCreateCommand: (): CreateVehicleCommand => {
+      const { formData } = get();
+      return {
+        Name: formData.vehicleName,
+        Make: formData.make,
+        Model: formData.model,
+        Year: formData.year,
+        VIN: formData.vin,
+        LicensePlate: formData.licensePlate,
+        LicensePlateExpirationDate: formData.licensePlateExpirationDate,
+        VehicleType: formData.type,
+        VehicleGroupID: formData.vehicleGroupID,
+        Trim: formData.trim,
+        Mileage: formData.mileage ?? 0,
+        EngineHours: formData.engineHours ?? 0,
+        FuelCapacity: formData.fuelCapacity ?? 0,
+        FuelType: formData.fuelType,
+        PurchaseDate: formData.purchaseDate,
+        PurchasePrice: formData.purchasePrice,
+        VehicleStatus: formData.status,
+        Location: formData.location,
+        AssignedTechnicianID: formData.assignedTechnicianID,
+      };
+    },
+
+    toUpdateCommand: (): UpdateVehicleCommand => {
+      const { formData, vehicleId } = get();
+      if (!vehicleId) {
+        throw new Error("Vehicle ID is required for update");
+      }
+
+      return {
+        id: vehicleId,
+        Name: formData.vehicleName,
+        Make: formData.make,
+        Model: formData.model,
+        Year: formData.year,
+        VIN: formData.vin,
+        LicensePlate: formData.licensePlate,
+        LicensePlateExpirationDate: formData.licensePlateExpirationDate,
+        VehicleType: formData.type,
+        VehicleGroupID: formData.vehicleGroupID,
+        Trim: formData.trim,
+        Mileage: formData.mileage ?? 0,
+        EngineHours: formData.engineHours ?? 0,
+        FuelCapacity: formData.fuelCapacity ?? 0,
+        FuelType: formData.fuelType,
+        PurchaseDate: formData.purchaseDate,
+        PurchasePrice: formData.purchasePrice,
+        VehicleStatus: formData.status,
+        Location: formData.location,
+        AssignedTechnicianID: formData.assignedTechnicianID,
+      };
+    },
+  })),
+);
+
+// Selector hooks for better performance
+export const useVehicleFormData = () =>
+  useVehicleFormStore(state => state.formData);
+export const useVehicleFormMode = () =>
+  useVehicleFormStore(state => state.mode);
+export const useVehicleFormValidation = () => {
+  const showValidation = useVehicleFormStore(state => state.showValidation);
+  const validationErrors = useVehicleFormStore(state => state.validationErrors);
+  const isFormValid = useVehicleFormStore(state => state.isFormValid());
+
+  return { showValidation, validationErrors, isFormValid };
+};
+export const useVehicleFormStatus = () => {
+  const isLoading = useVehicleFormStore(state => state.isLoading);
+  const isDirty = useVehicleFormStore(state => state.isDirty);
+  const vehicleId = useVehicleFormStore(state => state.vehicleId);
+
+  return { isLoading, isDirty, vehicleId };
+};
+export const useVehicleFormReferenceData = () => {
+  const vehicleGroups = useVehicleFormStore(state => state.vehicleGroups);
+  const technicians = useVehicleFormStore(state => state.technicians);
+
+  return { vehicleGroups, technicians };
+};
