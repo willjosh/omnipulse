@@ -1,6 +1,7 @@
 using System;
 
 using Application.Features.Issues.Command.CreateIssue;
+using Application.Features.Issues.Command.UpdateIssue;
 
 using AutoMapper;
 
@@ -20,6 +21,19 @@ public class IssueMappingProfile : Profile
             .ForMember(dest => dest.ResolvedDate, opt => opt.Ignore()) // Not set during creation
             .ForMember(dest => dest.ResolvedByUserID, opt => opt.Ignore()) // Not set during creation
             .ForMember(dest => dest.ResolutionNotes, opt => opt.Ignore()) // Not set during creation
+            .ForMember(dest => dest.IssueAttachments, opt => opt.Ignore()) // Navigation collection
+            .ForMember(dest => dest.IssueAssignments, opt => opt.Ignore()) // Navigation collection
+            .ForMember(dest => dest.Vehicle, opt => opt.Ignore()) // Navigation property
+            .ForMember(dest => dest.User, opt => opt.Ignore()); // Navigation property
+
+        CreateMap<UpdateIssueCommand, Issue>()
+            .ForMember(dest => dest.ID, opt => opt.Ignore()) // Don't map ID - should not be changed
+            .ForMember(dest => dest.IssueNumber, opt => opt.Ignore()) // Should not be changed
+            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore()) // Handled by BaseEntity
+            .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore()) // Handled by BaseEntity
+            .ForMember(dest => dest.ResolvedDate, opt => opt.Ignore()) // Not set here
+            .ForMember(dest => dest.ResolvedByUserID, opt => opt.Ignore()) // Not set here
+            .ForMember(dest => dest.ResolutionNotes, opt => opt.Ignore()) // Not set here
             .ForMember(dest => dest.IssueAttachments, opt => opt.Ignore()) // Navigation collection
             .ForMember(dest => dest.IssueAssignments, opt => opt.Ignore()) // Navigation collection
             .ForMember(dest => dest.Vehicle, opt => opt.Ignore()) // Navigation property
