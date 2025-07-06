@@ -29,7 +29,7 @@ jobs:
         run: |
           rm -rf node_modules package-lock.json
           npm install
-        working-directory: "."
+        working-directory: .
 
       - name: Run ESLint
         run: npm run lint
