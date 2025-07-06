@@ -1,116 +1,177 @@
+import {
+  Vehicle,
+  VehicleTypeEnum,
+  VehicleStatusEnum,
+} from "@/app/hooks/Vehicle/vehicleType";
 import React from "react";
-import { VehicleListItem } from "../../types/VehicleListTypes";
 
-const getStatusDot = (status: string) => {
+const getStatusDot = (status: VehicleStatusEnum) => {
   switch (status) {
-    case "Active":
+    case VehicleStatusEnum.ACTIVE:
       return "bg-green-500";
-    case "Inactive":
+    case VehicleStatusEnum.INACTIVE:
       return "bg-blue-500";
-    case "In Shop":
+    case VehicleStatusEnum.MAINTENANCE:
       return "bg-orange-500";
-    case "Out of Service":
+    case VehicleStatusEnum.OUT_OF_SERVICE:
       return "bg-red-500";
     default:
       return "bg-gray-500";
   }
 };
 
-const getVehicleIcon = (type: string) => {
-  switch (type.toLowerCase()) {
-    case "city bus":
-    case "tour bus":
-    case "school bus":
+const getStatusLabel = (status: VehicleStatusEnum) => {
+  switch (status) {
+    case VehicleStatusEnum.ACTIVE:
+      return "Active";
+    case VehicleStatusEnum.INACTIVE:
+      return "Inactive";
+    case VehicleStatusEnum.MAINTENANCE:
+      return "In Shop";
+    case VehicleStatusEnum.OUT_OF_SERVICE:
+      return "Out of Service";
+    default:
+      return "Unknown";
+  }
+};
+
+const getVehicleIcon = (type: VehicleTypeEnum) => {
+  switch (type) {
+    case VehicleTypeEnum.BUS:
       return "🚌";
-    case "minibus":
+    case VehicleTypeEnum.CAR:
+      return "🚗";
+    case VehicleTypeEnum.TRUCK:
+      return "🚛";
+    case VehicleTypeEnum.VAN:
       return "🚐";
+    case VehicleTypeEnum.MOTORCYCLE:
+      return "🏍️";
+    case VehicleTypeEnum.TRAILER:
+      return "🚚";
     default:
       return "🚗";
   }
 };
 
+const getVehicleTypeLabel = (type: VehicleTypeEnum) => {
+  switch (type) {
+    case VehicleTypeEnum.TRUCK:
+      return "Truck";
+    case VehicleTypeEnum.VAN:
+      return "Van";
+    case VehicleTypeEnum.CAR:
+      return "Car";
+    case VehicleTypeEnum.MOTORCYCLE:
+      return "Motorcycle";
+    case VehicleTypeEnum.BUS:
+      return "Bus";
+    case VehicleTypeEnum.HEAVY_VEHICLE:
+      return "Heavy Vehicle";
+    case VehicleTypeEnum.TRAILER:
+      return "Trailer";
+    case VehicleTypeEnum.OTHER:
+      return "Other";
+    default:
+      return "Unknown";
+  }
+};
+
 export const vehicleTableColumns = [
   {
-    key: "name",
+    key: "Name",
     header: "Name",
     width: "220px",
     sortable: true,
-    render: (vehicle: VehicleListItem) => (
+    render: (vehicle: Vehicle) => (
       <div className="flex items-center">
         <div className="flex-shrink-0">
           <div className="size-8 rounded bg-gray-100 flex items-center justify-center text-sm">
-            {getVehicleIcon(vehicle.type)}
+            {getVehicleIcon(vehicle.VehicleType)}
           </div>
         </div>
         <div className="ml-3">
           <div className="text-sm font-medium text-gray-900">
-            {vehicle.name}
+            {vehicle.Name}
           </div>
         </div>
       </div>
     ),
   },
-  { key: "year", header: "Year", width: "80px", sortable: true },
-  { key: "make", header: "Make", width: "130px", sortable: true },
-  { key: "model", header: "Model", width: "120px", sortable: true },
   {
-    key: "vin",
+    key: "Year",
+    header: "Year",
+    width: "80px",
+    sortable: true,
+    render: (vehicle: Vehicle) => vehicle.Year,
+  },
+  { key: "Make", header: "Make", width: "130px", sortable: true },
+  { key: "Model", header: "Model", width: "120px", sortable: true },
+  {
+    key: "VIN",
     header: "VIN",
     width: "180px",
-    render: (vehicle: VehicleListItem) => (
-      <span className="text-sm">{vehicle.vin}</span>
+    render: (vehicle: Vehicle) => (
+      <span className="text-sm">{vehicle.VIN}</span>
     ),
   },
   {
-    key: "status",
+    key: "Status",
     header: "Status",
     width: "135px",
     sortable: true,
-    render: (vehicle: VehicleListItem) => (
+    render: (vehicle: Vehicle) => (
       <div className="flex items-center">
         <div
-          className={`size-2 rounded-full mr-2 ${getStatusDot(vehicle.status)}`}
+          className={`size-2 rounded-full mr-2 ${getStatusDot(vehicle.Status)}`}
         ></div>
-        <span>{vehicle.status}</span>
+        <span>{getStatusLabel(vehicle.Status)}</span>
       </div>
     ),
   },
-  { key: "type", header: "Type", width: "100px", sortable: true },
-  { key: "group", header: "Group", width: "100px", sortable: true },
   {
-    key: "currentMeter",
+    key: "VehicleType",
+    header: "Type",
+    width: "100px",
+    sortable: true,
+    render: (vehicle: Vehicle) => getVehicleTypeLabel(vehicle.VehicleType),
+  },
+  { key: "VehicleGroupName", header: "Group", width: "100px", sortable: true },
+  {
+    key: "Mileage",
     header: "Meter",
     width: "120px",
-    render: (vehicle: VehicleListItem) => (
+    render: (vehicle: Vehicle) => (
       <span className="text-primary hover:text-blue-800 cursor-pointer underline">
-        {vehicle.currentMeter.toLocaleString()} {vehicle.meterUnit}
+        {vehicle.Mileage.toLocaleString()} mi{" "}
+        {/* Fixed: removed FuelType, added 'mi' */}
       </span>
     ),
   },
   {
-    key: "licensePlate",
+    key: "LicensePlate",
     header: "License Plate",
     width: "140px",
     sortable: true,
   },
   {
-    key: "assignedOperator",
+    key: "AssignedTechnicianName",
     header: "Operator",
     width: "160px",
-    render: (vehicle: VehicleListItem) =>
-      vehicle.assignedOperator ? (
+    render: (vehicle: Vehicle) =>
+      vehicle.AssignedTechnicianName ? (
         <div className="flex items-center">
           <div className="flex-shrink-0 h-6 w-6">
             <div className="size-6 rounded-full bg-blue-100 flex items-center justify-center">
               <span className="text-xs font-medium text-blue-800">
-                {vehicle.assignedOperator
-                  .split(" ")
-                  .map(name => name[0])
-                  .join("")}
+                {vehicle.AssignedTechnicianName.split(" ")
+                  .map(n => n[0])
+                  .join("")}{" "}
+                {/* Fixed: get initials */}
               </span>
             </div>
           </div>
-          <span className="ml-2">{vehicle.assignedOperator}</span>
+          <span className="ml-2">{vehicle.AssignedTechnicianName}</span>
         </div>
       ) : (
         <span className="text-gray-400 italic">Unassigned</span>

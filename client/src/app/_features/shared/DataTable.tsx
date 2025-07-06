@@ -3,21 +3,21 @@ import Loading from "./Loading";
 import { ActionsColumnHeader, ActionsColumnCell } from "./ActionsColumn";
 import { ActionItem } from "./ActionDropdown";
 
-interface Column {
-  key: string;
+interface Column<T> {
+  key: keyof T | string;
   header: string;
-  render?: (item: any) => React.ReactNode;
+  render?: (item: T) => React.ReactNode;
   sortable?: boolean;
   width?: string;
 }
 
-interface DataTableProps {
-  data: any[];
-  columns: Column[];
+interface DataTableProps<T> {
+  data: T[];
+  columns: Column<T>[];
   selectedItems: string[];
   onSelectItem: (id: string) => void;
   onSelectAll: () => void;
-  onRowClick?: (item: any) => void;
+  onRowClick?: (item: T) => void;
   onSort?: (key: string) => void;
   sortBy?: string;
   sortOrder?: "asc" | "desc";
@@ -26,9 +26,11 @@ interface DataTableProps {
   fixedLayout?: boolean;
   actions?: ActionItem[];
   showActions?: boolean;
+  // Function to extract the ID from each item
+  getItemId: (item: T) => string;
 }
 
-const DataTable: React.FC<DataTableProps> = ({
+function DataTable<T>({
   data,
   columns,
   selectedItems,
@@ -43,12 +45,16 @@ const DataTable: React.FC<DataTableProps> = ({
   fixedLayout = true,
   actions = [],
   showActions = true,
-}) => {
+  getItemId,
+}: DataTableProps<T>) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const allSelected =
-    data.length > 0 && data.every(item => selectedItems.includes(item.id));
-  const someSelected = data.some(item => selectedItems.includes(item.id));
+    data.length > 0 &&
+    data.every(item => selectedItems.includes(getItemId(item)));
+  const someSelected = data.some(item =>
+    selectedItems.includes(getItemId(item)),
+  );
 
   useEffect(() => {
     if (data.length === 0 && scrollContainerRef.current) {
@@ -58,7 +64,7 @@ const DataTable: React.FC<DataTableProps> = ({
 
   const handleActionClick = (
     action: ActionItem,
-    item: any,
+    item: T,
     event: React.MouseEvent,
   ) => {
     event.stopPropagation();
@@ -112,7 +118,7 @@ const DataTable: React.FC<DataTableProps> = ({
               </th>
               {columns.map(column => (
                 <th
-                  key={column.key}
+                  key={String(column.key)}
                   className={`px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider bg-gray-50 ${
                     column.sortable && onSort
                       ? "cursor-pointer hover:bg-gray-100"
@@ -120,12 +126,12 @@ const DataTable: React.FC<DataTableProps> = ({
                   }`}
                   style={{ width: column.width || "120px" }}
                   onClick={() =>
-                    column.sortable && onSort && onSort(column.key)
+                    column.sortable && onSort && onSort(String(column.key))
                   }
                 >
                   <div className="flex items-center gap-1">
                     <span className="truncate">{column.header}</span>
-                    {column.sortable && sortBy === column.key && (
+                    {column.sortable && sortBy === String(column.key) && (
                       <span className="text-blue-600 flex-shrink-0">
                         {sortOrder === "asc" ? "↑" : "↓"}
                       </span>
@@ -138,46 +144,49 @@ const DataTable: React.FC<DataTableProps> = ({
           </thead>
           {data.length > 0 && (
             <tbody className="bg-white divide-y divide-gray-200">
-              {data.map(item => (
-                <tr
-                  key={item.id}
-                  onClick={() => onRowClick?.(item)}
-                  className="hover:bg-gray-50 cursor-pointer"
-                >
-                  <td
-                    className="px-4 py-3 whitespace-nowrap"
-                    style={{ width: `${checkboxWidth}px` }}
+              {data.map(item => {
+                const itemId = getItemId(item);
+                return (
+                  <tr
+                    key={itemId}
+                    onClick={() => onRowClick?.(item)}
+                    className="hover:bg-gray-50 cursor-pointer"
                   >
-                    <input
-                      type="checkbox"
-                      className="size-4 text-blue-600 rounded border-gray-300"
-                      checked={selectedItems.includes(item.id)}
-                      onChange={() => onSelectItem(item.id)}
-                      onClick={e => e.stopPropagation()}
-                    />
-                  </td>
-                  {columns.map(column => (
                     <td
-                      key={column.key}
-                      className="px-4 py-3 text-sm text-gray-900"
-                      style={{ width: column.width || "120px" }}
+                      className="px-4 py-3 whitespace-nowrap"
+                      style={{ width: `${checkboxWidth}px` }}
                     >
-                      <div className="truncate">
-                        {column.render
-                          ? column.render(item)
-                          : String(item[column.key] || "")}
-                      </div>
+                      <input
+                        type="checkbox"
+                        className="size-4 text-blue-600 rounded border-gray-300"
+                        checked={selectedItems.includes(itemId)}
+                        onChange={() => onSelectItem(itemId)}
+                        onClick={e => e.stopPropagation()}
+                      />
                     </td>
-                  ))}
-                  {showActions && (
-                    <ActionsColumnCell
-                      item={item}
-                      actions={actions}
-                      onActionClick={handleActionClick}
-                    />
-                  )}
-                </tr>
-              ))}
+                    {columns.map(column => (
+                      <td
+                        key={String(column.key)}
+                        className="px-4 py-3 text-sm text-gray-900"
+                        style={{ width: column.width || "120px" }}
+                      >
+                        <div className="truncate">
+                          {column.render
+                            ? column.render(item)
+                            : String((item as any)[column.key] || "")}
+                        </div>
+                      </td>
+                    ))}
+                    {showActions && (
+                      <ActionsColumnCell
+                        item={item}
+                        actions={actions}
+                        onActionClick={handleActionClick}
+                      />
+                    )}
+                  </tr>
+                );
+              })}
             </tbody>
           )}
         </table>
@@ -192,6 +201,6 @@ const DataTable: React.FC<DataTableProps> = ({
       </div>
     </div>
   );
-};
+}
 
 export default DataTable;
