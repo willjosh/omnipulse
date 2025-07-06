@@ -11,10 +11,6 @@ jobs:
     name: Lint & Build
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: client
-
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -25,13 +21,15 @@ jobs:
           node-version: "20"
           cache: "npm"
 
-      - name: Clean install dependencies
+      - name: Clean install dependencies for all workspaces
         run: |
-          rm -rf node_modules
+          rm -rf node_modules package-lock.json
           npm ci
 
       - name: Run ESLint
         run: npm run lint
+        working-directory: client
 
       - name: Build application
         run: npm run build
+        working-directory: client
