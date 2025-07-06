@@ -29,10 +29,7 @@ public class DeactivateTechnicianHandlerTest
         _mockUserRepository = new();
         _mockLogger = new();
 
-        var config = new MapperConfiguration(cfg =>
-        {
-            cfg.AddProfile<UserMappingProfile>();
-        });
+        var config = new MapperConfiguration(cfg => cfg.AddProfile<UserMappingProfile>());
         var mapper = config.CreateMapper();
 
         _handler = new DeactivateTechnicianCommandHandler(_mockUserRepository.Object, mapper, _mockLogger.Object);

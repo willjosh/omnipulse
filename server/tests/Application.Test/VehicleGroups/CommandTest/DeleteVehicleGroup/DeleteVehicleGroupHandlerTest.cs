@@ -25,10 +25,7 @@ public class DeleteVehicleGroupHandlerTest
         _mockVehicleGroupRepository = new();
         _mockLogger = new();
 
-        var config = new MapperConfiguration(cfg =>
-        {
-            cfg.AddProfile<VehicleGroupMappingProfile>();
-        });
+        var config = new MapperConfiguration(cfg => cfg.AddProfile<VehicleGroupMappingProfile>());
         var mapper = config.CreateMapper();
 
         _deleteVehicleGroupCommandHandler = new(_mockVehicleGroupRepository.Object, _mockLogger.Object, mapper);

@@ -32,7 +32,7 @@ public sealed class CreateServiceTaskCommandValidator : AbstractValidator<Create
             .GreaterThanOrEqualTo(0)
             .WithMessage("Estimated cost cannot be negative")
             .LessThanOrEqualTo(999999.99m)
-            .WithMessage("Estimated cost cannot exceed £999,999.99");
+            .WithMessage("Estimated cost cannot exceed $999,999.99");
 
         RuleFor(p => p.Category)
             .IsInEnum()

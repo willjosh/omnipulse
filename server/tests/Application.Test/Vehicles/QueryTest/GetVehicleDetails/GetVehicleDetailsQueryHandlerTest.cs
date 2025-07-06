@@ -25,10 +25,7 @@ public class GetVehicleDetailsQueryHandlerTest
         _mockVehicleRepository = new();
         _mockLogger = new();
 
-        var config = new MapperConfiguration(cfg =>
-        {
-            cfg.AddProfile<VehicleMappingProfile>();
-        });
+        var config = new MapperConfiguration(cfg => cfg.AddProfile<VehicleMappingProfile>());
         var mapper = config.CreateMapper();
 
         _getVehicleDetailsQueryHandler = new GetVehicleDetailsQueryHandler(

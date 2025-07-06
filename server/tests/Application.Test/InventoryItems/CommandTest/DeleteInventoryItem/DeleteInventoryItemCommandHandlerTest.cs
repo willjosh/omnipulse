@@ -28,10 +28,7 @@ public class DeleteInventoryItemCommandHandlerTest
         _mockInventoryItemRepository = new();
         _mockLogger = new();
 
-        var config = new MapperConfiguration(cfg =>
-        {
-            cfg.AddProfile<InventoryItemMappingProfile>();
-        });
+        var config = new MapperConfiguration(cfg => cfg.AddProfile<InventoryItemMappingProfile>());
         var mapper = config.CreateMapper();
 
         _deleteInventoryItemCommandHandler = new(_mockInventoryItemRepository.Object, _mockLogger.Object, mapper);

@@ -33,10 +33,7 @@ public class CreateServiceTaskCommandHandlerTest
         _mockValidator = new();
         _mockLogger = new();
 
-        var config = new MapperConfiguration(cfg =>
-        {
-            cfg.AddProfile<ServiceTaskMappingProfile>();
-        });
+        var config = new MapperConfiguration(cfg => cfg.AddProfile<ServiceTaskMappingProfile>());
         _mapper = config.CreateMapper();
 
         _commandHandler = new CreateServiceTaskCommandHandler(
