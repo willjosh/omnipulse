@@ -11,6 +11,10 @@ jobs:
     name: Lint & Build
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: client
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -25,11 +29,10 @@ jobs:
         run: |
           rm -rf node_modules package-lock.json
           npm install
+        working-directory: "."
 
       - name: Run ESLint
         run: npm run lint
-        working-directory: client
 
       - name: Build application
         run: npm run build
-        working-directory: client
