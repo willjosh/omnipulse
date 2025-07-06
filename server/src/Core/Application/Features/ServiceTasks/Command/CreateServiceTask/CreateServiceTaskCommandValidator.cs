@@ -14,6 +14,8 @@ public sealed class CreateServiceTaskCommandValidator : AbstractValidator<Create
         RuleFor(p => p.Name)
             .NotEmpty()
             .WithMessage("Service task name is required")
+            .Must(x => !string.IsNullOrWhiteSpace(x))
+            .WithMessage("Service task name cannot be whitespace only")
             .MinimumLength(1)
             .MaximumLength(100)
             .WithMessage("Service task name must be between 1 and 100 characters");
