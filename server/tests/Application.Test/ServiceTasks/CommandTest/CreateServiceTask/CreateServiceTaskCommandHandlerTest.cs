@@ -41,9 +41,9 @@ public class CreateServiceTaskCommandHandlerTest
 
         _commandHandler = new CreateServiceTaskCommandHandler(
             _mockServiceTaskRepository.Object,
-            _mapper,
+            _mockValidator.Object,
             _mockLogger.Object,
-            _mockValidator.Object
+            _mapper
         );
     }
 
