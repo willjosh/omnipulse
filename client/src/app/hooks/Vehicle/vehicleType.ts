@@ -1,5 +1,5 @@
 export interface Vehicle {
-  ID: number;
+  id: number;
   Name: string;
   Make: string;
   Model: string;
@@ -21,6 +21,59 @@ export interface Vehicle {
   PurchasePrice: number;
   Status: VehicleStatusEnum;
   Location: string;
+}
+
+export interface CreateVehicleCommand {
+  Name: string;
+  Make: string;
+  Model: string;
+  Year: number;
+  VIN: string;
+  LicensePlate: string;
+  LicensePlateExpirationDate: string;
+  VehicleType: VehicleTypeEnum;
+  VehicleGroupID: number;
+  Trim: string;
+  Mileage: number;
+  EngineHours: number;
+  FuelCapacity: number;
+  FuelType: FuelTypeEnum;
+  PurchaseDate: string;
+  PurchasePrice: number;
+  VehicleStatus: VehicleStatusEnum;
+  Location: string;
+  AssignedTechnicianID?: string | null;
+}
+
+export interface UpdateVehicleCommand {
+  id: number;
+  Name: string;
+  Make: string;
+  Model: string;
+  Year: number;
+  VIN: string;
+  LicensePlate: string;
+  LicensePlateExpirationDate: string;
+  VehicleType: VehicleTypeEnum;
+  VehicleGroupID: number;
+  Trim: string;
+  Mileage: number;
+  EngineHours: number;
+  FuelCapacity: number;
+  FuelType: FuelTypeEnum;
+  PurchaseDate: string;
+  PurchasePrice: number;
+  VehicleStatus: VehicleStatusEnum;
+  Location: string;
+  AssignedTechnicianID: string | null;
+}
+
+export interface VehicleFilter {
+  page?: number;
+  pageSize?: number;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
+  search?: string;
 }
 
 export enum VehicleTypeEnum {
