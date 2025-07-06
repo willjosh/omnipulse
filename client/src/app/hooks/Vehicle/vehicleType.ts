@@ -23,6 +23,19 @@ export interface Vehicle {
   Location: string;
 }
 
+export interface VehicleWithLabels
+  extends Omit<Vehicle, "VehicleType" | "Status" | "FuelType"> {
+  VehicleType: number;
+  VehicleTypeLabel: string;
+  Status: number;
+  StatusLabel: string;
+  FuelType: number;
+  FuelTypeLabel: string;
+  VehicleTypeEnum: VehicleTypeEnum;
+  StatusEnum: VehicleStatusEnum;
+  FuelTypeEnum: FuelTypeEnum;
+}
+
 export interface CreateVehicleCommand {
   Name: string;
   Make: string;

@@ -4,10 +4,27 @@ import {
   UpdateVehicleCommand,
   Vehicle,
   VehicleFilter,
+  VehicleWithLabels,
 } from "./vehicleType";
 import { agent } from "@/app/_lib/axios/agent";
 import { PagedResponse } from "../shared_types/pagedResponse";
 import { useDebounce } from "../shared_types/useDebounce";
+import {
+  getVehicleTypeLabel,
+  getStatusLabel,
+  getFuelTypeLabel,
+} from "@/app/_utils/vehicleEnumHelper";
+
+// Helper function to convert vehicle data
+const convertVehicleData = (vehicle: Vehicle): VehicleWithLabels => ({
+  ...vehicle,
+  VehicleTypeLabel: getVehicleTypeLabel(vehicle.VehicleType),
+  StatusLabel: getStatusLabel(vehicle.Status),
+  FuelTypeLabel: getFuelTypeLabel(vehicle.FuelType),
+  VehicleTypeEnum: vehicle.VehicleType,
+  StatusEnum: vehicle.Status,
+  FuelTypeEnum: vehicle.FuelType,
+});
 
 export const useVehicles = (filters?: VehicleFilter, id?: string) => {
   const queryClient = useQueryClient();
@@ -16,6 +33,7 @@ export const useVehicles = (filters?: VehicleFilter, id?: string) => {
 
   const debouncedFilters = { ...filters, search: debouncedSearch };
 
+  // Build query params...
   if (debouncedFilters?.page)
     queryParams.append("page", debouncedFilters.page.toString());
   if (debouncedFilters?.pageSize)
@@ -27,29 +45,34 @@ export const useVehicles = (filters?: VehicleFilter, id?: string) => {
   if (debouncedFilters?.search)
     queryParams.append("search", debouncedFilters.search);
 
-  // This hook fetches vehicles data from the API and returns it along with a loading state.
+  // Fetch vehicles with conversion
   const { data: vehiclesResponse, isLoading: isLoadingVehicles } = useQuery<
-    PagedResponse<Vehicle>
+    PagedResponse<VehicleWithLabels>
   >({
     queryKey: ["vehicles", debouncedFilters],
     queryFn: async () => {
       const url = queryParams.toString()
         ? `vehicles?${queryParams.toString()}`
         : "vehicles";
-      const response = await agent.get(url);
-      console.log("Vehicles Response:", response.data);
-      return response.data;
+      const response = await agent.get<PagedResponse<Vehicle>>(url);
+
+      // Convert the vehicles data
+      const convertedItems = response.data.Items.map(convertVehicleData);
+
+      return { ...response.data, Items: convertedItems };
     },
   });
 
-  // This hook fetches a single vehicle by ID from the API and returns it along with a loading state.
-  const { data: vehicle, isLoading: isLoadingVehicle } = useQuery<Vehicle>({
-    queryKey: ["vehicle", id],
-    queryFn: async () => {
-      const response = await agent.get(`vehicles/${id}`);
-      return response.data;
-    },
-  });
+  // Fetch single vehicle with conversion
+  const { data: vehicle, isLoading: isLoadingVehicle } =
+    useQuery<VehicleWithLabels>({
+      queryKey: ["vehicle", id],
+      queryFn: async () => {
+        const response = await agent.get<Vehicle>(`vehicles/${id}`);
+        return convertVehicleData(response.data);
+      },
+      enabled: !!id, // Only run query if id is provided
+    });
 
   // This hook provides functions to create vehicles.
   const createVehicleMutation = useMutation({
@@ -71,10 +94,10 @@ export const useVehicles = (filters?: VehicleFilter, id?: string) => {
       );
       return response.data;
     },
-    onSuccess: async variables => {
+    onSuccess: async (data, variables) => {
       await queryClient.invalidateQueries({ queryKey: ["vehicles"] });
       await queryClient.invalidateQueries({
-        queryKey: ["vehicle", variables.id],
+        queryKey: ["vehicle", variables.id.toString()],
       });
     },
   });
@@ -84,11 +107,9 @@ export const useVehicles = (filters?: VehicleFilter, id?: string) => {
       const response = await agent.post(`vehicles/deactivate/${id}`);
       return response.data;
     },
-    onSuccess: async variables => {
+    onSuccess: async (data, variables) => {
       await queryClient.invalidateQueries({ queryKey: ["vehicles"] });
-      await queryClient.invalidateQueries({
-        queryKey: ["vehicle", variables.id],
-      });
+      await queryClient.invalidateQueries({ queryKey: ["vehicle", variables] });
     },
   });
 
