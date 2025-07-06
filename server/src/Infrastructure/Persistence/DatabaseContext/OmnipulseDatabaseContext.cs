@@ -30,8 +30,9 @@ public class OmnipulseDatabaseContext(DbContextOptions<OmnipulseDatabaseContext>
     public DbSet<InventoryItemLocation> InventoryItemLocations { get; set; }
     public DbSet<InventoryTransaction> InventoryTransactions { get; set; }
     public DbSet<Invoice> Invoices { get; set; }
-    public DbSet<IssueAttachment> IssueAttachments { get; set; }
     public DbSet<Issue> Issues { get; set; }
+    public DbSet<IssueAssignment> IssueAssignments { get; set; }
+    public DbSet<IssueAttachment> IssueAttachments { get; set; }
     public DbSet<MaintenanceHistory> MaintenanceHistories { get; set; }
     public DbSet<ServiceProgram> ServicePrograms { get; set; }
     public DbSet<ServiceReminder> ServiceReminders { get; set; }
