@@ -14,7 +14,7 @@ public class ServiceTaskRepository : GenericRepository<ServiceTask>, IServiceTas
 {
     public ServiceTaskRepository(OmnipulseDatabaseContext context) : base(context) { }
 
-    public async Task<bool> NameExistAsync(string name)
+    public async Task<bool> IsNameUniqueAsync(string name)
     {
         return await _dbSet.AnyAsync(st => st.Name == name);
     }

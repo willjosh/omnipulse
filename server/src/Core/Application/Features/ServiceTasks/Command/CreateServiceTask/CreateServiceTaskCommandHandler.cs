@@ -73,7 +73,7 @@ public class CreateServiceTaskCommandHandler : IRequestHandler<CreateServiceTask
     private async Task ValidateBusinessRuleAsync(ServiceTask serviceTask)
     {
         // Check for duplicate name in the database
-        if (await _serviceTaskRepository.NameExistAsync(serviceTask.Name))
+        if (await _serviceTaskRepository.IsNameUniqueAsync(serviceTask.Name))
         {
             var errorMessage = $"Service task name already exists: {serviceTask.Name}";
             _logger.LogError(errorMessage);

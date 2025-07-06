@@ -7,6 +7,6 @@ namespace Application.Contracts.Persistence;
 
 public interface IServiceTaskRepository : IGenericRepository<ServiceTask>
 {
-    public Task<bool> NameExistAsync(string name);
+    public Task<bool> IsNameUniqueAsync(string name);
     public Task<PagedResult<ServiceTask>> GetAllServiceTasksPagedAsync(PaginationParameters parameters);
 }

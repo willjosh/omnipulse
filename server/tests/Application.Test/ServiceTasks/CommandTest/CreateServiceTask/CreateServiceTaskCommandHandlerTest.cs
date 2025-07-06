@@ -104,7 +104,7 @@ public class CreateServiceTaskCommandHandlerTest
             WorkOrderLineItems = []
         };
 
-        _mockServiceTaskRepository.Setup(r => r.NameExistAsync(command.Name)).ReturnsAsync(false);
+        _mockServiceTaskRepository.Setup(r => r.IsNameUniqueAsync(command.Name)).ReturnsAsync(false);
         _mockServiceTaskRepository.Setup(r => r.AddAsync(It.IsAny<ServiceTask>())).ReturnsAsync(expectedServiceTask);
         _mockServiceTaskRepository.Setup(r => r.SaveChangesAsync()).ReturnsAsync(1);
 
@@ -114,7 +114,7 @@ public class CreateServiceTaskCommandHandlerTest
         // Then
         Assert.Equal(expectedServiceTask.ID, result);
         _mockValidator.Verify(v => v.ValidateAsync(command, CancellationToken.None), Times.Once);
-        _mockServiceTaskRepository.Verify(r => r.NameExistAsync(command.Name), Times.Once);
+        _mockServiceTaskRepository.Verify(r => r.IsNameUniqueAsync(command.Name), Times.Once);
         _mockServiceTaskRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
@@ -125,13 +125,13 @@ public class CreateServiceTaskCommandHandlerTest
         var command = CreateValidCommand();
         SetupValidValidation(command);
 
-        _mockServiceTaskRepository.Setup(r => r.NameExistAsync(command.Name)).ReturnsAsync(true);
+        _mockServiceTaskRepository.Setup(r => r.IsNameUniqueAsync(command.Name)).ReturnsAsync(true);
 
         // When & Then
         await Assert.ThrowsAsync<DuplicateEntityException>(() => _commandHandler.Handle(command, CancellationToken.None));
 
         _mockValidator.Verify(v => v.ValidateAsync(command, CancellationToken.None), Times.Once);
-        _mockServiceTaskRepository.Verify(r => r.NameExistAsync(command.Name), Times.Once);
+        _mockServiceTaskRepository.Verify(r => r.IsNameUniqueAsync(command.Name), Times.Once);
         _mockServiceTaskRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
     }
 
@@ -142,13 +142,13 @@ public class CreateServiceTaskCommandHandlerTest
         var command = CreateValidCommand();
         SetupInvalidValidation(command, "Name", "Name is required");
 
-        _mockServiceTaskRepository.Setup(r => r.NameExistAsync(command.Name)).ReturnsAsync(false);
+        _mockServiceTaskRepository.Setup(r => r.IsNameUniqueAsync(command.Name)).ReturnsAsync(false);
 
         // When & Then
         await Assert.ThrowsAsync<BadRequestException>(() => _commandHandler.Handle(command, CancellationToken.None));
 
         _mockValidator.Verify(v => v.ValidateAsync(command, CancellationToken.None), Times.Once);
-        _mockServiceTaskRepository.Verify(r => r.NameExistAsync(It.IsAny<string>()), Times.Never);
+        _mockServiceTaskRepository.Verify(r => r.IsNameUniqueAsync(It.IsAny<string>()), Times.Never);
         _mockServiceTaskRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
     }
 }
