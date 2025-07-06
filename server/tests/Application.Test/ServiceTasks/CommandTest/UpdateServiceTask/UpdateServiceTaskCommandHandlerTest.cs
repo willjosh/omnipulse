@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
