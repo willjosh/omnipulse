@@ -29,10 +29,7 @@ public class CreateVehicleGroupHandlerTest
         _mockLogger = new();
         _mockValidator = new();
 
-        var config = new MapperConfiguration(cfg =>
-        {
-            cfg.AddProfile<VehicleGroupMappingProfile>();
-        });
+        var config = new MapperConfiguration(cfg => cfg.AddProfile<VehicleGroupMappingProfile>());
         var mapper = config.CreateMapper();
 
         _createVehicleGroupCommandHandler = new(_mockVehicleGroupRepository.Object, mapper, _mockLogger.Object, _mockValidator.Object);
