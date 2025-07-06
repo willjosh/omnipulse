@@ -36,7 +36,7 @@ export default defineConfig([
       ...tseslint.configs.recommended.rules,
 
       "no-unused-vars": "off",
-      "@typescript-eslint/no-unused-vars": ["warn"],
+      "@typescript-eslint/no-unused-vars": ["error"],
       ...pluginReact.configs.recommended.rules,
       ...pluginPrettier.configs.recommended.rules,
 
