@@ -1,33 +1,6 @@
 import React from "react";
 import { VehicleListItem } from "../../types/VehicleListTypes";
-
-const getStatusDot = (status: string) => {
-  switch (status) {
-    case "Active":
-      return "bg-green-500";
-    case "Inactive":
-      return "bg-blue-500";
-    case "In Shop":
-      return "bg-orange-500";
-    case "Out of Service":
-      return "bg-red-500";
-    default:
-      return "bg-gray-500";
-  }
-};
-
-const getVehicleIcon = (type: string) => {
-  switch (type.toLowerCase()) {
-    case "city bus":
-    case "tour bus":
-    case "school bus":
-      return "🚌";
-    case "minibus":
-      return "🚐";
-    default:
-      return "🚗";
-  }
-};
+import { getVehicleIcon, getStatusDot } from "@/app/_utils/helper";
 
 export const vehicleTableColumns = [
   {
