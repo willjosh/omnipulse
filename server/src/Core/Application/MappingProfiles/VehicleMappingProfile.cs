@@ -11,6 +11,12 @@ using AutoMapper;
 
 using Domain.Entities;
 
+/// <summary>
+/// <see href="https://docs.automapper.io/en/latest/">AutoMapper</see> profile for configuring mappings between <see cref="Vehicle"/> and application layer commands and queries.
+/// </summary>
+/// <remarks>
+/// A profile is AutoMapper's primary means of organising mapping configurations. Once defined, profiles are added to the main <c>MapperConfiguration</c> (or registered via dependency injection) so that they are discovered at runtime.
+/// </remarks>
 public class VehicleMappingProfile : Profile
 {
     public VehicleMappingProfile()
