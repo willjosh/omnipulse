@@ -29,7 +29,16 @@ public class IssueRepository : GenericRepository<Issue>, IIssueRepository
         if (!string.IsNullOrWhiteSpace(parameters.Search))
         {
             var search = parameters.Search.ToLower();
-            query = query.Where(i => i.Title.ToLower().Contains(search) || (i.Description != null && i.Description.ToLower().Contains(search)));
+            query = query.Where(i =>
+                (i.Title != null && i.Title.ToLower().Contains(search)) ||
+                (i.Description != null && i.Description.ToLower().Contains(search)) ||
+                i.Category.ToString().ToLower().Contains(search) ||
+                i.PriorityLevel.ToString().ToLower().Contains(search) ||
+                i.Status.ToString().ToLower().Contains(search) ||
+                i.VehicleID.ToString().Contains(search) ||
+                i.IssueNumber.ToString().Contains(search) ||
+                (i.ReportedByUserID != null && i.ReportedByUserID.ToLower().Contains(search))
+            );
         }
 
         // Sorting
