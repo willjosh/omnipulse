@@ -3,6 +3,8 @@ using System.Linq;
 using System.Linq.Expressions;
 
 using Application.Contracts.Persistence;
+using Application.Models;
+using Application.Models.PaginationModels;
 
 using Domain.Entities;
 
@@ -264,6 +266,43 @@ public class UserRepository : IUserRepository
         }
     }
 
+    public async Task<PagedResult<User>> GetAllTechnicianPagedAsync(PaginationParameters parameters)
+    {
+        var technicianUsers = await _userManager.GetUsersInRoleAsync("TECHNICIAN");
+
+        var query = technicianUsers.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(parameters.Search))
+        {
+            var search = parameters.Search.ToLowerInvariant();
+            query = query.Where(u =>
+                u.FirstName.ToLowerInvariant().Contains(search) ||
+                u.LastName.ToLowerInvariant().Contains(search) ||
+                u.Email!.ToLowerInvariant().Contains(search)
+            );
+        };
+
+        // Apply sorting
+        query = ApplySorting(query, parameters.SortBy, parameters.SortDescending);
+
+        // Get total count before pagination
+        var totalCount = await query.CountAsync();
+
+        // Apply pagination
+        var items = await query
+            .Skip((parameters.PageNumber - 1) * parameters.PageSize)
+            .Take(parameters.PageSize)
+            .ToListAsync();
+
+        return new PagedResult<User>
+        {
+            Items = items,
+            TotalCount = totalCount,
+            PageNumber = parameters.PageNumber,
+            PageSize = parameters.PageSize,
+        };
+    }
+
     // Helper class for expression conversion
     private class ParameterReplacementVisitor : ExpressionVisitor
     {
@@ -280,5 +319,18 @@ public class UserRepository : IUserRepository
         {
             return node == _oldParameter ? _newParameter : base.VisitParameter(node);
         }
+    }
+    
+    private IQueryable<User> ApplySorting(IQueryable<User> query, string? sortBy, bool sortDescending)
+    {
+        return sortBy?.ToLowerInvariant() switch
+        {
+            "firstname" => sortDescending ? query.OrderByDescending(u => u.FirstName) : query.OrderBy(u => u.FirstName),
+            "lastname" => sortDescending ? query.OrderByDescending(u => u.LastName) : query.OrderBy(u => u.LastName),
+            "email" => sortDescending ? query.OrderByDescending(u => u.Email) : query.OrderBy(u => u.Email),
+            "username" => sortDescending ? query.OrderByDescending(u => u.UserName) : query.OrderBy(u => u.UserName),
+            "hiredate" => sortDescending ? query.OrderByDescending(u => u.HireDate) : query.OrderBy(u => u.HireDate),
+            _ => query.OrderBy(u => u.HireDate)
+        };
     }
 }

@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
+using Application.Models;
+using Application.Models.PaginationModels;
+
 using Domain.Entities;
 
 using Microsoft.AspNetCore.Identity;
@@ -52,4 +55,7 @@ public interface IUserRepository
     Task<IReadOnlyList<User>> GetInactiveUsersAsync();
     Task<IdentityResult> LockUserAsync(User user, DateTimeOffset? lockoutEnd);
     Task<IdentityResult> UnlockUserAsync(User user);
+
+    // Paged Results
+    Task<PagedResult<User>> GetAllTechnicianPagedAsync(PaginationParameters parameters);    
 }

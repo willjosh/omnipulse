@@ -2,6 +2,7 @@ using System;
 
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
+using Application.Exceptions;
 using Application.Models.PaginationModels;
 
 using AutoMapper;
@@ -28,8 +29,33 @@ public class GetAllTechnicianQueryHandler : IRequestHandler<GetAllTechnicianQuer
         _validator = validator;
     }
 
-    Task<PagedResult<GetAllTechnicianDTO>> IRequestHandler<GetAllTechnicianQuery, PagedResult<GetAllTechnicianDTO>>.Handle(GetAllTechnicianQuery request, CancellationToken cancellationToken)
+    public async Task<PagedResult<GetAllTechnicianDTO>> Handle(GetAllTechnicianQuery request, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        // validate the request
+        _logger.LogInformation("Handling GetAllTechnicianQuery");
+        var validationResult = _validator.Validate(request);
+        if (!validationResult.IsValid)
+        {
+            var errorMessages = string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage));
+            _logger.LogWarning($"GetAllTechnician - Validation failed: {errorMessages}");
+            throw new BadRequestException(errorMessages);
+        }
+
+        // get all technicians from the repository
+        var result = await _userRepository.GetAllTechnicianPagedAsync(request.Parameters);
+
+        // map the technicians to DTOs
+        var technicianDTOs = _mapper.Map<List<GetAllTechnicianDTO>>(result.Items);
+
+        var pagedResult = new PagedResult<GetAllTechnicianDTO>
+        {
+            Items = technicianDTOs,
+            TotalCount = result.TotalCount,
+            PageNumber = result.PageNumber,
+            PageSize = result.PageSize
+        };
+        
+        _logger.LogInformation($"Returning {pagedResult.TotalCount} technicians for page {pagedResult.PageNumber} with page size {pagedResult.PageSize}");
+        return pagedResult;
     }
 }
