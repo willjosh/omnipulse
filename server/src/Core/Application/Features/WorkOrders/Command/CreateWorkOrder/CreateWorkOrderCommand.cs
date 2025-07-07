@@ -15,12 +15,14 @@ public record CreateWorkOrderCommand(
     PriorityLevelEnum PriorityLevel,
     WorkOrderStatusEnum Status,
     decimal? EstimatedCost,
+    decimal? ActualCost,
     double? EstimatedHours,
+    double? ActualHours,
     DateTime? ScheduledStartDate,
     DateTime? ActualStartDate,
     double StartOdometer,
-    double? EndOdometer,
+    double? EndOdometer,    
     // Issues
-    List<int> IssueIdList
+    List<int>? IssueIdList
 ) : IRequest<int>
 { }

@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <Folder Include="User/QueryTest/" />
+    <Folder Include="WorkOrder/QueryTest/" />
   </ItemGroup>
 
 </Project>
