@@ -43,6 +43,7 @@ run_backend_checks() {
     backend_staged_files=$(echo "$staged_files" | grep "^$BACKEND_DIR/" | grep -E "\.cs$|\.csproj$|\.props$" | sed "s|^$BACKEND_DIR/||")
     if [ -n "$backend_staged_files" ]; then
         included_files=$(echo "$backend_staged_files" | tr '\n' ' ')
+        printf "📄 Backend Staged Files:\n$included_files\n"
 
         run_step "▶️ Backend - Format (Staged Files)" dotnet format --include $included_files
         run_step "▶️ Backend - Format (Verify no Changes)" dotnet format --include $included_files --verify-no-changes --verbosity quiet
