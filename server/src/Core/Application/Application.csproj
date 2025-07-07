@@ -16,4 +16,9 @@
     <PackageReference Include="MediatR" Version="12.5.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Features/Issues/Query/" />
+    <Folder Include="Features/Issues/Query/GetAllIssue/" />
+  </ItemGroup>
+
 </Project>
