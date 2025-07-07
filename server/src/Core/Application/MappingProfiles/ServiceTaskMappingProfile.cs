@@ -1,6 +1,6 @@
 using Application.Features.ServiceTasks.Command.CreateServiceTask;
-using Application.Features.ServiceTasks.Query.GetServiceTask;
 using Application.Features.ServiceTasks.Command.UpdateServiceTask;
+using Application.Features.ServiceTasks.Query.GetServiceTask;
 
 using AutoMapper;
 
