@@ -61,7 +61,7 @@ public class GetAllIssueQueryHandlerTest
         _mockValidator.Setup(v => v.Validate(query)).Returns(invalidResult);
     }
 
-    [Fact(Skip = "Not implemented")]
+    [Fact]
     public async Task Handler_Should_Return_PagedResult_On_Success()
     {
         var parameters = new PaginationParameters
@@ -150,23 +150,21 @@ public class GetAllIssueQueryHandlerTest
                 UpdatedAt = DateTime.UtcNow.AddDays(-1)
             }
         };
-        var pagedIssueEntities = new PagedResult<Issue>
-        {
-            Items = expectedIssueEntities,
-            TotalCount = 1,
-            PageNumber = 1,
-            PageSize = 5
-        };
         _mockIssueRepository.Setup(r => r.GetAllAsync()).ReturnsAsync(expectedIssueEntities);
-        // If you add a paged method, use it here
-        // _mockIssueRepository.Setup(r => r.GetAllIssuesPagedAsync(parameters)).ReturnsAsync(pagedIssueEntities);
 
-        // When
-        // For now, this will throw NotImplementedException, so just check that
-        await Assert.ThrowsAsync<NotImplementedException>(() => _getAllIssueQueryHandler.Handle(query, CancellationToken.None));
+        var result = await _getAllIssueQueryHandler.Handle(query, CancellationToken.None);
+        Assert.NotNull(result);
+        Assert.IsType<PagedResult<GetAllIssueDTO>>(result);
+        Assert.Equal(1, result.TotalCount);
+        Assert.Equal(1, result.PageNumber);
+        Assert.Equal(5, result.PageSize);
+        Assert.Single(result.Items);
+        Assert.Equal("Engine Overheating", result.Items[0].Title);
+        Assert.Equal(1001, result.Items[0].IssueNumber);
+        Assert.Equal("USER1", result.Items[0].ReportedByUserID);
     }
 
-    [Fact(Skip = "Not implemented")]
+    [Fact]
     public async Task Handler_Should_Return_Empty_Result_When_No_Issues()
     {
         var parameters = new PaginationParameters
@@ -177,21 +175,45 @@ public class GetAllIssueQueryHandlerTest
         };
         var query = new GetAllIssueQuery(parameters);
         SetupValidValidation(query);
-        var emptyPagedResult = new PagedResult<Issue>
-        {
-            Items = [],
-            TotalCount = 0,
-            PageNumber = 1,
-            PageSize = 10
-        };
         _mockIssueRepository.Setup(r => r.GetAllAsync()).ReturnsAsync([]);
-        // _mockIssueRepository.Setup(r => r.GetAllIssuesPagedAsync(parameters)).ReturnsAsync(emptyPagedResult);
-        await Assert.ThrowsAsync<NotImplementedException>(() => _getAllIssueQueryHandler.Handle(query, CancellationToken.None));
+
+        var result = await _getAllIssueQueryHandler.Handle(query, CancellationToken.None);
+        Assert.NotNull(result);
+        Assert.Empty(result.Items);
+        Assert.Equal(0, result.TotalCount);
+        Assert.Equal(1, result.PageNumber);
+        Assert.Equal(10, result.PageSize);
     }
 
-    [Fact(Skip = "Not implemented")]
+    [Fact]
     public async Task Handler_Should_Handle_Different_Page_Sizes()
     {
+        var allIssues = new List<Issue>();
+        for (int i = 1; i <= 10; i++)
+        {
+            allIssues.Add(new Issue
+            {
+                ID = i,
+                IssueNumber = 1000 + i,
+                VehicleID = 10,
+                ReportedByUserID = "USER1",
+                ReportedDate = DateTime.UtcNow.AddDays(-i),
+                Title = $"Issue {i}",
+                Description = $"Description {i}",
+                Category = IssueCategoryEnum.ENGINE,
+                PriorityLevel = PriorityLevelEnum.HIGH,
+                Status = IssueStatusEnum.OPEN,
+                ResolvedDate = null,
+                ResolvedByUserID = null,
+                ResolutionNotes = null,
+                IssueAttachments = [],
+                IssueAssignments = [],
+                Vehicle = null!,
+                User = null!,
+                CreatedAt = DateTime.UtcNow.AddDays(-i),
+                UpdatedAt = DateTime.UtcNow.AddDays(-i)
+            });
+        }
         var parameters = new PaginationParameters
         {
             PageNumber = 2,
@@ -199,21 +221,46 @@ public class GetAllIssueQueryHandlerTest
         };
         var query = new GetAllIssueQuery(parameters);
         SetupValidValidation(query);
-        var pagedResult = new PagedResult<Issue>
-        {
-            Items = [],
-            TotalCount = 10,
-            PageNumber = 2,
-            PageSize = 3
-        };
-        _mockIssueRepository.Setup(r => r.GetAllAsync()).ReturnsAsync([]);
-        // _mockIssueRepository.Setup(r => r.GetAllIssuesPagedAsync(parameters)).ReturnsAsync(pagedResult);
-        await Assert.ThrowsAsync<NotImplementedException>(() => _getAllIssueQueryHandler.Handle(query, CancellationToken.None));
+        _mockIssueRepository.Setup(r => r.GetAllAsync()).ReturnsAsync(allIssues);
+
+        var result = await _getAllIssueQueryHandler.Handle(query, CancellationToken.None);
+        Assert.NotNull(result);
+        Assert.Equal(10, result.TotalCount);
+        Assert.Equal(2, result.PageNumber);
+        Assert.Equal(3, result.PageSize);
+        Assert.Equal(3, result.Items.Count); // Page 2, size 3
+        Assert.Equal(4, result.Items[0].ID); // Should be the 4th issue
     }
 
-    [Fact(Skip = "Not implemented")]
+    [Fact]
     public async Task Handler_Should_Handle_Last_Page()
     {
+        var allIssues = new List<Issue>();
+        for (int i = 1; i <= 12; i++)
+        {
+            allIssues.Add(new Issue
+            {
+                ID = i,
+                IssueNumber = 1000 + i,
+                VehicleID = 10,
+                ReportedByUserID = "USER1",
+                ReportedDate = DateTime.UtcNow.AddDays(-i),
+                Title = $"Issue {i}",
+                Description = $"Description {i}",
+                Category = IssueCategoryEnum.ENGINE,
+                PriorityLevel = PriorityLevelEnum.HIGH,
+                Status = IssueStatusEnum.OPEN,
+                ResolvedDate = null,
+                ResolvedByUserID = null,
+                ResolutionNotes = null,
+                IssueAttachments = [],
+                IssueAssignments = [],
+                Vehicle = null!,
+                User = null!,
+                CreatedAt = DateTime.UtcNow.AddDays(-i),
+                UpdatedAt = DateTime.UtcNow.AddDays(-i)
+            });
+        }
         var parameters = new PaginationParameters
         {
             PageNumber = 3,
@@ -221,19 +268,19 @@ public class GetAllIssueQueryHandlerTest
         };
         var query = new GetAllIssueQuery(parameters);
         SetupValidValidation(query);
-        var pagedResult = new PagedResult<Issue>
-        {
-            Items = [],
-            TotalCount = 12,
-            PageNumber = 3,
-            PageSize = 5
-        };
-        _mockIssueRepository.Setup(r => r.GetAllAsync()).ReturnsAsync([]);
-        // _mockIssueRepository.Setup(r => r.GetAllIssuesPagedAsync(parameters)).ReturnsAsync(pagedResult);
-        await Assert.ThrowsAsync<NotImplementedException>(() => _getAllIssueQueryHandler.Handle(query, CancellationToken.None));
+        _mockIssueRepository.Setup(r => r.GetAllAsync()).ReturnsAsync(allIssues);
+
+        var result = await _getAllIssueQueryHandler.Handle(query, CancellationToken.None);
+        Assert.NotNull(result);
+        Assert.Equal(12, result.TotalCount);
+        Assert.Equal(3, result.PageNumber);
+        Assert.Equal(5, result.PageSize);
+        Assert.Equal(2, result.Items.Count); // Only 2 items on last page
+        Assert.Equal(11, result.Items[0].ID);
+        Assert.Equal(12, result.Items[1].ID);
     }
 
-    [Fact(Skip = "Not implemented")]
+    [Fact]
     public async Task Handler_Should_Throw_BadRequestException_On_Validation_Failure()
     {
         var parameters = new PaginationParameters
@@ -243,6 +290,6 @@ public class GetAllIssueQueryHandlerTest
         };
         var query = new GetAllIssueQuery(parameters);
         SetupInvalidValidation(query, "Parameters.PageNumber", "Page number must be greater than 0");
-        await Assert.ThrowsAsync<NotImplementedException>(() => _getAllIssueQueryHandler.Handle(query, CancellationToken.None));
+        await Assert.ThrowsAsync<BadRequestException>(() => _getAllIssueQueryHandler.Handle(query, CancellationToken.None));
     }
 }
