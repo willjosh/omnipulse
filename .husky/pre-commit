@@ -46,6 +46,10 @@ run_backend_checks() {
 
         run_step "▶️ Backend - Format - Staged Files" dotnet format --include $included_files
         # run_step "▶️ Backend - Format (Verify no Changes)" dotnet format --include $included_files --verify-no-changes --verbosity quiet
+
+        # Restage potentially formatted files
+        echo "▶️ Backend - Restage Formatted Files"
+        git add $included_files
     fi
 
     run_step "▶️ Backend - Test" dotnet test
