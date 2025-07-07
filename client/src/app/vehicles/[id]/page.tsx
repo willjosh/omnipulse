@@ -9,7 +9,7 @@ import {
   getStatusDot,
   getStatusColor,
   getVehicleIcon,
-} from "@/app/_utils/helper";
+} from "@/app/_utils/vehicleEnumHelper";
 import OptionButton from "@/app/_features/shared/button/OptionButton";
 import { useVehicles } from "@/app/hooks/Vehicle/useVehicles";
 
@@ -93,7 +93,7 @@ const VehicleDetailsPage = () => {
             <span className="text-sm font-medium text-gray-600">Status</span>
             <div className="flex items-center">
               <div
-                className={`w-2 h-2 rounded-full mr-2 ${getStatusDot(vehicle.Status.toString())}`}
+                className={`w-2 h-2 rounded-full mr-2 ${getStatusDot(vehicle.Status)}`}
               ></div>
               <span className="text-sm text-gray-900">{vehicle.Status}</span>
             </div>
@@ -395,7 +395,7 @@ const VehicleDetailsPage = () => {
           <div className="flex items-start justify-between">
             <div className="flex items-start space-x-4">
               <div className="w-22 h-22 bg-gray-100 rounded-3xl flex items-center justify-center">
-                {getVehicleIcon("bus")}
+                {getVehicleIcon(vehicle.VehicleType)}
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900 mb-1">
@@ -410,10 +410,10 @@ const VehicleDetailsPage = () => {
                     {vehicle.Mileage?.toLocaleString() || "—"} mi
                   </span>
                   <div
-                    className={`flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(vehicle.Status.toString())}`}
+                    className={`flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(vehicle.Status)}`}
                   >
                     <div
-                      className={`w-1.5 h-1.5 rounded-full mr-1.5 ${getStatusDot(vehicle.Status.toString())}`}
+                      className={`w-1.5 h-1.5 rounded-full mr-1.5 ${getStatusDot(vehicle.Status)}`}
                     ></div>
                     {vehicle.Status}
                   </div>
