@@ -2,7 +2,7 @@ import {
   FuelTypeEnum,
   VehicleStatusEnum,
   VehicleTypeEnum,
-} from "../hooks/Vehicle/vehicleType";
+} from "../hooks/Vehicle/vehicleEnum";
 
 export const getVehicleTypeLabel = (type: VehicleTypeEnum) => {
   switch (type) {
@@ -38,7 +38,7 @@ export const getStatusLabel = (status: VehicleStatusEnum) => {
     case VehicleStatusEnum.OUT_OF_SERVICE:
       return "Out of Service";
     default:
-      return "Unknown";
+      return "Sold";
   }
 };
 
@@ -88,13 +88,28 @@ export const getStatusDot = (status: VehicleStatusEnum) => {
   switch (status) {
     case VehicleStatusEnum.ACTIVE:
       return "bg-green-500";
-    case VehicleStatusEnum.INACTIVE:
-      return "bg-blue-500";
     case VehicleStatusEnum.MAINTENANCE:
       return "bg-orange-500";
+    case VehicleStatusEnum.INACTIVE:
+      return "bg-blue-500";
     case VehicleStatusEnum.OUT_OF_SERVICE:
       return "bg-red-500";
     default:
       return "bg-gray-500";
+  }
+};
+
+export const getStatusColor = (status: VehicleStatusEnum) => {
+  switch (status) {
+    case VehicleStatusEnum.ACTIVE:
+      return "text-green-600 bg-green-50";
+    case VehicleStatusEnum.MAINTENANCE:
+      return "text-yellow-600 bg-yellow-50";
+    case VehicleStatusEnum.INACTIVE:
+      return "text-blue-600 bg-blue-50";
+    case VehicleStatusEnum.OUT_OF_SERVICE:
+      return "text-red-600 bg-red-50";
+    default:
+      return "text-gray-600 bg-gray-50";
   }
 };
