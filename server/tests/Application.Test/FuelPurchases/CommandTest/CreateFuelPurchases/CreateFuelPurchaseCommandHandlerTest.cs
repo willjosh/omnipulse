@@ -1,7 +1,7 @@
 using System;
 
-using Application.Contracts.Persistence;
 using Application.Contracts.Logger;
+using Application.Contracts.Persistence;
 using Application.Exceptions;
 using Application.Features.FuelLogging.Command.CreateFuelPurchase;
 using Application.MappingProfiles;
