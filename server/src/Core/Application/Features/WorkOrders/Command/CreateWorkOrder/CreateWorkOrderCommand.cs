@@ -19,7 +19,7 @@ public record CreateWorkOrderCommand(
     DateTime? ScheduledStartDate,
     DateTime? ActualStartDate,
     double StartOdometer,
-    double? EndOdometer,    
+    double? EndOdometer,
     // Issues
     List<int> IssueIdList
 ) : IRequest<int>
