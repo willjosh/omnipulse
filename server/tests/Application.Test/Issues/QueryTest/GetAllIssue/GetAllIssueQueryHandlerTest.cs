@@ -317,4 +317,123 @@ public class GetAllIssueQueryHandlerTest
         SetupInvalidValidation(query, "Parameters.PageNumber", "Page number must be greater than 0");
         await Assert.ThrowsAsync<BadRequestException>(() => _getAllIssueQueryHandler.Handle(query, CancellationToken.None));
     }
+
+    [Fact]
+    public async Task Handler_Should_Search_By_Description()
+    {
+        var parameters = new PaginationParameters { PageNumber = 1, PageSize = 10, Search = "overheating" };
+        var query = new GetAllIssueQuery(parameters);
+        SetupValidValidation(query);
+        var issues = new List<Issue>
+        {
+            new Issue { ID = 1, Title = "Engine", Description = "Engine overheating", Category = IssueCategoryEnum.ENGINE, PriorityLevel = PriorityLevelEnum.HIGH, Status = IssueStatusEnum.OPEN, VehicleID = 1, IssueNumber = 1001, ReportedByUserID = "user1", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, User = null! },
+            new Issue { ID = 2, Title = "Brakes", Description = "Brake pads worn", Category = IssueCategoryEnum.BRAKES, PriorityLevel = PriorityLevelEnum.LOW, Status = IssueStatusEnum.RESOLVED, VehicleID = 2, IssueNumber = 1002, ReportedByUserID = "user2", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, User = null! }
+        };
+        _mockIssueRepository.Setup(r => r.GetAllIssuesPagedAsync(parameters)).ReturnsAsync(new PagedResult<Issue> { Items = issues.Where(i => i.Description.ToLower().Contains("overheating")).ToList(), TotalCount = 1, PageNumber = 1, PageSize = 10 });
+        var result = await _getAllIssueQueryHandler.Handle(query, CancellationToken.None);
+        Assert.Single(result.Items);
+        Assert.Equal("Engine overheating", result.Items[0].Description);
+    }
+
+    [Fact]
+    public async Task Handler_Should_Search_By_Category()
+    {
+        var parameters = new PaginationParameters { PageNumber = 1, PageSize = 10, Search = "brakes" };
+        var query = new GetAllIssueQuery(parameters);
+        SetupValidValidation(query);
+        var issues = new List<Issue>
+        {
+            new Issue { ID = 1, Title = "Engine", Description = "Engine overheating", Category = IssueCategoryEnum.ENGINE, PriorityLevel = PriorityLevelEnum.HIGH, Status = IssueStatusEnum.OPEN, VehicleID = 1, IssueNumber = 1001, ReportedByUserID = "user1", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, User = null! },
+            new Issue { ID = 2, Title = "Brakes", Description = "Brake pads worn", Category = IssueCategoryEnum.BRAKES, PriorityLevel = PriorityLevelEnum.LOW, Status = IssueStatusEnum.RESOLVED, VehicleID = 2, IssueNumber = 1002, ReportedByUserID = "user2", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, User = null! }
+        };
+        _mockIssueRepository.Setup(r => r.GetAllIssuesPagedAsync(parameters)).ReturnsAsync(new PagedResult<Issue> { Items = issues.Where(i => i.Category.ToString().ToLower().Contains("brakes")).ToList(), TotalCount = 1, PageNumber = 1, PageSize = 10 });
+        var result = await _getAllIssueQueryHandler.Handle(query, CancellationToken.None);
+        Assert.Single(result.Items);
+        Assert.Equal(IssueCategoryEnum.BRAKES, result.Items[0].Category);
+    }
+
+    [Fact]
+    public async Task Handler_Should_Search_By_PriorityLevel()
+    {
+        var parameters = new PaginationParameters { PageNumber = 1, PageSize = 10, Search = "high" };
+        var query = new GetAllIssueQuery(parameters);
+        SetupValidValidation(query);
+        var issues = new List<Issue>
+        {
+            new Issue { ID = 1, Title = "Engine", Description = "Engine overheating", Category = IssueCategoryEnum.ENGINE, PriorityLevel = PriorityLevelEnum.HIGH, Status = IssueStatusEnum.OPEN, VehicleID = 1, IssueNumber = 1001, ReportedByUserID = "user1", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, User = null! },
+            new Issue { ID = 2, Title = "Brakes", Description = "Brake pads worn", Category = IssueCategoryEnum.BRAKES, PriorityLevel = PriorityLevelEnum.LOW, Status = IssueStatusEnum.RESOLVED, VehicleID = 2, IssueNumber = 1002, ReportedByUserID = "user2", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, User = null! }
+        };
+        _mockIssueRepository.Setup(r => r.GetAllIssuesPagedAsync(parameters)).ReturnsAsync(new PagedResult<Issue> { Items = issues.Where(i => i.PriorityLevel.ToString().ToLower().Contains("high")).ToList(), TotalCount = 1, PageNumber = 1, PageSize = 10 });
+        var result = await _getAllIssueQueryHandler.Handle(query, CancellationToken.None);
+        Assert.Single(result.Items);
+        Assert.Equal(PriorityLevelEnum.HIGH, result.Items[0].PriorityLevel);
+    }
+
+    [Fact]
+    public async Task Handler_Should_Search_By_Status()
+    {
+        var parameters = new PaginationParameters { PageNumber = 1, PageSize = 10, Search = "resolved" };
+        var query = new GetAllIssueQuery(parameters);
+        SetupValidValidation(query);
+        var issues = new List<Issue>
+        {
+            new Issue { ID = 1, Title = "Engine", Description = "Engine overheating", Category = IssueCategoryEnum.ENGINE, PriorityLevel = PriorityLevelEnum.HIGH, Status = IssueStatusEnum.OPEN, VehicleID = 1, IssueNumber = 1001, ReportedByUserID = "user1", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, User = null! },
+            new Issue { ID = 2, Title = "Brakes", Description = "Brake pads worn", Category = IssueCategoryEnum.BRAKES, PriorityLevel = PriorityLevelEnum.LOW, Status = IssueStatusEnum.RESOLVED, VehicleID = 2, IssueNumber = 1002, ReportedByUserID = "user2", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, User = null! }
+        };
+        _mockIssueRepository.Setup(r => r.GetAllIssuesPagedAsync(parameters)).ReturnsAsync(new PagedResult<Issue> { Items = issues.Where(i => i.Status.ToString().ToLower().Contains("resolved")).ToList(), TotalCount = 1, PageNumber = 1, PageSize = 10 });
+        var result = await _getAllIssueQueryHandler.Handle(query, CancellationToken.None);
+        Assert.Single(result.Items);
+        Assert.Equal(IssueStatusEnum.RESOLVED, result.Items[0].Status);
+    }
+
+    [Fact]
+    public async Task Handler_Should_Search_By_VehicleID()
+    {
+        var parameters = new PaginationParameters { PageNumber = 1, PageSize = 10, Search = "2" };
+        var query = new GetAllIssueQuery(parameters);
+        SetupValidValidation(query);
+        var issues = new List<Issue>
+        {
+            new Issue { ID = 1, Title = "Engine", Description = "Engine overheating", Category = IssueCategoryEnum.ENGINE, PriorityLevel = PriorityLevelEnum.HIGH, Status = IssueStatusEnum.OPEN, VehicleID = 1, IssueNumber = 1001, ReportedByUserID = "user1", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, User = null! },
+            new Issue { ID = 2, Title = "Brakes", Description = "Brake pads worn", Category = IssueCategoryEnum.BRAKES, PriorityLevel = PriorityLevelEnum.LOW, Status = IssueStatusEnum.RESOLVED, VehicleID = 2, IssueNumber = 1002, ReportedByUserID = "user2", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, User = null! }
+        };
+        _mockIssueRepository.Setup(r => r.GetAllIssuesPagedAsync(parameters)).ReturnsAsync(new PagedResult<Issue> { Items = issues.Where(i => i.VehicleID.ToString().Contains("2")).ToList(), TotalCount = 1, PageNumber = 1, PageSize = 10 });
+        var result = await _getAllIssueQueryHandler.Handle(query, CancellationToken.None);
+        Assert.Single(result.Items);
+        Assert.Equal(2, result.Items[0].VehicleID);
+    }
+
+    [Fact]
+    public async Task Handler_Should_Search_By_IssueNumber()
+    {
+        var parameters = new PaginationParameters { PageNumber = 1, PageSize = 10, Search = "1002" };
+        var query = new GetAllIssueQuery(parameters);
+        SetupValidValidation(query);
+        var issues = new List<Issue>
+        {
+            new Issue { ID = 1, Title = "Engine", Description = "Engine overheating", Category = IssueCategoryEnum.ENGINE, PriorityLevel = PriorityLevelEnum.HIGH, Status = IssueStatusEnum.OPEN, VehicleID = 1, IssueNumber = 1001, ReportedByUserID = "user1", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, User = null! },
+            new Issue { ID = 2, Title = "Brakes", Description = "Brake pads worn", Category = IssueCategoryEnum.BRAKES, PriorityLevel = PriorityLevelEnum.LOW, Status = IssueStatusEnum.RESOLVED, VehicleID = 2, IssueNumber = 1002, ReportedByUserID = "user2", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, User = null! }
+        };
+        _mockIssueRepository.Setup(r => r.GetAllIssuesPagedAsync(parameters)).ReturnsAsync(new PagedResult<Issue> { Items = issues.Where(i => i.IssueNumber.ToString().Contains("1002")).ToList(), TotalCount = 1, PageNumber = 1, PageSize = 10 });
+        var result = await _getAllIssueQueryHandler.Handle(query, CancellationToken.None);
+        Assert.Single(result.Items);
+        Assert.Equal(1002, result.Items[0].IssueNumber);
+    }
+
+    [Fact]
+    public async Task Handler_Should_Search_By_ReportedByUserID()
+    {
+        var parameters = new PaginationParameters { PageNumber = 1, PageSize = 10, Search = "user2" };
+        var query = new GetAllIssueQuery(parameters);
+        SetupValidValidation(query);
+        var issues = new List<Issue>
+        {
+            new Issue { ID = 1, Title = "Engine", Description = "Engine overheating", Category = IssueCategoryEnum.ENGINE, PriorityLevel = PriorityLevelEnum.HIGH, Status = IssueStatusEnum.OPEN, VehicleID = 1, IssueNumber = 1001, ReportedByUserID = "user1", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, User = null! },
+            new Issue { ID = 2, Title = "Brakes", Description = "Brake pads worn", Category = IssueCategoryEnum.BRAKES, PriorityLevel = PriorityLevelEnum.LOW, Status = IssueStatusEnum.RESOLVED, VehicleID = 2, IssueNumber = 1002, ReportedByUserID = "user2", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, User = null! }
+        };
+        _mockIssueRepository.Setup(r => r.GetAllIssuesPagedAsync(parameters)).ReturnsAsync(new PagedResult<Issue> { Items = issues.Where(i => i.ReportedByUserID.ToLower().Contains("user2")).ToList(), TotalCount = 1, PageNumber = 1, PageSize = 10 });
+        var result = await _getAllIssueQueryHandler.Handle(query, CancellationToken.None);
+        Assert.Single(result.Items);
+        Assert.Equal("user2", result.Items[0].ReportedByUserID);
+    }
 }
