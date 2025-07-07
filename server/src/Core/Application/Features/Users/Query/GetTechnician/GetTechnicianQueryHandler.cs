@@ -2,8 +2,11 @@ using System;
 
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
+using Application.Exceptions;
 
 using AutoMapper;
+
+using Domain.Entities;
 
 using MediatR;
 
@@ -22,8 +25,23 @@ public class GetTechnicianQueryHandler : IRequestHandler<GetTechnicianQuery, Get
         _mapper = mapper;
     }
 
-    public Task<GetTechnicianDTO> Handle(GetTechnicianQuery request, CancellationToken cancellationToken)
+    public async Task<GetTechnicianDTO> Handle(GetTechnicianQuery request, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        _logger.LogInformation($"GetTechnicianQuery for UserID: {request.Id}");
+
+        // Retrieve technician by ID
+        var technician = await _userRepository.GetTechnicianByIdAsync(request.Id);
+
+        if (technician == null)
+        {
+            _logger.LogError($"Technician with ID {request.Id} not found.");
+            throw new EntityNotFoundException(typeof(User).ToString(), "UserID", request.Id.ToString());
+        }
+
+        // Map entity to DTO
+        var technicianDTO = _mapper.Map<GetTechnicianDTO>(technician);
+
+        _logger.LogInformation($"Returning GetTechnicianDTO for UserID: {request.Id}");
+        return technicianDTO;
     }
 }

@@ -59,6 +59,20 @@ public class UserRepository : IUserRepository
         return await _userManager.FindByIdAsync(id);
     }
 
+    public async Task<User?> GetTechnicianByIdAsync(string id)
+    {
+        // Get user by ID first (single database query)
+        var user = await _userManager.FindByIdAsync(id);
+
+        if (user == null)
+            return null;
+
+        // Check if user has technician role (single database query)
+        var isInRole = await _userManager.IsInRoleAsync(user, "TECHNICIAN");
+
+        return isInRole ? user : null;
+    }
+
     public async Task<User?> GetByEmailAsync(string email)
     {
         return await _userManager.FindByEmailAsync(email);

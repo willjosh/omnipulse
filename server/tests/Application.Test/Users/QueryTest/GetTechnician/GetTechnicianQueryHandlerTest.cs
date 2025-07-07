@@ -58,8 +58,8 @@ public class GetTechnicianQueryHandlerTest
             VehicleDocuments = [],
             VehicleInspections = [],
         };
-        
-        _mockUserRepository.Setup(r => r.GetByIdAsync(It.IsAny<string>()))
+
+        _mockUserRepository.Setup(r => r.GetTechnicianByIdAsync(It.IsAny<string>()))
             .ReturnsAsync(expectedTechnician);
 
         // When
@@ -76,12 +76,12 @@ public class GetTechnicianQueryHandlerTest
         // Given
         var query = new GetTechnicianQuery("non-existing-guid");
 
-        _mockUserRepository.Setup(r => r.GetByIdAsync(It.IsAny<string>()))
+        _mockUserRepository.Setup(r => r.GetTechnicianByIdAsync(It.IsAny<string>()))
             .ReturnsAsync((User?)null);
 
         // When & Then
         await Assert.ThrowsAsync<EntityNotFoundException>(() => _handler.Handle(query, CancellationToken.None));
-        
-        _mockUserRepository.Verify(r => r.GetByIdAsync(It.IsAny<string>()), Times.Once);
+
+        _mockUserRepository.Verify(r => r.GetTechnicianByIdAsync(It.IsAny<string>()), Times.Once);
     }
 }
