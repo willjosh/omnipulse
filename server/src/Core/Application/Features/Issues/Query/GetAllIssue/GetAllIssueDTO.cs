@@ -20,5 +20,6 @@ public class GetAllIssueDTO
     public DateTime? ReportedDate { get; set; }
     public DateTime? ResolvedDate { get; set; }
     public string? ResolvedByUserID { get; set; }
+    public string? ResolvedByUserName { get; set; } // from User.FirstName + " " + User.LastName
     public string? ResolutionNotes { get; set; }
 }

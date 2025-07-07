@@ -39,6 +39,9 @@ public class IssueMappingProfile : Profile
             .ForMember(dest => dest.Vehicle, opt => opt.Ignore()) // Navigation property
             .ForMember(dest => dest.User, opt => opt.Ignore()); // Navigation property
 
-        CreateMap<Issue, Application.Features.Issues.Query.GetAllIssue.GetAllIssueDTO>();
+        CreateMap<Issue, Application.Features.Issues.Query.GetAllIssue.GetAllIssueDTO>()
+            .ForMember(dest => dest.ReportedByUserName, opt => opt.MapFrom(src => src.User != null ? src.User.FirstName + " " + src.User.LastName : ""))
+            .ForMember(dest => dest.ResolvedByUserName, opt => opt.MapFrom(src => src.ResolvedByUser != null ? src.ResolvedByUser.FirstName + " " + src.ResolvedByUser.LastName : null))
+            .ForMember(dest => dest.VehicleName, opt => opt.MapFrom(src => src.Vehicle.Name));
     }
 }

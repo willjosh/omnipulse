@@ -436,4 +436,131 @@ public class GetAllIssueQueryHandlerTest
         Assert.Single(result.Items);
         Assert.Equal("user2", result.Items[0].ReportedByUserID);
     }
+
+    [Fact]
+    public async Task Handler_Should_Return_ResolvedByUserName_When_ResolvedByUser_Is_Set()
+    {
+        var parameters = new PaginationParameters
+        {
+            PageNumber = 1,
+            PageSize = 5,
+            Search = "Engine",
+            SortBy = "title",
+            SortDescending = false
+        };
+        var query = new GetAllIssueQuery(parameters);
+        SetupValidValidation(query);
+
+        var reporter = new User
+        {
+            Id = "USER1",
+            FirstName = "Alice",
+            LastName = "Smith",
+            HireDate = DateTime.UtcNow,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+            Vehicles = [],
+            VehicleAssignments = [],
+            VehicleDocuments = [],
+            VehicleInspections = [],
+            MaintenanceHistories = [],
+            IssueAttachments = []
+        };
+        var resolver = new User
+        {
+            Id = "USER2",
+            FirstName = "Bob",
+            LastName = "Jones",
+            HireDate = DateTime.UtcNow,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+            Vehicles = [],
+            VehicleAssignments = [],
+            VehicleDocuments = [],
+            VehicleInspections = [],
+            MaintenanceHistories = [],
+            IssueAttachments = []
+        };
+        var vehicle = new Vehicle
+        {
+            ID = 10,
+            Name = "Truck 1",
+            Make = "Ford",
+            Model = "F-150",
+            Year = 2022,
+            VIN = "VIN123",
+            LicensePlate = "XYZ123",
+            LicensePlateExpirationDate = DateTime.UtcNow.AddYears(1),
+            VehicleType = VehicleTypeEnum.TRUCK,
+            VehicleGroupID = 1,
+            Trim = "XL",
+            Mileage = 10000,
+            EngineHours = 500,
+            FuelCapacity = 80,
+            FuelType = FuelTypeEnum.DIESEL,
+            PurchaseDate = DateTime.UtcNow.AddYears(-1),
+            PurchasePrice = 40000,
+            Status = VehicleStatusEnum.ACTIVE,
+            Location = "Depot",
+            AssignedTechnicianID = null,
+            VehicleGroup = null!,
+            User = reporter,
+            VehicleImages = [],
+            VehicleAssignments = [],
+            VehicleDocuments = [],
+            VehicleServicePrograms = [],
+            ServiceReminders = [],
+            Issues = [],
+            VehicleInspections = [],
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+        var expectedIssueEntities = new List<Issue>
+        {
+            new()
+            {
+                ID = 1,
+                IssueNumber = 1001,
+                VehicleID = 10,
+                ReportedByUserID = "USER1",
+                ReportedDate = DateTime.UtcNow.AddDays(-2),
+                Title = "Engine Overheating",
+                Description = "Engine temperature rises quickly.",
+                Category = IssueCategoryEnum.ENGINE,
+                PriorityLevel = PriorityLevelEnum.HIGH,
+                Status = IssueStatusEnum.RESOLVED,
+                ResolvedDate = DateTime.UtcNow.AddDays(-1),
+                ResolvedByUserID = "USER2",
+                ResolvedByUser = resolver,
+                ResolutionNotes = "Replaced thermostat.",
+                IssueAttachments = [],
+                IssueAssignments = [],
+                Vehicle = vehicle,
+                User = reporter,
+                CreatedAt = DateTime.UtcNow.AddDays(-2),
+                UpdatedAt = DateTime.UtcNow.AddDays(-1)
+            }
+        };
+        _mockIssueRepository.Setup(r => r.GetAllIssuesPagedAsync(parameters)).ReturnsAsync(new PagedResult<Issue>
+        {
+            Items = expectedIssueEntities,
+            TotalCount = expectedIssueEntities.Count,
+            PageNumber = parameters.PageNumber,
+            PageSize = parameters.PageSize
+        });
+
+        var result = await _getAllIssueQueryHandler.Handle(query, CancellationToken.None);
+        Assert.NotNull(result);
+        Assert.IsType<PagedResult<GetAllIssueDTO>>(result);
+        Assert.Equal(1, result.TotalCount);
+        Assert.Single(result.Items);
+        Assert.Equal("Engine Overheating", result.Items[0].Title);
+        Assert.Equal(1001, result.Items[0].IssueNumber);
+        Assert.Equal("USER1", result.Items[0].ReportedByUserID);
+        Assert.Equal("Alice Smith", result.Items[0].ReportedByUserName);
+        Assert.Equal("USER2", result.Items[0].ResolvedByUserID);
+        Assert.Equal("Bob Jones", result.Items[0].ResolvedByUserName);
+    }
 }

@@ -21,4 +21,5 @@ public class Issue : BaseEntity
     public required ICollection<IssueAssignment> IssueAssignments { get; set; } = [];
     public required Vehicle Vehicle { get; set; }
     public required User User { get; set; }
+    public User? ResolvedByUser { get; set; }
 }
