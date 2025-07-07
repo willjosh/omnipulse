@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -150,7 +151,13 @@ public class GetAllIssueQueryHandlerTest
                 UpdatedAt = DateTime.UtcNow.AddDays(-1)
             }
         };
-        _mockIssueRepository.Setup(r => r.GetAllAsync()).ReturnsAsync(expectedIssueEntities);
+        _mockIssueRepository.Setup(r => r.GetAllIssuesPagedAsync(parameters)).ReturnsAsync(new PagedResult<Issue>
+        {
+            Items = expectedIssueEntities,
+            TotalCount = expectedIssueEntities.Count,
+            PageNumber = parameters.PageNumber,
+            PageSize = parameters.PageSize
+        });
 
         var result = await _getAllIssueQueryHandler.Handle(query, CancellationToken.None);
         Assert.NotNull(result);
@@ -175,7 +182,13 @@ public class GetAllIssueQueryHandlerTest
         };
         var query = new GetAllIssueQuery(parameters);
         SetupValidValidation(query);
-        _mockIssueRepository.Setup(r => r.GetAllAsync()).ReturnsAsync([]);
+        _mockIssueRepository.Setup(r => r.GetAllIssuesPagedAsync(parameters)).ReturnsAsync(new PagedResult<Issue>
+        {
+            Items = new List<Issue>(),
+            TotalCount = 0,
+            PageNumber = parameters.PageNumber,
+            PageSize = parameters.PageSize
+        });
 
         var result = await _getAllIssueQueryHandler.Handle(query, CancellationToken.None);
         Assert.NotNull(result);
@@ -221,7 +234,13 @@ public class GetAllIssueQueryHandlerTest
         };
         var query = new GetAllIssueQuery(parameters);
         SetupValidValidation(query);
-        _mockIssueRepository.Setup(r => r.GetAllAsync()).ReturnsAsync(allIssues);
+        _mockIssueRepository.Setup(r => r.GetAllIssuesPagedAsync(parameters)).ReturnsAsync(new PagedResult<Issue>
+        {
+            Items = allIssues.Skip((parameters.PageNumber - 1) * parameters.PageSize).Take(parameters.PageSize).ToList(),
+            TotalCount = allIssues.Count,
+            PageNumber = parameters.PageNumber,
+            PageSize = parameters.PageSize
+        });
 
         var result = await _getAllIssueQueryHandler.Handle(query, CancellationToken.None);
         Assert.NotNull(result);
@@ -268,7 +287,13 @@ public class GetAllIssueQueryHandlerTest
         };
         var query = new GetAllIssueQuery(parameters);
         SetupValidValidation(query);
-        _mockIssueRepository.Setup(r => r.GetAllAsync()).ReturnsAsync(allIssues);
+        _mockIssueRepository.Setup(r => r.GetAllIssuesPagedAsync(parameters)).ReturnsAsync(new PagedResult<Issue>
+        {
+            Items = allIssues.Skip((parameters.PageNumber - 1) * parameters.PageSize).Take(parameters.PageSize).ToList(),
+            TotalCount = allIssues.Count,
+            PageNumber = parameters.PageNumber,
+            PageSize = parameters.PageSize
+        });
 
         var result = await _getAllIssueQueryHandler.Handle(query, CancellationToken.None);
         Assert.NotNull(result);

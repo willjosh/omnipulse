@@ -43,19 +43,18 @@ public class GetAllIssueQueryHandler : IRequestHandler<GetAllIssueQuery, PagedRe
             throw new BadRequestException(errorMessages);
         }
 
-        // get all issues from the repository (replace with paged method if available)
-        var allIssues = await _issueRepository.GetAllAsync();
-        // Simulate paging
-        var skip = (request.Parameters.PageNumber - 1) * request.Parameters.PageSize;
-        var pagedItems = allIssues.Skip(skip).Take(request.Parameters.PageSize).ToList();
-        var issueDTOs = _mapper.Map<List<GetAllIssueDTO>>(pagedItems);
+        // get paged issues from the repository
+        var result = await _issueRepository.GetAllIssuesPagedAsync(request.Parameters);
+
+        // map the issues to DTOs
+        var issueDTOs = _mapper.Map<List<GetAllIssueDTO>>(result.Items);
 
         var pagedResult = new PagedResult<GetAllIssueDTO>
         {
             Items = issueDTOs,
-            TotalCount = allIssues.Count,
-            PageNumber = request.Parameters.PageNumber,
-            PageSize = request.Parameters.PageSize
+            TotalCount = result.TotalCount,
+            PageNumber = result.PageNumber,
+            PageSize = result.PageSize
         };
 
         _logger.LogInformation($"Returning {pagedResult.TotalCount} issues for page {pagedResult.PageNumber} with page size {pagedResult.PageSize}");
