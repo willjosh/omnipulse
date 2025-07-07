@@ -1,6 +1,7 @@
 using Application.Features.ServiceTasks.Command.CreateServiceTask;
-using Application.Features.ServiceTasks.Query.GetServiceTask;
 using Application.Features.ServiceTasks.Command.UpdateServiceTask;
+using Application.Features.ServiceTasks.Query.GetAllServiceTask;
+using Application.Features.ServiceTasks.Query.GetServiceTask;
 
 using AutoMapper;
 
@@ -29,5 +30,6 @@ public class ServiceTaskMappingProfile : Profile
             .ForMember(dest => dest.WorkOrderLineItems, opt => opt.Ignore()); // Navigation Collection
 
         CreateMap<ServiceTask, GetServiceTaskDTO>();
+        CreateMap<ServiceTask, GetAllServiceTaskDTO>();
     }
 }
