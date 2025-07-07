@@ -1,5 +1,6 @@
-using MediatR;
 using Domain.Entities;
+
+using MediatR;
 
 namespace Application.Features.ServiceSchedules.Command.CreateServiceSchedule;
 
