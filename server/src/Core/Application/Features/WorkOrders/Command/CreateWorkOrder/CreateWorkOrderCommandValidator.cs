@@ -8,8 +8,8 @@ namespace Application.Features.WorkOrders.Command.CreateWorkOrder;
 
 public class CreateWorkOrderCommandValidator : AbstractValidator<CreateWorkOrderCommand>
 {
-   public CreateWorkOrderCommandValidator()
-   {
+    public CreateWorkOrderCommandValidator()
+    {
         // / WorkOrderNumber validation - matches config HasMaxLength(50) and IsUnique
         RuleFor(x => x.WorkOrderNumber)
             .NotEmpty()
@@ -50,7 +50,7 @@ public class CreateWorkOrderCommandValidator : AbstractValidator<CreateWorkOrder
             .Must(CustomValidation.HaveValidPrecision)
             .WithMessage("Estimated Cost must have maximum 2 decimal places and 10 total digits")
             .When(x => x.EstimatedCost.HasValue);
-        
+
         RuleFor(x => x.ActualCost)
             .GreaterThanOrEqualTo(0)
             .WithMessage("Actual Cost must be greater than or equal to 0")
@@ -92,5 +92,5 @@ public class CreateWorkOrderCommandValidator : AbstractValidator<CreateWorkOrder
             .WithMessage("Scheduled Start Date should be in the future")
             .When(x => x.ScheduledStartDate.HasValue);
 
-   }     
+    }
 }

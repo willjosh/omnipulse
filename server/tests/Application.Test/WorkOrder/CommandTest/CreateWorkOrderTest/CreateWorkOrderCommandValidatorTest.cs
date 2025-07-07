@@ -258,7 +258,7 @@ public class CreateWorkOrderCommandValidatorTest
             estimatedCost: null,
             actualCost: null,
             estimatedHours: null,
-            actualHours: null, 
+            actualHours: null,
             scheduledStartDate: null,
             actualStartDate: null,
             endOdometer: null,
@@ -286,7 +286,7 @@ public class CreateWorkOrderCommandValidatorTest
         Assert.True(result.IsValid);
         Assert.Empty(result.Errors);
     }
-    
+
     [Fact]
     public async Task Validator_Should_Fail_When_ActualCost_Is_Negative()
     {
