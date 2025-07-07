@@ -7,6 +7,11 @@ namespace Application.Features.ServiceSchedules.Command.CreateServiceSchedule;
 /// <summary>
 /// Command for creating a new <see cref="ServiceSchedule"/> entity.
 /// </summary>
+/// <remarks>
+/// <list type="bullet">
+/// <item>Either a meter interval or a time interval must be provided.</item>
+/// </list>
+/// </remarks>
 /// <param name="ServiceProgramID">The ID of the service program this schedule belongs to.</param>
 /// <param name="Name">The name of the service schedule.</param>
 /// <param name="IntervalMileage">The mileage interval for the schedule.</param>
