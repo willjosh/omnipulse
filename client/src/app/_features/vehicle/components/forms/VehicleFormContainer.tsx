@@ -9,13 +9,13 @@ import {
   useVehicleFormStatus,
   useVehicleFormReferenceData,
 } from "../../store/VehicleFormStore";
-import { useVehicles } from "@/app/hooks/Vehicle/useVehicles"; // Add this import
+import { useVehicles } from "@/app/_hooks/Vehicle/useVehicles"; // Add this import
+import { Vehicle } from "@/app/_hooks/Vehicle/vehicleType";
 import {
-  Vehicle,
   VehicleTypeEnum,
   FuelTypeEnum,
   VehicleStatusEnum,
-} from "@/app/hooks/Vehicle/vehicleType";
+} from "@/app/_hooks/Vehicle/vehicleEnum";
 import PrimaryButton from "@/app/_features/shared/button/PrimaryButton";
 import SecondaryButton from "@/app/_features/shared/button/SecondaryButton";
 

@@ -11,7 +11,7 @@ import {
   getVehicleIcon,
 } from "@/app/_utils/vehicleEnumHelper";
 import OptionButton from "@/app/_features/shared/button/OptionButton";
-import { useVehicles } from "@/app/hooks/Vehicle/useVehicles";
+import { useVehicles } from "@/app/_hooks/Vehicle/useVehicles";
 
 const VehicleDetailsPage = () => {
   const params = useParams();
