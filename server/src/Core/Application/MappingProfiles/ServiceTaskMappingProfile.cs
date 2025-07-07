@@ -1,4 +1,5 @@
 using Application.Features.ServiceTasks.Command.CreateServiceTask;
+using Application.Features.ServiceTasks.Query.GetServiceTask;
 using Application.Features.ServiceTasks.Command.UpdateServiceTask;
 
 using AutoMapper;
@@ -26,5 +27,7 @@ public class ServiceTaskMappingProfile : Profile
             .ForMember(dest => dest.ServiceScheduleTasks, opt => opt.Ignore()) // Navigation Collection
             .ForMember(dest => dest.MaintenanceHistories, opt => opt.Ignore()) // Navigation Collection
             .ForMember(dest => dest.WorkOrderLineItems, opt => opt.Ignore()); // Navigation Collection
+
+        CreateMap<ServiceTask, GetServiceTaskDTO>();
     }
 }
