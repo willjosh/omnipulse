@@ -54,7 +54,7 @@ public class GetAllTechnicianQueryHandler : IRequestHandler<GetAllTechnicianQuer
             PageNumber = result.PageNumber,
             PageSize = result.PageSize
         };
-        
+
         _logger.LogInformation($"Returning {pagedResult.TotalCount} technicians for page {pagedResult.PageNumber} with page size {pagedResult.PageSize}");
         return pagedResult;
     }

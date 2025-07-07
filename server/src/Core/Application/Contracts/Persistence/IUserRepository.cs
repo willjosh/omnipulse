@@ -57,5 +57,5 @@ public interface IUserRepository
     Task<IdentityResult> UnlockUserAsync(User user);
 
     // Paged Results
-    Task<PagedResult<User>> GetAllTechnicianPagedAsync(PaginationParameters parameters);    
+    Task<PagedResult<User>> GetAllTechnicianPagedAsync(PaginationParameters parameters);
 }

@@ -280,7 +280,8 @@ public class UserRepository : IUserRepository
                 u.LastName.ToLowerInvariant().Contains(search) ||
                 u.Email!.ToLowerInvariant().Contains(search)
             );
-        };
+        }
+        ;
 
         // Apply sorting
         query = ApplySorting(query, parameters.SortBy, parameters.SortDescending);
@@ -320,7 +321,7 @@ public class UserRepository : IUserRepository
             return node == _oldParameter ? _newParameter : base.VisitParameter(node);
         }
     }
-    
+
     private IQueryable<User> ApplySorting(IQueryable<User> query, string? sortBy, bool sortDescending)
     {
         return sortBy?.ToLowerInvariant() switch
