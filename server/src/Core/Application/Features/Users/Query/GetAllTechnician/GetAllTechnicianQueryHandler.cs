@@ -14,7 +14,7 @@ namespace Application.Features.Users.Query.GetAllTechnician;
 
 public class GetAllTechnicianQueryHandler : IRequestHandler<GetAllTechnicianQuery, PagedResult<GetAllTechnicianDTO>>
 {
-    
+
     private readonly IUserRepository _userRepository;
     private readonly IMapper _mapper;
     private readonly IAppLogger<GetAllTechnicianQueryHandler> _logger;

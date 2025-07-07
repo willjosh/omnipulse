@@ -8,7 +8,7 @@ using FluentValidation;
 
 namespace Application.Features.Users.Query.GetAllTechnician;
 
-public class GetAllTechnicianQueryValidator: AbstractValidator<GetAllTechnicianQuery>
+public class GetAllTechnicianQueryValidator : AbstractValidator<GetAllTechnicianQuery>
 {
     public GetAllTechnicianQueryValidator()
     {
@@ -19,7 +19,7 @@ public class GetAllTechnicianQueryValidator: AbstractValidator<GetAllTechnicianQ
         "isactive",
         "email"
        };
-        
+
         RuleFor(x => x.Parameters)
             .NotNull()
             .SetValidator(new PaginationValidator<User>(technicianSortFields));
