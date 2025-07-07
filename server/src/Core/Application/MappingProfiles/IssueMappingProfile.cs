@@ -38,5 +38,7 @@ public class IssueMappingProfile : Profile
             .ForMember(dest => dest.IssueAssignments, opt => opt.Ignore()) // Navigation collection
             .ForMember(dest => dest.Vehicle, opt => opt.Ignore()) // Navigation property
             .ForMember(dest => dest.User, opt => opt.Ignore()); // Navigation property
+
+        CreateMap<Issue, Application.Features.Issues.Query.GetAllIssue.GetAllIssueDTO>();
     }
 }
