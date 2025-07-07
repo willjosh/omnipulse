@@ -4,7 +4,7 @@ using Domain.Entities;
 
 namespace Application.Contracts.Persistence;
 
-public interface IWorkOrderRepository: IGenericRepository<WorkOrder>
+public interface IWorkOrderRepository : IGenericRepository<WorkOrder>
 {
 
 }

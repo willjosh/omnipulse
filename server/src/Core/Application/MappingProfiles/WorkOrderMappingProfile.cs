@@ -4,10 +4,10 @@ using AutoMapper;
 
 namespace Application.MappingProfiles;
 
-public class WorkOrderMappingProfile: Profile
+public class WorkOrderMappingProfile : Profile
 {
-   public WorkOrderMappingProfile()
-   {
-         
-   } 
+    public WorkOrderMappingProfile()
+    {
+
+    }
 }

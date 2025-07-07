@@ -22,4 +22,5 @@ public record CreateWorkOrderCommand(
     DateTime? ActualStartDate,
     double StartOdometer,
     double? EndOdometer
-) : IRequest<int> { }
+) : IRequest<int>
+{ }
