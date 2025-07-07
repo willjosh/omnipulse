@@ -40,7 +40,7 @@ public class UserMappingProfile : Profile
             .ForMember(dest => dest.HireDate, opt => opt.MapFrom(src => src.HireDate))
             .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email));
-        
+
         CreateMap<User, GetTechnicianDTO>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.FirstName))
