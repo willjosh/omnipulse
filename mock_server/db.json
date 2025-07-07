@@ -137,9 +137,7 @@
       "Status": 0,
       "ResolvedDate": null,
       "ResolvedByUserID": null,
-      "ResolutionNotes": null,
-      "IssueAttachments": [],
-      "IssueAssignments": []
+      "ResolutionNotes": null
     },
     {
       "id": 2,
@@ -156,9 +154,7 @@
       "Status": 1,
       "ResolvedDate": null,
       "ResolvedByUserID": null,
-      "ResolutionNotes": null,
-      "IssueAttachments": [],
-      "IssueAssignments": []
+      "ResolutionNotes": null
     },
     {
       "id": 3,
@@ -175,9 +171,7 @@
       "Status": 0,
       "ResolvedDate": null,
       "ResolvedByUserID": null,
-      "ResolutionNotes": null,
-      "IssueAttachments": [],
-      "IssueAssignments": []
+      "ResolutionNotes": null
     },
     {
       "id": 4,
@@ -194,9 +188,7 @@
       "Status": 1,
       "ResolvedDate": null,
       "ResolvedByUserID": null,
-      "ResolutionNotes": null,
-      "IssueAttachments": [],
-      "IssueAssignments": []
+      "ResolutionNotes": null
     },
     {
       "id": 5,
@@ -213,9 +205,7 @@
       "Status": 2,
       "ResolvedDate": "2024-06-16T11:00:00Z",
       "ResolvedByUserID": "1a2b3c4d-5e6f-7890-abcd-ef1234567890",
-      "ResolutionNotes": "Dent repaired by body shop.",
-      "IssueAttachments": [],
-      "IssueAssignments": []
+      "ResolutionNotes": "Dent repaired by body shop."
     },
     {
       "id": 6,
@@ -232,9 +222,7 @@
       "Status": 0,
       "ResolvedDate": null,
       "ResolvedByUserID": null,
-      "ResolutionNotes": null,
-      "IssueAttachments": [],
-      "IssueAssignments": []
+      "ResolutionNotes": null
     },
     {
       "id": 7,
@@ -251,9 +239,7 @@
       "Status": 3,
       "ResolvedDate": "2024-06-13T09:00:00Z",
       "ResolvedByUserID": "952188a4-dc48-4dad-9c7b-c75da50bb241",
-      "ResolutionNotes": "Tyres inflated to correct pressure.",
-      "IssueAttachments": [],
-      "IssueAssignments": []
+      "ResolutionNotes": "Tyres inflated to correct pressure."
     },
     {
       "id": 8,
@@ -270,9 +256,7 @@
       "Status": 0,
       "ResolvedDate": null,
       "ResolvedByUserID": null,
-      "ResolutionNotes": null,
-      "IssueAttachments": [],
-      "IssueAssignments": []
+      "ResolutionNotes": null
     },
     {
       "id": 9,
@@ -289,9 +273,7 @@
       "Status": 1,
       "ResolvedDate": null,
       "ResolvedByUserID": null,
-      "ResolutionNotes": null,
-      "IssueAttachments": [],
-      "IssueAssignments": []
+      "ResolutionNotes": null
     },
     {
       "id": 10,
@@ -308,9 +290,7 @@
       "Status": 4,
       "ResolvedDate": null,
       "ResolvedByUserID": null,
-      "ResolutionNotes": "Issue cancelled by user request.",
-      "IssueAttachments": [],
-      "IssueAssignments": []
+      "ResolutionNotes": "Issue cancelled by user request."
     }
   ]
 }
