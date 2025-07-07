@@ -19,6 +19,11 @@ public class ServiceTaskRepository : GenericRepository<ServiceTask>, IServiceTas
         return await _dbSet.AnyAsync(st => st.Name == name);
     }
 
+    public async Task<bool> DoesNameExistExcludingIdAsync(string name, int excludeServiceTaskId)
+    {
+        return await _dbSet.AnyAsync(st => st.Name == name && st.ID != excludeServiceTaskId);
+    }
+
     public async Task<PagedResult<ServiceTask>> GetAllServiceTasksPagedAsync(PaginationParameters parameters)
     {
         var query = _dbSet.AsQueryable();
