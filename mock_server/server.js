@@ -538,6 +538,14 @@ server.listen(PORT, () => {
     `GET /technicians?sortBy=firstname - Sort technicians by firstname`,
   );
   console.log(`GET /technicians/:id - Get single technician`);
+
+  // Inventory Items
+  console.log(`GET /inventoryItems - Get paginated inventory items`);
+  console.log(
+    `GET /inventoryItems?page=1&limit=5 - Get inventory items with pagination`,
+  );
+  console.log(`GET /inventoryItems?search=oil - Search inventory items`);
+  console.log(`GET /inventoryItems/:id - Get single inventory item`);
 });
 
 module.exports = server;
