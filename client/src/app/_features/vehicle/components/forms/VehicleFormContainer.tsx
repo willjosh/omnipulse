@@ -9,7 +9,7 @@ import {
   useVehicleFormStatus,
   useVehicleFormReferenceData,
 } from "../../store/VehicleFormStore";
-import { useVehicles } from "@/app/_hooks/Vehicle/useVehicles"; // Add this import
+import { useVehicles } from "@/app/_hooks/Vehicle/useVehicles";
 import { Vehicle } from "@/app/_hooks/Vehicle/vehicleType";
 import {
   VehicleTypeEnum,
@@ -66,7 +66,6 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
   const router = useRouter();
   const params = useParams();
 
-  // Use selector hooks for better performance
   const formData = useVehicleFormData();
   const formMode = useVehicleFormMode();
   const { showValidation, validationErrors, isFormValid } =
@@ -74,7 +73,6 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
   const { isLoading, isDirty, vehicleId } = useVehicleFormStatus();
   const { vehicleGroups, technicians } = useVehicleFormReferenceData();
 
-  // Add the useVehicles hook to get mutation functions
   const { createVehicleMutation, updateVehicleMutation } = useVehicles();
 
   // Store actions
@@ -93,7 +91,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
     toUpdateCommand,
   } = useVehicleFormStore();
 
-  // Initialize form based on mode
+  // form initialization based on mode
   useEffect(() => {
     if (mode === "create") {
       initializeForCreate();
@@ -114,9 +112,8 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
     router,
   ]);
 
-  // Load reference data (you would typically fetch this from your API)
   useEffect(() => {
-    // Mock data - replace with actual API calls
+    // Mock data
     const mockGroups = [
       { id: 1, name: "Fleet A - Operations" },
       { id: 2, name: "Fleet B - Maintenance" },
@@ -152,12 +149,11 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
       setLoading(true);
 
       if (onSave) {
-        // Use the provided onSave callback
+        // If there is an onSave callback provided, use it
         const commandData =
           formMode === "create" ? toCreateCommand() : toUpdateCommand();
         await onSave(commandData);
       } else {
-        // Use the React Query mutations directly
         if (formMode === "create") {
           const commandData = toCreateCommand();
           await createVehicleMutation.mutateAsync(commandData);
@@ -173,7 +169,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
       router.push("/vehicles");
     } catch (error) {
       console.error("Error saving vehicle:", error);
-      // You might want to show an error message to the user here
+      // Show error message to the user
       setValidationErrors({
         general: "Failed to save vehicle. Please try again.",
       });
@@ -182,7 +178,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
     }
   };
 
-  // Update the loading state to include mutation loading states
+  // Update loading state to include mutation loading states
   const isSaving =
     isLoading ||
     createVehicleMutation.isPending ||
@@ -209,10 +205,11 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
     return showValidation ? validationErrors[fieldName] : "";
   };
 
+  const originalVehicleName = vehicleData?.Name || vehicleId;
   const pageTitle =
     formMode === "create"
       ? "Add New Vehicle"
-      : `Edit Vehicle${vehicleId ? ` - ${formData.vehicleName || vehicleId}` : ""}`;
+      : `Edit Vehicle${originalVehicleName ? ` - ${originalVehicleName}` : ""}`;
 
   const saveButtonText =
     formMode === "create" ? "Save Vehicle" : "Update Vehicle";
@@ -227,7 +224,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
             You have unsaved changes
           </p>
         )}
-        {/* Show error message if there's a general error */}
+        {/* Show error message if there's an error */}
         {validationErrors.general && (
           <p className="text-sm text-red-600 mt-1">
             {validationErrors.general}
