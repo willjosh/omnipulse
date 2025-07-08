@@ -47,11 +47,10 @@ public class CreateWorkOrderHandlerTest
         });
         var mapper = config.CreateMapper();
 
-        _handler = new CreateWorkOrderCommandHandler(_mockWorkOrderRepository.Object, _mockUserRepository.Object, _mockVehicleRepository.Object, _mockServiceReminderRepository.Object, _mockIssueRepository.Object, _mockLogger.Object, mapper);
+        _handler = new CreateWorkOrderCommandHandler(_mockWorkOrderRepository.Object, _mockUserRepository.Object, _mockVehicleRepository.Object, _mockServiceReminderRepository.Object, _mockIssueRepository.Object, _mockWorkOrderIssueRepository.Object, _mockLogger.Object, mapper, _mockValidator.Object);
     }
 
     private CreateWorkOrderCommand CreateValidCommand(
-        string workOrderNumber = "WO12345",
         int vehicleId = 1,
         int serviceReminderId = 1,
         string assignedToUserId = "1a0a07ba-19b9-4e88-bcfd-2ae76e81fca5",
@@ -72,7 +71,6 @@ public class CreateWorkOrderHandlerTest
     )
     {
         return new CreateWorkOrderCommand(
-            workOrderNumber,
             vehicleId,
             serviceReminderId,
             assignedToUserId,
@@ -120,10 +118,9 @@ public class CreateWorkOrderHandlerTest
             UpdatedAt = DateTime.UtcNow,
 
             // WorkOrder required properties
-            WorkOrderNumber = command.WorkOrderNumber,
-            VehicleID = command.VehicleId,
-            ServiceReminderID = command.ServiceReminderId,
-            AssignedToUserID = command.AssignedToUserId,
+            VehicleID = command.VehicleID,
+            ServiceReminderID = command.ServiceReminderID,
+            AssignedToUserID = command.AssignedToUserID,
             Title = command.Title,
             WorkOrderType = command.WorkOrderType,
             PriorityLevel = command.PriorityLevel,
@@ -168,7 +165,7 @@ public class CreateWorkOrderHandlerTest
         }).ToList();
     }
 
-    [Fact(Skip = "This test is skipped because it is not implemented yet.")]
+    [Fact]
     public async Task Handler_Should_Return_WorkOrderId_When_Command_Is_Valid()
     {
         // Given
@@ -178,9 +175,9 @@ public class CreateWorkOrderHandlerTest
         var expectedWorkOrder = CreateWorkOrderFromCommand(command);
 
         // check entities exist
-        _mockVehicleRepository.Setup(v => v.ExistsAsync(command.VehicleId)).ReturnsAsync(true);
-        _mockUserRepository.Setup(u => u.ExistsAsync(command.AssignedToUserId)).ReturnsAsync(true);
-        _mockServiceReminderRepository.Setup(s => s.ExistsAsync(command.ServiceReminderId)).ReturnsAsync(true);
+        _mockVehicleRepository.Setup(v => v.ExistsAsync(command.VehicleID)).ReturnsAsync(true);
+        _mockUserRepository.Setup(u => u.ExistsAsync(command.AssignedToUserID)).ReturnsAsync(true);
+        _mockServiceReminderRepository.Setup(s => s.ExistsAsync(command.ServiceReminderID)).ReturnsAsync(true);
 
         _mockWorkOrderRepository.Setup(r => r.AddAsync(It.IsAny<Domain.Entities.WorkOrder>())).ReturnsAsync(expectedWorkOrder);
 
@@ -191,9 +188,9 @@ public class CreateWorkOrderHandlerTest
         Assert.Equal(expectedWorkOrder.ID, result);
 
         // Verify all mocks were called correctly
-        _mockVehicleRepository.Verify(v => v.ExistsAsync(command.VehicleId), Times.Once);
-        _mockUserRepository.Verify(u => u.ExistsAsync(command.AssignedToUserId), Times.Once);
-        _mockServiceReminderRepository.Verify(s => s.ExistsAsync(command.ServiceReminderId), Times.Once);
+        _mockVehicleRepository.Verify(v => v.ExistsAsync(command.VehicleID), Times.Once);
+        _mockUserRepository.Verify(u => u.ExistsAsync(command.AssignedToUserID), Times.Once);
+        _mockServiceReminderRepository.Verify(s => s.ExistsAsync(command.ServiceReminderID), Times.Once);
         _mockWorkOrderRepository.Verify(r => r.AddAsync(It.IsAny<Domain.Entities.WorkOrder>()), Times.Once);
 
         // Verify that WorkOrderIssue repository was NOT called since no issues provided
@@ -201,7 +198,7 @@ public class CreateWorkOrderHandlerTest
         _mockIssueRepository.Verify(i => i.AllExistAsync(It.IsAny<IEnumerable<int>>()), Times.Never);
     }
 
-    [Fact(Skip = "This test is skipped because it is not implemented yet.")]
+    [Fact]
     public async Task Handler_Should_Return_WorkOrderId_When_Command_Is_Valid_With_List()
     {
         // Given
@@ -212,9 +209,9 @@ public class CreateWorkOrderHandlerTest
         var expectedWorkOrder = CreateWorkOrderFromCommand(command);
         var expectedWorkOrderIssues = CreateWorkOrderIssuesFromCommand(command, expectedWorkOrder);
 
-        _mockVehicleRepository.Setup(v => v.ExistsAsync(command.VehicleId)).ReturnsAsync(true);
-        _mockUserRepository.Setup(u => u.ExistsAsync(command.AssignedToUserId)).ReturnsAsync(true);
-        _mockServiceReminderRepository.Setup(s => s.ExistsAsync(command.ServiceReminderId)).ReturnsAsync(true);
+        _mockVehicleRepository.Setup(v => v.ExistsAsync(command.VehicleID)).ReturnsAsync(true);
+        _mockUserRepository.Setup(u => u.ExistsAsync(command.AssignedToUserID)).ReturnsAsync(true);
+        _mockServiceReminderRepository.Setup(s => s.ExistsAsync(command.ServiceReminderID)).ReturnsAsync(true);
         _mockIssueRepository.Setup(i => i.AllExistAsync(issueIdList)).ReturnsAsync(true);
 
         _mockWorkOrderRepository.Setup(r => r.AddAsync(It.IsAny<Domain.Entities.WorkOrder>())).ReturnsAsync(expectedWorkOrder);
@@ -228,36 +225,36 @@ public class CreateWorkOrderHandlerTest
         Assert.Equal(expectedWorkOrder.ID, result);
 
         // Verify all mocks were called correctly
-        _mockVehicleRepository.Verify(v => v.ExistsAsync(command.VehicleId), Times.Once);
-        _mockUserRepository.Verify(u => u.ExistsAsync(command.AssignedToUserId), Times.Once);
-        _mockServiceReminderRepository.Verify(s => s.ExistsAsync(command.ServiceReminderId), Times.Once);
+        _mockVehicleRepository.Verify(v => v.ExistsAsync(command.VehicleID), Times.Once);
+        _mockUserRepository.Verify(u => u.ExistsAsync(command.AssignedToUserID), Times.Once);
+        _mockServiceReminderRepository.Verify(s => s.ExistsAsync(command.ServiceReminderID), Times.Once);
         _mockIssueRepository.Verify(i => i.AllExistAsync(issueIdList), Times.Once);
         _mockWorkOrderRepository.Verify(r => r.AddAsync(It.IsAny<Domain.Entities.WorkOrder>()), Times.Once);
         _mockWorkOrderIssueRepository.Verify(r => r.AddRangeAsync(It.IsAny<IEnumerable<WorkOrderIssue>>()), Times.Once);
     }
 
-    [Fact(Skip = "This test is skipped because it is not implemented yet.")]
+    [Fact]
     public async Task Handler_Should_Throw_EntityNotFoundException_When_Vehicle_Does_Not_Exist()
     {
         // Given
         var command = CreateValidCommand();
         SetupValidValidation(command);
 
-        _mockVehicleRepository.Setup(v => v.ExistsAsync(command.VehicleId)).ReturnsAsync(false);
-        _mockUserRepository.Setup(u => u.ExistsAsync(command.AssignedToUserId)).ReturnsAsync(true);
-        _mockServiceReminderRepository.Setup(s => s.ExistsAsync(command.ServiceReminderId)).ReturnsAsync(true);
+        _mockVehicleRepository.Setup(v => v.ExistsAsync(command.VehicleID)).ReturnsAsync(false);
+        _mockUserRepository.Setup(u => u.ExistsAsync(command.AssignedToUserID)).ReturnsAsync(true);
+        _mockServiceReminderRepository.Setup(s => s.ExistsAsync(command.ServiceReminderID)).ReturnsAsync(true);
 
         // When & Then
         var exception = await Assert.ThrowsAsync<EntityNotFoundException>(() => _handler.Handle(command, CancellationToken.None));
 
         Assert.Contains("Vehicle", exception.Message);
-        Assert.Contains(command.VehicleId.ToString(), exception.Message);
+        Assert.Contains(command.VehicleID.ToString(), exception.Message);
 
         // Verify that AddAsync was never called
         _mockWorkOrderRepository.Verify(r => r.AddAsync(It.IsAny<Domain.Entities.WorkOrder>()), Times.Never);
     }
 
-    [Fact(Skip = "This test is skipped because it is not implemented yet.")]
+    [Fact]
     public async Task Handler_Should_Throw_EntityNotFoundException_When_Some_Issues_Do_Not_Exist()
     {
         // Given
@@ -265,9 +262,9 @@ public class CreateWorkOrderHandlerTest
         var command = CreateValidCommand(issueIdList: issueIdList);
         SetupValidValidation(command);
 
-        _mockVehicleRepository.Setup(v => v.ExistsAsync(command.VehicleId)).ReturnsAsync(true);
-        _mockUserRepository.Setup(u => u.ExistsAsync(command.AssignedToUserId)).ReturnsAsync(true);
-        _mockServiceReminderRepository.Setup(s => s.ExistsAsync(command.ServiceReminderId)).ReturnsAsync(true);
+        _mockVehicleRepository.Setup(v => v.ExistsAsync(command.VehicleID)).ReturnsAsync(true);
+        _mockUserRepository.Setup(u => u.ExistsAsync(command.AssignedToUserID)).ReturnsAsync(true);
+        _mockServiceReminderRepository.Setup(s => s.ExistsAsync(command.ServiceReminderID)).ReturnsAsync(true);
         _mockIssueRepository.Setup(i => i.AllExistAsync(issueIdList)).ReturnsAsync(false);
 
         // When & Then
@@ -280,49 +277,49 @@ public class CreateWorkOrderHandlerTest
         _mockWorkOrderIssueRepository.Verify(r => r.AddRangeAsync(It.IsAny<IEnumerable<WorkOrderIssue>>()), Times.Never);
     }
 
-    [Fact(Skip = "This test is skipped because it is not implemented yet.")]
+    [Fact]
     public async Task Handler_Should_Throw_EntityNotFoundException_When_Assigned_User_Does_Not_Exist()
     {
         // Given
         var command = CreateValidCommand();
         SetupValidValidation(command);
 
-        _mockVehicleRepository.Setup(v => v.ExistsAsync(command.VehicleId)).ReturnsAsync(true);
-        _mockUserRepository.Setup(u => u.ExistsAsync(command.AssignedToUserId)).ReturnsAsync(false);
-        _mockServiceReminderRepository.Setup(s => s.ExistsAsync(command.ServiceReminderId)).ReturnsAsync(true);
+        _mockVehicleRepository.Setup(v => v.ExistsAsync(command.VehicleID)).ReturnsAsync(true);
+        _mockUserRepository.Setup(u => u.ExistsAsync(command.AssignedToUserID)).ReturnsAsync(false);
+        _mockServiceReminderRepository.Setup(s => s.ExistsAsync(command.ServiceReminderID)).ReturnsAsync(true);
 
         // When & Then
         var exception = await Assert.ThrowsAsync<EntityNotFoundException>(() => _handler.Handle(command, CancellationToken.None));
 
         Assert.Contains("User", exception.Message);
-        Assert.Contains(command.AssignedToUserId, exception.Message);
+        Assert.Contains(command.AssignedToUserID, exception.Message);
 
         // Verify that AddAsync was never called
         _mockWorkOrderRepository.Verify(r => r.AddAsync(It.IsAny<Domain.Entities.WorkOrder>()), Times.Never);
     }
 
-    [Fact(Skip = "This test is skipped because it is not implemented yet.")]
+    [Fact]
     public async Task Handler_Should_Throw_EntityNotFoundException_When_Service_Reminder_Does_Not_Exist()
     {
         // Given
         var command = CreateValidCommand();
         SetupValidValidation(command);
 
-        _mockVehicleRepository.Setup(v => v.ExistsAsync(command.VehicleId)).ReturnsAsync(true);
-        _mockUserRepository.Setup(u => u.ExistsAsync(command.AssignedToUserId)).ReturnsAsync(true);
-        _mockServiceReminderRepository.Setup(s => s.ExistsAsync(command.ServiceReminderId)).ReturnsAsync(false);
+        _mockVehicleRepository.Setup(v => v.ExistsAsync(command.VehicleID)).ReturnsAsync(true);
+        _mockUserRepository.Setup(u => u.ExistsAsync(command.AssignedToUserID)).ReturnsAsync(true);
+        _mockServiceReminderRepository.Setup(s => s.ExistsAsync(command.ServiceReminderID)).ReturnsAsync(false);
 
         // When & Then
         var exception = await Assert.ThrowsAsync<EntityNotFoundException>(() => _handler.Handle(command, CancellationToken.None));
 
         Assert.Contains("ServiceReminder", exception.Message);
-        Assert.Contains(command.ServiceReminderId.ToString(), exception.Message);
+        Assert.Contains(command.ServiceReminderID.ToString(), exception.Message);
 
         // Verify that AddAsync was never called
         _mockWorkOrderRepository.Verify(r => r.AddAsync(It.IsAny<Domain.Entities.WorkOrder>()), Times.Never);
     }
 
-    [Fact(Skip = "This test is skipped because it is not implemented yet.")]
+    [Fact]
     public async Task Handler_Should_Throw_BadRequestException_When_Command_Is_Invalid()
     {
         // Given
@@ -330,9 +327,9 @@ public class CreateWorkOrderHandlerTest
         SetupInvalidValidation(command, "WorkOrderNumber", "Work Order Number is required");
 
         // Setup all entities as existing (but validation will fail before we check them)
-        _mockVehicleRepository.Setup(v => v.ExistsAsync(command.VehicleId)).ReturnsAsync(true);
-        _mockUserRepository.Setup(u => u.ExistsAsync(command.AssignedToUserId)).ReturnsAsync(true);
-        _mockServiceReminderRepository.Setup(s => s.ExistsAsync(command.ServiceReminderId)).ReturnsAsync(true);
+        _mockVehicleRepository.Setup(v => v.ExistsAsync(command.VehicleID)).ReturnsAsync(true);
+        _mockUserRepository.Setup(u => u.ExistsAsync(command.AssignedToUserID)).ReturnsAsync(true);
+        _mockServiceReminderRepository.Setup(s => s.ExistsAsync(command.ServiceReminderID)).ReturnsAsync(true);
 
         // When & Then
         var exception = await Assert.ThrowsAsync<BadRequestException>(() => _handler.Handle(command, CancellationToken.None));

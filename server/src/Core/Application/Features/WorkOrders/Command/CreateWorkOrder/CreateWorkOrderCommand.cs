@@ -5,10 +5,9 @@ using MediatR;
 namespace Application.Features.WorkOrders.Command.CreateWorkOrder;
 
 public record CreateWorkOrderCommand(
-    string WorkOrderNumber,
-    int VehicleId,
-    int ServiceReminderId,
-    string AssignedToUserId,
+    int VehicleID,
+    int ServiceReminderID,
+    string AssignedToUserID,
     string Title,
     string? Description,
     WorkTypeEnum WorkOrderType,

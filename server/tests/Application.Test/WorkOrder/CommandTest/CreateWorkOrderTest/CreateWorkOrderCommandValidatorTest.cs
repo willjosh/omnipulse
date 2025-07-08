@@ -16,7 +16,6 @@ public class CreateWorkOrderCommandValidatorTest
     }
 
     private CreateWorkOrderCommand CreateValidCommand(
-        string workOrderNumber = "WO12345",
         int vehicleId = 1,
         int serviceReminderId = 1,
         string assignedToUserId = "guid-1234-5678-9012-345678901234",
@@ -43,7 +42,6 @@ public class CreateWorkOrderCommandValidatorTest
 
 
         return new CreateWorkOrderCommand(
-            workOrderNumber,
             vehicleId,
             serviceReminderId,
             assignedToUserId,
@@ -79,34 +77,6 @@ public class CreateWorkOrderCommandValidatorTest
     }
 
     [Fact]
-    public async Task Validator_Should_Fail_When_WorkOrderNumber_Is_Empty()
-    {
-        // Given
-        var command = CreateValidCommand(workOrderNumber: "");
-
-        // When
-        var result = await _validator.ValidateAsync(command);
-
-        // Then
-        Assert.False(result.IsValid);
-        Assert.Contains(result.Errors, e => e.PropertyName == nameof(CreateWorkOrderCommand.WorkOrderNumber));
-    }
-
-    [Fact]
-    public async Task Validator_Should_Fail_When_WorkOrderNumber_Exceeds_MaxLength()
-    {
-        // Given
-        var command = CreateValidCommand(workOrderNumber: new string('A', 51)); // 51 characters
-
-        // When
-        var result = await _validator.ValidateAsync(command);
-
-        // Then
-        Assert.False(result.IsValid);
-        Assert.Contains(result.Errors, e => e.PropertyName == nameof(CreateWorkOrderCommand.WorkOrderNumber));
-    }
-
-    [Fact]
     public async Task Validator_Should_Fail_When_AssignedToUserId_Is_Empty()
     {
         // Given
@@ -117,7 +87,7 @@ public class CreateWorkOrderCommandValidatorTest
 
         // Then
         Assert.False(result.IsValid);
-        Assert.Contains(result.Errors, e => e.PropertyName == nameof(CreateWorkOrderCommand.AssignedToUserId));
+        Assert.Contains(result.Errors, e => e.PropertyName == nameof(CreateWorkOrderCommand.AssignedToUserID));
     }
 
     [Fact]
@@ -368,7 +338,7 @@ public class CreateWorkOrderCommandValidatorTest
 
         // Then
         Assert.False(result.IsValid);
-        Assert.Contains(result.Errors, e => e.PropertyName == nameof(CreateWorkOrderCommand.VehicleId));
+        Assert.Contains(result.Errors, e => e.PropertyName == nameof(CreateWorkOrderCommand.VehicleID));
     }
 
     [Fact]
@@ -382,7 +352,7 @@ public class CreateWorkOrderCommandValidatorTest
 
         // Then
         Assert.False(result.IsValid);
-        Assert.Contains(result.Errors, e => e.PropertyName == nameof(CreateWorkOrderCommand.ServiceReminderId));
+        Assert.Contains(result.Errors, e => e.PropertyName == nameof(CreateWorkOrderCommand.ServiceReminderID));
     }
 
     [Fact]

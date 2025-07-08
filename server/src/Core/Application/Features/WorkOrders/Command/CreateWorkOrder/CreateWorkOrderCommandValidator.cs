@@ -10,23 +10,16 @@ public class CreateWorkOrderCommandValidator : AbstractValidator<CreateWorkOrder
 {
     public CreateWorkOrderCommandValidator()
     {
-        // / WorkOrderNumber validation - matches config HasMaxLength(50) and IsUnique
-        RuleFor(x => x.WorkOrderNumber)
-            .NotEmpty()
-            .WithMessage("Work Order Number is required")
-            .MaximumLength(50)
-            .WithMessage("Work Order Number cannot exceed 50 characters");
-
-        RuleFor(x => x.VehicleId)
+        RuleFor(x => x.VehicleID)
             .GreaterThan(0)
             .WithMessage("Vehicle ID must be greater than 0");
 
-        RuleFor(x => x.ServiceReminderId)
+        RuleFor(x => x.ServiceReminderID)
             .GreaterThan(0)
             .WithMessage("Service Reminder ID must be greater than 0");
 
         // AssignedToUserId validation - required
-        RuleFor(x => x.AssignedToUserId)
+        RuleFor(x => x.AssignedToUserID)
             .NotEmpty()
             .WithMessage("Assigned To User ID is required");
 
