@@ -642,6 +642,14 @@ server.listen(PORT, () => {
   );
   console.log(`GET /inventoryItems?search=oil - Search inventory items`);
   console.log(`GET /inventoryItems/:id - Get single inventory item`);
+
+  // Service Tasks
+  console.log(`GET /serviceTasks - Get paginated service tasks`);
+  console.log(
+    `GET /serviceTasks?page=1&limit=5 - Get service tasks with pagination`,
+  );
+  console.log(`GET /serviceTasks?search=oil - Search service tasks`);
+  console.log(`GET /serviceTasks/:id - Get single service task`);
 });
 
 module.exports = server;
