@@ -1,0 +1,105 @@
+using System.Threading;
+using System.Threading.Tasks;
+using System.Linq;
+
+using Application.Contracts.Logger;
+using Application.Contracts.Persistence;
+using Application.Exceptions;
+
+using AutoMapper;
+
+using Domain.Entities;
+
+using FluentValidation;
+
+using MediatR;
+
+namespace Application.Features.MaintenanceHistories.Command.CreateMaintenanceHistory;
+
+public class CreateMaintenanceHistoryCommandHandler : IRequestHandler<CreateMaintenanceHistoryCommand, int>
+{
+    private readonly IGenericRepository<MaintenanceHistory> _maintenanceHistoryRepository;
+    private readonly IVehicleRepository _vehicleRepository;
+    private readonly IGenericRepository<WorkOrder> _workOrderRepository;
+    private readonly IServiceTaskRepository _serviceTaskRepository;
+    private readonly IUserRepository _userRepository;
+    private readonly IMapper _mapper;
+    private readonly IAppLogger<CreateMaintenanceHistoryCommandHandler> _logger;
+    private readonly IValidator<CreateMaintenanceHistoryCommand> _validator;
+
+    public CreateMaintenanceHistoryCommandHandler(
+        IGenericRepository<MaintenanceHistory> maintenanceHistoryRepository,
+        IVehicleRepository vehicleRepository,
+        IGenericRepository<WorkOrder> workOrderRepository,
+        IServiceTaskRepository serviceTaskRepository,
+        IUserRepository userRepository,
+        IMapper mapper,
+        IAppLogger<CreateMaintenanceHistoryCommandHandler> logger,
+        IValidator<CreateMaintenanceHistoryCommand> validator)
+    {
+        _maintenanceHistoryRepository = maintenanceHistoryRepository;
+        _vehicleRepository = vehicleRepository;
+        _workOrderRepository = workOrderRepository;
+        _serviceTaskRepository = serviceTaskRepository;
+        _userRepository = userRepository;
+        _mapper = mapper;
+        _logger = logger;
+        _validator = validator;
+    }
+
+    public async Task<int> Handle(CreateMaintenanceHistoryCommand request, CancellationToken cancellationToken)
+    {
+        // validate request
+        var validationResult = await _validator.ValidateAsync(request, cancellationToken);
+        if (!validationResult.IsValid)
+        {
+            var errorMessages = string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage));
+            _logger.LogWarning($"CreateMaintenanceHistoryCommand - Validation failed: {errorMessages}");
+            throw new BadRequestException(errorMessages);
+        }
+
+        // validate business rules
+        await ValidateBusinessRules(request, cancellationToken);
+
+        // map request to MaintenanceHistory domain entity
+        var maintenanceHistory = _mapper.Map<MaintenanceHistory>(request);
+
+        // add new maintenance history
+        var newMaintenanceHistory = await _maintenanceHistoryRepository.AddAsync(maintenanceHistory);
+
+        // save changes
+        await _maintenanceHistoryRepository.SaveChangesAsync();
+
+        // return MaintenanceHistoryID
+        return newMaintenanceHistory.ID;
+    }
+
+    private async Task ValidateBusinessRules(CreateMaintenanceHistoryCommand request, CancellationToken cancellationToken)
+    {
+        // validate foreign keys
+        if (!await _vehicleRepository.ExistsAsync(request.VehicleID))
+        {
+            var errorMessage = $"Vehicle ID not found: {request.VehicleID}";
+            _logger.LogError(errorMessage);
+            throw new EntityNotFoundException(typeof(MaintenanceHistory).ToString(), "VehicleID", request.VehicleID.ToString());
+        }
+        if (!await _workOrderRepository.ExistsAsync(request.WorkOrderID))
+        {
+            var errorMessage = $"WorkOrder ID not found: {request.WorkOrderID}";
+            _logger.LogError(errorMessage);
+            throw new EntityNotFoundException(typeof(MaintenanceHistory).ToString(), "WorkOrderID", request.WorkOrderID.ToString());
+        }
+        if (!await _serviceTaskRepository.ExistsAsync(request.ServiceTaskID))
+        {
+            var errorMessage = $"ServiceTask ID not found: {request.ServiceTaskID}";
+            _logger.LogError(errorMessage);
+            throw new EntityNotFoundException(typeof(MaintenanceHistory).ToString(), "ServiceTaskID", request.ServiceTaskID.ToString());
+        }
+        if (!await _userRepository.ExistsAsync(request.TechnicianID))
+        {
+            var errorMessage = $"Technician ID not found: {request.TechnicianID}";
+            _logger.LogError(errorMessage);
+            throw new EntityNotFoundException(typeof(MaintenanceHistory).ToString(), "TechnicianID", request.TechnicianID);
+        }
+    }
+} 
