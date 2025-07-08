@@ -487,34 +487,64 @@
   ],
   "vehicleGroups": [
     {
-      "ID": 1,
+      "id": 1,
       "Name": "Group 1",
       "Description": "Main delivery fleet",
       "IsActive": true
     },
     {
-      "ID": 2,
+      "id": 2,
       "Name": "Group 2",
       "Description": "City vehicles",
       "IsActive": true
     },
     {
-      "ID": 3,
+      "id": 3,
       "Name": "Group 3",
       "Description": "Electric vehicles",
       "IsActive": false
     },
     {
-      "ID": 4,
+      "id": 4,
       "Name": "Group 4",
       "Description": "Heavy duty trucks",
       "IsActive": true
     },
     {
-      "ID": 5,
+      "id": 5,
       "Name": "Group 5",
       "Description": "Regional office vehicles",
       "IsActive": false
+    },
+    {
+      "id": 6,
+      "Name": "Group 6",
+      "Description": "Executive fleet",
+      "IsActive": true
+    },
+    {
+      "id": 7,
+      "Name": "Group 7",
+      "Description": "Seasonal vehicles",
+      "IsActive": false
+    },
+    {
+      "id": 8,
+      "Name": "Group 8",
+      "Description": "Test and demo vehicles",
+      "IsActive": true
+    },
+    {
+      "id": 9,
+      "Name": "Group 9",
+      "Description": "Retired vehicles",
+      "IsActive": false
+    },
+    {
+      "id": 10,
+      "Name": "Group 10",
+      "Description": "Pool cars for staff",
+      "IsActive": true
     }
   ],
   "technicians": [
