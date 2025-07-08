@@ -44,6 +44,16 @@ public interface IGenericRepository<T> where T : BaseEntity
     /// <param name="id">The entity ID.</param>
     /// <returns><c>true</c> if the entity exists; otherwise, <c>false</c>.</returns>
     Task<bool> ExistsAsync(int id);
+    
+    /// <summary>
+    /// Determines whether any entity matches the specified predicate.
+    /// </summary>
+    Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate);
+
+    /// <summary>
+    /// Determines whether all specified IDs exist.
+    /// </summary>
+    Task<bool> AllExistAsync(IEnumerable<int> ids);
 
     /// <summary>
     /// Counts the total number of entities.
