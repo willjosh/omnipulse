@@ -97,9 +97,9 @@ public class CreateServiceTaskCommandHandlerTest
             EstimatedCost = command.EstimatedCost,
             Category = command.Category,
             IsActive = command.IsActive,
-            ServiceScheduleTasks = new List<ServiceScheduleTask>(),
-            MaintenanceHistories = new List<MaintenanceHistory>(),
-            WorkOrderLineItems = new List<WorkOrderLineItem>()
+            ServiceScheduleTasks = [],
+            MaintenanceHistories = [],
+            WorkOrderLineItems = []
         };
 
         _mockServiceTaskRepository.Setup(r => r.DoesNameExistAsync(command.Name)).ReturnsAsync(false);

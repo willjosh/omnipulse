@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
+using Application.Models;
+using Application.Models.PaginationModels;
+
 using Domain.Entities;
 
 using Microsoft.AspNetCore.Identity;
@@ -13,6 +16,7 @@ public interface IUserRepository
 {
     // Basic CRUD operations (similar to generic but for Identity User)
     Task<User?> GetByIdAsync(string id);
+    Task<User?> GetTechnicianByIdAsync(string id);
     Task<IReadOnlyList<User>> GetAllAsync();
     Task<IdentityResult> AddAsync(User user, string password);
     Task<IdentityResult> UpdateAsync(User user);
@@ -52,4 +56,7 @@ public interface IUserRepository
     Task<IReadOnlyList<User>> GetInactiveUsersAsync();
     Task<IdentityResult> LockUserAsync(User user, DateTimeOffset? lockoutEnd);
     Task<IdentityResult> UnlockUserAsync(User user);
+
+    // Paged Results
+    Task<PagedResult<User>> GetAllTechnicianPagedAsync(PaginationParameters parameters);
 }

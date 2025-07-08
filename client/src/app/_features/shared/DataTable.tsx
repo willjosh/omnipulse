@@ -3,21 +3,21 @@ import Loading from "./Loading";
 import { ActionsColumnHeader, ActionsColumnCell } from "./ActionsColumn";
 import { ActionItem } from "./ActionDropdown";
 
-interface Column<T> {
-  key: keyof T | string;
+interface Column {
+  key: string;
   header: string;
-  render?: (item: T) => React.ReactNode;
+  render?: (item: any) => React.ReactNode;
   sortable?: boolean;
   width?: string;
 }
 
-interface DataTableProps<T> {
-  data: T[];
-  columns: Column<T>[];
+interface DataTableProps {
+  data: any[];
+  columns: Column[];
   selectedItems: string[];
   onSelectItem: (id: string) => void;
   onSelectAll: () => void;
-  onRowClick?: (item: T) => void;
+  onRowClick?: (item: any) => void;
   onSort?: (key: string) => void;
   sortBy?: string;
   sortOrder?: "asc" | "desc";
@@ -26,11 +26,9 @@ interface DataTableProps<T> {
   fixedLayout?: boolean;
   actions?: ActionItem[];
   showActions?: boolean;
-  // Function to extract the ID from each item
-  getItemId: (item: T) => string;
 }
 
-function DataTable<T>({
+const DataTable: React.FC<DataTableProps> = ({
   data,
   columns,
   selectedItems,
@@ -45,16 +43,12 @@ function DataTable<T>({
   fixedLayout = true,
   actions = [],
   showActions = true,
-  getItemId,
-}: DataTableProps<T>) {
+}) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const allSelected =
-    data.length > 0 &&
-    data.every(item => selectedItems.includes(getItemId(item)));
-  const someSelected = data.some(item =>
-    selectedItems.includes(getItemId(item)),
-  );
+    data.length > 0 && data.every(item => selectedItems.includes(item.id));
+  const someSelected = data.some(item => selectedItems.includes(item.id));
 
   useEffect(() => {
     if (data.length === 0 && scrollContainerRef.current) {
@@ -64,7 +58,7 @@ function DataTable<T>({
 
   const handleActionClick = (
     action: ActionItem,
-    item: T,
+    item: any,
     event: React.MouseEvent,
   ) => {
     event.stopPropagation();
@@ -118,7 +112,7 @@ function DataTable<T>({
               </th>
               {columns.map(column => (
                 <th
-                  key={String(column.key)}
+                  key={column.key}
                   className={`px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider bg-gray-50 ${
                     column.sortable && onSort
                       ? "cursor-pointer hover:bg-gray-100"
@@ -126,12 +120,12 @@ function DataTable<T>({
                   }`}
                   style={{ width: column.width || "120px" }}
                   onClick={() =>
-                    column.sortable && onSort && onSort(String(column.key))
+                    column.sortable && onSort && onSort(column.key)
                   }
                 >
                   <div className="flex items-center gap-1">
                     <span className="truncate">{column.header}</span>
-                    {column.sortable && sortBy === String(column.key) && (
+                    {column.sortable && sortBy === column.key && (
                       <span className="text-blue-600 flex-shrink-0">
                         {sortOrder === "asc" ? "↑" : "↓"}
                       </span>
@@ -144,49 +138,46 @@ function DataTable<T>({
           </thead>
           {data.length > 0 && (
             <tbody className="bg-white divide-y divide-gray-200">
-              {data.map(item => {
-                const itemId = getItemId(item);
-                return (
-                  <tr
-                    key={itemId}
-                    onClick={() => onRowClick?.(item)}
-                    className="hover:bg-gray-50 cursor-pointer"
+              {data.map(item => (
+                <tr
+                  key={item.id}
+                  onClick={() => onRowClick?.(item)}
+                  className="hover:bg-gray-50 cursor-pointer"
+                >
+                  <td
+                    className="px-4 py-3 whitespace-nowrap"
+                    style={{ width: `${checkboxWidth}px` }}
                   >
+                    <input
+                      type="checkbox"
+                      className="size-4 text-blue-600 rounded border-gray-300"
+                      checked={selectedItems.includes(item.id)}
+                      onChange={() => onSelectItem(item.id)}
+                      onClick={e => e.stopPropagation()}
+                    />
+                  </td>
+                  {columns.map(column => (
                     <td
-                      className="px-4 py-3 whitespace-nowrap"
-                      style={{ width: `${checkboxWidth}px` }}
+                      key={column.key}
+                      className="px-4 py-3 text-sm text-gray-900"
+                      style={{ width: column.width || "120px" }}
                     >
-                      <input
-                        type="checkbox"
-                        className="size-4 text-blue-600 rounded border-gray-300"
-                        checked={selectedItems.includes(itemId)}
-                        onChange={() => onSelectItem(itemId)}
-                        onClick={e => e.stopPropagation()}
-                      />
+                      <div className="truncate">
+                        {column.render
+                          ? column.render(item)
+                          : String(item[column.key] || "")}
+                      </div>
                     </td>
-                    {columns.map(column => (
-                      <td
-                        key={String(column.key)}
-                        className="px-4 py-3 text-sm text-gray-900"
-                        style={{ width: column.width || "120px" }}
-                      >
-                        <div className="truncate">
-                          {column.render
-                            ? column.render(item)
-                            : String((item as any)[column.key] || "")}
-                        </div>
-                      </td>
-                    ))}
-                    {showActions && (
-                      <ActionsColumnCell
-                        item={item}
-                        actions={actions}
-                        onActionClick={handleActionClick}
-                      />
-                    )}
-                  </tr>
-                );
-              })}
+                  ))}
+                  {showActions && (
+                    <ActionsColumnCell
+                      item={item}
+                      actions={actions}
+                      onActionClick={handleActionClick}
+                    />
+                  )}
+                </tr>
+              ))}
             </tbody>
           )}
         </table>
@@ -201,6 +192,6 @@ function DataTable<T>({
       </div>
     </div>
   );
-}
+};
 
 export default DataTable;
