@@ -400,7 +400,6 @@ public class CreateWorkOrderCommandValidatorTest
         {
             new CreateWorkOrderLineItemDTO
             {
-                WorkOrderID = 1,
                 ServiceTaskID = 1,
                 InventoryItemID = 1,
                 ItemType = LineItemTypeEnum.ITEM,

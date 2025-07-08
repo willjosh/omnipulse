@@ -22,7 +22,7 @@ public class CreateWorkOrderLineItemDTOValidatorTest
         int? inventoryItemID = 1,
         int serviceTaskID = 1,
         string? assignedToUserID = "tech-001",
-        LineItemTypeEnum itemType = LineItemTypeEnum.PARTS,
+        LineItemTypeEnum itemType = LineItemTypeEnum.ITEM,
         string? description = "Test Parts Item",
         int quantity = 1,
         decimal? unitPrice = 25.99m,
@@ -31,7 +31,6 @@ public class CreateWorkOrderLineItemDTOValidatorTest
     {
         return new CreateWorkOrderLineItemDTO
         {
-            WorkOrderID = workOrderID,
             InventoryItemID = inventoryItemID,
             ServiceTaskID = serviceTaskID,
             AssignedToUserID = assignedToUserID,
@@ -49,7 +48,7 @@ public class CreateWorkOrderLineItemDTOValidatorTest
         int? inventoryItemID = null,
         int serviceTaskID = 2,
         string? assignedToUserID = "tech-002",
-        LineItemTypeEnum itemType = LineItemTypeEnum.ITEM,
+        LineItemTypeEnum itemType = LineItemTypeEnum.LABOR,
         string? description = "Test Labor Item",
         int quantity = 1,
         decimal? unitPrice = null,
@@ -58,7 +57,6 @@ public class CreateWorkOrderLineItemDTOValidatorTest
     {
         return new CreateWorkOrderLineItemDTO
         {
-            WorkOrderID = workOrderID,
             InventoryItemID = inventoryItemID,
             ServiceTaskID = serviceTaskID,
             AssignedToUserID = assignedToUserID,
@@ -85,7 +83,6 @@ public class CreateWorkOrderLineItemDTOValidatorTest
     {
         return new CreateWorkOrderLineItemDTO
         {
-            WorkOrderID = workOrderID,
             InventoryItemID = inventoryItemID,
             ServiceTaskID = serviceTaskID,
             AssignedToUserID = assignedToUserID,
@@ -139,23 +136,6 @@ public class CreateWorkOrderLineItemDTOValidatorTest
         // Then
         Assert.True(result.IsValid);
         Assert.Empty(result.Errors);
-    }
-
-    // REQUIRED FIELDS VALIDATION TESTS
-    [Theory]
-    [InlineData(0)]
-    [InlineData(-1)]
-    public async Task Validator_Should_Fail_When_WorkOrderID_Is_Invalid(int invalidWorkOrderID)
-    {
-        // Given
-        var command = CreateValidPartsCommand(workOrderID: invalidWorkOrderID);
-
-        // When
-        var result = await _validator.ValidateAsync(command);
-
-        // Then
-        Assert.False(result.IsValid);
-        Assert.Contains(result.Errors, e => e.PropertyName == nameof(CreateWorkOrderLineItemDTO.WorkOrderID));
     }
 
     [Theory]
@@ -538,9 +518,8 @@ public class CreateWorkOrderLineItemDTOValidatorTest
         // Given - Parts with labor fields (should fail cross-validation)
         var command = new CreateWorkOrderLineItemDTO
         {
-            WorkOrderID = 1,
             ServiceTaskID = 1,
-            ItemType = LineItemTypeEnum.PARTS,
+            ItemType = LineItemTypeEnum.LABOR,
             Quantity = 1,
             InventoryItemID = 1,
             UnitPrice = 25.99m,
@@ -564,7 +543,6 @@ public class CreateWorkOrderLineItemDTOValidatorTest
         // Given - Item with parts fields (should fail cross-validation)
         var command = new CreateWorkOrderLineItemDTO
         {
-            WorkOrderID = 1,
             ServiceTaskID = 1,
             ItemType = LineItemTypeEnum.ITEM,
             Quantity = 1,
@@ -591,9 +569,8 @@ public class CreateWorkOrderLineItemDTOValidatorTest
         // Given
         var command = new CreateWorkOrderLineItemDTO
         {
-            WorkOrderID = 1,
             ServiceTaskID = 1,
-            ItemType = LineItemTypeEnum.PARTS,
+            ItemType = LineItemTypeEnum.ITEM,
             Quantity = 1,
             InventoryItemID = 1,
             UnitPrice = 25.99m,

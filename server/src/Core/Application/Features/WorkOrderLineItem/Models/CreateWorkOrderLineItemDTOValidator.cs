@@ -12,11 +12,6 @@ public class CreateWorkOrderLineItemDTOValidator : AbstractValidator<CreateWorkO
     public CreateWorkOrderLineItemDTOValidator()
     {
         // BASIC REQUIRED FIELDS VALIDATION
-
-        RuleFor(x => x.WorkOrderID)
-            .GreaterThan(0)
-            .WithMessage("Work Order ID must be greater than 0");
-
         RuleFor(x => x.ServiceTaskID)
             .GreaterThan(0)
             .WithMessage("Service Task ID must be greater than 0");
@@ -63,7 +58,7 @@ public class CreateWorkOrderLineItemDTOValidator : AbstractValidator<CreateWorkO
             .When(x => x.LaborHours.HasValue);
 
         // PARTS-ONLY VALIDATION
-        When(x => x.ItemType == LineItemTypeEnum.PARTS, () =>
+        When(x => x.ItemType == LineItemTypeEnum.ITEM, () =>
         {
             RuleFor(x => x.InventoryItemID)
                 .NotNull()
@@ -82,15 +77,15 @@ public class CreateWorkOrderLineItemDTOValidator : AbstractValidator<CreateWorkO
             // Ensure labor fields are NOT provided for parts-only
             RuleFor(x => x.HourlyRate)
                 .Null()
-                .WithMessage("Hourly rate should not be specified for PARTS-only items");
+                .WithMessage("Hourly rate should not be specified for LABOR-only items");
 
             RuleFor(x => x.LaborHours)
                 .Null()
-                .WithMessage("Labor hours should not be specified for PARTS-only items");
+                .WithMessage("Labor hours should not be specified for LABOR-only items");
         });
 
         // ITEM-ONLY VALIDATION (Labor/Service)
-        When(x => x.ItemType == LineItemTypeEnum.ITEM, () =>
+        When(x => x.ItemType == LineItemTypeEnum.LABOR, () =>
         {
             RuleFor(x => x.HourlyRate)
                 .NotNull()
@@ -114,11 +109,11 @@ public class CreateWorkOrderLineItemDTOValidator : AbstractValidator<CreateWorkO
             // Ensure parts fields are NOT provided for item-only
             RuleFor(x => x.InventoryItemID)
                 .Null()
-                .WithMessage("Inventory Item ID should not be specified for ITEM-only (labor) items");
+                .WithMessage("Inventory Item ID should not be specified for ITEM-only items");
 
             RuleFor(x => x.UnitPrice)
                 .Null()
-                .WithMessage("Unit Price should not be specified for ITEM-only (labor) items");
+                .WithMessage("Unit Price should not be specified for ITEM-only items");
         });
 
         // BOTH VALIDATION - Both parts AND labor must be present
@@ -162,13 +157,13 @@ public class CreateWorkOrderLineItemDTOValidator : AbstractValidator<CreateWorkO
     {
         return item.ItemType switch
         {
-            LineItemTypeEnum.PARTS =>
+            LineItemTypeEnum.ITEM =>
                 item.InventoryItemID.HasValue &&
                 item.UnitPrice.HasValue &&
                 !item.HourlyRate.HasValue &&
                 !item.LaborHours.HasValue,
 
-            LineItemTypeEnum.ITEM =>
+            LineItemTypeEnum.LABOR =>
                 item.HourlyRate.HasValue &&
                 item.LaborHours.HasValue &&
                 !item.InventoryItemID.HasValue &&

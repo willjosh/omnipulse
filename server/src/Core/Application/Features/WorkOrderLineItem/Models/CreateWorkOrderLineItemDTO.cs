@@ -6,7 +6,6 @@ namespace Application.Features.WorkOrderLineItem.Models;
 
 public class CreateWorkOrderLineItemDTO
 {
-    public required int WorkOrderID { get; set; }
     public int? InventoryItemID { get; set; }
     public required int ServiceTaskID { get; set; }
     public string? AssignedToUserID { get; set; } // Optional, can be 0 or null

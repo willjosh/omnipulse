@@ -2,7 +2,7 @@ namespace Domain.Entities.Enums;
 
 public enum LineItemTypeEnum
 {
-    PARTS,
+    LABOR,
     ITEM,
     BOTH
 }

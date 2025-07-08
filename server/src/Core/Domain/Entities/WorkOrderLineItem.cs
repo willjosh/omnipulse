@@ -28,4 +28,31 @@ public class WorkOrderLineItem : BaseEntity
     public required WorkOrder WorkOrder { get; set; }
     public InventoryItem? InventoryItem { get; set; }
     public required ServiceTask ServiceTask { get; set; }
+
+    public void CalculateTotalCost()
+    {
+        switch (ItemType)
+        {
+            case LineItemTypeEnum.LABOR:
+                // Labor cost = hours * hourly rate
+                TotalCost = (decimal)(LaborHours ?? 0) * (HourlyRate ?? 0);
+                break;
+
+            case LineItemTypeEnum.ITEM:
+                // Item/Parts cost = quantity * unit price
+                TotalCost = Quantity * (UnitPrice ?? 0);
+                break;
+
+            case LineItemTypeEnum.BOTH:
+                // Both = labor cost + item cost
+                var laborCost = (decimal)(LaborHours ?? 0) * (HourlyRate ?? 0);
+                var itemCost = Quantity * (UnitPrice ?? 0);
+                TotalCost = laborCost + itemCost;
+                break;
+
+            default:
+                TotalCost = 0;
+                break;
+        }
+    }
 }
