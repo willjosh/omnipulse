@@ -43,13 +43,7 @@ public class CreateMaintenanceHistoryCommandHandlerTest
 
         var config = new MapperConfiguration(cfg =>
         {
-            cfg.CreateMap<CreateMaintenanceHistoryCommand, MaintenanceHistory>()
-                .ForMember(dest => dest.ID, opt => opt.Ignore())
-                .ForMember(dest => dest.Vehicle, opt => opt.Ignore())
-                .ForMember(dest => dest.WorkOrder, opt => opt.Ignore())
-                .ForMember(dest => dest.ServiceTask, opt => opt.Ignore())
-                .ForMember(dest => dest.User, opt => opt.Ignore())
-                .ForMember(dest => dest.InventoryTransactions, opt => opt.Ignore());
+            cfg.AddProfile<Application.MappingProfiles.MaintenanceHistoryMappingProfile>();
         });
         _mapper = config.CreateMapper();
 
