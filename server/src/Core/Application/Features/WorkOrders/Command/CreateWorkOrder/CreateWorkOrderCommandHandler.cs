@@ -118,7 +118,7 @@ public class CreateWorkOrderCommandHandler : IRequestHandler<CreateWorkOrderComm
                 Issue = null!
             }
         ).ToList();
-        
+
         await _workOrderIssueRepository.AddRangeAsync(listOfWorkOrderIssue);
     }
 }
