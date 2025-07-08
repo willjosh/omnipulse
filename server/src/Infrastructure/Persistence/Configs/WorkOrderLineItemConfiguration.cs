@@ -18,7 +18,14 @@ public class WorkOrderLineItemConfiguration : IEntityTypeConfiguration<WorkOrder
         builder.Property(woli => woli.Description).HasMaxLength(500);
 
         // Precision for decimal fields
-        builder.Property(woli => woli.UnitCost).HasPrecision(10, 2);
+        builder.Property(woli => woli.UnitPrice).HasPrecision(10, 2);
+        builder.Property(woli => woli.HourlyRate).HasPrecision(10, 2);
+        builder.Property(woli => woli.ServicePrice).HasPrecision(10, 2);
+        builder.Property(woli => woli.TotalCost).HasPrecision(10, 2);
+        builder.Property(woli => woli.LaborHours).HasPrecision(5, 2);
+        
+        // inventory item ID is optional
+        builder.Property(woli => woli.InventoryItemID).IsRequired(false);
 
         // Configure computed property
         builder.Property(woli => woli.TotalCost)
@@ -29,6 +36,7 @@ public class WorkOrderLineItemConfiguration : IEntityTypeConfiguration<WorkOrder
         builder.HasIndex(woli => woli.InventoryItemID);
         builder.HasIndex(woli => woli.ServiceTaskID);
         builder.HasIndex(woli => woli.ItemType);
+        builder.HasIndex(woli => woli.CreatedAt);
 
         // Composite indexes for common queries
         builder.HasIndex(woli => new { woli.WorkOrderID, woli.ItemType });
@@ -36,10 +44,34 @@ public class WorkOrderLineItemConfiguration : IEntityTypeConfiguration<WorkOrder
         // Check Constraints
         builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrderLineItem_Quantity",
             "Quantity > 0"));
-        builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrderLineItem_UnitCost",
-            "UnitCost >= 0"));
+
+        builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrderLineItem_UnitPrice",
+            "UnitPrice IS NULL OR UnitPrice >= 0"));
+
+        builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrderLineItem_HourlyRate",
+            "HourlyRate IS NULL OR HourlyRate >= 0"));
+
+        builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrderLineItem_ServicePrice",
+            "ServicePrice IS NULL OR ServicePrice >= 0"));
+
         builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrderLineItem_LaborHours",
-            "LaborHours IS NULL OR LaborHours >= 0"));
+            "LaborHours IS NULL OR LaborHours > 0"));
+
+        builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrderLineItem_TotalCost",
+            "TotalCost >= 0"));
+
+        // Business rule constraints based on ItemType
+        builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrderLineItem_PartsValidation",
+            @"ItemType != 'PARTS' OR (InventoryItemID IS NOT NULL AND UnitPrice IS NOT NULL)"));
+
+        builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrderLineItem_MaterialsValidation",
+            @"ItemType != 'MATERIALS' OR (InventoryItemID IS NOT NULL AND UnitPrice IS NOT NULL)"));
+
+        builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrderLineItem_LaborValidation",
+            @"ItemType != 'LABOR' OR (HourlyRate IS NOT NULL AND LaborHours IS NOT NULL)"));
+
+        builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrderLineItem_ServiceValidation",
+            @"ItemType != 'SERVICE' OR ServicePrice IS NOT NULL"));
 
         // Table Relationships
         builder
@@ -52,8 +84,9 @@ public class WorkOrderLineItemConfiguration : IEntityTypeConfiguration<WorkOrder
             .HasOne(woli => woli.InventoryItem)
             .WithMany(i => i.WorkOrderLineItems)
             .HasForeignKey(woli => woli.InventoryItemID)
-            .OnDelete(DeleteBehavior.Restrict);
-
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired(false);
+        
         builder
             .HasOne(woli => woli.ServiceTask)
             .WithMany(st => st.WorkOrderLineItems)
