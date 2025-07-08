@@ -201,6 +201,14 @@ server.get("/vehicleGroups", (req, res) => {
     );
   }
 
+  // Filter by isActive if provided (not implemented yet in the backend)
+  // if (typeof req.query.isActive !== "undefined") {
+  //   const isActive = req.query.isActive === "true";
+  //   filteredGroups = filteredGroups.filter(
+  //     group => group.IsActive === isActive,
+  //   );
+  // }
+
   // Sort vehicle groups
   filteredGroups.sort((a, b) => {
     let aValue = a[sortBy];
