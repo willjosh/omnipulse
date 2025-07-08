@@ -23,6 +23,7 @@ namespace Domain.Entities;
 ///   <item>Buffer values (<see cref="TimeBufferValue"/>, <see cref="MileageBuffer"/>) are optional. If provided, they cannot exceed their corresponding interval.</item>
 ///   <item>First service properties (<see cref="FirstServiceTimeValue"/>, <see cref="FirstServiceTimeUnit"/>, <see cref="FirstServiceMileage"/>) are optional. If provided, they require their related interval fields to be set:
 ///     <list type="bullet">
+///       <item>These define the initial service point before the normal recurring interval begins (e.g., first service at 100,000 km, then every 50,000 km). Values are absolute targets, not relative (e.g., "at 2 months" means 2 months from the start date, not from now).</item>
 ///       <item><see cref="FirstServiceTimeValue"/> and <see cref="FirstServiceTimeUnit"/> require <see cref="TimeIntervalValue"/> and <see cref="TimeIntervalUnit"/> to be set.</item>
 ///       <item><see cref="FirstServiceMileage"/> requires <see cref="MileageInterval"/> to be set.</item>
 ///     </list>
