@@ -27,7 +27,7 @@ public class CreateMaintenanceHistoryCommandValidator : AbstractValidator<Create
         RuleFor(p => p.ServiceDate)
             .NotEmpty()
             .WithMessage("Service date is required")
-            .LessThanOrEqualTo(DateTime.UtcNow)
+            .LessThanOrEqualTo(_ => DateTime.UtcNow)
             .WithMessage("Service date cannot be in the future");
 
         RuleFor(p => p.MileageAtService)
