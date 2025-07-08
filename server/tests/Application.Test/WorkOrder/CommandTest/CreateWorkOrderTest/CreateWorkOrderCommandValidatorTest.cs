@@ -1,5 +1,6 @@
 using System;
 
+using Application.Features.WorkOrderLineItem.Models;
 using Application.Features.WorkOrders.Command.CreateWorkOrder;
 
 using Domain.Entities.Enums;
@@ -32,7 +33,8 @@ public class CreateWorkOrderCommandValidatorTest
         DateTime? actualStartDate = null,
         double startOdometer = 1000.0,
         double? endOdometer = 1010.0,
-        List<int>? issueIdList = null
+        List<int>? issueIdList = null,
+        List<CreateWorkOrderLineItemDTO>? workOrderLineItems = null
     )
     {
 
@@ -58,7 +60,8 @@ public class CreateWorkOrderCommandValidatorTest
             actualStartDate,
             startOdometer,
             endOdometer,
-            issueIdList
+            issueIdList,
+            workOrderLineItems
         );
     }
 
@@ -380,6 +383,32 @@ public class CreateWorkOrderCommandValidatorTest
             actualCost: 99.99m,
             actualHours: 3.5
         );
+
+        // When
+        var result = await _validator.ValidateAsync(command);
+
+        // Then
+        Assert.True(result.IsValid);
+        Assert.Empty(result.Errors);
+    }
+
+    [Fact]
+    public async Task Validator_Should_Pass_When_WorkOrderLineItems_Are_Valid()
+    {
+        // Given
+        var lineItems = new List<CreateWorkOrderLineItemDTO>
+        {
+            new CreateWorkOrderLineItemDTO
+            {
+                WorkOrderID = 1,
+                ServiceTaskID = 1,
+                InventoryItemID = 1,
+                ItemType = LineItemTypeEnum.ITEM,
+                Quantity = 1,
+                UnitPrice = 50.00m
+            }
+        };
+        var command = CreateValidCommand(workOrderLineItems: lineItems);
 
         // When
         var result = await _validator.ValidateAsync(command);

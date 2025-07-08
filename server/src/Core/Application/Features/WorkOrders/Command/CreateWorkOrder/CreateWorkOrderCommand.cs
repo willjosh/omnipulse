@@ -1,3 +1,5 @@
+using Application.Features.WorkOrderLineItem.Models;
+
 using Domain.Entities.Enums;
 
 using MediatR;
@@ -22,6 +24,8 @@ public record CreateWorkOrderCommand(
     double StartOdometer,
     double? EndOdometer,
     // Issues
-    List<int>? IssueIdList
+    List<int>? IssueIdList,
+    // Work Order Line Items
+    List<CreateWorkOrderLineItemDTO>? WorkOrderLineItems
 ) : IRequest<int>
 { }
