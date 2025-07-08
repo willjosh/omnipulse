@@ -20,12 +20,13 @@ public class WorkOrderLineItemConfiguration : IEntityTypeConfiguration<WorkOrder
         // Precision for decimal fields
         builder.Property(woli => woli.UnitPrice).HasPrecision(10, 2);
         builder.Property(woli => woli.HourlyRate).HasPrecision(10, 2);
-        builder.Property(woli => woli.ServicePrice).HasPrecision(10, 2);
         builder.Property(woli => woli.TotalCost).HasPrecision(10, 2);
         builder.Property(woli => woli.LaborHours).HasPrecision(5, 2);
 
         // inventory item ID is optional
         builder.Property(woli => woli.InventoryItemID).IsRequired(false);
+        builder.Property(woli => woli.AssignedToUserID)
+               .IsRequired(false);
 
         // Configure computed property
         builder.Property(woli => woli.TotalCost)
@@ -92,5 +93,12 @@ public class WorkOrderLineItemConfiguration : IEntityTypeConfiguration<WorkOrder
             .WithMany(st => st.WorkOrderLineItems)
             .HasForeignKey(woli => woli.ServiceTaskID)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder
+            .HasOne(woli => woli.User)
+            .WithMany()
+            .HasForeignKey(woli => woli.AssignedToUserID)
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired(false);
     }
 }

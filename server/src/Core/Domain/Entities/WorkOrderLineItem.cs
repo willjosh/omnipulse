@@ -15,15 +15,16 @@ public class WorkOrderLineItem : BaseEntity
 
     // OPTIONAL FIELDS 
     public int? InventoryItemID { get; set; }
+    public string? AssignedToUserID { get; set; }
     public string? Description { get; set; }
     public double? LaborHours { get; set; }
 
     // PRICING FIELDS 
     public decimal? UnitPrice { get; set; }
     public decimal? HourlyRate { get; set; }
-    public decimal? ServicePrice { get; set; }
 
     // Navigation properties
+    public required User? User { get; set; }
     public required WorkOrder WorkOrder { get; set; }
     public InventoryItem? InventoryItem { get; set; }
     public required ServiceTask ServiceTask { get; set; }
