@@ -23,7 +23,7 @@ public class WorkOrderLineItemConfiguration : IEntityTypeConfiguration<WorkOrder
         builder.Property(woli => woli.ServicePrice).HasPrecision(10, 2);
         builder.Property(woli => woli.TotalCost).HasPrecision(10, 2);
         builder.Property(woli => woli.LaborHours).HasPrecision(5, 2);
-        
+
         // inventory item ID is optional
         builder.Property(woli => woli.InventoryItemID).IsRequired(false);
 
@@ -86,7 +86,7 @@ public class WorkOrderLineItemConfiguration : IEntityTypeConfiguration<WorkOrder
             .HasForeignKey(woli => woli.InventoryItemID)
             .OnDelete(DeleteBehavior.Restrict)
             .IsRequired(false);
-        
+
         builder
             .HasOne(woli => woli.ServiceTask)
             .WithMany(st => st.WorkOrderLineItems)
