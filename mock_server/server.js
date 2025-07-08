@@ -202,12 +202,12 @@ server.get("/vehicleGroups", (req, res) => {
   }
 
   // Filter by isActive if provided (not implemented yet in the backend)
-  // if (typeof req.query.isActive !== "undefined") {
-  //   const isActive = req.query.isActive === "true";
-  //   filteredGroups = filteredGroups.filter(
-  //     group => group.IsActive === isActive,
-  //   );
-  // }
+  if (typeof req.query.isActive !== "undefined") {
+    const isActive = req.query.isActive === "true";
+    filteredGroups = filteredGroups.filter(
+      group => group.IsActive === isActive,
+    );
+  }
 
   // Sort vehicle groups
   filteredGroups.sort((a, b) => {
@@ -300,6 +300,12 @@ server.get("/technicians", (req, res) => {
     );
   }
 
+  // Filter by isActive if provided (not implemented yet)
+  if (typeof req.query.isActive !== "undefined") {
+    const isActive = req.query.isActive === "true";
+    filteredTechs = filteredTechs.filter(tech => tech.IsActive === isActive);
+  }
+
   // Sort technicians
   filteredTechs.sort((a, b) => {
     let aValue = a[sortBy];
@@ -370,6 +376,131 @@ server.get("/technicians/:id", (req, res) => {
   }
 });
 
+// Custom route for inventoryItems with pagination wrapper
+server.get("/inventoryItems", (req, res) => {
+  const db = router.db;
+  const inventoryItems = db.get("inventoryItems").value();
+
+  // Get query parameters
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const sortByParam = req.query.sortBy
+    ? req.query.sortBy.toLowerCase()
+    : "itemname";
+  const sortOrder = req.query.sortOrder || "asc";
+  const search = req.query.search || "";
+
+  // Map sortBy param to actual field name in db
+  const sortByMap = {
+    itemnumber: "ItemNumber",
+    itemname: "ItemName",
+    description: "Description",
+    category: "Category",
+    manufacturer: "Manufacturer",
+    manufacturerpartnumber: "ManufacturerPartNumber",
+    universalproductcode: "UniversalProductCode",
+    unitcost: "UnitCost",
+    unitcostmeasurementunit: "UnitCostMeasurementUnit",
+    supplier: "Supplier",
+    weightkg: "WeightKG",
+    isactive: "IsActive",
+  };
+  const sortBy = sortByMap[sortByParam] || "ItemName";
+
+  // Filter by search if provided
+  let filteredItems = inventoryItems;
+  if (search) {
+    const searchLower = search.toLowerCase();
+    filteredItems = filteredItems.filter(
+      item =>
+        (item.ItemNumber &&
+          item.ItemNumber.toLowerCase().includes(searchLower)) ||
+        (item.ItemName && item.ItemName.toLowerCase().includes(searchLower)) ||
+        (item.Description &&
+          item.Description.toLowerCase().includes(searchLower)) ||
+        (item.Manufacturer &&
+          item.Manufacturer.toLowerCase().includes(searchLower)) ||
+        (item.Supplier && item.Supplier.toLowerCase().includes(searchLower)),
+    );
+  }
+
+  // Filter by isActive if provided (not implemented yet)
+  if (typeof req.query.isActive !== "undefined") {
+    const isActive = req.query.isActive === "true";
+    filteredItems = filteredItems.filter(item => item.IsActive === isActive);
+  }
+
+  // Sort inventory items
+  filteredItems.sort((a, b) => {
+    let aValue = a[sortBy];
+    let bValue = b[sortBy];
+
+    if (aValue == null && bValue == null) return 0;
+    if (aValue == null) return sortOrder === "asc" ? 1 : -1;
+    if (bValue == null) return sortOrder === "asc" ? -1 : 1;
+
+    // For number fields
+    if (typeof aValue === "number" && typeof bValue === "number") {
+      return sortOrder === "asc" ? aValue - bValue : bValue - aValue;
+    }
+
+    // For boolean
+    if (typeof aValue === "boolean" && typeof bValue === "boolean") {
+      return sortOrder === "asc"
+        ? aValue === bValue
+          ? 0
+          : aValue
+            ? -1
+            : 1
+        : aValue === bValue
+          ? 0
+          : aValue
+            ? 1
+            : -1;
+    }
+
+    // For string fields
+    const aString = String(aValue).toLowerCase();
+    const bString = String(bValue).toLowerCase();
+    if (aString < bString) return sortOrder === "asc" ? -1 : 1;
+    if (aString > bString) return sortOrder === "asc" ? 1 : -1;
+    return 0;
+  });
+
+  // Calculate pagination
+  const totalCount = filteredItems.length;
+  const totalPages = Math.ceil(totalCount / limit);
+  const startIndex = (page - 1) * limit;
+  const endIndex = startIndex + limit;
+  const paginatedItems = filteredItems.slice(startIndex, endIndex);
+
+  // Return response in expected format
+  res.json({
+    Items: paginatedItems,
+    TotalCount: totalCount,
+    PageNumber: page,
+    PageSize: limit,
+    TotalPages: totalPages,
+    HasPreviousPage: page > 1,
+    HasNextPage: page < totalPages,
+  });
+});
+
+// Get single inventory item
+server.get("/inventoryItems/:id", (req, res) => {
+  const db = router.db;
+  const item = db
+    .get("inventoryItems")
+    .find({ id: parseInt(req.params.id) })
+    .value();
+
+  if (item) {
+    res.json(item);
+  } else {
+    res.status(404).json({ error: "Inventory item not found" });
+  }
+});
+
 // Use default router for other routes
 server.use(router);
 
@@ -407,6 +538,14 @@ server.listen(PORT, () => {
     `GET /technicians?sortBy=firstname - Sort technicians by firstname`,
   );
   console.log(`GET /technicians/:id - Get single technician`);
+
+  // Inventory Items
+  console.log(`GET /inventoryItems - Get paginated inventory items`);
+  console.log(
+    `GET /inventoryItems?page=1&limit=5 - Get inventory items with pagination`,
+  );
+  console.log(`GET /inventoryItems?search=oil - Search inventory items`);
+  console.log(`GET /inventoryItems/:id - Get single inventory item`);
 });
 
 module.exports = server;
