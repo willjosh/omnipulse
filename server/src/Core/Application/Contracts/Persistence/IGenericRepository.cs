@@ -44,7 +44,7 @@ public interface IGenericRepository<T> where T : BaseEntity
     /// <param name="id">The entity ID.</param>
     /// <returns><c>true</c> if the entity exists; otherwise, <c>false</c>.</returns>
     Task<bool> ExistsAsync(int id);
-    
+
     /// <summary>
     /// Determines whether any entity matches the specified predicate.
     /// </summary>

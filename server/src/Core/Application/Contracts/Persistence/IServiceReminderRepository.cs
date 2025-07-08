@@ -4,7 +4,7 @@ using Domain.Entities;
 
 namespace Application.Contracts.Persistence;
 
-public interface IServiceReminderRepository: IGenericRepository<ServiceReminder>
+public interface IServiceReminderRepository : IGenericRepository<ServiceReminder>
 {
 
 }
