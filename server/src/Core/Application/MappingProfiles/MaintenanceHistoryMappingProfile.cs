@@ -1,5 +1,7 @@
 using Application.Features.MaintenanceHistories.Command.CreateMaintenanceHistory;
+
 using AutoMapper;
+
 using Domain.Entities;
 
 namespace Application.MappingProfiles;
@@ -16,4 +18,4 @@ public class MaintenanceHistoryMappingProfile : Profile
             .ForMember(dest => dest.User, opt => opt.Ignore())
             .ForMember(dest => dest.InventoryTransactions, opt => opt.Ignore());
     }
-} 
+}
