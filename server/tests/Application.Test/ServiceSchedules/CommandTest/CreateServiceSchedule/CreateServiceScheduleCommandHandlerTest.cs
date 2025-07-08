@@ -9,6 +9,7 @@ using Application.MappingProfiles;
 using AutoMapper;
 
 using Domain.Entities;
+using Domain.Entities.Enums;
 
 using FluentValidation;
 
@@ -43,19 +44,27 @@ public class CreateServiceScheduleCommandHandlerTest
     private static CreateServiceScheduleCommand CreateValidCommand(
         int serviceProgramId = 1,
         string name = "5000 km / 6 month service",
-        int intervalMileage = 5000,
-        int intervalDays = 180,
-        int intervalHours = 0,
-        int bufferMileage = 250,
-        int bufferDays = 7,
+        int? timeIntervalValue = 6,
+        TimeUnitEnum? timeIntervalUnit = TimeUnitEnum.Months,
+        int? timeBufferValue = 1,
+        TimeUnitEnum? timeBufferUnit = TimeUnitEnum.Weeks,
+        int? mileageInterval = 5000,
+        int? mileageBuffer = 250,
+        int? firstServiceTimeValue = null,
+        TimeUnitEnum? firstServiceTimeUnit = null,
+        int? firstServiceMileage = null,
         bool isActive = true) => new(
             ServiceProgramID: serviceProgramId,
             Name: name,
-            IntervalMileage: intervalMileage,
-            IntervalDays: intervalDays,
-            IntervalHours: intervalHours,
-            BufferMileage: bufferMileage,
-            BufferDays: bufferDays,
+            TimeIntervalValue: timeIntervalValue,
+            TimeIntervalUnit: timeIntervalUnit,
+            TimeBufferValue: timeBufferValue,
+            TimeBufferUnit: timeBufferUnit,
+            MileageInterval: mileageInterval,
+            MileageBuffer: mileageBuffer,
+            FirstServiceTimeValue: firstServiceTimeValue,
+            FirstServiceTimeUnit: firstServiceTimeUnit,
+            FirstServiceMileage: firstServiceMileage,
             IsActive: isActive);
 
     private void SetupValidValidation(CreateServiceScheduleCommand command)
@@ -87,11 +96,15 @@ public class CreateServiceScheduleCommandHandlerTest
             ID = 42,
             ServiceProgramID = command.ServiceProgramID,
             Name = command.Name,
-            IntervalMileage = command.IntervalMileage,
-            IntervalDays = command.IntervalDays,
-            IntervalHours = command.IntervalHours,
-            BufferMileage = command.BufferMileage,
-            BufferDays = command.BufferDays,
+            TimeIntervalValue = command.TimeIntervalValue,
+            TimeIntervalUnit = command.TimeIntervalUnit,
+            TimeBufferValue = command.TimeBufferValue,
+            TimeBufferUnit = command.TimeBufferUnit,
+            MileageInterval = command.MileageInterval,
+            MileageBuffer = command.MileageBuffer,
+            FirstServiceTimeValue = command.FirstServiceTimeValue,
+            FirstServiceTimeUnit = command.FirstServiceTimeUnit,
+            FirstServiceMileage = command.FirstServiceMileage,
             IsActive = command.IsActive,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
