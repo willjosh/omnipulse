@@ -1,14 +1,20 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
 using Application.Features.MaintenanceHistories.Command.CreateMaintenanceHistory;
+
 using AutoMapper;
+
 using Domain.Entities;
+
 using FluentValidation;
+
 using Moq;
+
 using Xunit;
 
 namespace Application.Test.MaintenanceHistories.CommandTest.CreateMaintenanceHistory;
@@ -239,4 +245,4 @@ public class CreateMaintenanceHistoryCommandHandlerTest
         _mockUserRepository.Verify(r => r.ExistsAsync(command.TechnicianID), Times.Once);
         _mockMaintenanceHistoryRepository.Verify(r => r.AddAsync(It.IsAny<MaintenanceHistory>()), Times.Never);
     }
-} 
+}

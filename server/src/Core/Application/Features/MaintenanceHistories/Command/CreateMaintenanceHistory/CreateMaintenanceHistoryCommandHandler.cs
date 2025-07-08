@@ -1,6 +1,6 @@
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Linq;
 
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
@@ -102,4 +102,4 @@ public class CreateMaintenanceHistoryCommandHandler : IRequestHandler<CreateMain
             throw new EntityNotFoundException(typeof(MaintenanceHistory).ToString(), "TechnicianID", request.TechnicianID);
         }
     }
-} 
+}

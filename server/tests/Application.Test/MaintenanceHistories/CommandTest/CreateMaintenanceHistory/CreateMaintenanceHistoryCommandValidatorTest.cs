@@ -1,6 +1,8 @@
 using System;
 using System.Threading.Tasks;
+
 using Application.Features.MaintenanceHistories.Command.CreateMaintenanceHistory;
+
 using Xunit;
 
 namespace Application.Test.MaintenanceHistories.CommandTest.CreateMaintenanceHistory;
@@ -117,7 +119,7 @@ public class CreateMaintenanceHistoryCommandValidatorTest
     [InlineData(null)]
     [InlineData("")]
     [InlineData("   ")]
-    public async Task Validator_Should_Fail_When_TechnicianID_Is_Empty(string technicianId)
+    public async Task Validator_Should_Fail_When_TechnicianID_Is_Empty(string? technicianId)
     {
         var command = CreateValidCommand(technicianId: technicianId);
         var result = await _validator.ValidateAsync(command);
@@ -188,4 +190,4 @@ public class CreateMaintenanceHistoryCommandValidatorTest
         Assert.False(result.IsValid);
         Assert.Contains(result.Errors, e => e.PropertyName == "Notes");
     }
-} 
+}
