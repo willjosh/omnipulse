@@ -86,7 +86,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
     resetForm,
     initializeForEdit,
     initializeForCreate,
-    isFormComplete,
+    // isFormComplete,
     toCreateCommand,
     toUpdateCommand,
   } = useVehicleFormStore();

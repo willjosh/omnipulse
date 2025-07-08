@@ -4,7 +4,7 @@ import {
   getVehicleTypeLabel,
 } from "@/app/_utils/vehicleEnumHelper";
 import { VehicleWithLabels } from "@/app/_hooks/Vehicle/vehicleType";
-import { VehicleStatusEnum } from "@/app/_hooks/Vehicle/vehicleEnum";
+// import { VehicleStatusEnum } from "@/app/_hooks/Vehicle/vehicleEnum";
 import React from "react";
 
 export const vehicleTableColumns = [
