@@ -501,6 +501,102 @@ server.get("/inventoryItems/:id", (req, res) => {
   }
 });
 
+// Custom route for serviceTasks with pagination wrapper
+server.get("/serviceTasks", (req, res) => {
+  const db = router.db;
+  const serviceTasks = db.get("serviceTasks").value();
+
+  // Get query parameters
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const sortByParam = req.query.sortBy ? req.query.sortBy.toLowerCase() : "id";
+  const sortOrder = req.query.sortOrder || "asc";
+  const search = req.query.search || "";
+
+  // Filter by search if provided
+  let filteredTasks = serviceTasks;
+  if (search) {
+    const searchLower = search.toLowerCase();
+    filteredTasks = filteredTasks.filter(
+      task =>
+        (task.Name && task.Name.toLowerCase().includes(searchLower)) ||
+        (task.Description &&
+          task.Description.toLowerCase().includes(searchLower)),
+    );
+  }
+
+  // Filter by isActive if provided
+  if (typeof req.query.isActive !== "undefined") {
+    const isActive = req.query.isActive === "true";
+    filteredTasks = filteredTasks.filter(task => task.IsActive === isActive);
+  }
+
+  // Sort service tasks
+  const sortByMap = {
+    id: "id",
+    name: "Name",
+    description: "Description",
+    estimatedlabourhours: "EstimatedLabourHours",
+    estimatedcost: "EstimatedCost",
+    category: "Category",
+    isactive: "IsActive",
+  };
+  const sortBy = sortByMap[sortByParam] || "id";
+
+  filteredTasks.sort((a, b) => {
+    let aValue = a[sortBy];
+    let bValue = b[sortBy];
+
+    if (aValue == null && bValue == null) return 0;
+    if (aValue == null) return sortOrder === "asc" ? 1 : -1;
+    if (bValue == null) return sortOrder === "asc" ? -1 : 1;
+
+    if (typeof aValue === "number" && typeof bValue === "number") {
+      return sortOrder === "asc" ? aValue - bValue : bValue - aValue;
+    }
+
+    const aString = String(aValue).toLowerCase();
+    const bString = String(bValue).toLowerCase();
+
+    if (aString < bString) return sortOrder === "asc" ? -1 : 1;
+    if (aString > bString) return sortOrder === "asc" ? 1 : -1;
+    return 0;
+  });
+
+  // Calculate pagination
+  const totalCount = filteredTasks.length;
+  const totalPages = Math.ceil(totalCount / limit);
+  const startIndex = (page - 1) * limit;
+  const endIndex = startIndex + limit;
+  const paginatedTasks = filteredTasks.slice(startIndex, endIndex);
+
+  // Return response in your expected format
+  res.json({
+    Items: paginatedTasks,
+    TotalCount: totalCount,
+    PageNumber: page,
+    PageSize: limit,
+    TotalPages: totalPages,
+    HasPreviousPage: page > 1,
+    HasNextPage: page < totalPages,
+  });
+});
+
+// Get single service task
+server.get("/serviceTasks/:id", (req, res) => {
+  const db = router.db;
+  const task = db
+    .get("serviceTasks")
+    .find({ id: parseInt(req.params.id) })
+    .value();
+
+  if (task) {
+    res.json(task);
+  } else {
+    res.status(404).json({ error: "Service Task not found" });
+  }
+});
+
 // Use default router for other routes
 server.use(router);
 
