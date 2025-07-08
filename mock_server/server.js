@@ -91,6 +91,36 @@ server.get("/vehicles/:id", (req, res) => {
   }
 });
 
+// route for creating a new vehicle
+server.post("/vehicles", (req, res) => {
+  const db = router.db;
+  const newVehicle = { ...req.body, id: Date.now() };
+  db.get("vehicles").push(newVehicle).write();
+  res.status(201).json(newVehicle);
+});
+
+// route for updating a vehicle
+server.put("/vehicles/:id", (req, res) => {
+  const db = router.db;
+  const vehicle = db
+    .get("vehicles")
+    .find({ id: parseInt(req.params.id) })
+    .assign(req.body)
+    .write();
+  res.json(vehicle);
+});
+
+// route for archiving a vehicle
+server.post("/vehicles/deactivate/:id", (req, res) => {
+  const db = router.db;
+  const vehicle = db
+    .get("vehicles")
+    .find({ id: parseInt(req.params.id) })
+    .assign({ Status: 3 })
+    .write();
+  res.json(vehicle);
+});
+
 // Use default router for other routes
 server.use(router);
 
