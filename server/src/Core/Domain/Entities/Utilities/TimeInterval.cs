@@ -20,6 +20,7 @@ public class TimeInterval
             TimeUnitEnum.Days => baseTime.AddDays(Value),
             TimeUnitEnum.Weeks => baseTime.AddDays(Value * 7),
             TimeUnitEnum.Months => baseTime.AddMonths(Value),
+            TimeUnitEnum.Years => baseTime.AddYears(Value),
             _ => throw new NotSupportedException($"Unsupported Unit: {Unit}")
         };
     }
