@@ -46,7 +46,7 @@ public class DeleteIssueCommandHandlerTest
             IssueAttachments = [],
             IssueAssignments = [],
             Vehicle = null!,
-            User = null!
+            ReportedByUser = null!
         };
         _mockIssueRepository.Setup(repo => repo.GetByIdAsync(command.IssueID)).ReturnsAsync(returnedIssue);
         _mockIssueRepository.Setup(repo => repo.Delete(returnedIssue));

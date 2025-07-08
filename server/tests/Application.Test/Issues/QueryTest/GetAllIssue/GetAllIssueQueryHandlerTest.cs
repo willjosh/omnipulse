@@ -146,7 +146,7 @@ public class GetAllIssueQueryHandlerTest
                 IssueAttachments = [],
                 IssueAssignments = [],
                 Vehicle = vehicle,
-                User = user,
+                ReportedByUser = user,
                 CreatedAt = DateTime.UtcNow.AddDays(-2),
                 UpdatedAt = DateTime.UtcNow.AddDays(-1)
             }
@@ -222,7 +222,7 @@ public class GetAllIssueQueryHandlerTest
                 IssueAttachments = [],
                 IssueAssignments = [],
                 Vehicle = null!,
-                User = null!,
+                ReportedByUser = null!,
                 CreatedAt = DateTime.UtcNow.AddDays(-i),
                 UpdatedAt = DateTime.UtcNow.AddDays(-i)
             });
@@ -275,7 +275,7 @@ public class GetAllIssueQueryHandlerTest
                 IssueAttachments = [],
                 IssueAssignments = [],
                 Vehicle = null!,
-                User = null!,
+                ReportedByUser = null!,
                 CreatedAt = DateTime.UtcNow.AddDays(-i),
                 UpdatedAt = DateTime.UtcNow.AddDays(-i)
             });
@@ -326,10 +326,10 @@ public class GetAllIssueQueryHandlerTest
         SetupValidValidation(query);
         var issues = new List<Issue>
         {
-            new Issue { ID = 1, Title = "Engine", Description = "Engine overheating", Category = IssueCategoryEnum.ENGINE, PriorityLevel = PriorityLevelEnum.HIGH, Status = IssueStatusEnum.OPEN, VehicleID = 1, IssueNumber = 1001, ReportedByUserID = "user1", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, User = null! },
-            new Issue { ID = 2, Title = "Brakes", Description = "Brake pads worn", Category = IssueCategoryEnum.BRAKES, PriorityLevel = PriorityLevelEnum.LOW, Status = IssueStatusEnum.RESOLVED, VehicleID = 2, IssueNumber = 1002, ReportedByUserID = "user2", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, User = null! }
+            new Issue { ID = 1, Title = "Engine", Description = "Engine overheating", Category = IssueCategoryEnum.ENGINE, PriorityLevel = PriorityLevelEnum.HIGH, Status = IssueStatusEnum.OPEN, VehicleID = 1, IssueNumber = 1001, ReportedByUserID = "user1", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, ReportedByUser = null! },
+            new Issue { ID = 2, Title = "Brakes", Description = "Brake pads worn", Category = IssueCategoryEnum.BRAKES, PriorityLevel = PriorityLevelEnum.LOW, Status = IssueStatusEnum.RESOLVED, VehicleID = 2, IssueNumber = 1002, ReportedByUserID = "user2", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, ReportedByUser = null! }
         };
-        _mockIssueRepository.Setup(r => r.GetAllIssuesPagedAsync(parameters)).ReturnsAsync(new PagedResult<Issue> { Items = issues.Where(i => i.Description.ToLower().Contains("overheating")).ToList(), TotalCount = 1, PageNumber = 1, PageSize = 10 });
+        _mockIssueRepository.Setup(r => r.GetAllIssuesPagedAsync(parameters)).ReturnsAsync(new PagedResult<Issue> { Items = issues.Where(i => i.Description!.ToLower().Contains("overheating")).ToList(), TotalCount = 1, PageNumber = 1, PageSize = 10 });
         var result = await _getAllIssueQueryHandler.Handle(query, CancellationToken.None);
         Assert.Single(result.Items);
         Assert.Equal("Engine overheating", result.Items[0].Description);
@@ -343,8 +343,8 @@ public class GetAllIssueQueryHandlerTest
         SetupValidValidation(query);
         var issues = new List<Issue>
         {
-            new Issue { ID = 1, Title = "Engine", Description = "Engine overheating", Category = IssueCategoryEnum.ENGINE, PriorityLevel = PriorityLevelEnum.HIGH, Status = IssueStatusEnum.OPEN, VehicleID = 1, IssueNumber = 1001, ReportedByUserID = "user1", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, User = null! },
-            new Issue { ID = 2, Title = "Brakes", Description = "Brake pads worn", Category = IssueCategoryEnum.BRAKES, PriorityLevel = PriorityLevelEnum.LOW, Status = IssueStatusEnum.RESOLVED, VehicleID = 2, IssueNumber = 1002, ReportedByUserID = "user2", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, User = null! }
+            new Issue { ID = 1, Title = "Engine", Description = "Engine overheating", Category = IssueCategoryEnum.ENGINE, PriorityLevel = PriorityLevelEnum.HIGH, Status = IssueStatusEnum.OPEN, VehicleID = 1, IssueNumber = 1001, ReportedByUserID = "user1", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, ReportedByUser = null! },
+            new Issue { ID = 2, Title = "Brakes", Description = "Brake pads worn", Category = IssueCategoryEnum.BRAKES, PriorityLevel = PriorityLevelEnum.LOW, Status = IssueStatusEnum.RESOLVED, VehicleID = 2, IssueNumber = 1002, ReportedByUserID = "user2", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, ReportedByUser = null! }
         };
         _mockIssueRepository.Setup(r => r.GetAllIssuesPagedAsync(parameters)).ReturnsAsync(new PagedResult<Issue> { Items = issues.Where(i => i.Category.ToString().ToLower().Contains("brakes")).ToList(), TotalCount = 1, PageNumber = 1, PageSize = 10 });
         var result = await _getAllIssueQueryHandler.Handle(query, CancellationToken.None);
@@ -360,8 +360,8 @@ public class GetAllIssueQueryHandlerTest
         SetupValidValidation(query);
         var issues = new List<Issue>
         {
-            new Issue { ID = 1, Title = "Engine", Description = "Engine overheating", Category = IssueCategoryEnum.ENGINE, PriorityLevel = PriorityLevelEnum.HIGH, Status = IssueStatusEnum.OPEN, VehicleID = 1, IssueNumber = 1001, ReportedByUserID = "user1", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, User = null! },
-            new Issue { ID = 2, Title = "Brakes", Description = "Brake pads worn", Category = IssueCategoryEnum.BRAKES, PriorityLevel = PriorityLevelEnum.LOW, Status = IssueStatusEnum.RESOLVED, VehicleID = 2, IssueNumber = 1002, ReportedByUserID = "user2", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, User = null! }
+            new Issue { ID = 1, Title = "Engine", Description = "Engine overheating", Category = IssueCategoryEnum.ENGINE, PriorityLevel = PriorityLevelEnum.HIGH, Status = IssueStatusEnum.OPEN, VehicleID = 1, IssueNumber = 1001, ReportedByUserID = "user1", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, ReportedByUser = null! },
+            new Issue { ID = 2, Title = "Brakes", Description = "Brake pads worn", Category = IssueCategoryEnum.BRAKES, PriorityLevel = PriorityLevelEnum.LOW, Status = IssueStatusEnum.RESOLVED, VehicleID = 2, IssueNumber = 1002, ReportedByUserID = "user2", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, ReportedByUser = null! }
         };
         _mockIssueRepository.Setup(r => r.GetAllIssuesPagedAsync(parameters)).ReturnsAsync(new PagedResult<Issue> { Items = issues.Where(i => i.PriorityLevel.ToString().ToLower().Contains("high")).ToList(), TotalCount = 1, PageNumber = 1, PageSize = 10 });
         var result = await _getAllIssueQueryHandler.Handle(query, CancellationToken.None);
@@ -377,8 +377,8 @@ public class GetAllIssueQueryHandlerTest
         SetupValidValidation(query);
         var issues = new List<Issue>
         {
-            new Issue { ID = 1, Title = "Engine", Description = "Engine overheating", Category = IssueCategoryEnum.ENGINE, PriorityLevel = PriorityLevelEnum.HIGH, Status = IssueStatusEnum.OPEN, VehicleID = 1, IssueNumber = 1001, ReportedByUserID = "user1", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, User = null! },
-            new Issue { ID = 2, Title = "Brakes", Description = "Brake pads worn", Category = IssueCategoryEnum.BRAKES, PriorityLevel = PriorityLevelEnum.LOW, Status = IssueStatusEnum.RESOLVED, VehicleID = 2, IssueNumber = 1002, ReportedByUserID = "user2", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, User = null! }
+            new Issue { ID = 1, Title = "Engine", Description = "Engine overheating", Category = IssueCategoryEnum.ENGINE, PriorityLevel = PriorityLevelEnum.HIGH, Status = IssueStatusEnum.OPEN, VehicleID = 1, IssueNumber = 1001, ReportedByUserID = "user1", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, ReportedByUser = null! },
+            new Issue { ID = 2, Title = "Brakes", Description = "Brake pads worn", Category = IssueCategoryEnum.BRAKES, PriorityLevel = PriorityLevelEnum.LOW, Status = IssueStatusEnum.RESOLVED, VehicleID = 2, IssueNumber = 1002, ReportedByUserID = "user2", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, ReportedByUser = null! }
         };
         _mockIssueRepository.Setup(r => r.GetAllIssuesPagedAsync(parameters)).ReturnsAsync(new PagedResult<Issue> { Items = issues.Where(i => i.Status.ToString().ToLower().Contains("resolved")).ToList(), TotalCount = 1, PageNumber = 1, PageSize = 10 });
         var result = await _getAllIssueQueryHandler.Handle(query, CancellationToken.None);
@@ -394,8 +394,8 @@ public class GetAllIssueQueryHandlerTest
         SetupValidValidation(query);
         var issues = new List<Issue>
         {
-            new Issue { ID = 1, Title = "Engine", Description = "Engine overheating", Category = IssueCategoryEnum.ENGINE, PriorityLevel = PriorityLevelEnum.HIGH, Status = IssueStatusEnum.OPEN, VehicleID = 1, IssueNumber = 1001, ReportedByUserID = "user1", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, User = null! },
-            new Issue { ID = 2, Title = "Brakes", Description = "Brake pads worn", Category = IssueCategoryEnum.BRAKES, PriorityLevel = PriorityLevelEnum.LOW, Status = IssueStatusEnum.RESOLVED, VehicleID = 2, IssueNumber = 1002, ReportedByUserID = "user2", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, User = null! }
+            new Issue { ID = 1, Title = "Engine", Description = "Engine overheating", Category = IssueCategoryEnum.ENGINE, PriorityLevel = PriorityLevelEnum.HIGH, Status = IssueStatusEnum.OPEN, VehicleID = 1, IssueNumber = 1001, ReportedByUserID = "user1", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, ReportedByUser = null! },
+            new Issue { ID = 2, Title = "Brakes", Description = "Brake pads worn", Category = IssueCategoryEnum.BRAKES, PriorityLevel = PriorityLevelEnum.LOW, Status = IssueStatusEnum.RESOLVED, VehicleID = 2, IssueNumber = 1002, ReportedByUserID = "user2", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, ReportedByUser = null! }
         };
         _mockIssueRepository.Setup(r => r.GetAllIssuesPagedAsync(parameters)).ReturnsAsync(new PagedResult<Issue> { Items = issues.Where(i => i.VehicleID.ToString().Contains("2")).ToList(), TotalCount = 1, PageNumber = 1, PageSize = 10 });
         var result = await _getAllIssueQueryHandler.Handle(query, CancellationToken.None);
@@ -411,8 +411,8 @@ public class GetAllIssueQueryHandlerTest
         SetupValidValidation(query);
         var issues = new List<Issue>
         {
-            new Issue { ID = 1, Title = "Engine", Description = "Engine overheating", Category = IssueCategoryEnum.ENGINE, PriorityLevel = PriorityLevelEnum.HIGH, Status = IssueStatusEnum.OPEN, VehicleID = 1, IssueNumber = 1001, ReportedByUserID = "user1", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, User = null! },
-            new Issue { ID = 2, Title = "Brakes", Description = "Brake pads worn", Category = IssueCategoryEnum.BRAKES, PriorityLevel = PriorityLevelEnum.LOW, Status = IssueStatusEnum.RESOLVED, VehicleID = 2, IssueNumber = 1002, ReportedByUserID = "user2", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, User = null! }
+            new Issue { ID = 1, Title = "Engine", Description = "Engine overheating", Category = IssueCategoryEnum.ENGINE, PriorityLevel = PriorityLevelEnum.HIGH, Status = IssueStatusEnum.OPEN, VehicleID = 1, IssueNumber = 1001, ReportedByUserID = "user1", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, ReportedByUser = null! },
+            new Issue { ID = 2, Title = "Brakes", Description = "Brake pads worn", Category = IssueCategoryEnum.BRAKES, PriorityLevel = PriorityLevelEnum.LOW, Status = IssueStatusEnum.RESOLVED, VehicleID = 2, IssueNumber = 1002, ReportedByUserID = "user2", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, ReportedByUser = null! }
         };
         _mockIssueRepository.Setup(r => r.GetAllIssuesPagedAsync(parameters)).ReturnsAsync(new PagedResult<Issue> { Items = issues.Where(i => i.IssueNumber.ToString().Contains("1002")).ToList(), TotalCount = 1, PageNumber = 1, PageSize = 10 });
         var result = await _getAllIssueQueryHandler.Handle(query, CancellationToken.None);
@@ -428,8 +428,8 @@ public class GetAllIssueQueryHandlerTest
         SetupValidValidation(query);
         var issues = new List<Issue>
         {
-            new Issue { ID = 1, Title = "Engine", Description = "Engine overheating", Category = IssueCategoryEnum.ENGINE, PriorityLevel = PriorityLevelEnum.HIGH, Status = IssueStatusEnum.OPEN, VehicleID = 1, IssueNumber = 1001, ReportedByUserID = "user1", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, User = null! },
-            new Issue { ID = 2, Title = "Brakes", Description = "Brake pads worn", Category = IssueCategoryEnum.BRAKES, PriorityLevel = PriorityLevelEnum.LOW, Status = IssueStatusEnum.RESOLVED, VehicleID = 2, IssueNumber = 1002, ReportedByUserID = "user2", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, User = null! }
+            new Issue { ID = 1, Title = "Engine", Description = "Engine overheating", Category = IssueCategoryEnum.ENGINE, PriorityLevel = PriorityLevelEnum.HIGH, Status = IssueStatusEnum.OPEN, VehicleID = 1, IssueNumber = 1001, ReportedByUserID = "user1", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, ReportedByUser = null! },
+            new Issue { ID = 2, Title = "Brakes", Description = "Brake pads worn", Category = IssueCategoryEnum.BRAKES, PriorityLevel = PriorityLevelEnum.LOW, Status = IssueStatusEnum.RESOLVED, VehicleID = 2, IssueNumber = 1002, ReportedByUserID = "user2", CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, IssueAttachments = [], IssueAssignments = [], Vehicle = null!, ReportedByUser = null! }
         };
         _mockIssueRepository.Setup(r => r.GetAllIssuesPagedAsync(parameters)).ReturnsAsync(new PagedResult<Issue> { Items = issues.Where(i => i.ReportedByUserID.ToLower().Contains("user2")).ToList(), TotalCount = 1, PageNumber = 1, PageSize = 10 });
         var result = await _getAllIssueQueryHandler.Handle(query, CancellationToken.None);
@@ -506,7 +506,6 @@ public class GetAllIssueQueryHandlerTest
             Location = "Depot",
             AssignedTechnicianID = null,
             VehicleGroup = null!,
-            User = reporter,
             VehicleImages = [],
             VehicleAssignments = [],
             VehicleDocuments = [],
@@ -533,12 +532,12 @@ public class GetAllIssueQueryHandlerTest
                 Status = IssueStatusEnum.RESOLVED,
                 ResolvedDate = DateTime.UtcNow.AddDays(-1),
                 ResolvedByUserID = "USER2",
-                ResolvedByUser = resolver,
                 ResolutionNotes = "Replaced thermostat.",
                 IssueAttachments = [],
                 IssueAssignments = [],
                 Vehicle = vehicle,
-                User = reporter,
+                ReportedByUser = reporter,
+                ResolvedByUser = resolver,
                 CreatedAt = DateTime.UtcNow.AddDays(-2),
                 UpdatedAt = DateTime.UtcNow.AddDays(-1)
             }

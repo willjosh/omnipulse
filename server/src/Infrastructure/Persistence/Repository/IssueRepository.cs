@@ -24,8 +24,7 @@ public class IssueRepository : GenericRepository<Issue>, IIssueRepository
     public async Task<PagedResult<Issue>> GetAllIssuesPagedAsync(PaginationParameters parameters)
     {
         var query = _context.Issues
-            .Include(i => i.User)
-            .Include(i => i.ResolvedByUser)
+            .Include(i => i.ReportedByUser)
             .Include(i => i.Vehicle)
             .AsQueryable();
 
@@ -33,7 +32,11 @@ public class IssueRepository : GenericRepository<Issue>, IIssueRepository
         if (!string.IsNullOrWhiteSpace(parameters.Search))
         {
             var search = parameters.Search.ToLower();
-            query = query.Where(i => i.Title.ToLower().Contains(search) || (i.Description != null && i.Description.ToLower().Contains(search)));
+            query = query.Where(i =>
+                i.Title.ToLower().Contains(search)
+                || (i.Description != null && i.Description.ToLower().Contains(search))
+                || i.IssueNumber.ToString().ToLower().Contains(search)
+            );
         }
 
         // Sorting

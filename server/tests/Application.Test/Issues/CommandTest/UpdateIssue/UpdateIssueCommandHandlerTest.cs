@@ -88,7 +88,7 @@ public class UpdateIssueCommandHandlerTest
             IssueAttachments = [],
             IssueAssignments = [],
             Vehicle = null!,
-            User = null!
+            ReportedByUser = null!
         };
     }
 
