@@ -7,8 +7,8 @@ import PrimaryButton from "@/app/_features/shared/button/PrimaryButton";
 import { vehicleTableColumns } from "./VehicleTableColumns";
 import { useVehicles } from "@/app/_hooks/Vehicle/useVehicles";
 import { Vehicle, VehicleWithLabels } from "@/app/_hooks/Vehicle/vehicleType";
-// import TabNavigation from "@/app/_features/shared/TabNavigation";
-// import { vehicleFilterConfig, vehicleTabConfig } from "./VehicleListFilters";
+import TabNavigation from "@/app/_features/shared/TabNavigation";
+import { vehicleFilterConfig, vehicleTabConfig } from "./VehicleListFilters";
 import PaginationControls from "@/app/_features/shared/PaginationControls";
 import ConfirmModal from "@/app/_features/shared/ConfirmModal";
 import FilterBar from "@/app/_features/shared/FilterBar";
@@ -103,15 +103,15 @@ const VehicleList: React.FC = () => {
     );
   };
 
-  // const handleSort = (sortKey: string) => {
-  //   setFilters(prev => ({
-  //     ...prev,
-  //     sortBy: sortKey,
-  //     sortOrder:
-  //       prev.sortBy === sortKey && prev.sortOrder === "asc" ? "desc" : "asc",
-  //     page: 1, // Reset to first page when sorting
-  //   }));
-  // };
+  const handleSort = (sortKey: string) => {
+    setFilters(prev => ({
+      ...prev,
+      sortBy: sortKey,
+      sortOrder:
+        prev.sortBy === sortKey && prev.sortOrder === "asc" ? "desc" : "asc",
+      page: 1, // Reset to first page when sorting
+    }));
+  };
 
   const handleSearch = (searchTerm: string) => {
     setFilters(prev => ({
@@ -125,13 +125,13 @@ const VehicleList: React.FC = () => {
     setFilters(prev => ({ ...prev, page: newPage }));
   };
 
-  // const handlePageSizeChange = (newPageSize: number) => {
-  //   setFilters(prev => ({
-  //     ...prev,
-  //     limit: newPageSize,
-  //     page: 1, // Reset to first page when changing page size
-  //   }));
-  // };
+  const handlePageSizeChange = (newPageSize: number) => {
+    setFilters(prev => ({
+      ...prev,
+      limit: newPageSize,
+      page: 1, // Reset to first page when changing page size
+    }));
+  };
 
   const handleRowClick = (vehicle: Vehicle) => {
     router.push(`/vehicles/${vehicle.id}`);
@@ -170,7 +170,7 @@ const VehicleList: React.FC = () => {
           searchValue={filters.search}
           onSearchChange={handleSearch}
           searchPlaceholder="Search vehicles"
-          filters={[]}
+          // filters={"placeholder"}
           onFilterChange={() => console.log("Filter change")}
         />
 
@@ -184,7 +184,7 @@ const VehicleList: React.FC = () => {
         />
       </div>
 
-      <DataTable
+      <DataTable<VehicleWithLabels>
         data={vehicles || []}
         columns={vehicleTableColumns}
         selectedItems={selectedVehicles}
@@ -194,6 +194,7 @@ const VehicleList: React.FC = () => {
         actions={vehicleActions}
         showActions={true}
         loading={isLoadingVehicles}
+        getItemId={vehicle => vehicle.id.toString()}
         emptyState={emptyState}
       />
 
