@@ -300,6 +300,12 @@ server.get("/technicians", (req, res) => {
     );
   }
 
+  // Filter by isActive if provided (not implemented yet)
+  // if (typeof req.query.isActive !== "undefined") {
+  //   const isActive = req.query.isActive === "true";
+  //   filteredTechs = filteredTechs.filter(tech => tech.IsActive === isActive);
+  // }
+
   // Sort technicians
   filteredTechs.sort((a, b) => {
     let aValue = a[sortBy];
