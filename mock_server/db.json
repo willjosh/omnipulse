@@ -487,34 +487,146 @@
   ],
   "vehicleGroups": [
     {
-      "ID": 1,
+      "id": 1,
       "Name": "Group 1",
       "Description": "Main delivery fleet",
       "IsActive": true
     },
     {
-      "ID": 2,
+      "id": 2,
       "Name": "Group 2",
       "Description": "City vehicles",
       "IsActive": true
     },
     {
-      "ID": 3,
+      "id": 3,
       "Name": "Group 3",
       "Description": "Electric vehicles",
       "IsActive": false
     },
     {
-      "ID": 4,
+      "id": 4,
       "Name": "Group 4",
       "Description": "Heavy duty trucks",
       "IsActive": true
     },
     {
-      "ID": 5,
+      "id": 5,
       "Name": "Group 5",
       "Description": "Regional office vehicles",
       "IsActive": false
+    },
+    {
+      "id": 6,
+      "Name": "Group 6",
+      "Description": "Executive fleet",
+      "IsActive": true
+    },
+    {
+      "id": 7,
+      "Name": "Group 7",
+      "Description": "Seasonal vehicles",
+      "IsActive": false
+    },
+    {
+      "id": 8,
+      "Name": "Group 8",
+      "Description": "Test and demo vehicles",
+      "IsActive": true
+    },
+    {
+      "id": 9,
+      "Name": "Group 9",
+      "Description": "Retired vehicles",
+      "IsActive": false
+    },
+    {
+      "id": 10,
+      "Name": "Group 10",
+      "Description": "Pool cars for staff",
+      "IsActive": true
+    }
+  ],
+  "technicians": [
+    {
+      "id": "b1a2c3d4-e5f6-7890-abcd-ef1234567890",
+      "FirstName": "John",
+      "LastName": "Doe",
+      "HireDate": "2020-01-15T00:00:00Z",
+      "IsActive": true,
+      "Email": "john.doe@example.com"
+    },
+    {
+      "id": "a2b3c4d5-e6f7-8901-bcda-ef2345678901",
+      "FirstName": "Jane",
+      "LastName": "Smith",
+      "HireDate": "2019-03-22T00:00:00Z",
+      "IsActive": true,
+      "Email": "jane.smith@example.com"
+    },
+    {
+      "id": "c3d4e5f6-a7b8-9012-cdab-ef3456789012",
+      "FirstName": "Michael",
+      "LastName": "Johnson",
+      "HireDate": "2018-07-10T00:00:00Z",
+      "IsActive": false,
+      "Email": "michael.johnson@example.com"
+    },
+    {
+      "id": "d4e5f6a7-b8c9-0123-dabc-ef4567890123",
+      "FirstName": "Emily",
+      "LastName": "Williams",
+      "HireDate": "2021-11-05T00:00:00Z",
+      "IsActive": true,
+      "Email": "emily.williams@example.com"
+    },
+    {
+      "id": "e5f6a7b8-c9d0-1234-abcd-ef5678901234",
+      "FirstName": "David",
+      "LastName": "Brown",
+      "HireDate": "2017-05-18T00:00:00Z",
+      "IsActive": false,
+      "Email": "david.brown@example.com"
+    },
+    {
+      "id": "f6a7b8c9-d0e1-2345-bcda-ef6789012345",
+      "FirstName": "Sarah",
+      "LastName": "Jones",
+      "HireDate": "2022-02-28T00:00:00Z",
+      "IsActive": true,
+      "Email": "sarah.jones@example.com"
+    },
+    {
+      "id": "a7b8c9d0-e1f2-3456-cdab-ef7890123456",
+      "FirstName": "Chris",
+      "LastName": "Lee",
+      "HireDate": "2016-09-12T00:00:00Z",
+      "IsActive": true,
+      "Email": "chris.lee@example.com"
+    },
+    {
+      "id": "b8c9d0e1-f2a3-4567-dabc-ef8901234567",
+      "FirstName": "Jessica",
+      "LastName": "Garcia",
+      "HireDate": "2015-12-03T00:00:00Z",
+      "IsActive": false,
+      "Email": "jessica.garcia@example.com"
+    },
+    {
+      "id": "c9d0e1f2-a3b4-5678-abcd-ef9012345678",
+      "FirstName": "Matthew",
+      "LastName": "Martinez",
+      "HireDate": "2023-04-17T00:00:00Z",
+      "IsActive": true,
+      "Email": "matthew.martinez@example.com"
+    },
+    {
+      "id": "d0e1f2a3-b4c5-6789-bcda-ef0123456789",
+      "FirstName": "Ashley",
+      "LastName": "Davis",
+      "HireDate": "2021-08-25T00:00:00Z",
+      "IsActive": true,
+      "Email": "ashley.davis@example.com"
     }
   ]
 }
