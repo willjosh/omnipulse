@@ -4,9 +4,6 @@ using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
 using Application.Features.ServiceSchedules.Command.DeleteServiceSchedule;
-using Application.MappingProfiles;
-
-using AutoMapper;
 
 using Domain.Entities;
 
@@ -26,10 +23,6 @@ public class DeleteServiceScheduleCommandHandlerTest
     {
         _mockServiceScheduleRepository = new();
         _mockLogger = new();
-
-        var config = new MapperConfiguration(cfg => cfg.AddProfile<ServiceScheduleMappingProfile>());
-        var mapper = config.CreateMapper();
-
         _handler = new(_mockServiceScheduleRepository.Object, _mockLogger.Object);
     }
 
