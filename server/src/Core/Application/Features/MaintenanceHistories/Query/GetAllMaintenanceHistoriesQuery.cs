@@ -7,4 +7,4 @@ using MediatR;
 
 namespace Application.Features.MaintenanceHistories.Query.GetAllMaintenanceHistories;
 
-public record GetAllMaintenanceHistoriesQuery(PaginationParameters Parameters) : IRequest<PagedResult<GetAllMaintenanceHistoryDTO>> { } 
+public record GetAllMaintenanceHistoriesQuery(PaginationParameters Parameters) : IRequest<PagedResult<GetAllMaintenanceHistoryDTO>> { }

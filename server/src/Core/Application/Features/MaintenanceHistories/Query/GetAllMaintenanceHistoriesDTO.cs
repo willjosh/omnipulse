@@ -19,4 +19,4 @@ public class GetAllMaintenanceHistoryDTO
     public decimal Cost { get; set; }
     public double LabourHours { get; set; }
     public string? Notes { get; set; }
-} 
+}
