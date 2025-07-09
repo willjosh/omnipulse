@@ -166,7 +166,7 @@ public class CreateWorkOrderHandlerTest
             // Required navigation properties - initialize as empty collections or null
             Vehicle = null!,
             MaintenanceHistories = [],
-            ServiceTask= null!,
+            ServiceTask = null!,
             User = null!,
             WorkOrderLineItems = [],
             Invoices = [],
