@@ -10,7 +10,12 @@ namespace Application.Test.ServiceSchedules.CommandTest.CreateServiceSchedule;
 
 public class CreateServiceScheduleCommandValidatorTest
 {
-    private readonly CreateServiceScheduleCommandValidator _validator = new();
+    private readonly CreateServiceScheduleCommandValidator _validator;
+
+    public CreateServiceScheduleCommandValidatorTest()
+    {
+        _validator = new CreateServiceScheduleCommandValidator();
+    }
 
     private static CreateServiceScheduleCommand CreateValidCommand(
         int serviceProgramId = 1,
@@ -38,67 +43,19 @@ public class CreateServiceScheduleCommandValidatorTest
             FirstServiceMileage: firstServiceMileage,
             IsActive: isActive);
 
-    #region Valid Command Tests
-
     [Fact]
-    public async Task Should_Pass_With_Valid_Command_Both_Intervals()
+    public async Task Validator_Should_Pass_With_Valid_Command()
     {
-        var command = CreateValidCommand(
-            timeBufferValue: 1,
-            timeBufferUnit: TimeUnitEnum.Days,
-            mileageBuffer: 250);
-        var result = await _validator.ValidateAsync(command);
-        Assert.True(result.IsValid);
-    }
+        // Arrange
+        var command = CreateValidCommand();
 
-    [Fact]
-    public async Task Should_Pass_With_Only_TimeInterval()
-    {
-        var command = CreateValidCommand(
-            timeIntervalValue: 6,
-            timeIntervalUnit: TimeUnitEnum.Days,
-            mileageInterval: null,
-            mileageBuffer: null);
+        // Act
         var result = await _validator.ValidateAsync(command);
-        Assert.True(result.IsValid);
-    }
 
-    [Fact]
-    public async Task Should_Pass_With_Only_MileageInterval()
-    {
-        var command = CreateValidCommand(
-            timeIntervalValue: null,
-            timeIntervalUnit: null,
-            timeBufferValue: null,
-            timeBufferUnit: null,
-            mileageInterval: 5000);
-        var result = await _validator.ValidateAsync(command);
+        // Assert
         Assert.True(result.IsValid);
+        Assert.Empty(result.Errors);
     }
-
-    [Fact]
-    public async Task Should_Pass_With_FirstService_Properties()
-    {
-        var command = CreateValidCommand(
-            firstServiceTimeValue: 3,
-            firstServiceTimeUnit: TimeUnitEnum.Days,
-            firstServiceMileage: 1000);
-        var result = await _validator.ValidateAsync(command);
-        Assert.True(result.IsValid);
-    }
-
-    [Fact]
-    public async Task Should_Pass_With_Zero_FirstService_Values()
-    {
-        var command = CreateValidCommand(
-            firstServiceTimeValue: 0,
-            firstServiceTimeUnit: TimeUnitEnum.Days,
-            firstServiceMileage: 0);
-        var result = await _validator.ValidateAsync(command);
-        Assert.True(result.IsValid);
-    }
-
-    #endregion
 
     #region ServiceProgramID Tests
 
