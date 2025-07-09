@@ -2,7 +2,7 @@ import {
   IssueCategoryEnum,
   PriorityLevelEnum,
   IssueStatusEnum,
-} from "../_hooks/Issue/issueEnum";
+} from "../_hooks/issue/issueEnum";
 
 export const getIssueCategoryLabel = (category: IssueCategoryEnum) => {
   switch (category) {
