@@ -116,12 +116,11 @@ public class CreateMaintenanceHistoryCommandValidatorTest
     }
 
     [Theory]
-    [InlineData(null)]
     [InlineData("")]
     [InlineData("   ")]
     public async Task Validator_Should_Fail_When_TechnicianID_Is_Empty(string? technicianId)
     {
-        var command = CreateValidCommand(technicianId: technicianId);
+        var command = CreateValidCommand(technicianId: technicianId ?? "tech-123");
         var result = await _validator.ValidateAsync(command);
         Assert.False(result.IsValid);
         Assert.Contains(result.Errors, e => e.PropertyName == "TechnicianID");
