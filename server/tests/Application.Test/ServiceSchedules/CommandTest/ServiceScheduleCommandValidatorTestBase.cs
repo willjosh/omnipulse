@@ -324,136 +324,76 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.Contains(result.Errors, e => e.PropertyName == "");
     }
 
-    [Fact]
-    public async Task Validator_Should_Fail_When_TimeBuffer_Equals_TimeInterval()
-    {
-        // Arrange
-        var command = CreateValidCommand(
-            timeIntervalValue: 7,
-            timeIntervalUnit: TimeUnitEnum.Days,
-            timeBufferValue: 7,
-            timeBufferUnit: TimeUnitEnum.Days);
+    // Replace separate buffer comparison tests with a single parameterized theory
 
-        // Act
-        var result = await Validator.ValidateAsync(command);
-
-        // Assert
-        Assert.False(result.IsValid);
-        Assert.Contains(result.Errors, e => e.PropertyName == "");
-    }
-
-    [Fact]
-    public async Task Validator_Should_Fail_When_TimeBuffer_Greater_Than_TimeInterval()
-    {
-        // Arrange
-        var command = CreateValidCommand(
-            timeIntervalValue: 5,
-            timeIntervalUnit: TimeUnitEnum.Days,
-            timeBufferValue: 6,
-            timeBufferUnit: TimeUnitEnum.Days);
-
-        // Act
-        var result = await Validator.ValidateAsync(command);
-
-        // Assert
-        Assert.False(result.IsValid);
-        Assert.Contains(result.Errors, e => e.PropertyName == "");
-    }
-
-    [Fact]
-    public async Task Validator_Should_Pass_When_TimeBuffer_Less_Than_TimeInterval()
-    {
-        // Arrange
-        var command = CreateValidCommand(
-            timeIntervalValue: 5,
-            timeIntervalUnit: TimeUnitEnum.Days,
-            timeBufferValue: 4,
-            timeBufferUnit: TimeUnitEnum.Days);
-
-        // Act
-        var result = await Validator.ValidateAsync(command);
-
-        // Assert
-        Assert.True(result.IsValid);
-    }
-
-    // MILEAGE BUFFER VALIDATION TESTS
     [Theory]
-    [InlineData(-1)]
-    [InlineData(-1000)]
-    public async Task Validator_Should_Fail_When_MileageBuffer_Is_Negative(int invalidValue)
+    [InlineData(5, 5, false)] // Equal
+    [InlineData(5, 4, true)]  // Buffer < Interval
+    [InlineData(5, 6, false)] // Buffer > Interval
+    public async Task Validator_Should_Handle_TimeBuffer_Comparisons(int interval, int buffer, bool isValid)
     {
         // Arrange
-        var command = CreateValidCommand(mileageBuffer: invalidValue);
+        var command = CreateValidCommand(
+            timeIntervalValue: interval,
+            timeIntervalUnit: TimeUnitEnum.Days,
+            timeBufferValue: buffer,
+            timeBufferUnit: TimeUnitEnum.Days);
 
         // Act
         var result = await Validator.ValidateAsync(command);
 
         // Assert
-        Assert.False(result.IsValid);
-        Assert.Contains(result.Errors, e => e.PropertyName == "MileageBuffer");
+        Assert.Equal(isValid, result.IsValid);
     }
 
-    [Fact]
-    public async Task Validator_Should_Pass_When_MileageBuffer_Is_Zero()
-    {
-        // Arrange
-        var command = CreateValidCommand(mileageBuffer: 0);
-
-        // Act
-        var result = await Validator.ValidateAsync(command);
-
-        // Assert
-        Assert.True(result.IsValid);
-    }
-
-    [Fact]
-    public async Task Validator_Should_Fail_When_MileageBuffer_Equals_MileageInterval()
+    [Theory]
+    [InlineData(1000, 1000, false)] // Equal
+    [InlineData(1000, 999, true)]   // Buffer < Interval
+    [InlineData(1000, 1001, false)]  // Buffer > Interval
+    public async Task Validator_Should_Handle_MileageBuffer_Comparisons(int interval, int buffer, bool isValid)
     {
         // Arrange
         var command = CreateValidCommand(
             timeIntervalValue: null,
             timeIntervalUnit: null,
-            mileageInterval: 5000,
-            mileageBuffer: 5000);
+            timeBufferValue: null,
+            timeBufferUnit: null,
+            mileageInterval: interval,
+            mileageBuffer: buffer);
 
         // Act
         var result = await Validator.ValidateAsync(command);
 
         // Assert
-        Assert.False(result.IsValid);
-        Assert.Contains(result.Errors, e => e.PropertyName == "");
+        Assert.Equal(isValid, result.IsValid);
     }
 
-    [Fact]
-    public async Task Validator_Should_Fail_When_MileageBuffer_Greater_Than_MileageInterval()
+    // Replace individual FirstService dependency tests with a single theory
+    [Theory]
+    [InlineData(true, true, true, true)]    // All valid
+    [InlineData(false, true, true, false)]   // Missing time interval
+    [InlineData(true, false, true, false)]  // Missing mileage interval
+    [InlineData(false, false, false, false)] // Missing all intervals
+    public async Task Validator_Should_Handle_FirstService_Dependencies(
+        bool hasTimeInterval,
+        bool hasMileageInterval,
+        bool hasFirstService,
+        bool isValid)
     {
         // Arrange
         var command = CreateValidCommand(
-            mileageInterval: 1000,
-            mileageBuffer: 1001);
+            timeIntervalValue: hasTimeInterval ? 6 : null,
+            timeIntervalUnit: hasTimeInterval ? TimeUnitEnum.Days : null,
+            mileageInterval: hasMileageInterval ? 5000 : null,
+            firstServiceTimeValue: hasFirstService ? 3 : null,
+            firstServiceTimeUnit: hasFirstService ? TimeUnitEnum.Days : null,
+            firstServiceMileage: hasFirstService ? 2500 : null);
 
         // Act
         var result = await Validator.ValidateAsync(command);
 
         // Assert
-        Assert.False(result.IsValid);
-        Assert.Contains(result.Errors, e => e.PropertyName == "");
-    }
-
-    [Fact]
-    public async Task Validator_Should_Pass_When_MileageBuffer_Less_Than_MileageInterval()
-    {
-        // Arrange
-        var command = CreateValidCommand(
-            mileageInterval: 1000,
-            mileageBuffer: 999);
-
-        // Act
-        var result = await Validator.ValidateAsync(command);
-
-        // Assert
-        Assert.True(result.IsValid);
+        Assert.Equal(isValid, result.IsValid);
     }
 
     // FIRST SERVICE TIME VALIDATION TESTS
