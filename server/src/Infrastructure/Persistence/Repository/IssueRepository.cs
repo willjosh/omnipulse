@@ -68,4 +68,12 @@ public class IssueRepository : GenericRepository<Issue>, IIssueRepository
             PageSize = parameters.PageSize
         };
     }
+
+    public async Task<Issue?> GetIssueWithDetailsAsync(int issueID)
+    {
+        return await _dbSet
+            .Include(i => i.ReportedByUser)
+            .Include(i => i.Vehicle)
+            .FirstOrDefaultAsync(i => i.ID == issueID);
+    }
 }
