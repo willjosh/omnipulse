@@ -61,19 +61,6 @@ public class WorkOrderLineItemConfiguration : IEntityTypeConfiguration<WorkOrder
         builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrderLineItem_TotalCost",
             "TotalCost >= 0"));
 
-        // Business rule constraints based on ItemType
-        builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrderLineItem_PartsValidation",
-            @"ItemType != 'PARTS' OR (InventoryItemID IS NOT NULL AND UnitPrice IS NOT NULL)"));
-
-        builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrderLineItem_MaterialsValidation",
-            @"ItemType != 'MATERIALS' OR (InventoryItemID IS NOT NULL AND UnitPrice IS NOT NULL)"));
-
-        builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrderLineItem_LaborValidation",
-            @"ItemType != 'LABOR' OR (HourlyRate IS NOT NULL AND LaborHours IS NOT NULL)"));
-
-        builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrderLineItem_ServiceValidation",
-            @"ItemType != 'SERVICE' OR ServicePrice IS NOT NULL"));
-
         // Table Relationships
         builder
             .HasOne(woli => woli.WorkOrder)

@@ -100,15 +100,18 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
 
     public async Task<bool> AllExistAsync(IEnumerable<int> ids)
     {
-        if (ids == null || !ids.Any())
-        {
-            return false;
-        }
-
+        if (ids == null)
+            return false; 
+        
         var idsList = ids.Distinct().ToList();
-
-        var existingCount = await _dbSet.Where(e => idsList.Contains(e.ID)).CountAsync();
-
+        
+        if (idsList.Count == 0)
+            return true; 
+        
+        var existingCount = await _dbSet
+            .Where(e => idsList.Contains(e.ID))
+            .CountAsync();
+            
         return existingCount == idsList.Count;
     }
 }

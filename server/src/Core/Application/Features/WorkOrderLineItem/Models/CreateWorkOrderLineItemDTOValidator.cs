@@ -63,12 +63,12 @@ public class CreateWorkOrderLineItemDTOValidator : AbstractValidator<CreateWorkO
             RuleFor(x => x.InventoryItemID)
                 .NotNull()
                 .GreaterThan(0)
-                .WithMessage("Inventory Item ID is required when item type is PARTS");
+                .WithMessage("Inventory Item ID is required when item type is ITEM");
 
             RuleFor(x => x.UnitPrice)
                 .NotNull()
                 .GreaterThan(0)
-                .WithMessage("Unit Price is required and must be greater than 0 when item type is PARTS");
+                .WithMessage("Unit Price is required and must be greater than 0 when item type is ITEM");
 
             RuleFor(x => x.AssignedToUserID)
                 .NotEmpty()
