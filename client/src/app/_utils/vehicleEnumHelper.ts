@@ -2,7 +2,7 @@ import {
   FuelTypeEnum,
   VehicleStatusEnum,
   VehicleTypeEnum,
-} from "../_hooks/Vehicle/vehicleEnum";
+} from "../_hooks/vehicle/vehicleEnum";
 
 export const getVehicleTypeLabel = (type: VehicleTypeEnum) => {
   switch (type) {
