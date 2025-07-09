@@ -91,10 +91,62 @@ server.get("/vehicles/:id", (req, res) => {
   }
 });
 
-// Custom route for issues with pagination wrapper
-server.get("/issues", (req, res) => {
+// Create a new vehicle
+server.post("/vehicles", (req, res) => {
   const db = router.db;
-  const issues = db.get("issues").value();
+  const vehicles = db.get("vehicles");
+  const newVehicle = req.body;
+
+  // Generate new ID
+  const maxId = vehicles
+    .value()
+    .reduce((max, vehicle) => Math.max(max, vehicle.id || 0), 0);
+  newVehicle.id = maxId + 1;
+
+  // Add the new vehicle
+  vehicles.push(newVehicle).write();
+
+  res.status(201).json(newVehicle);
+});
+
+// Update vehicle
+server.put("/vehicles/:id", (req, res) => {
+  const db = router.db;
+  const vehicleId = parseInt(req.params.id);
+  const updatedVehicle = req.body;
+
+  const vehicle = db.get("vehicles").find({ id: vehicleId });
+
+  if (vehicle.value()) {
+    vehicle.assign(updatedVehicle).write();
+    res.json(vehicle.value());
+  } else {
+    res.status(404).json({ error: "Vehicle not found" });
+  }
+});
+
+// Archive vehicle
+server.post("/vehicles/deactivate/:id", (req, res) => {
+  const db = router.db;
+  const vehicleId = parseInt(req.params.id);
+
+  const vehicle = db.get("vehicles").find({ id: vehicleId });
+
+  if (vehicle.value()) {
+    vehicle.assign({ IsActive: false }).write();
+    res.json({
+      message: "Vehicle archived successfully",
+      vehicle: vehicle.value(),
+    });
+  } else {
+    res.status(404).json({ error: "Vehicle not found" });
+  }
+});
+
+// Custom route for vehicleGroups with pagination wrapper
+server.get("/vehicleGroups", (req, res) => {
+  const db = router.db;
+  const vehicleGroups = db.get("vehicleGroups").value();
 
   // Get query parameters
   const page = parseInt(req.query.page) || 1;
@@ -104,26 +156,27 @@ server.get("/issues", (req, res) => {
   const search = req.query.search || "";
 
   // Filter by search if provided
-  let filteredIssues = issues;
+  let filteredGroups = vehicleGroups;
   if (search) {
     const searchLower = search.toLowerCase();
-    filteredIssues = issues.filter(
-      issue =>
-        (issue.Title && issue.Title.toLowerCase().includes(searchLower)) ||
-        (issue.Description &&
-          issue.Description.toLowerCase().includes(searchLower)) ||
-        (issue.Status && issue.Status.toLowerCase().includes(searchLower)) ||
-        (issue.Reporter &&
-          issue.Reporter.toLowerCase().includes(searchLower)) ||
-        (issue.AssignedTechnicianName &&
-          issue.AssignedTechnicianName.toLowerCase().includes(searchLower)) ||
-        (issue.VehicleName &&
-          issue.VehicleName.toLowerCase().includes(searchLower)),
+    filteredGroups = vehicleGroups.filter(
+      group =>
+        group.Name.toLowerCase().includes(searchLower) ||
+        (group.Description &&
+          group.Description.toLowerCase().includes(searchLower)),
     );
   }
 
-  // Sort issues
-  filteredIssues.sort((a, b) => {
+  // Filter by isActive if provided (not implemented yet in the backend)
+  if (typeof req.query.isActive !== "undefined") {
+    const isActive = req.query.isActive === "true";
+    filteredGroups = filteredGroups.filter(
+      group => group.IsActive === isActive,
+    );
+  }
+
+  // Sort vehicle groups
+  filteredGroups.sort((a, b) => {
     let aValue = a[sortBy];
     let bValue = b[sortBy];
 
@@ -144,15 +197,15 @@ server.get("/issues", (req, res) => {
   });
 
   // Calculate pagination
-  const totalCount = filteredIssues.length;
+  const totalCount = filteredGroups.length;
   const totalPages = Math.ceil(totalCount / limit);
   const startIndex = (page - 1) * limit;
   const endIndex = startIndex + limit;
-  const paginatedIssues = filteredIssues.slice(startIndex, endIndex);
+  const paginatedGroups = filteredGroups.slice(startIndex, endIndex);
 
-  // Return response in your expected format
+  // Return response in expected format
   res.json({
-    Items: paginatedIssues,
+    Items: paginatedGroups,
     TotalCount: totalCount,
     PageNumber: page,
     PageSize: limit,
@@ -162,18 +215,351 @@ server.get("/issues", (req, res) => {
   });
 });
 
-// Get single issue
-server.get("/issues/:id", (req, res) => {
+// Get single vehicle group
+server.get("/vehicleGroups/:id", (req, res) => {
   const db = router.db;
-  const issue = db
-    .get("issues")
+  const group = db
+    .get("vehicleGroups")
     .find({ id: parseInt(req.params.id) })
     .value();
 
-  if (issue) {
-    res.json(issue);
+  if (group) {
+    res.json(group);
   } else {
-    res.status(404).json({ error: "Issue not found" });
+    res.status(404).json({ error: "Vehicle group not found" });
+  }
+});
+
+// Custom route for technicians with pagination wrapper
+server.get("/technicians", (req, res) => {
+  const db = router.db;
+  const technicians = db.get("technicians").value();
+
+  // Get query parameters
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const sortByParam = req.query.sortBy
+    ? req.query.sortBy.toLowerCase()
+    : "firstname";
+  const sortOrder = req.query.sortOrder || "asc";
+  const search = req.query.search || "";
+
+  // Map sortBy param to actual field name in db
+  const sortByMap = {
+    firstname: "FirstName",
+    lastname: "LastName",
+    hiredate: "HireDate",
+    isactive: "IsActive",
+    email: "Email",
+  };
+  const sortBy = sortByMap[sortByParam] || "FirstName";
+
+  // Filter by search if provided
+  let filteredTechs = technicians;
+  if (search) {
+    const searchLower = search.toLowerCase();
+    filteredTechs = filteredTechs.filter(
+      tech =>
+        tech.FirstName.toLowerCase().includes(searchLower) ||
+        tech.LastName.toLowerCase().includes(searchLower) ||
+        tech.Email.toLowerCase().includes(searchLower),
+    );
+  }
+
+  // Filter by isActive if provided (not implemented yet)
+  if (typeof req.query.isActive !== "undefined") {
+    const isActive = req.query.isActive === "true";
+    filteredTechs = filteredTechs.filter(tech => tech.IsActive === isActive);
+  }
+
+  // Sort technicians
+  filteredTechs.sort((a, b) => {
+    let aValue = a[sortBy];
+    let bValue = b[sortBy];
+
+    if (aValue == null && bValue == null) return 0;
+    if (aValue == null) return sortOrder === "asc" ? 1 : -1;
+    if (bValue == null) return sortOrder === "asc" ? -1 : 1;
+
+    // For HireDate, sort as date
+    if (sortBy === "HireDate") {
+      aValue = new Date(aValue);
+      bValue = new Date(bValue);
+      return sortOrder === "asc" ? aValue - bValue : bValue - aValue;
+    }
+
+    // For IsActive, sort as boolean
+    if (sortBy === "IsActive") {
+      return sortOrder === "asc"
+        ? aValue === bValue
+          ? 0
+          : aValue
+            ? -1
+            : 1
+        : aValue === bValue
+          ? 0
+          : aValue
+            ? 1
+            : -1;
+    }
+
+    // For string fields
+    const aString = String(aValue).toLowerCase();
+    const bString = String(bValue).toLowerCase();
+    if (aString < bString) return sortOrder === "asc" ? -1 : 1;
+    if (aString > bString) return sortOrder === "asc" ? 1 : -1;
+    return 0;
+  });
+
+  // Calculate pagination
+  const totalCount = filteredTechs.length;
+  const totalPages = Math.ceil(totalCount / limit);
+  const startIndex = (page - 1) * limit;
+  const endIndex = startIndex + limit;
+  const paginatedTechs = filteredTechs.slice(startIndex, endIndex);
+
+  // Return response in expected format
+  res.json({
+    Items: paginatedTechs,
+    TotalCount: totalCount,
+    PageNumber: page,
+    PageSize: limit,
+    TotalPages: totalPages,
+    HasPreviousPage: page > 1,
+    HasNextPage: page < totalPages,
+  });
+});
+
+// Get single technician
+server.get("/technicians/:id", (req, res) => {
+  const db = router.db;
+  const tech = db.get("technicians").find({ id: req.params.id }).value();
+
+  if (tech) {
+    res.json(tech);
+  } else {
+    res.status(404).json({ error: "Technician not found" });
+  }
+});
+
+// Custom route for inventoryItems with pagination wrapper
+server.get("/inventoryItems", (req, res) => {
+  const db = router.db;
+  const inventoryItems = db.get("inventoryItems").value();
+
+  // Get query parameters
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const sortByParam = req.query.sortBy
+    ? req.query.sortBy.toLowerCase()
+    : "itemname";
+  const sortOrder = req.query.sortOrder || "asc";
+  const search = req.query.search || "";
+
+  // Map sortBy param to actual field name in db
+  const sortByMap = {
+    itemnumber: "ItemNumber",
+    itemname: "ItemName",
+    description: "Description",
+    category: "Category",
+    manufacturer: "Manufacturer",
+    manufacturerpartnumber: "ManufacturerPartNumber",
+    universalproductcode: "UniversalProductCode",
+    unitcost: "UnitCost",
+    unitcostmeasurementunit: "UnitCostMeasurementUnit",
+    supplier: "Supplier",
+    weightkg: "WeightKG",
+    isactive: "IsActive",
+  };
+  const sortBy = sortByMap[sortByParam] || "ItemName";
+
+  // Filter by search if provided
+  let filteredItems = inventoryItems;
+  if (search) {
+    const searchLower = search.toLowerCase();
+    filteredItems = filteredItems.filter(
+      item =>
+        (item.ItemNumber &&
+          item.ItemNumber.toLowerCase().includes(searchLower)) ||
+        (item.ItemName && item.ItemName.toLowerCase().includes(searchLower)) ||
+        (item.Description &&
+          item.Description.toLowerCase().includes(searchLower)) ||
+        (item.Manufacturer &&
+          item.Manufacturer.toLowerCase().includes(searchLower)) ||
+        (item.Supplier && item.Supplier.toLowerCase().includes(searchLower)),
+    );
+  }
+
+  // Filter by isActive if provided (not implemented yet)
+  if (typeof req.query.isActive !== "undefined") {
+    const isActive = req.query.isActive === "true";
+    filteredItems = filteredItems.filter(item => item.IsActive === isActive);
+  }
+
+  // Sort inventory items
+  filteredItems.sort((a, b) => {
+    let aValue = a[sortBy];
+    let bValue = b[sortBy];
+
+    if (aValue == null && bValue == null) return 0;
+    if (aValue == null) return sortOrder === "asc" ? 1 : -1;
+    if (bValue == null) return sortOrder === "asc" ? -1 : 1;
+
+    // For number fields
+    if (typeof aValue === "number" && typeof bValue === "number") {
+      return sortOrder === "asc" ? aValue - bValue : bValue - aValue;
+    }
+
+    // For boolean
+    if (typeof aValue === "boolean" && typeof bValue === "boolean") {
+      return sortOrder === "asc"
+        ? aValue === bValue
+          ? 0
+          : aValue
+            ? -1
+            : 1
+        : aValue === bValue
+          ? 0
+          : aValue
+            ? 1
+            : -1;
+    }
+
+    // For string fields
+    const aString = String(aValue).toLowerCase();
+    const bString = String(bValue).toLowerCase();
+    if (aString < bString) return sortOrder === "asc" ? -1 : 1;
+    if (aString > bString) return sortOrder === "asc" ? 1 : -1;
+    return 0;
+  });
+
+  // Calculate pagination
+  const totalCount = filteredItems.length;
+  const totalPages = Math.ceil(totalCount / limit);
+  const startIndex = (page - 1) * limit;
+  const endIndex = startIndex + limit;
+  const paginatedItems = filteredItems.slice(startIndex, endIndex);
+
+  // Return response in expected format
+  res.json({
+    Items: paginatedItems,
+    TotalCount: totalCount,
+    PageNumber: page,
+    PageSize: limit,
+    TotalPages: totalPages,
+    HasPreviousPage: page > 1,
+    HasNextPage: page < totalPages,
+  });
+});
+
+// Get single inventory item
+server.get("/inventoryItems/:id", (req, res) => {
+  const db = router.db;
+  const item = db
+    .get("inventoryItems")
+    .find({ id: parseInt(req.params.id) })
+    .value();
+
+  if (item) {
+    res.json(item);
+  } else {
+    res.status(404).json({ error: "Inventory item not found" });
+  }
+});
+
+// Custom route for serviceTasks with pagination wrapper
+server.get("/serviceTasks", (req, res) => {
+  const db = router.db;
+  const serviceTasks = db.get("serviceTasks").value();
+
+  // Get query parameters
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const sortByParam = req.query.sortBy ? req.query.sortBy.toLowerCase() : "id";
+  const sortOrder = req.query.sortOrder || "asc";
+  const search = req.query.search || "";
+
+  // Filter by search if provided
+  let filteredTasks = serviceTasks;
+  if (search) {
+    const searchLower = search.toLowerCase();
+    filteredTasks = filteredTasks.filter(
+      task =>
+        (task.Name && task.Name.toLowerCase().includes(searchLower)) ||
+        (task.Description &&
+          task.Description.toLowerCase().includes(searchLower)),
+    );
+  }
+
+  // Filter by isActive if provided
+  if (typeof req.query.isActive !== "undefined") {
+    const isActive = req.query.isActive === "true";
+    filteredTasks = filteredTasks.filter(task => task.IsActive === isActive);
+  }
+
+  // Sort service tasks
+  const sortByMap = {
+    id: "id",
+    name: "Name",
+    description: "Description",
+    estimatedlabourhours: "EstimatedLabourHours",
+    estimatedcost: "EstimatedCost",
+    category: "Category",
+    isactive: "IsActive",
+  };
+  const sortBy = sortByMap[sortByParam] || "id";
+
+  filteredTasks.sort((a, b) => {
+    let aValue = a[sortBy];
+    let bValue = b[sortBy];
+
+    if (aValue == null && bValue == null) return 0;
+    if (aValue == null) return sortOrder === "asc" ? 1 : -1;
+    if (bValue == null) return sortOrder === "asc" ? -1 : 1;
+
+    if (typeof aValue === "number" && typeof bValue === "number") {
+      return sortOrder === "asc" ? aValue - bValue : bValue - aValue;
+    }
+
+    const aString = String(aValue).toLowerCase();
+    const bString = String(bValue).toLowerCase();
+
+    if (aString < bString) return sortOrder === "asc" ? -1 : 1;
+    if (aString > bString) return sortOrder === "asc" ? 1 : -1;
+    return 0;
+  });
+
+  // Calculate pagination
+  const totalCount = filteredTasks.length;
+  const totalPages = Math.ceil(totalCount / limit);
+  const startIndex = (page - 1) * limit;
+  const endIndex = startIndex + limit;
+  const paginatedTasks = filteredTasks.slice(startIndex, endIndex);
+
+  // Return response in your expected format
+  res.json({
+    Items: paginatedTasks,
+    TotalCount: totalCount,
+    PageNumber: page,
+    PageSize: limit,
+    TotalPages: totalPages,
+    HasPreviousPage: page > 1,
+    HasNextPage: page < totalPages,
+  });
+});
+
+// Get single service task
+server.get("/serviceTasks/:id", (req, res) => {
+  const db = router.db;
+  const task = db
+    .get("serviceTasks")
+    .find({ id: parseInt(req.params.id) })
+    .value();
+
+  if (task) {
+    res.json(task);
+  } else {
+    res.status(404).json({ error: "Service Task not found" });
   }
 });
 
@@ -189,12 +575,50 @@ server.listen(PORT, () => {
   console.log(`GET /vehicles?search=ford - Search vehicles`);
   console.log(`GET /vehicles?sortBy=Name&sortOrder=desc - Sort vehicles`);
   console.log(`GET /vehicles/:id - Get single vehicle`);
+  console.log(`POST /vehicles - Create new vehicle`);
+  console.log(`PUT /vehicles/:id - Update vehicle`);
+  console.log(`POST /vehicles/deactivate/:id - Archive vehicle`);
 
   // Issues
   console.log(`GET /issues - Get paginated issues`);
   console.log(`GET /issues?page=1&limit=5 - Get issues with pagination`);
   console.log(`GET /issues?search=issue - Search issues`);
   console.log(`GET /issues/:id - Get single issue`);
+
+  // Vehicle Groups
+  console.log(`GET /vehicleGroups - Get paginated vehicle groups`);
+  console.log(
+    `GET /vehicleGroups?page=1&limit=5 - Get vehicle groups with pagination`,
+  );
+  console.log(`GET /vehicleGroups?search=group - Search vehicle groups`);
+  console.log(`GET /vehicleGroups/:id - Get single vehicle group`);
+
+  // Technicians
+  console.log(`GET /technicians - Get paginated technicians`);
+  console.log(
+    `GET /technicians?page=1&limit=5 - Get technicians with pagination`,
+  );
+  console.log(`GET /technicians?search=tech - Search technicians`);
+  console.log(
+    `GET /technicians?sortBy=firstname - Sort technicians by firstname`,
+  );
+  console.log(`GET /technicians/:id - Get single technician`);
+
+  // Inventory Items
+  console.log(`GET /inventoryItems - Get paginated inventory items`);
+  console.log(
+    `GET /inventoryItems?page=1&limit=5 - Get inventory items with pagination`,
+  );
+  console.log(`GET /inventoryItems?search=oil - Search inventory items`);
+  console.log(`GET /inventoryItems/:id - Get single inventory item`);
+
+  // Service Tasks
+  console.log(`GET /serviceTasks - Get paginated service tasks`);
+  console.log(
+    `GET /serviceTasks?page=1&limit=5 - Get service tasks with pagination`,
+  );
+  console.log(`GET /serviceTasks?search=oil - Search service tasks`);
+  console.log(`GET /serviceTasks/:id - Get single service task`);
 });
 
 module.exports = server;

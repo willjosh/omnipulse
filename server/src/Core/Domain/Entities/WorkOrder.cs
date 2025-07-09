@@ -7,7 +7,6 @@ namespace Domain.Entities;
 public class WorkOrder : BaseEntity
 
 {
-    public required string WorkOrderNumber { get; set; }
     public required int VehicleID { get; set; }
     public required int ServiceReminderID { get; set; }
     public required string AssignedToUserID { get; set; }

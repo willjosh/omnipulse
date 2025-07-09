@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import DataTable from "@/app/_features/shared/DataTable";
 import OptionButton from "@/app/_features/shared/button/OptionButton";
@@ -8,10 +8,15 @@ import { vehicleTableColumns } from "./VehicleTableColumns";
 import { useVehicles } from "@/app/_hooks/Vehicle/useVehicles";
 import { Vehicle, VehicleWithLabels } from "@/app/_hooks/Vehicle/vehicleType";
 import TabNavigation from "@/app/_features/shared/TabNavigation";
-import { vehicleTabConfig } from "./VehicleListFilters";
+import { vehicleFilterConfig, vehicleTabConfig } from "./VehicleListFilters";
 import PaginationControls from "@/app/_features/shared/PaginationControls";
 import ConfirmModal from "@/app/_features/shared/ConfirmModal";
 import FilterBar from "@/app/_features/shared/FilterBar";
+import { Archive, Edit, Details } from "@/app/_features/shared/icons";
+import {
+  VehicleActionType,
+  VEHICLE_ACTION_CONFIG,
+} from "../../config/vehicleActions";
 
 const VehicleList: React.FC = () => {
   const router = useRouter();
@@ -23,11 +28,56 @@ const VehicleList: React.FC = () => {
     sortOrder: "asc" as "asc" | "desc",
     search: "",
   });
-  const { vehicles, pagination, isLoadingVehicles } = useVehicles(filters);
+  const { vehicles, pagination, isLoadingVehicles, deactivateVehicleMutation } =
+    useVehicles(filters);
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
-    vehicle?: Vehicle[];
+    vehicle?: VehicleWithLabels;
   }>({ isOpen: false });
+
+  const handleArchiveVehicle = async () => {
+    if (!confirmModal.vehicle) return;
+
+    try {
+      const vehicleId = confirmModal.vehicle.id.toString();
+      await deactivateVehicleMutation.mutateAsync(vehicleId);
+
+      setConfirmModal({ isOpen: false });
+    } catch (error) {
+      console.error("Error archiving vehicle:", error);
+    }
+  };
+
+  const vehicleActions = useMemo(
+    () => [
+      {
+        key: VehicleActionType.VIEW,
+        label: VEHICLE_ACTION_CONFIG[VehicleActionType.VIEW].label,
+        icon: <Details />,
+        onClick: (vehicle: VehicleWithLabels) => {
+          router.push(`/vehicles/${vehicle.id}`);
+        },
+      },
+      {
+        key: VehicleActionType.EDIT,
+        label: VEHICLE_ACTION_CONFIG[VehicleActionType.EDIT].label,
+        icon: <Edit />,
+        onClick: (vehicle: VehicleWithLabels) => {
+          router.push(`/vehicles/${vehicle.id}/edit`);
+        },
+      },
+      {
+        key: VehicleActionType.ARCHIVE,
+        label: VEHICLE_ACTION_CONFIG[VehicleActionType.ARCHIVE].label,
+        variant: VEHICLE_ACTION_CONFIG[VehicleActionType.ARCHIVE].variant,
+        icon: <Archive />,
+        onClick: (vehicle: VehicleWithLabels) => {
+          setConfirmModal({ isOpen: true, vehicle });
+        },
+      },
+    ],
+    [router],
+  );
 
   // Handle selection functions
   const handleSelectAll = () => {
@@ -113,7 +163,7 @@ const VehicleList: React.FC = () => {
       </div>
 
       <div className="flex items-center justify-between mb-4">
-        {/* {/* Uncomment this when you implement filters} */}
+        {/* Filter tabs not yet implemented */}
         {/* <TabNavigation tabs={vehicleTabConfig} activeTab={filters} /> */}
 
         <FilterBar
@@ -141,6 +191,7 @@ const VehicleList: React.FC = () => {
         onSelectItem={handleVehicleSelect}
         onSelectAll={handleSelectAll}
         onRowClick={handleRowClick}
+        actions={vehicleActions}
         showActions={true}
         loading={isLoadingVehicles}
         getItemId={vehicle => vehicle.id.toString()}
@@ -150,9 +201,9 @@ const VehicleList: React.FC = () => {
       <ConfirmModal
         isOpen={confirmModal.isOpen}
         onClose={() => setConfirmModal({ isOpen: false })}
-        onConfirm={() => console.log("confirm")}
+        onConfirm={handleArchiveVehicle}
         title="Archive Vehicle"
-        message={"Are you sure you want to archive ?"}
+        message={`Are you sure you want archive ${confirmModal.vehicle?.Name}?`}
         confirmText="Archive"
         cancelText="Cancel"
       />
