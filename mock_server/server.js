@@ -91,89 +91,55 @@ server.get("/vehicles/:id", (req, res) => {
   }
 });
 
-// Custom route for issues with pagination wrapper
-server.get("/issues", (req, res) => {
+// Create a new vehicle
+server.post("/vehicles", (req, res) => {
   const db = router.db;
-  const issues = db.get("issues").value();
+  const vehicles = db.get("vehicles");
+  const newVehicle = req.body;
 
-  // Get query parameters
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
-  const sortBy = req.query.sortBy || "id";
-  const sortOrder = req.query.sortOrder || "asc";
-  const search = req.query.search || "";
+  // Generate new ID
+  const maxId = vehicles
+    .value()
+    .reduce((max, vehicle) => Math.max(max, vehicle.id || 0), 0);
+  newVehicle.id = maxId + 1;
 
-  // Filter by search if provided
-  let filteredIssues = issues;
-  if (search) {
-    const searchLower = search.toLowerCase();
-    filteredIssues = issues.filter(
-      issue =>
-        (issue.Title && issue.Title.toLowerCase().includes(searchLower)) ||
-        (issue.Description &&
-          issue.Description.toLowerCase().includes(searchLower)) ||
-        (issue.Status && issue.Status.toLowerCase().includes(searchLower)) ||
-        (issue.Reporter &&
-          issue.Reporter.toLowerCase().includes(searchLower)) ||
-        (issue.AssignedTechnicianName &&
-          issue.AssignedTechnicianName.toLowerCase().includes(searchLower)) ||
-        (issue.VehicleName &&
-          issue.VehicleName.toLowerCase().includes(searchLower)),
-    );
-  }
+  // Add the new vehicle
+  vehicles.push(newVehicle).write();
 
-  // Sort issues
-  filteredIssues.sort((a, b) => {
-    let aValue = a[sortBy];
-    let bValue = b[sortBy];
-
-    if (aValue == null && bValue == null) return 0;
-    if (aValue == null) return sortOrder === "asc" ? 1 : -1;
-    if (bValue == null) return sortOrder === "asc" ? -1 : 1;
-
-    if (typeof aValue === "number" && typeof bValue === "number") {
-      return sortOrder === "asc" ? aValue - bValue : bValue - aValue;
-    }
-
-    const aString = String(aValue).toLowerCase();
-    const bString = String(bValue).toLowerCase();
-
-    if (aString < bString) return sortOrder === "asc" ? -1 : 1;
-    if (aString > bString) return sortOrder === "asc" ? 1 : -1;
-    return 0;
-  });
-
-  // Calculate pagination
-  const totalCount = filteredIssues.length;
-  const totalPages = Math.ceil(totalCount / limit);
-  const startIndex = (page - 1) * limit;
-  const endIndex = startIndex + limit;
-  const paginatedIssues = filteredIssues.slice(startIndex, endIndex);
-
-  // Return response in your expected format
-  res.json({
-    Items: paginatedIssues,
-    TotalCount: totalCount,
-    PageNumber: page,
-    PageSize: limit,
-    TotalPages: totalPages,
-    HasPreviousPage: page > 1,
-    HasNextPage: page < totalPages,
-  });
+  res.status(201).json(newVehicle);
 });
 
-// Get single issue
-server.get("/issues/:id", (req, res) => {
+// Update vehicle
+server.put("/vehicles/:id", (req, res) => {
   const db = router.db;
-  const issue = db
-    .get("issues")
-    .find({ id: parseInt(req.params.id) })
-    .value();
+  const vehicleId = parseInt(req.params.id);
+  const updatedVehicle = req.body;
 
-  if (issue) {
-    res.json(issue);
+  const vehicle = db.get("vehicles").find({ id: vehicleId });
+
+  if (vehicle.value()) {
+    vehicle.assign(updatedVehicle).write();
+    res.json(vehicle.value());
   } else {
-    res.status(404).json({ error: "Issue not found" });
+    res.status(404).json({ error: "Vehicle not found" });
+  }
+});
+
+// Archive vehicle
+server.post("/vehicles/deactivate/:id", (req, res) => {
+  const db = router.db;
+  const vehicleId = parseInt(req.params.id);
+
+  const vehicle = db.get("vehicles").find({ id: vehicleId });
+
+  if (vehicle.value()) {
+    vehicle.assign({ IsActive: false }).write();
+    res.json({
+      message: "Vehicle archived successfully",
+      vehicle: vehicle.value(),
+    });
+  } else {
+    res.status(404).json({ error: "Vehicle not found" });
   }
 });
 
@@ -202,12 +168,12 @@ server.get("/vehicleGroups", (req, res) => {
   }
 
   // Filter by isActive if provided (not implemented yet in the backend)
-  // if (typeof req.query.isActive !== "undefined") {
-  //   const isActive = req.query.isActive === "true";
-  //   filteredGroups = filteredGroups.filter(
-  //     group => group.IsActive === isActive,
-  //   );
-  // }
+  if (typeof req.query.isActive !== "undefined") {
+    const isActive = req.query.isActive === "true";
+    filteredGroups = filteredGroups.filter(
+      group => group.IsActive === isActive,
+    );
+  }
 
   // Sort vehicle groups
   filteredGroups.sort((a, b) => {
@@ -300,6 +266,12 @@ server.get("/technicians", (req, res) => {
     );
   }
 
+  // Filter by isActive if provided (not implemented yet)
+  if (typeof req.query.isActive !== "undefined") {
+    const isActive = req.query.isActive === "true";
+    filteredTechs = filteredTechs.filter(tech => tech.IsActive === isActive);
+  }
+
   // Sort technicians
   filteredTechs.sort((a, b) => {
     let aValue = a[sortBy];
@@ -370,6 +342,217 @@ server.get("/technicians/:id", (req, res) => {
   }
 });
 
+// Custom route for inventoryItems with pagination wrapper
+server.get("/inventoryItems", (req, res) => {
+  const db = router.db;
+  const inventoryItems = db.get("inventoryItems").value();
+
+  // Get query parameters
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const sortByParam = req.query.sortBy
+    ? req.query.sortBy.toLowerCase()
+    : "itemname";
+  const sortOrder = req.query.sortOrder || "asc";
+  const search = req.query.search || "";
+
+  // Map sortBy param to actual field name in db
+  const sortByMap = {
+    itemnumber: "ItemNumber",
+    itemname: "ItemName",
+    description: "Description",
+    category: "Category",
+    manufacturer: "Manufacturer",
+    manufacturerpartnumber: "ManufacturerPartNumber",
+    universalproductcode: "UniversalProductCode",
+    unitcost: "UnitCost",
+    unitcostmeasurementunit: "UnitCostMeasurementUnit",
+    supplier: "Supplier",
+    weightkg: "WeightKG",
+    isactive: "IsActive",
+  };
+  const sortBy = sortByMap[sortByParam] || "ItemName";
+
+  // Filter by search if provided
+  let filteredItems = inventoryItems;
+  if (search) {
+    const searchLower = search.toLowerCase();
+    filteredItems = filteredItems.filter(
+      item =>
+        (item.ItemNumber &&
+          item.ItemNumber.toLowerCase().includes(searchLower)) ||
+        (item.ItemName && item.ItemName.toLowerCase().includes(searchLower)) ||
+        (item.Description &&
+          item.Description.toLowerCase().includes(searchLower)) ||
+        (item.Manufacturer &&
+          item.Manufacturer.toLowerCase().includes(searchLower)) ||
+        (item.Supplier && item.Supplier.toLowerCase().includes(searchLower)),
+    );
+  }
+
+  // Filter by isActive if provided (not implemented yet)
+  if (typeof req.query.isActive !== "undefined") {
+    const isActive = req.query.isActive === "true";
+    filteredItems = filteredItems.filter(item => item.IsActive === isActive);
+  }
+
+  // Sort inventory items
+  filteredItems.sort((a, b) => {
+    let aValue = a[sortBy];
+    let bValue = b[sortBy];
+
+    if (aValue == null && bValue == null) return 0;
+    if (aValue == null) return sortOrder === "asc" ? 1 : -1;
+    if (bValue == null) return sortOrder === "asc" ? -1 : 1;
+
+    // For number fields
+    if (typeof aValue === "number" && typeof bValue === "number") {
+      return sortOrder === "asc" ? aValue - bValue : bValue - aValue;
+    }
+
+    // For boolean
+    if (typeof aValue === "boolean" && typeof bValue === "boolean") {
+      return sortOrder === "asc"
+        ? aValue === bValue
+          ? 0
+          : aValue
+            ? -1
+            : 1
+        : aValue === bValue
+          ? 0
+          : aValue
+            ? 1
+            : -1;
+    }
+
+    // For string fields
+    const aString = String(aValue).toLowerCase();
+    const bString = String(bValue).toLowerCase();
+    if (aString < bString) return sortOrder === "asc" ? -1 : 1;
+    if (aString > bString) return sortOrder === "asc" ? 1 : -1;
+    return 0;
+  });
+
+  // Calculate pagination
+  const totalCount = filteredItems.length;
+  const totalPages = Math.ceil(totalCount / limit);
+  const startIndex = (page - 1) * limit;
+  const endIndex = startIndex + limit;
+  const paginatedItems = filteredItems.slice(startIndex, endIndex);
+
+  // Return response in expected format
+  res.json({
+    Items: paginatedItems,
+    TotalCount: totalCount,
+    PageNumber: page,
+    PageSize: limit,
+    TotalPages: totalPages,
+    HasPreviousPage: page > 1,
+    HasNextPage: page < totalPages,
+  });
+});
+
+// Get single inventory item
+server.get("/inventoryItems/:id", (req, res) => {
+  const db = router.db;
+  const item = db
+    .get("inventoryItems")
+    .find({ id: parseInt(req.params.id) })
+    .value();
+
+  if (item) {
+    res.json(item);
+  } else {
+    res.status(404).json({ error: "Inventory item not found" });
+  }
+});
+
+// Custom route for issues with pagination wrapper
+server.get("/issues", (req, res) => {
+  const db = router.db;
+  const issues = db.get("issues").value();
+
+  // Get query parameters
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const sortBy = req.query.sortBy || "id";
+  const sortOrder = req.query.sortOrder || "asc";
+  const search = req.query.search || "";
+
+  // Filter by search if provided
+  let filteredIssues = issues;
+  if (search) {
+    const searchLower = search.toLowerCase();
+    filteredIssues = issues.filter(
+      issue =>
+        (issue.Title && issue.Title.toLowerCase().includes(searchLower)) ||
+        (issue.Description &&
+          issue.Description.toLowerCase().includes(searchLower)) ||
+        (issue.Status && issue.Status.toLowerCase().includes(searchLower)) ||
+        (issue.Reporter &&
+          issue.Reporter.toLowerCase().includes(searchLower)) ||
+        (issue.AssignedTechnicianName &&
+          issue.AssignedTechnicianName.toLowerCase().includes(searchLower)) ||
+        (issue.VehicleName &&
+          issue.VehicleName.toLowerCase().includes(searchLower)),
+    );
+  }
+
+  // Sort issues
+  filteredIssues.sort((a, b) => {
+    let aValue = a[sortBy];
+    let bValue = b[sortBy];
+
+    if (aValue == null && bValue == null) return 0;
+    if (aValue == null) return sortOrder === "asc" ? 1 : -1;
+    if (bValue == null) return sortOrder === "asc" ? -1 : 1;
+
+    if (typeof aValue === "number" && typeof bValue === "number") {
+      return sortOrder === "asc" ? aValue - bValue : bValue - aValue;
+    }
+
+    const aString = String(aValue).toLowerCase();
+    const bString = String(bValue).toLowerCase();
+
+    if (aString < bString) return sortOrder === "asc" ? -1 : 1;
+    if (aString > bString) return sortOrder === "asc" ? 1 : -1;
+    return 0;
+  });
+
+  // Calculate pagination
+  const totalCount = filteredIssues.length;
+  const totalPages = Math.ceil(totalCount / limit);
+  const startIndex = (page - 1) * limit;
+  const endIndex = startIndex + limit;
+  const paginatedIssues = filteredIssues.slice(startIndex, endIndex);
+
+  // Return response in your expected format
+  res.json({
+    Items: paginatedIssues,
+    TotalCount: totalCount,
+    PageNumber: page,
+    PageSize: limit,
+    TotalPages: totalPages,
+    HasPreviousPage: page > 1,
+    HasNextPage: page < totalPages,
+  });
+});
+
+// Get single issue
+server.get("/issues/:id", (req, res) => {
+  const db = router.db;
+  const issue = db
+    .get("issues")
+    .find({ id: parseInt(req.params.id) })
+    .value();
+
+  if (issue) {
+    res.json(issue);
+  } else {
+    res.status(404).json({ error: "Issue not found" });
+  }
+});
+
 // Use default router for other routes
 server.use(router);
 
@@ -382,6 +565,9 @@ server.listen(PORT, () => {
   console.log(`GET /vehicles?search=ford - Search vehicles`);
   console.log(`GET /vehicles?sortBy=Name&sortOrder=desc - Sort vehicles`);
   console.log(`GET /vehicles/:id - Get single vehicle`);
+  console.log(`POST /vehicles - Create new vehicle`);
+  console.log(`PUT /vehicles/:id - Update vehicle`);
+  console.log(`POST /vehicles/deactivate/:id - Archive vehicle`);
 
   // Issues
   console.log(`GET /issues - Get paginated issues`);
@@ -407,6 +593,14 @@ server.listen(PORT, () => {
     `GET /technicians?sortBy=firstname - Sort technicians by firstname`,
   );
   console.log(`GET /technicians/:id - Get single technician`);
+
+  // Inventory Items
+  console.log(`GET /inventoryItems - Get paginated inventory items`);
+  console.log(
+    `GET /inventoryItems?page=1&limit=5 - Get inventory items with pagination`,
+  );
+  console.log(`GET /inventoryItems?search=oil - Search inventory items`);
+  console.log(`GET /inventoryItems/:id - Get single inventory item`);
 });
 
 module.exports = server;
