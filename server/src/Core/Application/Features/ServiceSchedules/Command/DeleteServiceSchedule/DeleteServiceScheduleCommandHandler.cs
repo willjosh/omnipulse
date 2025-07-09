@@ -15,7 +15,7 @@ public class DeleteServiceScheduleCommandHandler : IRequestHandler<DeleteService
     private readonly IServiceScheduleRepository _serviceScheduleRepository;
     private readonly IAppLogger<DeleteServiceScheduleCommandHandler> _logger;
 
-    public DeleteServiceScheduleCommandHandler(IServiceScheduleRepository serviceScheduleRepository, IAppLogger<DeleteServiceScheduleCommandHandler> logger, IMapper mapper)
+    public DeleteServiceScheduleCommandHandler(IServiceScheduleRepository serviceScheduleRepository, IAppLogger<DeleteServiceScheduleCommandHandler> logger)
     {
         _serviceScheduleRepository = serviceScheduleRepository;
         _logger = logger;

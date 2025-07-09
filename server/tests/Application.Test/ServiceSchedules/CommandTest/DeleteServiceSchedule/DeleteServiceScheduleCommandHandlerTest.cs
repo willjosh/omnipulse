@@ -30,7 +30,7 @@ public class DeleteServiceScheduleCommandHandlerTest
         var config = new MapperConfiguration(cfg => cfg.AddProfile<ServiceScheduleMappingProfile>());
         var mapper = config.CreateMapper();
 
-        _handler = new(_mockServiceScheduleRepository.Object, _mockLogger.Object, mapper);
+        _handler = new(_mockServiceScheduleRepository.Object, _mockLogger.Object);
     }
 
     [Fact]
