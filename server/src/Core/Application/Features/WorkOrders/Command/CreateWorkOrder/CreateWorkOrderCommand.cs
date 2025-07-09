@@ -8,7 +8,6 @@ namespace Application.Features.WorkOrders.Command.CreateWorkOrder;
 
 public record CreateWorkOrderCommand(
     int VehicleID,
-    int ServiceTaskID,
     string AssignedToUserID,
     string Title,
     string? Description,

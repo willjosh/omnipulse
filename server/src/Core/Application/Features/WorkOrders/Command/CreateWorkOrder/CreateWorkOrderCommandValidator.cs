@@ -14,10 +14,6 @@ public class CreateWorkOrderCommandValidator : AbstractValidator<CreateWorkOrder
             .GreaterThan(0)
             .WithMessage("Vehicle ID must be greater than 0");
 
-        RuleFor(x => x.ServiceTaskID)
-            .GreaterThan(0)
-            .WithMessage("Service Reminder ID must be greater than 0");
-
         // AssignedToUserId validation - required
         RuleFor(x => x.AssignedToUserID)
             .NotEmpty()

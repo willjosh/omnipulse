@@ -1,6 +1,7 @@
 using System;
 
 using Application.Features.WorkOrderLineItem.Models;
+using Application.Features.WorkOrderLineItem.Query.GetWorkOrderLineItemDetail;
 
 using AutoMapper;
 
@@ -25,5 +26,13 @@ public class WorkOrderLineItemMappingProfile : Profile
             .ForMember(dest => dest.InventoryItem, opt => opt.Ignore())
             .ForMember(dest => dest.ServiceTask, opt => opt.Ignore())
             .ForMember(dest => dest.User, opt => opt.Ignore());
+
+        CreateMap<WorkOrderLineItem, WorkOrderLineItemDetailDTO>()
+            .ForMember(dest => dest.SubTotal, opt => opt.Ignore())
+            .ForMember(dest => dest.LaborCost, opt => opt.Ignore())
+            .ForMember(dest => dest.ItemCost, opt => opt.Ignore())
+            .ForMember(dest => dest.AssignedToUserName, opt => opt.MapFrom(src => src.User != null ? src.User.GetFullName() : "Unassigned"))
+            .ForMember(dest => dest.InventoryItemName, opt => opt.MapFrom(src => src.InventoryItem != null ? src.InventoryItem.ItemName : "N/A"))
+            .ForMember(dest => dest.ServiceTaskName, opt => opt.MapFrom(src => src.ServiceTask != null ? src.ServiceTask.Name : "N/A"));
     }
 }

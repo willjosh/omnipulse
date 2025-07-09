@@ -18,7 +18,6 @@ public class CreateWorkOrderCommandValidatorTest
 
     private CreateWorkOrderCommand CreateValidCommand(
         int vehicleId = 1,
-        int serviceReminderId = 1,
         string assignedToUserId = "guid-1234-5678-9012-345678901234",
         string title = "Test Work Order",
         string? description = "Test Description",
@@ -39,7 +38,6 @@ public class CreateWorkOrderCommandValidatorTest
 
         return new CreateWorkOrderCommand(
             vehicleId,
-            serviceReminderId,
             assignedToUserId,
             title,
             description,
@@ -81,20 +79,6 @@ public class CreateWorkOrderCommandValidatorTest
         // Then
         Assert.False(result.IsValid);
         Assert.Contains(result.Errors, e => e.PropertyName == nameof(CreateWorkOrderCommand.VehicleID));
-    }
-
-    [Fact]
-    public async Task Validator_Should_Fail_When_ServiceReminderId_Is_Zero_Or_Negative()
-    {
-        // Given
-        var command = CreateValidCommand(serviceReminderId: -1);
-
-        // When
-        var result = await _validator.ValidateAsync(command);
-
-        // Then
-        Assert.False(result.IsValid);
-        Assert.Contains(result.Errors, e => e.PropertyName == nameof(CreateWorkOrderCommand.ServiceTaskID));
     }
 
     [Fact]

@@ -93,14 +93,6 @@ public class CreateWorkOrderCommandHandler : IRequestHandler<CreateWorkOrderComm
             throw new EntityNotFoundException(nameof(User), "AssignedToUserID", workOrder.AssignedToUserID);
         }
 
-        // Check if the service reminder exists
-        if (!await _serviceReminderRepository.ExistsAsync(workOrder.ServiceTaskID))
-        {
-            var errorMessage = $"Service reminder ID not found: {workOrder.ServiceTaskID}";
-            _logger.LogError(errorMessage);
-            throw new EntityNotFoundException(nameof(ServiceReminder), "ServiceTaskID", workOrder.ServiceTaskID.ToString());
-        }
-
         // Validate issues if provided
         if (idsList?.Count > 0)
         {

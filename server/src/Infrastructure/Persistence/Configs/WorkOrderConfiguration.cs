@@ -20,7 +20,6 @@ public class WorkOrderConfiguration : IEntityTypeConfiguration<WorkOrder>
 
         // Regular Indexes
         builder.HasIndex(wo => wo.VehicleID);
-        builder.HasIndex(wo => wo.ServiceTaskID);
         builder.HasIndex(wo => wo.AssignedToUserID);
         builder.HasIndex(wo => wo.Status);
         builder.HasIndex(wo => wo.PriorityLevel);
@@ -54,12 +53,6 @@ public class WorkOrderConfiguration : IEntityTypeConfiguration<WorkOrder>
             .HasOne(wo => wo.Vehicle)
             .WithMany()
             .HasForeignKey(wo => wo.VehicleID)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder
-            .HasOne(wo => wo.ServiceTask)
-            .WithMany()
-            .HasForeignKey(wo => wo.ServiceTaskID)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder

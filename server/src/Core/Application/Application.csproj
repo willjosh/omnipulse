@@ -18,7 +18,6 @@
 
   <ItemGroup>
     <Folder Include="Features/WorkOrderLineItem/Command/" />
-    <Folder Include="Features/WorkOrderLineItem/Query/" />
   </ItemGroup>
 
 </Project>
