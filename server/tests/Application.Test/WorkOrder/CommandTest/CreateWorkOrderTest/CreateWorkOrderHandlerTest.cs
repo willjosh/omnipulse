@@ -70,6 +70,7 @@ public class CreateWorkOrderHandlerTest
             _mockValidator.Object);
     }
 
+    // ✅ UPDATED: Removed estimatedCost, actualCost, estimatedHours, actualHours
     private CreateWorkOrderCommand CreateValidCommand(
         int vehicleId = 1,
         int serviceReminderId = 1,
@@ -79,10 +80,6 @@ public class CreateWorkOrderHandlerTest
         WorkTypeEnum workOrderType = WorkTypeEnum.SCHEDULED,
         PriorityLevelEnum priorityLevel = PriorityLevelEnum.HIGH,
         WorkOrderStatusEnum status = WorkOrderStatusEnum.ASSIGNED,
-        decimal? estimatedCost = 100.00m,
-        decimal? actualCost = null,
-        double? estimatedHours = 2.0,
-        double? actualHours = null,
         DateTime? scheduledStartDate = null,
         DateTime? actualStartDate = null,
         double startOdometer = 1000.0,
@@ -100,10 +97,6 @@ public class CreateWorkOrderHandlerTest
             workOrderType,
             priorityLevel,
             status,
-            estimatedCost,
-            actualCost,
-            estimatedHours,
-            actualHours,
             scheduledStartDate,
             actualStartDate,
             startOdometer,
@@ -130,6 +123,7 @@ public class CreateWorkOrderHandlerTest
         _mockValidator.Setup(v => v.ValidateAsync(command, CancellationToken.None))
                      .ReturnsAsync(invalidResult);
     }
+
     private void SetupLineItemUserValidation(List<CreateWorkOrderLineItemDTO> lineItems)
     {
         var assignedUserIds = lineItems
@@ -144,6 +138,7 @@ public class CreateWorkOrderHandlerTest
         }
     }
 
+    // ✅ UPDATED: Removed EstimatedCost, ActualCost, EstimatedHours, ActualHours
     private Domain.Entities.WorkOrder CreateWorkOrderFromCommand(CreateWorkOrderCommand command)
     {
         return new Domain.Entities.WorkOrder
@@ -164,10 +159,6 @@ public class CreateWorkOrderHandlerTest
 
             // Optional properties
             Description = command.Description,
-            EstimatedCost = command.EstimatedCost,
-            ActualCost = command.ActualCost,
-            EstimatedHours = command.EstimatedHours,
-            ActualHours = command.ActualHours,
             ScheduledStartDate = command.ScheduledStartDate,
             ActualStartDate = command.ActualStartDate,
             EndOdometer = command.EndOdometer,
@@ -255,7 +246,7 @@ public class CreateWorkOrderHandlerTest
                 HourlyRate = null,
                 LaborHours = null
             },
-            // ITEM (labor) item
+            // LABOR item
             new CreateWorkOrderLineItemDTO
             {
                 ServiceTaskID = 2,

@@ -18,10 +18,6 @@ public class WorkOrderConfiguration : IEntityTypeConfiguration<WorkOrder>
         builder.Property(wo => wo.Title).HasMaxLength(200);
         builder.Property(wo => wo.Description).HasMaxLength(2000);
 
-        // Precision for decimal fields
-        builder.Property(wo => wo.EstimatedCost).HasPrecision(10, 2);
-        builder.Property(wo => wo.ActualCost).HasPrecision(10, 2);
-
         // Regular Indexes
         builder.HasIndex(wo => wo.VehicleID);
         builder.HasIndex(wo => wo.ServiceReminderID);
