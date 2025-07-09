@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import SideBar from "./_features/shared/SideBar";
-import NavBar from "./_features/shared/NavBar";
+import { SideBar, NavBar } from "./_features/shared/layout";
 import Providers from "./_lib/react_query/providers";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
