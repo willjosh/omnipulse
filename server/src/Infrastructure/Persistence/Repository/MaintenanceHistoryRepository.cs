@@ -26,15 +26,15 @@ public class MaintenanceHistoryRepository : GenericRepository<MaintenanceHistory
 
         if (!string.IsNullOrWhiteSpace(parameters.Search))
         {
-            var search = parameters.Search.ToLowerInvariant();
+            var search = $"%{parameters.Search}%";
             query = query.Where(mh =>
-                mh.Vehicle.Name.ToLowerInvariant().Contains(search) ||
-                mh.WorkOrder.Title.ToLowerInvariant().Contains(search) ||
-                mh.WorkOrderID.ToString().Contains(search) ||
-                mh.ServiceTask.Name.ToLowerInvariant().Contains(search) ||
-                mh.User.FirstName.ToLowerInvariant().Contains(search) ||
-                mh.User.LastName.ToLowerInvariant().Contains(search) ||
-                (mh.Description != null && mh.Description.ToLowerInvariant().Contains(search))
+                EF.Functions.Like(mh.Vehicle.Name, search) ||
+                EF.Functions.Like(mh.WorkOrder.Title, search) ||
+                mh.WorkOrderID.ToString().Contains(parameters.Search) ||
+                EF.Functions.Like(mh.ServiceTask.Name, search) ||
+                EF.Functions.Like(mh.User.FirstName, search) ||
+                EF.Functions.Like(mh.User.LastName, search) ||
+                (mh.Description != null && EF.Functions.Like(mh.Description, search))
             );
         }
 
