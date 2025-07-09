@@ -16,7 +16,7 @@ using FluentValidation;
 
 using Moq;
 
-namespace Application.Test.WorkOrder.CommandTest.CreateWorkOrderTest;
+namespace Application.Test.WorkOrders.CommandTest.CreateWorkOrderTest;
 
 public class CreateWorkOrderHandlerTest
 {
@@ -70,19 +70,15 @@ public class CreateWorkOrderHandlerTest
             _mockValidator.Object);
     }
 
+    // ✅ UPDATED: Removed estimatedCost, actualCost, estimatedHours, actualHours
     private CreateWorkOrderCommand CreateValidCommand(
         int vehicleId = 1,
-        int serviceReminderId = 1,
         string assignedToUserId = "1a0a07ba-19b9-4e88-bcfd-2ae76e81fca5",
         string title = "Test Work Order",
         string? description = null,
         WorkTypeEnum workOrderType = WorkTypeEnum.SCHEDULED,
         PriorityLevelEnum priorityLevel = PriorityLevelEnum.HIGH,
         WorkOrderStatusEnum status = WorkOrderStatusEnum.ASSIGNED,
-        decimal? estimatedCost = 100.00m,
-        decimal? actualCost = null,
-        double? estimatedHours = 2.0,
-        double? actualHours = null,
         DateTime? scheduledStartDate = null,
         DateTime? actualStartDate = null,
         double startOdometer = 1000.0,
@@ -93,17 +89,12 @@ public class CreateWorkOrderHandlerTest
     {
         return new CreateWorkOrderCommand(
             vehicleId,
-            serviceReminderId,
             assignedToUserId,
             title,
             description,
             workOrderType,
             priorityLevel,
             status,
-            estimatedCost,
-            actualCost,
-            estimatedHours,
-            actualHours,
             scheduledStartDate,
             actualStartDate,
             startOdometer,
@@ -130,6 +121,7 @@ public class CreateWorkOrderHandlerTest
         _mockValidator.Setup(v => v.ValidateAsync(command, CancellationToken.None))
                      .ReturnsAsync(invalidResult);
     }
+
     private void SetupLineItemUserValidation(List<CreateWorkOrderLineItemDTO> lineItems)
     {
         var assignedUserIds = lineItems
@@ -144,6 +136,7 @@ public class CreateWorkOrderHandlerTest
         }
     }
 
+    // ✅ UPDATED: Removed EstimatedCost, ActualCost, EstimatedHours, ActualHours
     private Domain.Entities.WorkOrder CreateWorkOrderFromCommand(CreateWorkOrderCommand command)
     {
         return new Domain.Entities.WorkOrder
@@ -154,7 +147,6 @@ public class CreateWorkOrderHandlerTest
 
             // WorkOrder required properties
             VehicleID = command.VehicleID,
-            ServiceReminderID = command.ServiceReminderID,
             AssignedToUserID = command.AssignedToUserID,
             Title = command.Title,
             WorkOrderType = command.WorkOrderType,
@@ -164,10 +156,6 @@ public class CreateWorkOrderHandlerTest
 
             // Optional properties
             Description = command.Description,
-            EstimatedCost = command.EstimatedCost,
-            ActualCost = command.ActualCost,
-            EstimatedHours = command.EstimatedHours,
-            ActualHours = command.ActualHours,
             ScheduledStartDate = command.ScheduledStartDate,
             ActualStartDate = command.ActualStartDate,
             EndOdometer = command.EndOdometer,
@@ -175,7 +163,6 @@ public class CreateWorkOrderHandlerTest
             // Required navigation properties - initialize as empty collections or null
             Vehicle = null!,
             MaintenanceHistories = [],
-            ServiceReminder = null!,
             User = null!,
             WorkOrderLineItems = [],
             Invoices = [],
@@ -255,7 +242,7 @@ public class CreateWorkOrderHandlerTest
                 HourlyRate = null,
                 LaborHours = null
             },
-            // ITEM (labor) item
+            // LABOR item
             new CreateWorkOrderLineItemDTO
             {
                 ServiceTaskID = 2,
@@ -283,7 +270,6 @@ public class CreateWorkOrderHandlerTest
         // check entities exist
         _mockVehicleRepository.Setup(v => v.ExistsAsync(command.VehicleID)).ReturnsAsync(true);
         _mockUserRepository.Setup(u => u.ExistsAsync(command.AssignedToUserID)).ReturnsAsync(true);
-        _mockServiceReminderRepository.Setup(s => s.ExistsAsync(command.ServiceReminderID)).ReturnsAsync(true);
 
         _mockWorkOrderRepository.Setup(r => r.AddAsync(It.IsAny<Domain.Entities.WorkOrder>())).ReturnsAsync(expectedWorkOrder);
 
@@ -296,7 +282,6 @@ public class CreateWorkOrderHandlerTest
         // Verify all mocks were called correctly
         _mockVehicleRepository.Verify(v => v.ExistsAsync(command.VehicleID), Times.Once);
         _mockUserRepository.Verify(u => u.ExistsAsync(command.AssignedToUserID), Times.Once);
-        _mockServiceReminderRepository.Verify(s => s.ExistsAsync(command.ServiceReminderID), Times.Once);
         _mockWorkOrderRepository.Verify(r => r.AddAsync(It.IsAny<Domain.Entities.WorkOrder>()), Times.Once);
 
         // Verify that WorkOrderLineItem repository was NOT called since no line items provided
@@ -321,7 +306,6 @@ public class CreateWorkOrderHandlerTest
 
         _mockVehicleRepository.Setup(v => v.ExistsAsync(command.VehicleID)).ReturnsAsync(true);
         _mockUserRepository.Setup(u => u.ExistsAsync(command.AssignedToUserID)).ReturnsAsync(true);
-        _mockServiceReminderRepository.Setup(s => s.ExistsAsync(command.ServiceReminderID)).ReturnsAsync(true);
         _mockIssueRepository.Setup(i => i.AllExistAsync(issueIdList)).ReturnsAsync(true);
 
         _mockWorkOrderRepository.Setup(r => r.AddAsync(It.IsAny<Domain.Entities.WorkOrder>())).ReturnsAsync(expectedWorkOrder);
@@ -337,7 +321,6 @@ public class CreateWorkOrderHandlerTest
         // Verify all mocks were called correctly
         _mockVehicleRepository.Verify(v => v.ExistsAsync(command.VehicleID), Times.Once);
         _mockUserRepository.Verify(u => u.ExistsAsync(command.AssignedToUserID), Times.Once);
-        _mockServiceReminderRepository.Verify(s => s.ExistsAsync(command.ServiceReminderID), Times.Once);
         _mockIssueRepository.Verify(i => i.AllExistAsync(issueIdList), Times.Once);
         _mockWorkOrderRepository.Verify(r => r.AddAsync(It.IsAny<Domain.Entities.WorkOrder>()), Times.Once);
         _mockWorkOrderIssueRepository.Verify(r => r.AddRangeAsync(It.IsAny<IEnumerable<WorkOrderIssue>>()), Times.Once);
@@ -357,7 +340,6 @@ public class CreateWorkOrderHandlerTest
         // Setup entity existence validation
         _mockVehicleRepository.Setup(v => v.ExistsAsync(command.VehicleID)).ReturnsAsync(true);
         _mockUserRepository.Setup(u => u.ExistsAsync(command.AssignedToUserID)).ReturnsAsync(true);
-        _mockServiceReminderRepository.Setup(s => s.ExistsAsync(command.ServiceReminderID)).ReturnsAsync(true);
 
         // Setup line item entity validation
         var inventoryItemIds = lineItems.Where(li => li.InventoryItemID.HasValue).Select(li => li.InventoryItemID!.Value).ToList();
@@ -382,7 +364,6 @@ public class CreateWorkOrderHandlerTest
         // Verify all main entity validations
         _mockVehicleRepository.Verify(v => v.ExistsAsync(command.VehicleID), Times.Once);
         _mockUserRepository.Verify(u => u.ExistsAsync(command.AssignedToUserID), Times.Once);
-        _mockServiceReminderRepository.Verify(s => s.ExistsAsync(command.ServiceReminderID), Times.Once);
 
         // Verify line item entity validations
         _mockInventoryItemRepository.Verify(i => i.AllExistAsync(inventoryItemIds), Times.Once);
@@ -410,7 +391,6 @@ public class CreateWorkOrderHandlerTest
         // Setup all entity validations
         _mockVehicleRepository.Setup(v => v.ExistsAsync(command.VehicleID)).ReturnsAsync(true);
         _mockUserRepository.Setup(u => u.ExistsAsync(command.AssignedToUserID)).ReturnsAsync(true);
-        _mockServiceReminderRepository.Setup(s => s.ExistsAsync(command.ServiceReminderID)).ReturnsAsync(true);
         _mockIssueRepository.Setup(i => i.AllExistAsync(issueIdList)).ReturnsAsync(true);
 
         var inventoryItemIds = lineItems.Where(li => li.InventoryItemID.HasValue).Select(li => li.InventoryItemID!.Value).ToList();
@@ -436,7 +416,6 @@ public class CreateWorkOrderHandlerTest
         // Verify all validations and operations
         _mockVehicleRepository.Verify(v => v.ExistsAsync(command.VehicleID), Times.Once);
         _mockUserRepository.Verify(u => u.ExistsAsync(command.AssignedToUserID), Times.Once);
-        _mockServiceReminderRepository.Verify(s => s.ExistsAsync(command.ServiceReminderID), Times.Once);
         _mockIssueRepository.Verify(i => i.AllExistAsync(issueIdList), Times.Once);
         _mockInventoryItemRepository.Verify(i => i.AllExistAsync(inventoryItemIds), Times.Once);
         _mockServiceTaskRepository.Verify(s => s.AllExistAsync(serviceTaskIds), Times.Once);
@@ -455,7 +434,6 @@ public class CreateWorkOrderHandlerTest
 
         _mockVehicleRepository.Setup(v => v.ExistsAsync(command.VehicleID)).ReturnsAsync(false);
         _mockUserRepository.Setup(u => u.ExistsAsync(command.AssignedToUserID)).ReturnsAsync(true);
-        _mockServiceReminderRepository.Setup(s => s.ExistsAsync(command.ServiceReminderID)).ReturnsAsync(true);
 
         // When & Then
         var exception = await Assert.ThrowsAsync<EntityNotFoundException>(() => _handler.Handle(command, CancellationToken.None));
@@ -477,7 +455,6 @@ public class CreateWorkOrderHandlerTest
 
         _mockVehicleRepository.Setup(v => v.ExistsAsync(command.VehicleID)).ReturnsAsync(true);
         _mockUserRepository.Setup(u => u.ExistsAsync(command.AssignedToUserID)).ReturnsAsync(true);
-        _mockServiceReminderRepository.Setup(s => s.ExistsAsync(command.ServiceReminderID)).ReturnsAsync(true);
         _mockIssueRepository.Setup(i => i.AllExistAsync(issueIdList)).ReturnsAsync(false);
 
         // When & Then
@@ -499,34 +476,12 @@ public class CreateWorkOrderHandlerTest
 
         _mockVehicleRepository.Setup(v => v.ExistsAsync(command.VehicleID)).ReturnsAsync(true);
         _mockUserRepository.Setup(u => u.ExistsAsync(command.AssignedToUserID)).ReturnsAsync(false);
-        _mockServiceReminderRepository.Setup(s => s.ExistsAsync(command.ServiceReminderID)).ReturnsAsync(true);
 
         // When & Then
         var exception = await Assert.ThrowsAsync<EntityNotFoundException>(() => _handler.Handle(command, CancellationToken.None));
 
         Assert.Contains("User", exception.Message);
         Assert.Contains(command.AssignedToUserID, exception.Message);
-
-        // Verify that AddAsync was never called
-        _mockWorkOrderRepository.Verify(r => r.AddAsync(It.IsAny<Domain.Entities.WorkOrder>()), Times.Never);
-    }
-
-    [Fact]
-    public async Task Handler_Should_Throw_EntityNotFoundException_When_Service_Reminder_Does_Not_Exist()
-    {
-        // Given
-        var command = CreateValidCommand();
-        SetupValidValidation(command);
-
-        _mockVehicleRepository.Setup(v => v.ExistsAsync(command.VehicleID)).ReturnsAsync(true);
-        _mockUserRepository.Setup(u => u.ExistsAsync(command.AssignedToUserID)).ReturnsAsync(true);
-        _mockServiceReminderRepository.Setup(s => s.ExistsAsync(command.ServiceReminderID)).ReturnsAsync(false);
-
-        // When & Then
-        var exception = await Assert.ThrowsAsync<EntityNotFoundException>(() => _handler.Handle(command, CancellationToken.None));
-
-        Assert.Contains("ServiceReminder", exception.Message);
-        Assert.Contains(command.ServiceReminderID.ToString(), exception.Message);
 
         // Verify that AddAsync was never called
         _mockWorkOrderRepository.Verify(r => r.AddAsync(It.IsAny<Domain.Entities.WorkOrder>()), Times.Never);
@@ -543,7 +498,6 @@ public class CreateWorkOrderHandlerTest
         // Setup main entities as existing
         _mockVehicleRepository.Setup(v => v.ExistsAsync(command.VehicleID)).ReturnsAsync(true);
         _mockUserRepository.Setup(u => u.ExistsAsync(command.AssignedToUserID)).ReturnsAsync(true);
-        _mockServiceReminderRepository.Setup(s => s.ExistsAsync(command.ServiceReminderID)).ReturnsAsync(true);
 
         // Setup line item validation - inventory items don't exist
         var inventoryItemIds = lineItems.Where(li => li.InventoryItemID.HasValue).Select(li => li.InventoryItemID!.Value).ToList();
@@ -573,7 +527,6 @@ public class CreateWorkOrderHandlerTest
         // Setup main entities as existing
         _mockVehicleRepository.Setup(v => v.ExistsAsync(command.VehicleID)).ReturnsAsync(true);
         _mockUserRepository.Setup(u => u.ExistsAsync(command.AssignedToUserID)).ReturnsAsync(true);
-        _mockServiceReminderRepository.Setup(s => s.ExistsAsync(command.ServiceReminderID)).ReturnsAsync(true);
 
         // Setup line item validation - service tasks don't exist
         var inventoryItemIds = lineItems.Where(li => li.InventoryItemID.HasValue).Select(li => li.InventoryItemID!.Value).ToList();
@@ -602,7 +555,6 @@ public class CreateWorkOrderHandlerTest
         // Setup all entities as existing (but validation will fail before we check them)
         _mockVehicleRepository.Setup(v => v.ExistsAsync(command.VehicleID)).ReturnsAsync(true);
         _mockUserRepository.Setup(u => u.ExistsAsync(command.AssignedToUserID)).ReturnsAsync(true);
-        _mockServiceReminderRepository.Setup(s => s.ExistsAsync(command.ServiceReminderID)).ReturnsAsync(true);
 
         // When & Then
         var exception = await Assert.ThrowsAsync<BadRequestException>(() => _handler.Handle(command, CancellationToken.None));
@@ -648,7 +600,6 @@ public class CreateWorkOrderHandlerTest
         // Setup main entities as existing
         _mockVehicleRepository.Setup(v => v.ExistsAsync(command.VehicleID)).ReturnsAsync(true);
         _mockUserRepository.Setup(u => u.ExistsAsync(command.AssignedToUserID)).ReturnsAsync(true);
-        _mockServiceReminderRepository.Setup(s => s.ExistsAsync(command.ServiceReminderID)).ReturnsAsync(true);
 
         // Setup line item validation
         var serviceTaskIds = lineItems.Select(li => li.ServiceTaskID).ToList();
@@ -694,7 +645,6 @@ public class CreateWorkOrderHandlerTest
         // Setup main entities as existing
         _mockVehicleRepository.Setup(v => v.ExistsAsync(command.VehicleID)).ReturnsAsync(true);
         _mockUserRepository.Setup(u => u.ExistsAsync(command.AssignedToUserID)).ReturnsAsync(true);
-        _mockServiceReminderRepository.Setup(s => s.ExistsAsync(command.ServiceReminderID)).ReturnsAsync(true);
 
         // Setup line item validation - both fail
         var inventoryItemIds = lineItems.Where(li => li.InventoryItemID.HasValue).Select(li => li.InventoryItemID!.Value).ToList();
@@ -743,7 +693,6 @@ public class CreateWorkOrderHandlerTest
         // Setup entity existence validation
         _mockVehicleRepository.Setup(v => v.ExistsAsync(command.VehicleID)).ReturnsAsync(true);
         _mockUserRepository.Setup(u => u.ExistsAsync(command.AssignedToUserID)).ReturnsAsync(true);
-        _mockServiceReminderRepository.Setup(s => s.ExistsAsync(command.ServiceReminderID)).ReturnsAsync(true);
 
         // Setup line item validation
         var serviceTaskIds = lineItems.Select(li => li.ServiceTaskID).ToList();
@@ -815,7 +764,6 @@ public class CreateWorkOrderHandlerTest
         // Setup all validations
         _mockVehicleRepository.Setup(v => v.ExistsAsync(command.VehicleID)).ReturnsAsync(true);
         _mockUserRepository.Setup(u => u.ExistsAsync(command.AssignedToUserID)).ReturnsAsync(true);
-        _mockServiceReminderRepository.Setup(s => s.ExistsAsync(command.ServiceReminderID)).ReturnsAsync(true);
 
         var inventoryItemIds = lineItems.Where(li => li.InventoryItemID.HasValue).Select(li => li.InventoryItemID!.Value).ToList();
         var serviceTaskIds = lineItems.Select(li => li.ServiceTaskID).ToList();
@@ -864,7 +812,6 @@ public class CreateWorkOrderHandlerTest
 
         _mockVehicleRepository.Setup(v => v.ExistsAsync(command.VehicleID)).ReturnsAsync(true);
         _mockUserRepository.Setup(u => u.ExistsAsync(command.AssignedToUserID)).ReturnsAsync(true);
-        _mockServiceReminderRepository.Setup(s => s.ExistsAsync(command.ServiceReminderID)).ReturnsAsync(true);
 
         _mockWorkOrderRepository.Setup(r => r.AddAsync(It.IsAny<Domain.Entities.WorkOrder>())).ReturnsAsync(expectedWorkOrder);
 

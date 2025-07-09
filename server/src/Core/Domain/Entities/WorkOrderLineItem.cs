@@ -55,4 +55,24 @@ public class WorkOrderLineItem : BaseEntity
                 break;
         }
     }
+
+    public decimal CalculateLaborCost()
+    {
+        if (ItemType == LineItemTypeEnum.LABOR || ItemType == LineItemTypeEnum.BOTH)
+        {
+            return (decimal)(LaborHours ?? 0) * (HourlyRate ?? 0);
+        }
+
+        return 0;
+    }
+
+    public decimal CalculateItemCost()
+    {
+        if (ItemType == LineItemTypeEnum.ITEM || ItemType == LineItemTypeEnum.BOTH)
+        {
+            return Quantity * (UnitPrice ?? 0);
+        }
+
+        return 0;
+    }
 }
