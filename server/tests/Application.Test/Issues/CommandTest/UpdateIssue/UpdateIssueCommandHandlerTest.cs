@@ -64,10 +64,13 @@ public class UpdateIssueCommandHandlerTest
         IssueCategoryEnum category = IssueCategoryEnum.BODY,
         IssueStatusEnum status = IssueStatusEnum.IN_PROGRESS,
         string reportedByUserID = "1234567890",
-        DateTime? reportedDate = null
+        DateTime? reportedDate = null,
+        string? resolutionNotes = null,
+        DateTime? resolvedDate = null,
+        string? resolvedByUserID = null
     )
     {
-        return new UpdateIssueCommand(issueID, vehicleID, title, description, priorityLevel, category, status, reportedByUserID, reportedDate);
+        return new UpdateIssueCommand(issueID, vehicleID, title, description, priorityLevel, category, status, reportedByUserID, reportedDate, resolutionNotes, resolvedDate, resolvedByUserID);
     }
 
     private Issue CreateTestIssue(int issueID = 1, int vehicleID = 123, string reportedByUserID = "1234567890")
@@ -167,12 +170,16 @@ public class UpdateIssueCommandHandlerTest
     public async Task Handle_Should_Return_IssueID_On_Success()
     {
         // Given
-        var command = CreateValidCommand();
+        var command = CreateValidCommand(resolutionNotes: "Resolved", resolvedDate: DateTime.UtcNow, resolvedByUserID: "user2");
         SetupValidValidation(command);
         var existingIssue = CreateTestIssue(command.IssueID, command.VehicleID, command.ReportedByUserID);
         _mockIssueRepository.Setup(r => r.GetByIdAsync(command.IssueID)).ReturnsAsync(existingIssue);
         _mockVehicleRepository.Setup(r => r.GetByIdAsync(command.VehicleID)).ReturnsAsync(CreateTestVehicle(command.VehicleID));
         _mockUserRepository.Setup(r => r.GetByIdAsync(command.ReportedByUserID)).ReturnsAsync(CreateTestUser(command.ReportedByUserID));
+        if (command.ResolvedByUserID != null)
+        {
+            _mockUserRepository.Setup(r => r.GetByIdAsync(command.ResolvedByUserID)).ReturnsAsync(CreateTestUser(command.ResolvedByUserID));
+        }
         _mockIssueRepository.Setup(r => r.Update(existingIssue));
         _mockIssueRepository.Setup(r => r.SaveChangesAsync()).ReturnsAsync(1);
 
@@ -193,7 +200,7 @@ public class UpdateIssueCommandHandlerTest
     public async Task Handle_Should_Throw_BadRequestException_When_Invalid_Command_Is_Provided()
     {
         // Given
-        var command = CreateValidCommand();
+        var command = CreateValidCommand(resolutionNotes: null, resolvedDate: null, resolvedByUserID: null);
         SetupInvalidValidation(command, "Title", "Title is required");
 
         // When & Then
@@ -211,7 +218,7 @@ public class UpdateIssueCommandHandlerTest
     public async Task Handle_Should_Throw_EntityNotFoundException_When_Issue_Is_Not_Found()
     {
         // Given
-        var command = CreateValidCommand();
+        var command = CreateValidCommand(resolutionNotes: null, resolvedDate: null, resolvedByUserID: null);
         SetupValidValidation(command);
         _mockIssueRepository.Setup(r => r.GetByIdAsync(command.IssueID)).ReturnsAsync((Issue?)null);
 
@@ -230,7 +237,7 @@ public class UpdateIssueCommandHandlerTest
     public async Task Handle_Should_Throw_EntityNotFoundException_When_Vehicle_Is_Not_Found()
     {
         // Given
-        var command = CreateValidCommand();
+        var command = CreateValidCommand(resolutionNotes: null, resolvedDate: null, resolvedByUserID: null);
         SetupValidValidation(command);
         var existingIssue = CreateTestIssue(command.IssueID, command.VehicleID, command.ReportedByUserID);
         _mockIssueRepository.Setup(r => r.GetByIdAsync(command.IssueID)).ReturnsAsync(existingIssue);
@@ -252,7 +259,7 @@ public class UpdateIssueCommandHandlerTest
     public async Task Handle_Should_Throw_EntityNotFoundException_When_User_Is_Not_Found()
     {
         // Given
-        var command = CreateValidCommand();
+        var command = CreateValidCommand(resolutionNotes: null, resolvedDate: null, resolvedByUserID: null);
         SetupValidValidation(command);
         var existingIssue = CreateTestIssue(command.IssueID, command.VehicleID, command.ReportedByUserID);
         _mockIssueRepository.Setup(r => r.GetByIdAsync(command.IssueID)).ReturnsAsync(existingIssue);
