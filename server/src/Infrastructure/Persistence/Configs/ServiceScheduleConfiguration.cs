@@ -17,6 +17,11 @@ public class ServiceScheduleConfiguration : IEntityTypeConfiguration<ServiceSche
         // String Length Constraints
         builder.Property(ss => ss.Name).HasMaxLength(200);
 
+        // Enum Configurations
+        builder.Property(ss => ss.TimeIntervalUnit).HasConversion<string>();
+        builder.Property(ss => ss.TimeBufferUnit).HasConversion<string>();
+        builder.Property(ss => ss.FirstServiceTimeUnit).HasConversion<string>();
+
         // Regular Indexes
         builder.HasIndex(ss => ss.ServiceProgramID);
         builder.HasIndex(ss => ss.IsActive);
@@ -29,18 +34,19 @@ public class ServiceScheduleConfiguration : IEntityTypeConfiguration<ServiceSche
         // Unique constraint within service program
         builder.HasIndex(ss => new { ss.ServiceProgramID, ss.Name }).IsUnique();
 
-        // Check Constraints
-        builder.ToTable(t => t.HasCheckConstraint("CK_ServiceSchedule_IntervalMileage",
-            "IntervalMileage > 0"));
-        builder.ToTable(t => t.HasCheckConstraint("CK_ServiceSchedule_IntervalDays",
-            "IntervalDays > 0"));
-        builder.ToTable(t => t.HasCheckConstraint("CK_ServiceSchedule_IntervalHours",
-            "IntervalHours >= 0"));
-        builder.ToTable(t => t.HasCheckConstraint("CK_ServiceSchedule_BufferMileage",
-            "BufferMileage >= 0"));
-        builder.ToTable(t => t.HasCheckConstraint("CK_ServiceSchedule_BufferDays",
-            "BufferDays >= 0"));
-
+        // Check Constraints for positive values
+        builder.ToTable(t => t.HasCheckConstraint("CK_ServiceSchedule_TimeIntervalValue",
+            "TimeIntervalValue > 0"));
+        builder.ToTable(t => t.HasCheckConstraint("CK_ServiceSchedule_TimeBufferValue",
+            "TimeBufferValue >= 0"));
+        builder.ToTable(t => t.HasCheckConstraint("CK_ServiceSchedule_MileageInterval",
+            "MileageInterval > 0"));
+        builder.ToTable(t => t.HasCheckConstraint("CK_ServiceSchedule_MileageBuffer",
+            "MileageBuffer >= 0"));
+        builder.ToTable(t => t.HasCheckConstraint("CK_ServiceSchedule_FirstServiceTimeValue",
+            "FirstServiceTimeValue >= 0"));
+        builder.ToTable(t => t.HasCheckConstraint("CK_ServiceSchedule_FirstServiceMileage",
+            "FirstServiceMileage >= 0"));
 
         // Table Relationships
         builder

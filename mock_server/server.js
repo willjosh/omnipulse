@@ -467,39 +467,49 @@ server.get("/inventoryItems/:id", (req, res) => {
   }
 });
 
-// Custom route for issues with pagination wrapper
-server.get("/issues", (req, res) => {
+// Custom route for serviceTasks with pagination wrapper
+server.get("/serviceTasks", (req, res) => {
   const db = router.db;
-  const issues = db.get("issues").value();
+  const serviceTasks = db.get("serviceTasks").value();
 
   // Get query parameters
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
-  const sortBy = req.query.sortBy || "id";
+  const sortByParam = req.query.sortBy ? req.query.sortBy.toLowerCase() : "id";
   const sortOrder = req.query.sortOrder || "asc";
   const search = req.query.search || "";
 
   // Filter by search if provided
-  let filteredIssues = issues;
+  let filteredTasks = serviceTasks;
   if (search) {
     const searchLower = search.toLowerCase();
-    filteredIssues = issues.filter(
-      issue =>
-        (issue.Title && issue.Title.toLowerCase().includes(searchLower)) ||
-        (issue.Description &&
-          issue.Description.toLowerCase().includes(searchLower)) ||
-        (issue.Status && issue.Status.toLowerCase().includes(searchLower)) ||
-        (issue.Reporter &&
-          issue.Reporter.toLowerCase().includes(searchLower)) ||
-        (issue.AssignedTechnicianName &&
-          issue.AssignedTechnicianName.toLowerCase().includes(searchLower)) ||
-        (issue.VehicleName &&
-          issue.VehicleName.toLowerCase().includes(searchLower)),
+    filteredTasks = filteredTasks.filter(
+      task =>
+        (task.Name && task.Name.toLowerCase().includes(searchLower)) ||
+        (task.Description &&
+          task.Description.toLowerCase().includes(searchLower)),
     );
   }
 
-  // Sort issues
-  filteredIssues.sort((a, b) => {
+  // Filter by isActive if provided
+  if (typeof req.query.isActive !== "undefined") {
+    const isActive = req.query.isActive === "true";
+    filteredTasks = filteredTasks.filter(task => task.IsActive === isActive);
+  }
+
+  // Sort service tasks
+  const sortByMap = {
+    id: "id",
+    name: "Name",
+    description: "Description",
+    estimatedlabourhours: "EstimatedLabourHours",
+    estimatedcost: "EstimatedCost",
+    category: "Category",
+    isactive: "IsActive",
+  };
+  const sortBy = sortByMap[sortByParam] || "id";
+
+  filteredTasks.sort((a, b) => {
     let aValue = a[sortBy];
     let bValue = b[sortBy];
 
@@ -520,15 +530,15 @@ server.get("/issues", (req, res) => {
   });
 
   // Calculate pagination
-  const totalCount = filteredIssues.length;
+  const totalCount = filteredTasks.length;
   const totalPages = Math.ceil(totalCount / limit);
   const startIndex = (page - 1) * limit;
   const endIndex = startIndex + limit;
-  const paginatedIssues = filteredIssues.slice(startIndex, endIndex);
+  const paginatedTasks = filteredTasks.slice(startIndex, endIndex);
 
   // Return response in your expected format
   res.json({
-    Items: paginatedIssues,
+    Items: paginatedTasks,
     TotalCount: totalCount,
     PageNumber: page,
     PageSize: limit,
@@ -538,18 +548,18 @@ server.get("/issues", (req, res) => {
   });
 });
 
-// Get single issue
-server.get("/issues/:id", (req, res) => {
+// Get single service task
+server.get("/serviceTasks/:id", (req, res) => {
   const db = router.db;
-  const issue = db
-    .get("issues")
+  const task = db
+    .get("serviceTasks")
     .find({ id: parseInt(req.params.id) })
     .value();
 
-  if (issue) {
-    res.json(issue);
+  if (task) {
+    res.json(task);
   } else {
-    res.status(404).json({ error: "Issue not found" });
+    res.status(404).json({ error: "Service Task not found" });
   }
 });
 
@@ -601,6 +611,14 @@ server.listen(PORT, () => {
   );
   console.log(`GET /inventoryItems?search=oil - Search inventory items`);
   console.log(`GET /inventoryItems/:id - Get single inventory item`);
+
+  // Service Tasks
+  console.log(`GET /serviceTasks - Get paginated service tasks`);
+  console.log(
+    `GET /serviceTasks?page=1&limit=5 - Get service tasks with pagination`,
+  );
+  console.log(`GET /serviceTasks?search=oil - Search service tasks`);
+  console.log(`GET /serviceTasks/:id - Get single service task`);
 });
 
 module.exports = server;

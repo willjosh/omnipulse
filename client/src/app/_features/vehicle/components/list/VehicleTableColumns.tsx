@@ -3,8 +3,8 @@ import {
   getVehicleIcon,
   getVehicleTypeLabel,
 } from "@/app/_utils/vehicleEnumHelper";
-import { VehicleWithLabels } from "@/app/_hooks/Vehicle/vehicleType";
-import { VehicleStatusEnum } from "@/app/_hooks/Vehicle/vehicleEnum";
+import { VehicleWithLabels } from "@/app/_hooks/vehicle/vehicleType";
+import { VehicleStatusEnum } from "@/app/_hooks/vehicle/vehicleEnum";
 import React from "react";
 
 export const vehicleTableColumns = [
