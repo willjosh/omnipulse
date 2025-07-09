@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Car,
@@ -18,29 +19,72 @@ import {
   BarChart,
   ChevronDown,
   ChevronRight,
+  Settings,
 } from "lucide-react";
 
-type NavItem = { label: string; icon: React.ElementType; hasDropdown: boolean };
+type NavChild = { label: string; path: string };
+
+type NavItem = {
+  label: string;
+  icon: React.ElementType;
+  path?: string;
+  children?: NavChild[];
+};
 
 const navItems: NavItem[] = [
-  { label: "Dashboard", icon: LayoutDashboard, hasDropdown: false },
-  { label: "Vehicles", icon: Car, hasDropdown: true },
-  { label: "Equipment", icon: Wrench, hasDropdown: true },
-  { label: "Inspections", icon: ClipboardCheck, hasDropdown: true },
-  { label: "Issues", icon: AlertTriangle, hasDropdown: true },
-  { label: "Reminders", icon: Bell, hasDropdown: true },
-  { label: "Service", icon: UserCog, hasDropdown: true },
-  { label: "Contacts", icon: User, hasDropdown: true },
-  { label: "Vendors", icon: Store, hasDropdown: true },
-  { label: "Parts & Inventory", icon: Boxes, hasDropdown: true },
-  { label: "Fuel & Energy", icon: Fuel, hasDropdown: true },
-  { label: "Places", icon: MapPin, hasDropdown: true },
-  { label: "Documents", icon: FileText, hasDropdown: true },
-  { label: "Reports", icon: BarChart, hasDropdown: true },
+  { label: "Dashboard", icon: LayoutDashboard, path: "/" },
+  {
+    label: "Vehicles",
+    icon: Car,
+    children: [
+      { label: "Vehicle List", path: "/vehicles" },
+      { label: "Vehicle Assignment", path: "/vehicles/assignment" },
+    ],
+  },
+  { label: "Equipment", icon: Wrench },
+  { label: "Inspections", icon: ClipboardCheck },
+  {
+    label: "Issues",
+    icon: AlertTriangle,
+    children: [
+      { label: "Issues", path: "/issues" },
+      { label: "Faults", path: "/issues/faults" },
+      { label: "Recalls", path: "/issues/recalls" },
+    ],
+  },
+  {
+    label: "Reminders",
+    icon: Bell,
+    children: [
+      { label: "Service Reminders", path: "/reminders/service" },
+      { label: "Vehicle Renewals", path: "/reminders/vehicle-renewals" },
+      { label: "Contact Renewals", path: "/reminders/contact-renewals" },
+    ],
+  },
+  {
+    label: "Service",
+    icon: UserCog,
+    children: [
+      { label: "Service History", path: "/service/history" },
+      { label: "Work Orders", path: "/work-orders" },
+      { label: "Service Tasks", path: "/service/tasks" },
+      { label: "Service Program", path: "/service/program" },
+    ],
+  },
+  { label: "Contacts", icon: User },
+  { label: "Vendors", icon: Store },
+  { label: "Parts & Inventory", icon: Boxes },
+  { label: "Fuel & Energy", icon: Fuel },
+  { label: "Places", icon: MapPin },
+  { label: "Documents", icon: FileText },
+  { label: "Reports", icon: BarChart },
+  { label: "Settings", icon: Settings, path: "/settings" },
 ];
 
 const SideBar = () => {
-  const [activeItem, setActiveItem] = useState<string>("Vehicles");
+  const router = useRouter();
+  const pathname = usePathname();
+  const [activeParent, setActiveParent] = useState<string>("Vehicles");
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({
     Vehicles: true,
   });
@@ -49,8 +93,34 @@ const SideBar = () => {
     setExpandedItems(prev => ({ ...prev, [label]: !prev[label] }));
   };
 
-  const handleClick = (label: string) => {
-    setActiveItem(label);
+  const handleParentClick = (label: string, hasChildren: boolean) => {
+    if (hasChildren) {
+      setActiveParent(label);
+      toggleExpand(label);
+    } else {
+      // no children, so navigate to the path
+      const item = navItems.find(item => item.label === label);
+      if (item?.path) {
+        router.push(item.path);
+      }
+    }
+  };
+
+  const handleChildClick = (child: NavChild) => {
+    setActiveParent("");
+    router.push(child.path);
+  };
+
+  const isParentActive = (label: string) => {
+    const hasActiveChild = navItems
+      .find(item => item.label === label)
+      ?.children?.some(child => pathname === child.path);
+
+    return activeParent === label && !hasActiveChild;
+  };
+
+  const isChildActive = (child: NavChild) => {
+    return pathname === child.path;
   };
 
   return (
@@ -69,18 +139,15 @@ const SideBar = () => {
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto">
         <ul className="mt-4 space-y-1">
-          {navItems.map(({ label, icon: Icon, hasDropdown }) => {
-            const isActive = activeItem === label;
+          {navItems.map(({ label, icon: Icon, children }) => {
+            const isActive = isParentActive(label);
             const isExpanded = expandedItems[label];
 
             return (
               <li key={label}>
                 <div className="px-2">
                   <button
-                    onClick={() => {
-                      handleClick(label);
-                      if (hasDropdown) toggleExpand(label);
-                    }}
+                    onClick={() => handleParentClick(label, !!children)}
                     className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-all text-left ${
                       isActive
                         ? "bg-[var(--primary-color)] text-white"
@@ -89,7 +156,7 @@ const SideBar = () => {
                   >
                     <Icon size={18} />
                     <span className="truncate flex-1">{label}</span>
-                    {hasDropdown &&
+                    {!!children &&
                       (isExpanded ? (
                         <ChevronDown size={16} className="text-inherit" />
                       ) : (
@@ -99,20 +166,22 @@ const SideBar = () => {
                 </div>
 
                 {/* Children */}
-                {hasDropdown && isExpanded && (
+                {!!children && isExpanded && (
                   <ul className="ml-10 mt-1 space-y-1">
-                    <div className="px-2">
-                      <button
-                        onClick={() => handleClick(`${label} - Test`)}
-                        className={`w-full flex items-center gap-2 px-4 py-1.5 rounded-md transition-all text-left text-sm ${
-                          activeItem === `${label} - Test`
-                            ? "bg-[var(--primary-color)] text-white"
-                            : "text-gray-600 hover:bg-[var(--primary-light)] hover:text-[var(--primary-color)]"
-                        }`}
-                      >
-                        <span className="truncate">Test</span>
-                      </button>
-                    </div>
+                    {children.map(child => (
+                      <div key={child.path} className="px-2">
+                        <button
+                          onClick={() => handleChildClick(child)}
+                          className={`w-full flex items-center gap-2 px-4 py-1.5 rounded-md transition-all text-left text-sm ${
+                            isChildActive(child)
+                              ? "bg-[var(--primary-color)] text-white"
+                              : "text-gray-600 hover:bg-[var(--primary-light)] hover:text-[var(--primary-color)]"
+                          }`}
+                        >
+                          <span className="truncate">{child.label}</span>
+                        </button>
+                      </div>
+                    ))}
                   </ul>
                 )}
               </li>
