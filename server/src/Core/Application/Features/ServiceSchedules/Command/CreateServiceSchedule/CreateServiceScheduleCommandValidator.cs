@@ -1,3 +1,5 @@
+using System;
+
 using Domain.Entities.Enums;
 
 using FluentValidation;
@@ -59,10 +61,10 @@ public sealed class CreateServiceScheduleCommandValidator : AbstractValidator<Cr
             .Must(x => (x.TimeBufferValue.HasValue && x.TimeBufferUnit.HasValue) || (!x.TimeBufferValue.HasValue && !x.TimeBufferUnit.HasValue))
             .WithMessage("Time buffer value and unit must both be provided together or both be null");
 
-        // Time buffer cannot be greater than or equal to time interval (unit-aware)
+        // Time buffer cannot be greater than or equal to time interval
         RuleFor(x => x)
-            .Must(x => TimeBufferLessThanInterval(x))
-            .WithMessage("Time buffer value cannot be greater than or equal to time interval value when units are considered");
+            .Must(x => IsTimeBufferValid(x))
+            .WithMessage("Time buffer cannot be greater than or equal to time interval when units are considered");
 
         // Mileage buffer validation
         RuleFor(x => x.MileageBuffer)
@@ -105,25 +107,26 @@ public sealed class CreateServiceScheduleCommandValidator : AbstractValidator<Cr
             .WithMessage("First service mileage requires MileageInterval to be set");
     }
 
-    private static bool TimeBufferLessThanInterval(CreateServiceScheduleCommand cmd)
+    private static bool IsTimeBufferValid(CreateServiceScheduleCommand cmd)
     {
+        if (!(IsSupportedTimeUnit(cmd.TimeBufferUnit) && IsSupportedTimeUnit(cmd.TimeIntervalUnit))) return true;
+
         if (cmd.TimeBufferValue.HasValue && cmd.TimeBufferUnit.HasValue && cmd.TimeIntervalValue.HasValue && cmd.TimeIntervalUnit.HasValue)
         {
-            var bufferDays = ConvertToDays(cmd.TimeBufferValue.Value, cmd.TimeBufferUnit.Value);
-            var intervalDays = ConvertToDays(cmd.TimeIntervalValue.Value, cmd.TimeIntervalUnit.Value);
-            return bufferDays < intervalDays;
+            var bufferHours = ConvertToHours(cmd.TimeBufferValue.Value, cmd.TimeBufferUnit.Value);
+            var intervalHours = ConvertToHours(cmd.TimeIntervalValue.Value, cmd.TimeIntervalUnit.Value);
+            return bufferHours < intervalHours;
         }
-        // If either buffer or interval missing, rule passes (handled by other validators)
         return true;
     }
 
-    private static double ConvertToDays(int value, TimeUnitEnum unit) => unit switch
+    private static bool IsSupportedTimeUnit(TimeUnitEnum? unit) => unit is TimeUnitEnum.Hours or TimeUnitEnum.Days or TimeUnitEnum.Weeks;
+
+    private static int ConvertToHours(int value, TimeUnitEnum unit) => unit switch
     {
-        TimeUnitEnum.Hours => value / 24.0,
-        TimeUnitEnum.Days => value,
-        TimeUnitEnum.Weeks => value * 7,
-        TimeUnitEnum.Months => value * 30,
-        TimeUnitEnum.Years => value * 365,
-        _ => value
+        TimeUnitEnum.Hours => value,
+        TimeUnitEnum.Days => value * 24,
+        TimeUnitEnum.Weeks => value * 24 * 7,
+        _ => throw new ArgumentException($"Unsupported time unit: {unit}")
     };
 }
