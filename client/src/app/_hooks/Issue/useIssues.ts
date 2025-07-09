@@ -10,6 +10,7 @@ import {
   PriorityLevelEnum,
   IssueStatusEnum,
 } from "./issueType";
+import { useDebounce } from "../shared_types/useDebounce";
 import { PagedResponse } from "@/app/_hooks/shared_types/pagedResponse";
 import {
   getIssueCategoryLabel,
@@ -63,9 +64,13 @@ const deactivateIssue = async (id: number): Promise<void> => {
 };
 
 export function useIssues(filter: IssueFilter) {
+  // Debounce the search parameter for consistency
+  const debouncedSearch = useDebounce(filter?.search || "", 300);
+  const debouncedFilter = { ...filter, search: debouncedSearch };
+
   const { data, isPending, isError, isSuccess, error } = useQuery({
-    queryKey: ["issues", filter],
-    queryFn: () => fetchIssues(filter),
+    queryKey: ["issues", debouncedFilter],
+    queryFn: () => fetchIssues(debouncedFilter),
   });
 
   return {
