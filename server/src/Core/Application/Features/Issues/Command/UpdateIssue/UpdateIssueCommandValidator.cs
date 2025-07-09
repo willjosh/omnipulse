@@ -1,5 +1,7 @@
 using System;
 
+using Domain.Entities.Enums;
+
 using FluentValidation;
 
 namespace Application.Features.Issues.Command.UpdateIssue;
@@ -48,5 +50,20 @@ public class UpdateIssueCommandValidator : AbstractValidator<UpdateIssueCommand>
             .WithMessage("Status is required")
             .IsInEnum()
             .WithMessage("Invalid status selected");
+
+        When(p => p.Status == IssueStatusEnum.RESOLVED, () =>
+        {
+            RuleFor(p => p.ResolutionNotes)
+                .NotEmpty()
+                .WithMessage("Resolution notes are required when the issue is resolved");
+
+            RuleFor(p => p.ResolvedDate)
+                .NotEmpty()
+                .WithMessage("Resolved date is required when the issue is resolved");
+
+            RuleFor(p => p.ResolvedByUserID)
+                .NotEmpty()
+                .WithMessage("Resolved by user ID is required when the issue is resolved");
+        });
     }
 }
