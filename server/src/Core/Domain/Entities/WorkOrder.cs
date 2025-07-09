@@ -8,7 +8,7 @@ public class WorkOrder : BaseEntity
 
 {
     public required int VehicleID { get; set; }
-    public required int ServiceReminderID { get; set; }
+    public required int ServiceTaskID { get; set; }
     public required string AssignedToUserID { get; set; }
     public required string Title { get; set; }
     public string? Description { get; set; }
@@ -23,7 +23,7 @@ public class WorkOrder : BaseEntity
     // Navigation properties
     public required Vehicle Vehicle { get; set; }
     public required ICollection<MaintenanceHistory> MaintenanceHistories { get; set; } = [];
-    public required ServiceReminder ServiceReminder { get; set; }
+    public required ServiceTask ServiceTask { get; set; }
     public required User User { get; set; }
     public required ICollection<WorkOrderLineItem> WorkOrderLineItems { get; set; } = [];
     public required ICollection<Invoice> Invoices { get; set; } = [];

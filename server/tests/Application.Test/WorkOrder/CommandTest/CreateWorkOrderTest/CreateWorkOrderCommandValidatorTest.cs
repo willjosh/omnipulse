@@ -94,7 +94,7 @@ public class CreateWorkOrderCommandValidatorTest
 
         // Then
         Assert.False(result.IsValid);
-        Assert.Contains(result.Errors, e => e.PropertyName == nameof(CreateWorkOrderCommand.ServiceReminderID));
+        Assert.Contains(result.Errors, e => e.PropertyName == nameof(CreateWorkOrderCommand.ServiceTaskID));
     }
 
     [Fact]
