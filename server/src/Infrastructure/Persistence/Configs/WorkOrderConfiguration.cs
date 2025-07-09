@@ -18,13 +18,8 @@ public class WorkOrderConfiguration : IEntityTypeConfiguration<WorkOrder>
         builder.Property(wo => wo.Title).HasMaxLength(200);
         builder.Property(wo => wo.Description).HasMaxLength(2000);
 
-        // Precision for decimal fields
-        builder.Property(wo => wo.EstimatedCost).HasPrecision(10, 2);
-        builder.Property(wo => wo.ActualCost).HasPrecision(10, 2);
-
         // Regular Indexes
         builder.HasIndex(wo => wo.VehicleID);
-        builder.HasIndex(wo => wo.ServiceReminderID);
         builder.HasIndex(wo => wo.AssignedToUserID);
         builder.HasIndex(wo => wo.Status);
         builder.HasIndex(wo => wo.PriorityLevel);
@@ -58,12 +53,6 @@ public class WorkOrderConfiguration : IEntityTypeConfiguration<WorkOrder>
             .HasOne(wo => wo.Vehicle)
             .WithMany()
             .HasForeignKey(wo => wo.VehicleID)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder
-            .HasOne(wo => wo.ServiceReminder)
-            .WithMany()
-            .HasForeignKey(wo => wo.ServiceReminderID)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder
