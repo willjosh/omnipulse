@@ -90,5 +90,17 @@ public class UpdateIssueCommandHandler : IRequestHandler<UpdateIssueCommand, int
             _logger.LogError(errorMessage);
             throw new EntityNotFoundException(typeof(User).ToString(), "ReportedByUserID", request.ReportedByUserID);
         }
+
+        // Check if resolvedByUserID exists
+        if (request.ResolvedByUserID != null)
+        {
+            var resolvedByUser = await _userRepository.GetByIdAsync(request.ResolvedByUserID);
+            if (resolvedByUser == null)
+            {
+                var errorMessage = $"ResolvedByUserID not found: {request.ResolvedByUserID}";
+                _logger.LogError(errorMessage);
+                throw new EntityNotFoundException(typeof(User).ToString(), "ResolvedByUserID", request.ResolvedByUserID);
+            }
+        }
     }
 }
