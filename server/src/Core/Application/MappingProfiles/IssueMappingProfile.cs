@@ -43,5 +43,9 @@ public class IssueMappingProfile : Profile
             .ForMember(dest => dest.ReportedByUserName, opt => opt.MapFrom(src => src.ReportedByUser != null ? $"{src.ReportedByUser.FirstName} {src.ReportedByUser.LastName}" : ""))
             .ForMember(dest => dest.ResolvedByUserName, opt => opt.MapFrom(src => src.ResolvedByUser != null ? $"{src.ResolvedByUser.FirstName} {src.ResolvedByUser.LastName}" : null))
             .ForMember(dest => dest.VehicleName, opt => opt.MapFrom(src => src.Vehicle != null ? src.Vehicle.Name : ""));
+
+        CreateMap<Issue, Application.Features.Issues.Query.GetIssueDetails.GetIssueDetailsDTO>()
+            .ForMember(dest => dest.VehicleName, opt => opt.MapFrom(src => src.Vehicle != null ? src.Vehicle.Name : ""))
+            .ForMember(dest => dest.ReportedByUserName, opt => opt.MapFrom(src => src.ReportedByUser != null ? $"{src.ReportedByUser.FirstName} {src.ReportedByUser.LastName}" : ""));
     }
 }
