@@ -28,7 +28,7 @@ public class IssueRepository : GenericRepository<Issue>, IIssueRepository
             .Include(i => i.Vehicle)
             .AsQueryable();
 
-        // Filtering (search by title or description)
+        // Filtering (search by title, description, or issue number)
         if (!string.IsNullOrWhiteSpace(parameters.Search))
         {
             var search = parameters.Search.ToLower();
