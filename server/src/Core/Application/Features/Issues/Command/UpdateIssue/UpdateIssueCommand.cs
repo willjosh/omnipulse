@@ -15,5 +15,8 @@ public record UpdateIssueCommand(
     IssueCategoryEnum Category,
     IssueStatusEnum Status,
     string ReportedByUserID,
-    DateTime? ReportedDate
+    DateTime? ReportedDate,
+    string? ResolutionNotes,
+    DateTime? ResolvedDate,
+    string? ResolvedByUserID
 ) : IRequest<int>;
