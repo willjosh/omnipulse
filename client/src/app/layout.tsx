@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import SideBar from "./_features/shared/SideBar";
 import NavBar from "./_features/shared/NavBar";
+import Providers from "./_lib/react_query/providers";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 
@@ -24,13 +25,15 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white`}
       >
-        <NavBar />
-        <div className="flex w-screen max-w-screen">
-          <SideBar />
-          <div className="flex-1 sm:w-[70%] md:w-[60%] lg:w-[50%] mt-4">
-            {children}
+        <Providers>
+          <NavBar />
+          <div className="flex w-screen max-w-screen">
+            <SideBar />
+            <div className="flex-1 sm:w-[70%] md:w-[60%] lg:w-[50%] mt-4">
+              {children}
+            </div>
           </div>
-        </div>
+        </Providers>
       </body>
     </html>
   );
