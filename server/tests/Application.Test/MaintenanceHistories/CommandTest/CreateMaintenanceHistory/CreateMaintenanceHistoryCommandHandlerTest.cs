@@ -21,9 +21,9 @@ namespace Application.Test.MaintenanceHistories.CommandTest.CreateMaintenanceHis
 
 public class CreateMaintenanceHistoryCommandHandlerTest
 {
-    private readonly Mock<IGenericRepository<MaintenanceHistory>> _mockMaintenanceHistoryRepository;
+    private readonly Mock<IMaintenanceHistoryRepository> _mockMaintenanceHistoryRepository;
     private readonly Mock<IVehicleRepository> _mockVehicleRepository;
-    private readonly Mock<IGenericRepository<WorkOrder>> _mockWorkOrderRepository;
+    private readonly Mock<IWorkOrderRepository> _mockWorkOrderRepository;
     private readonly Mock<IServiceTaskRepository> _mockServiceTaskRepository;
     private readonly Mock<IUserRepository> _mockUserRepository;
     private readonly Mock<IAppLogger<CreateMaintenanceHistoryCommandHandler>> _mockLogger;

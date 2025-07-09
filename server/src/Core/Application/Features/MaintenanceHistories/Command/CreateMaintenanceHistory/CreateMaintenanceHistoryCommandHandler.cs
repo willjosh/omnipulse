@@ -18,9 +18,9 @@ namespace Application.Features.MaintenanceHistories.Command.CreateMaintenanceHis
 
 public class CreateMaintenanceHistoryCommandHandler : IRequestHandler<CreateMaintenanceHistoryCommand, int>
 {
-    private readonly IGenericRepository<MaintenanceHistory> _maintenanceHistoryRepository;
+    private readonly IMaintenanceHistoryRepository _maintenanceHistoryRepository;
     private readonly IVehicleRepository _vehicleRepository;
-    private readonly IGenericRepository<WorkOrder> _workOrderRepository;
+    private readonly IWorkOrderRepository _workOrderRepository;
     private readonly IServiceTaskRepository _serviceTaskRepository;
     private readonly IUserRepository _userRepository;
     private readonly IMapper _mapper;
@@ -28,9 +28,9 @@ public class CreateMaintenanceHistoryCommandHandler : IRequestHandler<CreateMain
     private readonly IValidator<CreateMaintenanceHistoryCommand> _validator;
 
     public CreateMaintenanceHistoryCommandHandler(
-        IGenericRepository<MaintenanceHistory> maintenanceHistoryRepository,
+        IMaintenanceHistoryRepository maintenanceHistoryRepository,
         IVehicleRepository vehicleRepository,
-        IGenericRepository<WorkOrder> workOrderRepository,
+        IWorkOrderRepository workOrderRepository,
         IServiceTaskRepository serviceTaskRepository,
         IUserRepository userRepository,
         IMapper mapper,
