@@ -261,7 +261,7 @@ public class GetWorkOrderDetailHandlerTest
         return lineItems;
     }
 
-    [Fact(Skip = "Not implemented yet")]
+    [Fact]
     public async Task Handler_Should_Return_GetWorkOrderDetailDTO_On_Success()
     {
         // Given
@@ -269,7 +269,7 @@ public class GetWorkOrderDetailHandlerTest
         var lineItems = new List<WorkOrderLineItem>();
         var query = new GetWorkOrderDetailQuery(1);
 
-        _mockWorkOrderRepository.Setup(r => r.GetByIdAsync(It.IsAny<int>()))
+        _mockWorkOrderRepository.Setup(r => r.GetWorkOrderWithDetailsAsync(It.IsAny<int>()))
             .ReturnsAsync(workOrder);
         _mockWorkOrderLineItemRepository.Setup(r => r.GetByWorkOrderIdAsync(It.IsAny<int>()))
             .ReturnsAsync(lineItems);
@@ -283,9 +283,9 @@ public class GetWorkOrderDetailHandlerTest
         Assert.Equal(1, result.ID);
         Assert.Equal("Test Work Order", result.Title);
         Assert.Equal("This is a test work order", result.Description);
-        Assert.Equal(Domain.Entities.Enums.WorkTypeEnum.SCHEDULED.ToString(), result.WorkOrderType);
-        Assert.Equal(Domain.Entities.Enums.PriorityLevelEnum.CRITICAL.ToString(), result.PriorityLevel);
-        Assert.Equal(Domain.Entities.Enums.WorkOrderStatusEnum.IN_PROGRESS.ToString(), result.Status);
+        Assert.Equal(WorkTypeEnum.SCHEDULED.ToString(), result.WorkOrderType);
+        Assert.Equal(PriorityLevelEnum.CRITICAL.ToString(), result.PriorityLevel);
+        Assert.Equal(WorkOrderStatusEnum.IN_PROGRESS.ToString(), result.Status);
         Assert.Equal(1000, result.StartOdometer);
         Assert.Equal(1, result.VehicleID);
         Assert.Equal("Toyota Corolla", result.VehicleName);
@@ -295,18 +295,18 @@ public class GetWorkOrderDetailHandlerTest
         Assert.Empty(result.WorkOrderLineItems);
 
         // Verify repository calls
-        _mockWorkOrderRepository.Verify(r => r.GetByIdAsync(1), Times.Once);
+        _mockWorkOrderRepository.Verify(r => r.GetWorkOrderWithDetailsAsync(1), Times.Once);
         _mockWorkOrderLineItemRepository.Verify(r => r.GetByWorkOrderIdAsync(1), Times.Once);
     }
 
-    [Fact(Skip = "Not implemented yet")]
+    [Fact]
     public async Task Handler_Should_Throw_EntityNotFoundException_On_NonExistent_WorkOrderID()
     {
         // Given
         var nonExistentWorkOrderId = 999;
         var query = new GetWorkOrderDetailQuery(nonExistentWorkOrderId);
 
-        _mockWorkOrderRepository.Setup(r => r.GetByIdAsync(nonExistentWorkOrderId))
+        _mockWorkOrderRepository.Setup(r => r.GetWorkOrderWithDetailsAsync(nonExistentWorkOrderId))
             .ReturnsAsync((WorkOrder?)null);
 
         // When & Then
@@ -314,10 +314,10 @@ public class GetWorkOrderDetailHandlerTest
             () => _handler.Handle(query, CancellationToken.None)
         );
 
-        _mockWorkOrderRepository.Verify(r => r.GetByIdAsync(nonExistentWorkOrderId), Times.Once);
+        _mockWorkOrderRepository.Verify(r => r.GetWorkOrderWithDetailsAsync(nonExistentWorkOrderId), Times.Once);
     }
 
-    [Fact(Skip = "Not implemented yet")]
+    [Fact]
     public async Task Handler_Should_Return_GetWorkOrderDetailDTO_With_LineItems()
     {
         // Given
@@ -325,7 +325,7 @@ public class GetWorkOrderDetailHandlerTest
         var lineItems = CreateWorkOrderLineItems();
         var query = new GetWorkOrderDetailQuery(1);
 
-        _mockWorkOrderRepository.Setup(r => r.GetByIdAsync(It.IsAny<int>()))
+        _mockWorkOrderRepository.Setup(r => r.GetWorkOrderWithDetailsAsync(It.IsAny<int>()))
             .ReturnsAsync(workOrder);
         _mockWorkOrderLineItemRepository.Setup(r => r.GetByWorkOrderIdAsync(It.IsAny<int>()))
             .ReturnsAsync(lineItems);
@@ -382,7 +382,31 @@ public class GetWorkOrderDetailHandlerTest
         Assert.Equal(150.00m, bothLineItem.SubTotal);   // (1.5 * $80) + (1 * $30)
 
         // Verify repository calls
-        _mockWorkOrderRepository.Verify(r => r.GetByIdAsync(1), Times.Once);
+        _mockWorkOrderRepository.Verify(r => r.GetWorkOrderWithDetailsAsync(1), Times.Once);
         _mockWorkOrderLineItemRepository.Verify(r => r.GetByWorkOrderIdAsync(1), Times.Once);
+    }
+
+    [Fact]
+    public async Task Handler_Should_Return_GetWorkOrderDetailDTO_With_Empty_LineItems()
+    {
+        // Given
+        var workOrder = CreateWorkOrder();
+        var query = new GetWorkOrderDetailQuery(1);
+
+        _mockWorkOrderRepository.Setup(r => r.GetWorkOrderWithDetailsAsync(It.IsAny<int>()))
+            .ReturnsAsync(workOrder);
+        _mockWorkOrderLineItemRepository.Setup(r => r.GetByWorkOrderIdAsync(It.IsAny<int>()))
+            .ReturnsAsync(new List<WorkOrderLineItem>()); // Empty list instead of null
+
+        // When
+        var result = await _handler.Handle(query, CancellationToken.None);
+
+        // Then
+        Assert.NotNull(result);
+        Assert.NotNull(result.WorkOrderLineItems);
+        Assert.Empty(result.WorkOrderLineItems);
+        Assert.Equal(0.00m, result.TotalCost);
+        Assert.Equal(0.00m, result.TotalLaborCost);
+        Assert.Equal(0.00m, result.TotalItemCost);
     }
 }
