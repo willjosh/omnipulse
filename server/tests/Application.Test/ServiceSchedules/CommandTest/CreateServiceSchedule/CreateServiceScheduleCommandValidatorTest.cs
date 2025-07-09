@@ -14,9 +14,9 @@ public class CreateServiceScheduleCommandValidatorTest
 
     private static CreateServiceScheduleCommand CreateValidCommand(
         int serviceProgramId = 1,
-        string name = "5000 km / 6 month service",
+        string name = "5000 km / 6-day service",
         int? timeIntervalValue = 6,
-        TimeUnitEnum? timeIntervalUnit = TimeUnitEnum.Months,
+        TimeUnitEnum? timeIntervalUnit = TimeUnitEnum.Days,
         int? timeBufferValue = null,
         TimeUnitEnum? timeBufferUnit = null,
         int? mileageInterval = 5000,
@@ -45,7 +45,7 @@ public class CreateServiceScheduleCommandValidatorTest
     {
         var command = CreateValidCommand(
             timeBufferValue: 1,
-            timeBufferUnit: TimeUnitEnum.Weeks,
+            timeBufferUnit: TimeUnitEnum.Days,
             mileageBuffer: 250);
         var result = await _validator.ValidateAsync(command);
         Assert.True(result.IsValid);
@@ -56,7 +56,7 @@ public class CreateServiceScheduleCommandValidatorTest
     {
         var command = CreateValidCommand(
             timeIntervalValue: 6,
-            timeIntervalUnit: TimeUnitEnum.Months,
+            timeIntervalUnit: TimeUnitEnum.Days,
             mileageInterval: null,
             mileageBuffer: null);
         var result = await _validator.ValidateAsync(command);
@@ -81,7 +81,7 @@ public class CreateServiceScheduleCommandValidatorTest
     {
         var command = CreateValidCommand(
             firstServiceTimeValue: 3,
-            firstServiceTimeUnit: TimeUnitEnum.Months,
+            firstServiceTimeUnit: TimeUnitEnum.Days,
             firstServiceMileage: 1000);
         var result = await _validator.ValidateAsync(command);
         Assert.True(result.IsValid);
@@ -178,7 +178,7 @@ public class CreateServiceScheduleCommandValidatorTest
     [Fact]
     public async Task Should_Fail_When_TimeIntervalUnit_Without_Value()
     {
-        var command = CreateValidCommand(timeIntervalValue: null, timeIntervalUnit: TimeUnitEnum.Months);
+        var command = CreateValidCommand(timeIntervalValue: null, timeIntervalUnit: TimeUnitEnum.Days);
         var result = await _validator.ValidateAsync(command);
         Assert.False(result.IsValid);
         Assert.Contains(result.Errors, e => e.PropertyName == "");
@@ -188,8 +188,6 @@ public class CreateServiceScheduleCommandValidatorTest
     [InlineData(TimeUnitEnum.Hours)]
     [InlineData(TimeUnitEnum.Days)]
     [InlineData(TimeUnitEnum.Weeks)]
-    [InlineData(TimeUnitEnum.Months)]
-    [InlineData(TimeUnitEnum.Years)]
     public async Task Should_Pass_When_TimeIntervalUnit_Valid_Enum(TimeUnitEnum validUnit)
     {
         var command = CreateValidCommand(
@@ -427,7 +425,7 @@ public class CreateServiceScheduleCommandValidatorTest
             timeBufferValue: null,
             timeBufferUnit: null,
             firstServiceTimeValue: 2,
-            firstServiceTimeUnit: TimeUnitEnum.Months);
+            firstServiceTimeUnit: TimeUnitEnum.Days);
         var result = await _validator.ValidateAsync(command);
         Assert.False(result.IsValid);
         Assert.Contains(result.Errors, e => e.PropertyName == "");
@@ -466,8 +464,6 @@ public class CreateServiceScheduleCommandValidatorTest
 
     #endregion
 
-    #region Complex Scenarios
-
     [Fact]
     public async Task Should_Pass_With_MaxBuffer_Values()
     {
@@ -487,9 +483,11 @@ public class CreateServiceScheduleCommandValidatorTest
     {
         var command = CreateValidCommand(
             timeIntervalValue: 1,
-            timeIntervalUnit: TimeUnitEnum.Years,
-            timeBufferValue: null,
-            timeBufferUnit: null,
+            timeIntervalUnit: TimeUnitEnum.Weeks,
+            timeBufferValue: 1,
+            timeBufferUnit: TimeUnitEnum.Days,
+            firstServiceTimeValue: 1,
+            firstServiceTimeUnit: TimeUnitEnum.Hours,
             mileageInterval: null,
             mileageBuffer: null);
         var result = await _validator.ValidateAsync(command);
@@ -501,11 +499,11 @@ public class CreateServiceScheduleCommandValidatorTest
     {
         var command = CreateValidCommand(
             timeIntervalValue: 6,
-            timeIntervalUnit: TimeUnitEnum.Months,
+            timeIntervalUnit: TimeUnitEnum.Days,
             timeBufferValue: null,
             timeBufferUnit: null,
             firstServiceTimeValue: 6,
-            firstServiceTimeUnit: TimeUnitEnum.Months,
+            firstServiceTimeUnit: TimeUnitEnum.Days,
             mileageInterval: 5000,
             firstServiceMileage: 5000);
         var result = await _validator.ValidateAsync(command);
@@ -517,11 +515,11 @@ public class CreateServiceScheduleCommandValidatorTest
     {
         var command = CreateValidCommand(
             timeIntervalValue: 6,
-            timeIntervalUnit: TimeUnitEnum.Months,
+            timeIntervalUnit: TimeUnitEnum.Days,
             timeBufferValue: null,
             timeBufferUnit: null,
             firstServiceTimeValue: 12,
-            firstServiceTimeUnit: TimeUnitEnum.Months,
+            firstServiceTimeUnit: TimeUnitEnum.Days,
             mileageInterval: 5000,
             firstServiceMileage: 10000);
         var result = await _validator.ValidateAsync(command);
@@ -533,19 +531,17 @@ public class CreateServiceScheduleCommandValidatorTest
     {
         var command = CreateValidCommand(
             timeIntervalValue: 6,
-            timeIntervalUnit: TimeUnitEnum.Months,
+            timeIntervalUnit: TimeUnitEnum.Days,
             timeBufferValue: 1,
-            timeBufferUnit: TimeUnitEnum.Weeks,
+            timeBufferUnit: TimeUnitEnum.Days,
             mileageInterval: 5000,
             mileageBuffer: 250,
             firstServiceTimeValue: 3,
-            firstServiceTimeUnit: TimeUnitEnum.Months,
+            firstServiceTimeUnit: TimeUnitEnum.Days,
             firstServiceMileage: 2500);
         var result = await _validator.ValidateAsync(command);
         Assert.True(result.IsValid);
     }
-
-    #endregion
 
     #region Mismatched Units Tests
 
@@ -580,12 +576,12 @@ public class CreateServiceScheduleCommandValidatorTest
     }
 
     [Fact]
-    public async Task Should_Fail_When_Year_vs_Days_Buffer_Equals_Interval()
+    public async Task Should_Fail_When_Buffer_Equals_Interval_Different_Units()
     {
         var command = CreateValidCommand(
-            timeIntervalValue: 1,
-            timeIntervalUnit: TimeUnitEnum.Years,
-            timeBufferValue: 365,
+            timeIntervalValue: 4,
+            timeIntervalUnit: TimeUnitEnum.Weeks,
+            timeBufferValue: 28,
             timeBufferUnit: TimeUnitEnum.Days,
             mileageInterval: null,
             mileageBuffer: null);
@@ -618,7 +614,7 @@ public class CreateServiceScheduleCommandValidatorTest
             ServiceProgramID: 1,
             Name: null!,
             TimeIntervalValue: 6,
-            TimeIntervalUnit: TimeUnitEnum.Months,
+            TimeIntervalUnit: TimeUnitEnum.Days,
             TimeBufferValue: null,
             TimeBufferUnit: null,
             MileageInterval: null,
@@ -697,7 +693,7 @@ public class CreateServiceScheduleCommandValidatorTest
             mileageInterval: null,
             mileageBuffer: null,
             firstServiceTimeValue: 3,
-            firstServiceTimeUnit: TimeUnitEnum.Months,
+            firstServiceTimeUnit: TimeUnitEnum.Days,
             firstServiceMileage: 1000);
         var result = await _validator.ValidateAsync(command);
         Assert.False(result.IsValid);
@@ -716,7 +712,7 @@ public class CreateServiceScheduleCommandValidatorTest
             mileageInterval: 5000,
             mileageBuffer: null,
             firstServiceTimeValue: 3,
-            firstServiceTimeUnit: TimeUnitEnum.Months,
+            firstServiceTimeUnit: TimeUnitEnum.Days,
             firstServiceMileage: null);
         var result = await _validator.ValidateAsync(command);
         Assert.False(result.IsValid);
@@ -728,7 +724,7 @@ public class CreateServiceScheduleCommandValidatorTest
     {
         var command = CreateValidCommand(
             timeIntervalValue: 6,
-            timeIntervalUnit: TimeUnitEnum.Months,
+            timeIntervalUnit: TimeUnitEnum.Days,
             timeBufferValue: null,
             timeBufferUnit: null,
             mileageInterval: null,
@@ -746,13 +742,13 @@ public class CreateServiceScheduleCommandValidatorTest
     {
         var command = CreateValidCommand(
             timeIntervalValue: 6,
-            timeIntervalUnit: TimeUnitEnum.Months,
+            timeIntervalUnit: TimeUnitEnum.Days,
             timeBufferValue: null,
             timeBufferUnit: null,
             mileageInterval: 5000,
             mileageBuffer: null,
             firstServiceTimeValue: 3,
-            firstServiceTimeUnit: TimeUnitEnum.Months,
+            firstServiceTimeUnit: TimeUnitEnum.Days,
             firstServiceMileage: 2500);
         var result = await _validator.ValidateAsync(command);
         Assert.True(result.IsValid);
@@ -767,13 +763,13 @@ public class CreateServiceScheduleCommandValidatorTest
     {
         var command = CreateValidCommand(
             timeIntervalValue: 12,
-            timeIntervalUnit: TimeUnitEnum.Months,
+            timeIntervalUnit: TimeUnitEnum.Days,
             timeBufferValue: 2,
-            timeBufferUnit: TimeUnitEnum.Weeks,
+            timeBufferUnit: TimeUnitEnum.Days,
             mileageInterval: null,
             mileageBuffer: null,
             firstServiceTimeValue: 6,
-            firstServiceTimeUnit: TimeUnitEnum.Months,
+            firstServiceTimeUnit: TimeUnitEnum.Days,
             firstServiceMileage: null);
         var result = await _validator.ValidateAsync(command);
         Assert.True(result.IsValid);
@@ -801,13 +797,13 @@ public class CreateServiceScheduleCommandValidatorTest
     {
         var command = CreateValidCommand(
             timeIntervalValue: 12,
-            timeIntervalUnit: TimeUnitEnum.Months,
+            timeIntervalUnit: TimeUnitEnum.Days,
             timeBufferValue: 11,
-            timeBufferUnit: TimeUnitEnum.Months,
+            timeBufferUnit: TimeUnitEnum.Days,
             mileageInterval: 10000,
             mileageBuffer: 9999,
             firstServiceTimeValue: 6,
-            firstServiceTimeUnit: TimeUnitEnum.Months,
+            firstServiceTimeUnit: TimeUnitEnum.Days,
             firstServiceMileage: 5000);
         var result = await _validator.ValidateAsync(command);
         Assert.True(result.IsValid);
@@ -881,7 +877,7 @@ public class CreateServiceScheduleCommandValidatorTest
         var command = CreateValidCommand(
             name: "A",
             timeBufferValue: 1,
-            timeBufferUnit: TimeUnitEnum.Weeks,
+            timeBufferUnit: TimeUnitEnum.Days,
             mileageBuffer: 250);
         var result = await _validator.ValidateAsync(command);
         Assert.True(result.IsValid);
@@ -891,9 +887,9 @@ public class CreateServiceScheduleCommandValidatorTest
     public async Task Should_Pass_With_Unicode_Name()
     {
         var command = CreateValidCommand(
-            name: "Öl-Änderung",
+            name: "˜ˆç˙ø¬åß Âå††˙´∑ Íå∑",
             timeBufferValue: 1,
-            timeBufferUnit: TimeUnitEnum.Weeks,
+            timeBufferUnit: TimeUnitEnum.Days,
             mileageBuffer: 250);
         var result = await _validator.ValidateAsync(command);
         Assert.True(result.IsValid);
@@ -918,9 +914,9 @@ public class CreateServiceScheduleCommandValidatorTest
     {
         var command = CreateValidCommand(
             timeIntervalValue: 24,
-            timeIntervalUnit: TimeUnitEnum.Months,
+            timeIntervalUnit: TimeUnitEnum.Days,
             timeBufferValue: 23,
-            timeBufferUnit: TimeUnitEnum.Months,
+            timeBufferUnit: TimeUnitEnum.Days,
             mileageInterval: null,
             mileageBuffer: null);
         var result = await _validator.ValidateAsync(command);

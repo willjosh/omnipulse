@@ -45,7 +45,7 @@ public class CreateServiceScheduleCommandHandlerTest
         int serviceProgramId = 1,
         string name = "5000 km / 6 month service",
         int? timeIntervalValue = 6,
-        TimeUnitEnum? timeIntervalUnit = TimeUnitEnum.Weeks,
+        TimeUnitEnum? timeIntervalUnit = TimeUnitEnum.Days,
         int? timeBufferValue = 1,
         TimeUnitEnum? timeBufferUnit = TimeUnitEnum.Weeks,
         int? mileageInterval = 5000,
