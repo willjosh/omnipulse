@@ -8,17 +8,20 @@ export { IssueCategoryEnum, IssueStatusEnum, PriorityLevelEnum };
 
 export interface Issue {
   id: number;
-  VehicleID: number;
   IssueNumber: number;
-  ReportedByUserID: string;
-  ReportedDate: string;
+  VehicleID: number;
+  VehicleName: string;
   Title: string;
-  Description: string;
+  Description?: string | null;
   Category: IssueCategoryEnum;
   PriorityLevel: PriorityLevelEnum;
   Status: IssueStatusEnum;
+  ReportedByUserID: string;
+  ReportedByUserName: string;
+  ReportedDate?: string | null;
   ResolvedDate?: string | null;
   ResolvedByUserID?: string | null;
+  ResolvedByUserName?: string | null;
   ResolutionNotes?: string | null;
 }
 
