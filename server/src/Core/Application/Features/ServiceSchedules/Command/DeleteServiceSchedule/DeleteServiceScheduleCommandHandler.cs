@@ -14,13 +14,11 @@ public class DeleteServiceScheduleCommandHandler : IRequestHandler<DeleteService
 {
     private readonly IServiceScheduleRepository _serviceScheduleRepository;
     private readonly IAppLogger<DeleteServiceScheduleCommandHandler> _logger;
-    private readonly IMapper _mapper;
 
     public DeleteServiceScheduleCommandHandler(IServiceScheduleRepository serviceScheduleRepository, IAppLogger<DeleteServiceScheduleCommandHandler> logger, IMapper mapper)
     {
         _serviceScheduleRepository = serviceScheduleRepository;
         _logger = logger;
-        _mapper = mapper;
     }
 
     public async Task<int> Handle(DeleteServiceScheduleCommand request, CancellationToken cancellationToken)
