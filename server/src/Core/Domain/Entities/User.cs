@@ -20,7 +20,7 @@ public class User : IdentityUser
     public required ICollection<VehicleDocument> VehicleDocuments { get; set; } = [];
     public required ICollection<VehicleInspection> VehicleInspections { get; set; } = [];
     public required ICollection<Vehicle> Vehicles { get; set; } = [];
-    
+
     public string GetFullName()
     {
         return $"{FirstName} {LastName}";

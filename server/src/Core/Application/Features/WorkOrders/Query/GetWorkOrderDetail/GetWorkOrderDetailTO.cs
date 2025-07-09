@@ -28,7 +28,7 @@ public class GetWorkOrderDetailDTO
     // Assigned User
     public required string AssignedToUserID { get; set; }
     public required string AssignedToUserName { get; set; }
-    
+
     // Work Order Line Items
-    public required List<WorkOrderLineItemDetailDTO> WorkOrderLineItems { get; set; } 
+    public required List<WorkOrderLineItemDetailDTO> WorkOrderLineItems { get; set; }
 }

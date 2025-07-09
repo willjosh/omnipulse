@@ -33,7 +33,7 @@ public class WorkOrderMappingProfile : Profile
 
             // Line items mapping
             .ForMember(dest => dest.WorkOrderLineItems, opt => opt.Ignore())
-            
+
             // Cost calculations - ignore in mapping, calculate in handler
             .ForMember(dest => dest.TotalCost, opt => opt.Ignore())
             .ForMember(dest => dest.TotalLaborCost, opt => opt.Ignore())
