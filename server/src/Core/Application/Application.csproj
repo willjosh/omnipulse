@@ -16,4 +16,10 @@
     <PackageReference Include="MediatR" Version="12.5.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Features/WorkOrderLineItem/Command/" />
+    <Folder Include="Features/WorkOrderLineItem/Query/" />
+    <Folder Include="Features/WorkOrders/Query/" />
+  </ItemGroup>
+
 </Project>
