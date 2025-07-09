@@ -87,4 +87,31 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
     {
         _dbSet.Update(entity);
     }
+
+    public async Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate)
+    {
+        if (predicate == null)
+        {
+            return false;
+        }
+
+        return await _dbSet.AnyAsync(predicate);
+    }
+
+    public async Task<bool> AllExistAsync(IEnumerable<int> ids)
+    {
+        if (ids == null)
+            return false;
+
+        var idsList = ids.Distinct().ToList();
+
+        if (idsList.Count == 0)
+            return true;
+
+        var existingCount = await _dbSet
+            .Where(e => idsList.Contains(e.ID))
+            .CountAsync();
+
+        return existingCount == idsList.Count;
+    }
 }
