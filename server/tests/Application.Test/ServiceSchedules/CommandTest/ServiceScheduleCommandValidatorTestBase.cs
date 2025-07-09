@@ -33,6 +33,7 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.NotNull(Validator);
     }
 
+    [Trait("Category", "Positive")]
     [Fact]
     public async Task Validator_Should_Pass_With_Valid_Command()
     {
@@ -47,7 +48,7 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.Empty(result.Errors);
     }
 
-    // SERVICE PROGRAM ID VALIDATION TESTS
+    [Trait("Category", "ServiceProgramID")]
     [Theory]
     [InlineData(0)]
     [InlineData(-1)]
@@ -65,7 +66,7 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.Contains(result.Errors, e => e.PropertyName == "ServiceProgramID");
     }
 
-    // NAME VALIDATION TESTS
+    [Trait("Category", "Name")]
     [Theory]
     [InlineData("")]
     [InlineData("   ")]
@@ -84,6 +85,7 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.Contains(result.Errors, e => e.PropertyName == "Name");
     }
 
+    [Trait("Category", "Name")]
     [Theory]
     [InlineData(201)]  // Exceeds 200 limit
     [InlineData(300)]  // Way over limit
@@ -100,6 +102,7 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.Contains(result.Errors, e => e.PropertyName == "Name");
     }
 
+    [Trait("Category", "Name")]
     [Fact]
     public async Task Validator_Should_Pass_When_Name_At_MaxLength()
     {
@@ -113,7 +116,7 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.True(result.IsValid);
     }
 
-    // TIME INTERVAL VALIDATION TESTS
+    [Trait("Category", "TimeIntervalValue")]
     [Theory]
     [InlineData(0)]
     [InlineData(-1)]
@@ -131,6 +134,7 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.Contains(result.Errors, e => e.PropertyName == "TimeIntervalValue");
     }
 
+    [Trait("Category", "TimeIntervalValue")]
     [Fact]
     public async Task Validator_Should_Fail_When_TimeIntervalValue_Without_Unit()
     {
@@ -145,6 +149,7 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.Contains(result.Errors, e => e.PropertyName == "");
     }
 
+    [Trait("Category", "TimeIntervalUnit")]
     [Fact]
     public async Task Validator_Should_Fail_When_TimeIntervalUnit_Without_Value()
     {
@@ -159,6 +164,7 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.Contains(result.Errors, e => e.PropertyName == "");
     }
 
+    [Trait("Category", "TimeIntervalUnit")]
     [Theory]
     [InlineData(TimeUnitEnum.Hours)]
     [InlineData(TimeUnitEnum.Days)]
@@ -179,7 +185,7 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.True(result.IsValid);
     }
 
-    // MILEAGE INTERVAL VALIDATION TESTS
+    [Trait("Category", "MileageInterval")]
     [Theory]
     [InlineData(0)]
     [InlineData(-1)]
@@ -202,7 +208,6 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.Contains(result.Errors, e => e.PropertyName == "MileageInterval");
     }
 
-    // AT LEAST ONE INTERVAL REQUIRED TESTS
     [Fact]
     public async Task Validator_Should_Fail_When_No_Intervals_Provided()
     {
@@ -258,7 +263,6 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.True(result.IsValid);
     }
 
-    // TIME BUFFER VALIDATION TESTS
     [Theory]
     [InlineData(-1)]
     [InlineData(-100)]
@@ -324,8 +328,7 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.Contains(result.Errors, e => e.PropertyName == "");
     }
 
-    // Replace separate buffer comparison tests with a single parameterized theory
-
+    [Trait("Category", "Time")]
     [Theory]
     [InlineData(5, 5, false)] // Equal
     [InlineData(5, 4, true)]  // Buffer < Interval
@@ -346,10 +349,11 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.Equal(isValid, result.IsValid);
     }
 
+    [Trait("Category", "Mileage")]
     [Theory]
     [InlineData(1000, 1000, false)] // Equal
     [InlineData(1000, 999, true)]   // Buffer < Interval
-    [InlineData(1000, 1001, false)]  // Buffer > Interval
+    [InlineData(1000, 1001, false)] // Buffer > Interval
     public async Task Validator_Should_Handle_MileageBuffer_Comparisons(int interval, int buffer, bool isValid)
     {
         // Arrange
@@ -368,11 +372,11 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.Equal(isValid, result.IsValid);
     }
 
-    // Replace individual FirstService dependency tests with a single theory
+    [Trait("Category", "FirstService")]
     [Theory]
-    [InlineData(true, true, true, true)]    // All valid
+    [InlineData(true, true, true, true)]     // All valid
     [InlineData(false, true, true, false)]   // Missing time interval
-    [InlineData(true, false, true, false)]  // Missing mileage interval
+    [InlineData(true, false, true, false)]   // Missing mileage interval
     [InlineData(false, false, false, false)] // Missing all intervals
     public async Task Validator_Should_Handle_FirstService_Dependencies(
         bool hasTimeInterval,
@@ -396,7 +400,6 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.Equal(isValid, result.IsValid);
     }
 
-    // FIRST SERVICE TIME VALIDATION TESTS
     [Theory]
     [InlineData(-1)]
     [InlineData(-100)]
@@ -548,8 +551,8 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.True(result.IsValid);
     }
 
-    [Fact]
     [Trait("Category", "TimeUnit")]
+    [Fact]
     public async Task Validator_Should_Fail_When_TimeBuffer_Different_Units_Greater()
     {
         // Arrange - 4 weeks = 28 days, which is greater than 5 days
@@ -569,8 +572,8 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.Contains(result.Errors, e => e.PropertyName == "");
     }
 
-    [Fact]
     [Trait("Category", "TimeUnit")]
+    [Fact]
     public async Task Validator_Should_Pass_When_TimeBuffer_Different_Units_Smaller()
     {
         // Arrange - 4 days vs 1 week (4 < 7)
@@ -589,8 +592,8 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.True(result.IsValid);
     }
 
-    [Fact]
     [Trait("Category", "Robustness")]
+    [Fact]
     public async Task Validator_Should_Pass_With_All_Optional_Fields_Provided_Time_Based()
     {
         // Arrange
@@ -612,8 +615,8 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.True(result.IsValid);
     }
 
-    [Fact]
     [Trait("Category", "Robustness")]
+    [Fact]
     public async Task Validator_Should_Pass_With_All_Optional_Fields_Provided_Mileage_Based()
     {
         // Arrange
@@ -635,8 +638,8 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.True(result.IsValid);
     }
 
-    [Fact]
     [Trait("Category", "Robustness")]
+    [Fact]
     public async Task Validator_Should_Pass_With_Maximum_Valid_Configuration()
     {
         // Arrange
@@ -658,8 +661,8 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.True(result.IsValid);
     }
 
-    [Fact]
     [Trait("Category", "EdgeCase")]
+    [Fact]
     public async Task Validator_Should_Pass_When_TimeBuffer_One_Less_Than_TimeInterval()
     {
         // Arrange
@@ -678,8 +681,8 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.True(result.IsValid);
     }
 
-    [Fact]
     [Trait("Category", "EdgeCase")]
+    [Fact]
     public async Task Validator_Should_Pass_When_MileageBuffer_One_Less_Than_MileageInterval()
     {
         // Arrange
@@ -696,8 +699,8 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.True(result.IsValid);
     }
 
-    [Fact]
     [Trait("Category", "Unicode")]
+    [Fact]
     public async Task Validator_Should_Pass_With_Unicode_Name()
     {
         // Arrange
@@ -714,8 +717,8 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.True(result.IsValid);
     }
 
-    [Fact]
     [Trait("Category", "Boundary")]
+    [Fact]
     public async Task Validator_Should_Pass_With_Shortest_Valid_Name()
     {
         // Arrange
@@ -732,8 +735,8 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.True(result.IsValid);
     }
 
-    [Fact]
     [Trait("Category", "EnumValidation")]
+    [Fact]
     public async Task Validator_Should_Fail_When_TimeIntervalUnit_InvalidEnum()
     {
         // Arrange
@@ -751,8 +754,8 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.Contains(result.Errors, e => e.PropertyName == "TimeIntervalUnit");
     }
 
-    [Fact]
     [Trait("Category", "EnumValidation")]
+    [Fact]
     public async Task Validator_Should_Fail_When_TimeBufferUnit_InvalidEnum()
     {
         // Arrange
@@ -772,8 +775,8 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.Contains(result.Errors, e => e.PropertyName == "TimeBufferUnit");
     }
 
-    [Fact]
     [Trait("Category", "EnumValidation")]
+    [Fact]
     public async Task Validator_Should_Fail_When_FirstServiceTimeUnit_InvalidEnum()
     {
         // Arrange
@@ -791,8 +794,8 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.Contains(result.Errors, e => e.PropertyName == "FirstServiceTimeUnit");
     }
 
-    [Fact]
     [Trait("Category", "FirstServiceEdge")]
+    [Fact]
     public async Task Validator_Should_Fail_When_Both_FirstService_Without_Any_Intervals()
     {
         // Arrange
@@ -816,8 +819,8 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.Contains(result.Errors, e => e.PropertyName == "");
     }
 
-    [Fact]
     [Trait("Category", "FirstServiceEdge")]
+    [Fact]
     public async Task Validator_Should_Fail_When_FirstServiceTime_Without_TimeInterval_But_With_MileageInterval()
     {
         // Arrange
@@ -840,8 +843,8 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.Contains(result.Errors, e => e.PropertyName == "");
     }
 
-    [Fact]
     [Trait("Category", "FirstServiceEdge")]
+    [Fact]
     public async Task Validator_Should_Fail_When_FirstServiceMileage_Without_MileageInterval_But_With_TimeInterval()
     {
         // Arrange
@@ -864,8 +867,8 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.Contains(result.Errors, e => e.PropertyName == "");
     }
 
-    [Fact]
     [Trait("Category", "FirstServiceEdge")]
+    [Fact]
     public async Task Validator_Should_Pass_When_FirstService_Properties_Match_Available_Intervals()
     {
         // Arrange
@@ -887,8 +890,8 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.True(result.IsValid);
     }
 
-    [Fact]
     [Trait("Category", "FirstServiceEdge")]
+    [Fact]
     public async Task Validator_Should_Pass_With_FirstService_Equal_To_Interval()
     {
         // Arrange
@@ -909,8 +912,8 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.True(result.IsValid);
     }
 
-    [Fact]
     [Trait("Category", "FirstServiceEdge")]
+    [Fact]
     public async Task Validator_Should_Pass_With_FirstService_Greater_Than_Interval()
     {
         // Arrange
@@ -931,8 +934,8 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.True(result.IsValid);
     }
 
-    [Fact]
     [Trait("Category", "PositiveScenario")]
+    [Fact]
     public async Task Validator_Should_Pass_With_Hours_TimeUnit()
     {
         // Arrange
@@ -951,8 +954,8 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.True(result.IsValid);
     }
 
-    [Fact]
     [Trait("Category", "PositiveScenario")]
+    [Fact]
     public async Task Validator_Should_Pass_With_Large_Interval_And_Buffer()
     {
         // Arrange
@@ -971,8 +974,8 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.True(result.IsValid);
     }
 
-    [Fact]
     [Trait("Category", "EdgeCase")]
+    [Fact]
     public async Task Validator_Should_Fail_When_Buffer_Equals_Interval_Different_Units()
     {
         // Arrange
@@ -991,8 +994,8 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.False(result.IsValid);
     }
 
-    [Fact]
     [Trait("Category", "EdgeCase")]
+    [Fact]
     public async Task Validator_Should_Fail_When_Weeks_Buffer_Greater_Than_Days_Interval()
     {
         // Arrange
@@ -1011,8 +1014,8 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.False(result.IsValid);
     }
 
-    [Fact]
     [Trait("Category", "General")]
+    [Fact]
     public async Task Validator_Should_Pass_When_IsActive_Is_False()
     {
         // Arrange
