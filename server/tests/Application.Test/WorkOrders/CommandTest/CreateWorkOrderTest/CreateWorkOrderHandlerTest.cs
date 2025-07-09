@@ -16,7 +16,7 @@ using FluentValidation;
 
 using Moq;
 
-namespace Application.Test.WorkOrder.CommandTest.CreateWorkOrderTest;
+namespace Application.Test.WorkOrders.CommandTest.CreateWorkOrderTest;
 
 public class CreateWorkOrderHandlerTest
 {

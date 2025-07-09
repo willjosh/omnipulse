@@ -5,7 +5,7 @@ using Application.Features.WorkOrders.Command.CreateWorkOrder;
 
 using Domain.Entities.Enums;
 
-namespace Application.Test.WorkOrder.CommandTest.CreateWorkOrderTest;
+namespace Application.Test.WorkOrders.CommandTest.CreateWorkOrderTest;
 
 public class CreateWorkOrderCommandValidatorTest
 {
