@@ -154,7 +154,7 @@ public class CreateIssueCommandHandlerTest
             IssueAttachments = [],
             IssueAssignments = [],
             Vehicle = null!, // Required but not used in test
-            User = null! // Required but not used in test
+            ReportedByUser = null! // Required but not used in test
         };
 
         _mockVehicleRepository.Setup(r => r.GetByIdAsync(command.VehicleID)).ReturnsAsync(CreateTestVehicle(command.VehicleID));

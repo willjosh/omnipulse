@@ -41,9 +41,15 @@ public class IssueConfiguration : IEntityTypeConfiguration<Issue>
             .OnDelete(DeleteBehavior.Restrict);
 
         builder
-            .HasOne(i => i.User)
+            .HasOne(i => i.ReportedByUser)
             .WithMany()
             .HasForeignKey(i => i.ReportedByUserID)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder
+            .HasOne(i => i.ResolvedByUser)
+            .WithMany()
+            .HasForeignKey(i => i.ResolvedByUserID)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }
