@@ -11,7 +11,7 @@ interface SearchBarProps {
   fullWidth?: boolean;
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({
+const SearchInput: React.FC<SearchBarProps> = ({
   value,
   onChange,
   placeholder = "Search...",
@@ -58,7 +58,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
   return (
     <div
-      className={`relative ${fullWidth ? "w-full" : "w-48"} ${containerClassName}`}
+      className={`relative ${fullWidth ? "w-full" : ""} ${containerClassName}`}
     >
       <input
         type="text"
@@ -66,7 +66,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
         value={internalValue}
         onChange={handleInputChange}
         aria-label={ariaLabel}
-        className={`px-4 py-2 pl-10 border border-gray-300 rounded-3xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${fullWidth ? "w-full" : ""} ${inputClassName}`}
+        className={`px-4 py-2 pl-10 border border-gray-300 rounded-3xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${fullWidth ? "w-full" : "w-48"} ${inputClassName}`}
       />
       {/* Search Icon */}
       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -111,4 +111,4 @@ const SearchBar: React.FC<SearchBarProps> = ({
   );
 };
 
-export default SearchBar;
+export default SearchInput;
