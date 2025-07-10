@@ -2,7 +2,7 @@ using System;
 
 namespace Domain.Entities;
 
-public class ServiceScheduleTask : BaseEntity
+public class XrefServiceScheduleServiceTask : BaseEntity
 {
     // FKs
     public required int ServiceScheduleID { get; set; }

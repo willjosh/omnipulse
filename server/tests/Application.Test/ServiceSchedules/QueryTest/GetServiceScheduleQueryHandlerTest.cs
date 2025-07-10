@@ -70,15 +70,13 @@ public class GetServiceScheduleQueryHandlerTest
             ServiceProgram = serviceProgram,
             ServiceScheduleTasks =
             [
-                new ServiceScheduleTask
+                new XrefServiceScheduleServiceTask
                 {
                     ID = 1,
                     CreatedAt = now,
                     UpdatedAt = now,
                     ServiceScheduleID = 1,
                     ServiceTaskID = 1,
-                    IsMandatory = true,
-                    SequenceNumber = 1,
                     ServiceSchedule = null!, // Not needed for test
                     ServiceTask = new ServiceTask
                     {
@@ -95,15 +93,13 @@ public class GetServiceScheduleQueryHandlerTest
                         WorkOrderLineItems = []
                     }
                 },
-                new ServiceScheduleTask
+                new XrefServiceScheduleServiceTask
                 {
                     ID = 2,
                     CreatedAt = now,
                     UpdatedAt = now,
                     ServiceScheduleID = 1,
                     ServiceTaskID = 2,
-                    IsMandatory = true,
-                    SequenceNumber = 2,
                     ServiceSchedule = null!, // Not needed for test
                     ServiceTask = new ServiceTask
                     {
@@ -183,15 +179,13 @@ public class GetServiceScheduleQueryHandlerTest
             ServiceProgram = navServiceProgram,
             ServiceScheduleTasks =
             [
-                new ServiceScheduleTask
+                new XrefServiceScheduleServiceTask
                 {
                     ID = 3,
                     CreatedAt = now,
                     UpdatedAt = now,
                     ServiceScheduleID = 3,
                     ServiceTaskID = 3,
-                    IsMandatory = true,
-                    SequenceNumber = 1,
                     ServiceSchedule = null!,
                     ServiceTask = new ServiceTask
                     {
@@ -208,15 +202,13 @@ public class GetServiceScheduleQueryHandlerTest
                         WorkOrderLineItems = []
                     }
                 },
-                new ServiceScheduleTask
+                new XrefServiceScheduleServiceTask
                 {
                     ID = 4,
                     CreatedAt = now,
                     UpdatedAt = now,
                     ServiceScheduleID = 3,
                     ServiceTaskID = 4,
-                    IsMandatory = true,
-                    SequenceNumber = 2,
                     ServiceSchedule = null!,
                     ServiceTask = new ServiceTask
                     {
@@ -233,15 +225,13 @@ public class GetServiceScheduleQueryHandlerTest
                         WorkOrderLineItems = []
                     }
                 },
-                new ServiceScheduleTask
+                new XrefServiceScheduleServiceTask
                 {
                     ID = 5,
                     CreatedAt = now,
                     UpdatedAt = now,
                     ServiceScheduleID = 3,
                     ServiceTaskID = 5,
-                    IsMandatory = true,
-                    SequenceNumber = 3,
                     ServiceSchedule = null!,
                     ServiceTask = new ServiceTask
                     {

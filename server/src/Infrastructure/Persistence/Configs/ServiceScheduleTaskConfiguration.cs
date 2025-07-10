@@ -7,9 +7,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Persistence.Configs;
 
-public class ServiceScheduleTaskConfiguration : IEntityTypeConfiguration<ServiceScheduleTask>
+public class ServiceScheduleTaskConfiguration : IEntityTypeConfiguration<XrefServiceScheduleServiceTask>
 {
-    public void Configure(EntityTypeBuilder<ServiceScheduleTask> builder)
+    public void Configure(EntityTypeBuilder<XrefServiceScheduleServiceTask> builder)
     {
         builder.ToTable("ServiceScheduleTasks");
         builder.HasKey(sst => sst.ID);
@@ -17,17 +17,9 @@ public class ServiceScheduleTaskConfiguration : IEntityTypeConfiguration<Service
         // Regular Indexes
         builder.HasIndex(sst => sst.ServiceScheduleID);
         builder.HasIndex(sst => sst.ServiceTaskID);
-        builder.HasIndex(sst => sst.IsMandatory);
-
-        // Composite indexes for common queries
-        builder.HasIndex(sst => new { sst.ServiceScheduleID, sst.SequenceNumber });
-        builder.HasIndex(sst => new { sst.ServiceScheduleID, sst.IsMandatory });
 
         // Unique constraint to prevent duplicate tasks in same schedule
         builder.HasIndex(sst => new { sst.ServiceScheduleID, sst.ServiceTaskID }).IsUnique();
-
-        // Unique constraint for sequence numbers within a schedule
-        builder.HasIndex(sst => new { sst.ServiceScheduleID, sst.SequenceNumber }).IsUnique();
 
         // Check Constraints
         builder.ToTable(t => t.HasCheckConstraint("CK_ServiceScheduleTask_SequenceNumber",

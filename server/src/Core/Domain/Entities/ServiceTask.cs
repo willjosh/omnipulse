@@ -12,8 +12,8 @@ public class ServiceTask : BaseEntity
     public required ServiceTaskCategoryEnum Category { get; set; }
     public required bool IsActive { get; set; } = true;
 
-    // Navigation properties
-    public required ICollection<ServiceScheduleTask> ServiceScheduleTasks { get; set; } = [];
+    // Navigation Properties
+    public required ICollection<XrefServiceScheduleServiceTask> ServiceScheduleTasks { get; set; } = [];
     public required ICollection<MaintenanceHistory> MaintenanceHistories { get; set; } = [];
     public required ICollection<WorkOrderLineItem> WorkOrderLineItems { get; set; } = [];
 }
