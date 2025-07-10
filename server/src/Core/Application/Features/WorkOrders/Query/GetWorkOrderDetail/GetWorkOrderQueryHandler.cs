@@ -2,11 +2,9 @@ using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
 using Application.Features.WorkOrderLineItem.Query.GetWorkOrderLineItemDetail;
-
 using AutoMapper;
-
 using Domain.Entities;
-
+using Domain.Services;
 using MediatR;
 
 namespace Application.Features.WorkOrders.Query.GetWorkOrderDetail;
@@ -18,7 +16,11 @@ public class GetWorkOrderQueryHandler : IRequestHandler<GetWorkOrderDetailQuery,
     private readonly IAppLogger<GetWorkOrderQueryHandler> _logger;
     private readonly IMapper _mapper;
 
-    public GetWorkOrderQueryHandler(IWorkOrderRepository workOrderRepository, IWorkOrderLineItemRepository workOrderLineItemRepository, IAppLogger<GetWorkOrderQueryHandler> logger, IMapper mapper)
+    public GetWorkOrderQueryHandler(
+        IWorkOrderRepository workOrderRepository, 
+        IWorkOrderLineItemRepository workOrderLineItemRepository, 
+        IAppLogger<GetWorkOrderQueryHandler> logger, 
+        IMapper mapper)
     {
         _workOrderRepository = workOrderRepository;
         _workOrderLineItemRepository = workOrderLineItemRepository;
@@ -28,53 +30,57 @@ public class GetWorkOrderQueryHandler : IRequestHandler<GetWorkOrderDetailQuery,
 
     public async Task<GetWorkOrderDetailDTO> Handle(GetWorkOrderDetailQuery request, CancellationToken cancellationToken)
     {
-        _logger.LogInformation($"GetWorkOrderDetailQuery for WorkOrderID: {request.ID}");
+        _logger.LogInformation("GetWorkOrderDetailQuery for WorkOrderID: {WorkOrderId}", request.ID);
 
         var workOrder = await _workOrderRepository.GetWorkOrderWithDetailsAsync(request.ID);
         if (workOrder == null)
         {
-            _logger.LogError($"WorkOrder with ID {request.ID} not found.");
+            _logger.LogError("WorkOrder with ID {WorkOrderId} not found", request.ID);
             throw new EntityNotFoundException(typeof(WorkOrder).ToString(), "WorkOrderID", request.ID.ToString());
         }
 
-        // Get work order line items
         var workOrderLineItems = await _workOrderLineItemRepository.GetByWorkOrderIdAsync(request.ID);
 
-        // Handle null line items
-        List<WorkOrderLineItemDetailDTO> lineItemDtos;
+        var lineItems = workOrderLineItems ?? new List<Domain.Entities.WorkOrderLineItem>();
+        
+        // ALWAYS calculate totals (even for empty list)
+        lineItems.EnsureTotalCalculated();
+        var workOrderLineItemTotals = lineItems.CalculateTotals();
 
-        if (workOrderLineItems == null || !workOrderLineItems.Any())
-        {
-            _logger.LogInformation($"No line items found for WorkOrder with ID {request.ID}");
-            lineItemDtos = new List<WorkOrderLineItemDetailDTO>();
-        }
-        else
-        {
-            // Calculate total cost for each line item
-            workOrderLineItems.ForEach(item => item.CalculateTotalCost());
+        // Map line items to DTO with calculated values
+        var lineItemDtos = MapLineItemsToDto(lineItems);
 
-            // Map line items to DTO
-            lineItemDtos = workOrderLineItems.Select(item =>
-            {
-                var lineItemDto = _mapper.Map<WorkOrderLineItemDetailDTO>(item);
-                lineItemDto.LaborCost = item.CalculateLaborCost();
-                lineItemDto.ItemCost = item.CalculateItemCost();
-                lineItemDto.SubTotal = item.TotalCost;
-                return lineItemDto;
-            }).ToList();
+        if (!lineItems.Any())
+        {
+            _logger.LogInformation("No line items found for WorkOrder with ID {WorkOrderId}", request.ID);
         }
 
         // Map to GetWorkOrderDetailDTO
         var workOrderDetailDto = _mapper.Map<GetWorkOrderDetailDTO>(workOrder);
         workOrderDetailDto.WorkOrderLineItems = lineItemDtos;
 
-        // Calculate work order level totals
-        workOrderDetailDto.TotalLaborCost = lineItemDtos.Sum(li => li.LaborCost);
-        workOrderDetailDto.TotalItemCost = lineItemDtos.Sum(li => li.ItemCost);
-        workOrderDetailDto.TotalCost = lineItemDtos.Sum(li => li.SubTotal);
+        // Set calculated totals
+        workOrderDetailDto.TotalLaborCost = workOrderLineItemTotals.TotalLaborCost;
+        workOrderDetailDto.TotalItemCost = workOrderLineItemTotals.TotalItemCost;
+        workOrderDetailDto.TotalCost = workOrderLineItemTotals.TotalCost;
 
-        _logger.LogInformation($"Successfully retrieved WorkOrder with ID {request.ID}");
-
+        _logger.LogInformation("Successfully retrieved WorkOrder with ID {WorkOrderId}", request.ID);
         return workOrderDetailDto;
+    }
+
+    private List<WorkOrderLineItemDetailDTO> MapLineItemsToDto(List<Domain.Entities.WorkOrderLineItem> lineItems)
+    {
+        return lineItems.Select(item =>
+        {
+            // Use AutoMapper for basic mapping
+            var lineItemDto = _mapper.Map<WorkOrderLineItemDetailDTO>(item);
+            
+            // Add calculated values that AutoMapper can't handle
+            lineItemDto.LaborCost = item.CalculateLaborCost();
+            lineItemDto.ItemCost = item.CalculateItemCost();
+            lineItemDto.SubTotal = item.TotalCost;
+            
+            return lineItemDto;
+        }).ToList();
     }
 }
