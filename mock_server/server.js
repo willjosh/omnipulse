@@ -143,6 +143,92 @@ server.post("/vehicles/deactivate/:id", (req, res) => {
   }
 });
 
+// Custom route for issues with pagination wrapper
+server.get("/issues", (req, res) => {
+  const db = router.db;
+  const issues = db.get("issues").value();
+
+  // Get query parameters
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const sortBy = req.query.sortBy || "id";
+  const sortOrder = req.query.sortOrder || "asc";
+  const search = req.query.search || "";
+
+  // Filter by search if provided
+  let filteredIssues = issues;
+  if (search) {
+    const searchLower = search.toLowerCase();
+    filteredIssues = issues.filter(
+      issue =>
+        (issue.Title && issue.Title.toLowerCase().includes(searchLower)) ||
+        (issue.Description &&
+          issue.Description.toLowerCase().includes(searchLower)) ||
+        (issue.Status && issue.Status.toLowerCase().includes(searchLower)) ||
+        (issue.Reporter &&
+          issue.Reporter.toLowerCase().includes(searchLower)) ||
+        (issue.AssignedTechnicianName &&
+          issue.AssignedTechnicianName.toLowerCase().includes(searchLower)) ||
+        (issue.VehicleName &&
+          issue.VehicleName.toLowerCase().includes(searchLower)),
+    );
+  }
+
+  // Sort issues
+  filteredIssues.sort((a, b) => {
+    let aValue = a[sortBy];
+    let bValue = b[sortBy];
+
+    if (aValue == null && bValue == null) return 0;
+    if (aValue == null) return sortOrder === "asc" ? 1 : -1;
+    if (bValue == null) return sortOrder === "asc" ? -1 : 1;
+
+    if (typeof aValue === "number" && typeof bValue === "number") {
+      return sortOrder === "asc" ? aValue - bValue : bValue - aValue;
+    }
+
+    const aString = String(aValue).toLowerCase();
+    const bString = String(bValue).toLowerCase();
+
+    if (aString < bString) return sortOrder === "asc" ? -1 : 1;
+    if (aString > bString) return sortOrder === "asc" ? 1 : -1;
+    return 0;
+  });
+
+  // Calculate pagination
+  const totalCount = filteredIssues.length;
+  const totalPages = Math.ceil(totalCount / limit);
+  const startIndex = (page - 1) * limit;
+  const endIndex = startIndex + limit;
+  const paginatedIssues = filteredIssues.slice(startIndex, endIndex);
+
+  // Return response in your expected format
+  res.json({
+    Items: paginatedIssues,
+    TotalCount: totalCount,
+    PageNumber: page,
+    PageSize: limit,
+    TotalPages: totalPages,
+    HasPreviousPage: page > 1,
+    HasNextPage: page < totalPages,
+  });
+});
+
+// Get single issue
+server.get("/issues/:id", (req, res) => {
+  const db = router.db;
+  const issue = db
+    .get("issues")
+    .find({ id: parseInt(req.params.id) })
+    .value();
+
+  if (issue) {
+    res.json(issue);
+  } else {
+    res.status(404).json({ error: "Issue not found" });
+  }
+});
+
 // Custom route for vehicleGroups with pagination wrapper
 server.get("/vehicleGroups", (req, res) => {
   const db = router.db;
