@@ -2,9 +2,12 @@ using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
 using Application.Features.WorkOrderLineItem.Query.GetWorkOrderLineItemDetail;
+
 using AutoMapper;
+
 using Domain.Entities;
 using Domain.Services;
+
 using MediatR;
 
 namespace Application.Features.WorkOrders.Query.GetWorkOrderDetail;
@@ -17,9 +20,9 @@ public class GetWorkOrderQueryHandler : IRequestHandler<GetWorkOrderDetailQuery,
     private readonly IMapper _mapper;
 
     public GetWorkOrderQueryHandler(
-        IWorkOrderRepository workOrderRepository, 
-        IWorkOrderLineItemRepository workOrderLineItemRepository, 
-        IAppLogger<GetWorkOrderQueryHandler> logger, 
+        IWorkOrderRepository workOrderRepository,
+        IWorkOrderLineItemRepository workOrderLineItemRepository,
+        IAppLogger<GetWorkOrderQueryHandler> logger,
         IMapper mapper)
     {
         _workOrderRepository = workOrderRepository;
@@ -42,7 +45,7 @@ public class GetWorkOrderQueryHandler : IRequestHandler<GetWorkOrderDetailQuery,
         var workOrderLineItems = await _workOrderLineItemRepository.GetByWorkOrderIdAsync(request.ID);
 
         var lineItems = workOrderLineItems ?? new List<Domain.Entities.WorkOrderLineItem>();
-        
+
         // ALWAYS calculate totals (even for empty list)
         lineItems.EnsureTotalCalculated();
         var workOrderLineItemTotals = lineItems.CalculateTotals();
@@ -74,12 +77,12 @@ public class GetWorkOrderQueryHandler : IRequestHandler<GetWorkOrderDetailQuery,
         {
             // Use AutoMapper for basic mapping
             var lineItemDto = _mapper.Map<WorkOrderLineItemDetailDTO>(item);
-            
+
             // Add calculated values that AutoMapper can't handle
             lineItemDto.LaborCost = item.CalculateLaborCost();
             lineItemDto.ItemCost = item.CalculateItemCost();
             lineItemDto.SubTotal = item.TotalCost;
-            
+
             return lineItemDto;
         }).ToList();
     }

@@ -8,7 +8,7 @@ public static class WorkOrderDomainExtension
     public static WorkOrderTotals CalculateTotals(this IEnumerable<WorkOrderLineItem> lineItems)
     {
         var lineItemsList = lineItems.ToList();
-        
+
         // Ensure calculations are complete
         lineItemsList.ForEach(item => item.CalculateTotalCost());
 
@@ -17,7 +17,7 @@ public static class WorkOrderDomainExtension
             TotalLaborCost = lineItemsList.Sum(wo => wo.CalculateLaborCost()),
             TotalItemCost = lineItemsList.Sum(wo => wo.CalculateItemCost()),
             TotalCost = lineItemsList.Sum(wo => wo.TotalCost)
-        };        
+        };
     }
     public static void EnsureTotalCalculated(this IEnumerable<WorkOrderLineItem> workOrder)
     {
