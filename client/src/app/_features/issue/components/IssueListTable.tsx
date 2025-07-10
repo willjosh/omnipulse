@@ -14,8 +14,6 @@ export interface IssueRow {
   reportedDate: string;
   assigned: string;
   labels: string;
-  watchers: string;
-  comments: string;
 }
 
 interface IssueListTableProps {
@@ -34,8 +32,6 @@ const columns = [
   { key: "reportedDate", header: "Reported Date" },
   { key: "assigned", header: "Assigned" },
   { key: "labels", header: "Labels" },
-  { key: "watchers", header: "Watchers" },
-  { key: "comments", header: "Comments" },
 ];
 
 export const IssueListTable: React.FC<IssueListTableProps> = ({

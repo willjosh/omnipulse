@@ -68,8 +68,6 @@ export default function IssuesPage() {
           : "",
         assigned: issue.ResolvedByUserName || "",
         labels: issue.CategoryLabel,
-        watchers: "", // Add watcher logic if available
-        comments: "", // Add comment logic if available
       })),
     [issues],
   );
