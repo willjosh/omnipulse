@@ -103,21 +103,19 @@ export default function IssuesPage() {
         onTabChange={setActiveTab}
         tabCounts={tabCounts}
       />
-      <IssueListFilters
-        searchValue={search}
-        onSearchChange={setSearch}
-        status={status}
-        onStatusChange={setStatus}
-        priority={priority}
-        onPriorityChange={setPriority}
-        category={category}
-        onCategoryChange={setCategory}
-      />
-      <div className="bg-white rounded-lg shadow">
-        <IssueListTable issues={tableData} isLoading={isPending} />
-      </div>
-      {pagination && (
-        <div className="mt-4 flex justify-end">
+      {/* Inline filters and pagination controls */}
+      <div className="flex flex-wrap items-center gap-4 mb-4 justify-between">
+        <IssueListFilters
+          searchValue={search}
+          onSearchChange={setSearch}
+          status={status}
+          onStatusChange={setStatus}
+          priority={priority}
+          onPriorityChange={setPriority}
+          category={category}
+          onCategoryChange={setCategory}
+        />
+        {pagination && (
           <PaginationControls
             currentPage={pagination.pageNumber}
             totalPages={pagination.totalPages}
@@ -127,9 +125,13 @@ export default function IssuesPage() {
             onNextPage={handleNextPage}
             onPageChange={handlePageChange}
             onPageSizeChange={handlePageSizeChange}
+            className="ml-auto"
           />
-        </div>
-      )}
+        )}
+      </div>
+      <div className="bg-white rounded-lg shadow">
+        <IssueListTable issues={tableData} isLoading={isPending} />
+      </div>
     </div>
   );
 }
