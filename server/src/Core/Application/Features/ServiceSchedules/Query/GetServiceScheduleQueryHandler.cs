@@ -28,7 +28,7 @@ public class GetServiceScheduleQueryHandler : IRequestHandler<GetServiceSchedule
 
     public async Task<GetServiceScheduleDTO> Handle(GetServiceScheduleQuery request, CancellationToken cancellationToken)
     {
-        _logger.LogInformation($"GetServiceScheduleDetailsQuery for ServiceScheduleID: {request.ServiceScheduleID}");
+        _logger.LogInformation($"GetServiceScheduleQuery for ServiceScheduleID: {request.ServiceScheduleID}");
         var serviceSchedule = await _serviceScheduleRepository.GetByIdAsync(request.ServiceScheduleID);
         if (serviceSchedule == null)
         {
@@ -36,7 +36,7 @@ public class GetServiceScheduleQueryHandler : IRequestHandler<GetServiceSchedule
             throw new EntityNotFoundException(typeof(ServiceSchedule).ToString(), "ServiceScheduleID", request.ServiceScheduleID.ToString());
         }
         var dto = _mapper.Map<GetServiceScheduleDTO>(serviceSchedule);
-        _logger.LogInformation($"Returning ServiceScheduleDetailsDTO for ServiceScheduleID: {request.ServiceScheduleID}");
+        _logger.LogInformation($"Returning ServiceScheduleDTO for ServiceScheduleID: {request.ServiceScheduleID}");
         return dto;
     }
 }
