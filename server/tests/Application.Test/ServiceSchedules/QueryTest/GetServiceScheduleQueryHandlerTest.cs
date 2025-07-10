@@ -50,7 +50,7 @@ public class GetServiceScheduleQueryHandlerTest
             IsActive = true,
             ServiceSchedules = []
         };
-        var schedule = new ServiceSchedule
+        var serviceSchedule = new ServiceSchedule
         {
             ID = 1,
             CreatedAt = now,
@@ -122,26 +122,26 @@ public class GetServiceScheduleQueryHandlerTest
                 }
             ]
         };
-        _mockServiceScheduleRepository.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(schedule);
+        _mockServiceScheduleRepository.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(serviceSchedule);
         var query = new GetServiceScheduleQuery(1);
 
         // Act
         var result = await _queryHandler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.Equal(schedule.ID, result.ID);
-        Assert.Equal(schedule.Name, result.Name);
-        Assert.Equal(schedule.ServiceProgramID, result.ServiceProgramID);
-        Assert.Equal(schedule.TimeIntervalValue, result.TimeIntervalValue);
-        Assert.Equal(schedule.TimeIntervalUnit, result.TimeIntervalUnit);
-        Assert.Equal(schedule.TimeBufferValue, result.TimeBufferValue);
-        Assert.Equal(schedule.TimeBufferUnit, result.TimeBufferUnit);
-        Assert.Equal(schedule.MileageInterval, result.MileageInterval);
-        Assert.Equal(schedule.MileageBuffer, result.MileageBuffer);
-        Assert.Equal(schedule.FirstServiceTimeValue, result.FirstServiceTimeValue);
-        Assert.Equal(schedule.FirstServiceTimeUnit, result.FirstServiceTimeUnit);
-        Assert.Equal(schedule.FirstServiceMileage, result.FirstServiceMileage);
-        Assert.Equal(schedule.IsActive, result.IsActive);
+        Assert.Equal(serviceSchedule.ID, result.ID);
+        Assert.Equal(serviceSchedule.Name, result.Name);
+        Assert.Equal(serviceSchedule.ServiceProgramID, result.ServiceProgramID);
+        Assert.Equal(serviceSchedule.TimeIntervalValue, result.TimeIntervalValue);
+        Assert.Equal(serviceSchedule.TimeIntervalUnit, result.TimeIntervalUnit);
+        Assert.Equal(serviceSchedule.TimeBufferValue, result.TimeBufferValue);
+        Assert.Equal(serviceSchedule.TimeBufferUnit, result.TimeBufferUnit);
+        Assert.Equal(serviceSchedule.MileageInterval, result.MileageInterval);
+        Assert.Equal(serviceSchedule.MileageBuffer, result.MileageBuffer);
+        Assert.Equal(serviceSchedule.FirstServiceTimeValue, result.FirstServiceTimeValue);
+        Assert.Equal(serviceSchedule.FirstServiceTimeUnit, result.FirstServiceTimeUnit);
+        Assert.Equal(serviceSchedule.FirstServiceMileage, result.FirstServiceMileage);
+        Assert.Equal(serviceSchedule.IsActive, result.IsActive);
     }
 
     [Fact]
