@@ -19,6 +19,7 @@ export interface IssueRow {
 interface IssueListTableProps {
   issues: IssueRow[];
   isLoading?: boolean;
+  emptyState?: React.ReactNode;
 }
 
 const columns = [
@@ -37,6 +38,7 @@ const columns = [
 export const IssueListTable: React.FC<IssueListTableProps> = ({
   issues,
   isLoading,
+  emptyState,
 }) => {
   // For now, selection is not implemented, so pass empty arrays and no-ops
   return (
@@ -49,6 +51,7 @@ export const IssueListTable: React.FC<IssueListTableProps> = ({
       getItemId={item => item.id}
       loading={isLoading}
       showActions={false}
+      emptyState={emptyState}
     />
   );
 };

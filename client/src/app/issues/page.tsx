@@ -130,7 +130,20 @@ export default function IssuesPage() {
         )}
       </div>
       <div className="bg-white rounded-lg shadow">
-        <IssueListTable issues={tableData} isLoading={isPending} />
+        <IssueListTable
+          issues={tableData}
+          isLoading={isPending}
+          emptyState={
+            <div>
+              <div className="text-lg font-semibold text-gray-500 mb-2">
+                No issues found.
+              </div>
+              <div className="text-gray-400">
+                Try adjusting your filters or search.
+              </div>
+            </div>
+          }
+        />
       </div>
     </div>
   );
