@@ -1,5 +1,6 @@
 using Application.Features.ServiceSchedules.Command.CreateServiceSchedule;
 using Application.Features.ServiceSchedules.Command.UpdateServiceSchedule;
+using Application.Features.ServiceSchedules.Query.GetAllServiceSchedule;
 using Application.Features.ServiceSchedules.Query.GetServiceSchedule;
 
 using AutoMapper;
@@ -30,5 +31,8 @@ public class ServiceScheduleMappingProfile : Profile
 
         // GetServiceSchedule
         CreateMap<ServiceSchedule, GetServiceScheduleDTO>(MemberList.Destination);
+
+        // GetAllServiceSchedule
+        CreateMap<ServiceSchedule, GetAllServiceScheduleDTO>(MemberList.Destination);
     }
 }
