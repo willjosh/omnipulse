@@ -1,5 +1,11 @@
+using Application.Models;
+using Application.Models.PaginationModels;
+
 using Domain.Entities;
 
 namespace Application.Contracts.Persistence;
 
-public interface IServiceScheduleRepository : IGenericRepository<ServiceSchedule> { }
+public interface IServiceScheduleRepository : IGenericRepository<ServiceSchedule>
+{
+    public Task<PagedResult<ServiceSchedule>> GetAllServiceSchedulePagedAsync(PaginationParameters parameters);
+}
