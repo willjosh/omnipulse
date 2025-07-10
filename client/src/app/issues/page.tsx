@@ -91,10 +91,10 @@ export default function IssuesPage() {
   }, [search, status, priority, category, activeTab]);
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-6">
+    <div className="container mx-auto px-4">
+      <div className="flex items-center justify-between mb-2">
         <h1 className="text-2xl font-bold">Issues</h1>
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition">
+        <button className="bg-blue-600 text-white px-4 rounded-lg font-semibold hover:bg-blue-700 transition">
           Add Issue
         </button>
       </div>
