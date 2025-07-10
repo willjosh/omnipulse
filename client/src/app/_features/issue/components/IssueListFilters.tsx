@@ -1,0 +1,87 @@
+import React from "react";
+import { FilterBar, DropdownFilter } from "../../shared/filter";
+import {
+  IssueCategoryEnum,
+  IssueStatusEnum,
+  PriorityLevelEnum,
+} from "../../../_hooks/issue/issueEnum";
+
+interface IssueListFiltersProps {
+  searchValue: string;
+  onSearchChange: (value: string) => void;
+  status: string;
+  onStatusChange: (value: string) => void;
+  priority: string;
+  onPriorityChange: (value: string) => void;
+  category: string;
+  onCategoryChange: (value: string) => void;
+}
+
+const statusOptions = [
+  { value: "", label: "All Statuses" },
+  { value: IssueStatusEnum.OPEN.toString(), label: "Open" },
+  { value: IssueStatusEnum.IN_PROGRESS.toString(), label: "In Progress" },
+  { value: IssueStatusEnum.RESOLVED.toString(), label: "Resolved" },
+  { value: IssueStatusEnum.CLOSED.toString(), label: "Closed" },
+  { value: IssueStatusEnum.CANCELLED.toString(), label: "Cancelled" },
+];
+
+const priorityOptions = [
+  { value: "", label: "All Priorities" },
+  { value: PriorityLevelEnum.LOW.toString(), label: "Low" },
+  { value: PriorityLevelEnum.MEDIUM.toString(), label: "Medium" },
+  { value: PriorityLevelEnum.HIGH.toString(), label: "High" },
+  { value: PriorityLevelEnum.CRITICAL.toString(), label: "Critical" },
+];
+
+const categoryOptions = [
+  { value: "", label: "All Categories" },
+  { value: IssueCategoryEnum.ENGINE.toString(), label: "Engine" },
+  { value: IssueCategoryEnum.TRANSMISSION.toString(), label: "Transmission" },
+  { value: IssueCategoryEnum.BRAKES.toString(), label: "Brakes" },
+  { value: IssueCategoryEnum.ELECTRICAL.toString(), label: "Electrical" },
+  { value: IssueCategoryEnum.BODY.toString(), label: "Body" },
+  { value: IssueCategoryEnum.TIRES.toString(), label: "Tires" },
+  { value: IssueCategoryEnum.HVAC.toString(), label: "HVAC" },
+  { value: IssueCategoryEnum.OTHER.toString(), label: "Other" },
+];
+
+export const IssueListFilters: React.FC<IssueListFiltersProps> = ({
+  searchValue,
+  onSearchChange,
+  status,
+  onStatusChange,
+  priority,
+  onPriorityChange,
+  category,
+  onCategoryChange,
+}) => {
+  return (
+    <div className="flex flex-wrap gap-3 items-center mb-4">
+      <FilterBar
+        searchValue={searchValue}
+        onSearchChange={onSearchChange}
+        searchPlaceholder="Search issues..."
+        onFilterChange={() => {}}
+      />
+      <DropdownFilter
+        value={status}
+        onChange={onStatusChange}
+        options={statusOptions}
+        placeholder="Status"
+      />
+      <DropdownFilter
+        value={priority}
+        onChange={onPriorityChange}
+        options={priorityOptions}
+        placeholder="Priority"
+      />
+      <DropdownFilter
+        value={category}
+        onChange={onCategoryChange}
+        options={categoryOptions}
+        placeholder="Category"
+      />
+    </div>
+  );
+};
