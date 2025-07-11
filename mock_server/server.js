@@ -161,16 +161,20 @@ server.get("/issues", (req, res) => {
     const searchLower = search.toLowerCase();
     filteredIssues = issues.filter(
       issue =>
-        (issue.Title && issue.Title.toLowerCase().includes(searchLower)) ||
+        (issue.Title &&
+          String(issue.Title).toLowerCase().includes(searchLower)) ||
         (issue.Description &&
-          issue.Description.toLowerCase().includes(searchLower)) ||
-        (issue.Status && issue.Status.toLowerCase().includes(searchLower)) ||
+          String(issue.Description).toLowerCase().includes(searchLower)) ||
+        (issue.Status &&
+          String(issue.Status).toLowerCase().includes(searchLower)) ||
         (issue.Reporter &&
-          issue.Reporter.toLowerCase().includes(searchLower)) ||
+          String(issue.Reporter).toLowerCase().includes(searchLower)) ||
         (issue.AssignedTechnicianName &&
-          issue.AssignedTechnicianName.toLowerCase().includes(searchLower)) ||
+          String(issue.AssignedTechnicianName)
+            .toLowerCase()
+            .includes(searchLower)) ||
         (issue.VehicleName &&
-          issue.VehicleName.toLowerCase().includes(searchLower)),
+          String(issue.VehicleName).toLowerCase().includes(searchLower)),
     );
   }
 
