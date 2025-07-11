@@ -72,9 +72,6 @@ public class GetServiceScheduleQueryHandlerTest
             [
                 new XrefServiceScheduleServiceTask
                 {
-                    ID = 1,
-                    CreatedAt = now,
-                    UpdatedAt = now,
                     ServiceScheduleID = 1,
                     ServiceTaskID = 1,
                     ServiceSchedule = null!, // Not needed for test
@@ -95,9 +92,6 @@ public class GetServiceScheduleQueryHandlerTest
                 },
                 new XrefServiceScheduleServiceTask
                 {
-                    ID = 2,
-                    CreatedAt = now,
-                    UpdatedAt = now,
                     ServiceScheduleID = 1,
                     ServiceTaskID = 2,
                     ServiceSchedule = null!, // Not needed for test
@@ -181,9 +175,6 @@ public class GetServiceScheduleQueryHandlerTest
             [
                 new XrefServiceScheduleServiceTask
                 {
-                    ID = 3,
-                    CreatedAt = now,
-                    UpdatedAt = now,
                     ServiceScheduleID = 3,
                     ServiceTaskID = 3,
                     ServiceSchedule = null!,
@@ -204,9 +195,6 @@ public class GetServiceScheduleQueryHandlerTest
                 },
                 new XrefServiceScheduleServiceTask
                 {
-                    ID = 4,
-                    CreatedAt = now,
-                    UpdatedAt = now,
                     ServiceScheduleID = 3,
                     ServiceTaskID = 4,
                     ServiceSchedule = null!,
@@ -227,9 +215,6 @@ public class GetServiceScheduleQueryHandlerTest
                 },
                 new XrefServiceScheduleServiceTask
                 {
-                    ID = 5,
-                    CreatedAt = now,
-                    UpdatedAt = now,
                     ServiceScheduleID = 3,
                     ServiceTaskID = 5,
                     ServiceSchedule = null!,

@@ -12,7 +12,7 @@ public class ServiceScheduleRepository : GenericRepository<ServiceSchedule>, ISe
 {
     public ServiceScheduleRepository(OmnipulseDatabaseContext context) : base(context) { }
 
-    public Task<PagedResult<ServiceSchedule>> GetAllServiceSchedulePagedAsync(PaginationParameters parameters)
+    public Task<PagedResult<ServiceSchedule>> GetAllServiceSchedulesPagedAsync(PaginationParameters parameters)
     {
         throw new NotImplementedException();
     }
