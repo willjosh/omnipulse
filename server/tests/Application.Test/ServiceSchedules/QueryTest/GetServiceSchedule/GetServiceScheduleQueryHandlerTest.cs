@@ -68,7 +68,7 @@ public class GetServiceScheduleQueryHandlerTest
             FirstServiceMileage = 500,
             IsActive = true,
             ServiceProgram = serviceProgram,
-            ServiceScheduleTasks =
+            XrefServiceScheduleServiceTasks =
             [
                 new XrefServiceScheduleServiceTask
                 {
@@ -88,7 +88,7 @@ public class GetServiceScheduleQueryHandlerTest
                         EstimatedCost = 100,
                         Category = Domain.Entities.Enums.ServiceTaskCategoryEnum.PREVENTIVE,
                         IsActive = true,
-                        ServiceScheduleTasks = [],
+                        XrefServiceScheduleServiceTasks = [],
                         MaintenanceHistories = [],
                         WorkOrderLineItems = []
                     }
@@ -111,7 +111,7 @@ public class GetServiceScheduleQueryHandlerTest
                         EstimatedCost = 200,
                         Category = Domain.Entities.Enums.ServiceTaskCategoryEnum.CORRECTIVE,
                         IsActive = true,
-                        ServiceScheduleTasks = [],
+                        XrefServiceScheduleServiceTasks = [],
                         MaintenanceHistories = [],
                         WorkOrderLineItems = []
                     }
@@ -177,7 +177,7 @@ public class GetServiceScheduleQueryHandlerTest
             Name = "Nav Test",
             IsActive = true,
             ServiceProgram = navServiceProgram,
-            ServiceScheduleTasks =
+            XrefServiceScheduleServiceTasks =
             [
                 new XrefServiceScheduleServiceTask
                 {
@@ -197,7 +197,7 @@ public class GetServiceScheduleQueryHandlerTest
                         EstimatedCost = 150,
                         Category = Domain.Entities.Enums.ServiceTaskCategoryEnum.INSPECTION,
                         IsActive = true,
-                        ServiceScheduleTasks = [],
+                        XrefServiceScheduleServiceTasks = [],
                         MaintenanceHistories = [],
                         WorkOrderLineItems = []
                     }
@@ -220,7 +220,7 @@ public class GetServiceScheduleQueryHandlerTest
                         EstimatedCost = 250,
                         Category = Domain.Entities.Enums.ServiceTaskCategoryEnum.WARRANTY,
                         IsActive = true,
-                        ServiceScheduleTasks = [],
+                        XrefServiceScheduleServiceTasks = [],
                         MaintenanceHistories = [],
                         WorkOrderLineItems = []
                     }
@@ -243,7 +243,7 @@ public class GetServiceScheduleQueryHandlerTest
                         EstimatedCost = 350,
                         Category = Domain.Entities.Enums.ServiceTaskCategoryEnum.EMERGENCY,
                         IsActive = true,
-                        ServiceScheduleTasks = [],
+                        XrefServiceScheduleServiceTasks = [],
                         MaintenanceHistories = [],
                         WorkOrderLineItems = []
                     }

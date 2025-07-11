@@ -39,7 +39,7 @@ public class DeleteServiceScheduleCommandHandlerTest
             IsActive = true,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
-            ServiceScheduleTasks = [],
+            XrefServiceScheduleServiceTasks = [],
             ServiceProgram = new ServiceProgram
             {
                 ID = 1,

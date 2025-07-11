@@ -51,7 +51,7 @@ public class DeleteServiceTaskCommandHandlerTest
             EstimatedCost = 100.00m,
             Category = ServiceTaskCategoryEnum.PREVENTIVE,
             IsActive = true,
-            ServiceScheduleTasks = [],
+            XrefServiceScheduleServiceTasks = [],
             MaintenanceHistories = [],
             WorkOrderLineItems = []
         };

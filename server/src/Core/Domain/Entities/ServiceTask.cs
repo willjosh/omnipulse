@@ -13,7 +13,7 @@ public class ServiceTask : BaseEntity
     public required bool IsActive { get; set; } = true;
 
     // Navigation Properties
-    public required ICollection<XrefServiceScheduleServiceTask> ServiceScheduleTasks { get; set; } = [];
+    public required ICollection<XrefServiceScheduleServiceTask> XrefServiceScheduleServiceTasks { get; set; } = [];
     public required ICollection<MaintenanceHistory> MaintenanceHistories { get; set; } = [];
     public required ICollection<WorkOrderLineItem> WorkOrderLineItems { get; set; } = [];
 }

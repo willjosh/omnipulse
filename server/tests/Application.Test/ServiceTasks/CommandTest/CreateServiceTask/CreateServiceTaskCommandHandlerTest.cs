@@ -97,7 +97,7 @@ public class CreateServiceTaskCommandHandlerTest
             EstimatedCost = command.EstimatedCost,
             Category = command.Category,
             IsActive = command.IsActive,
-            ServiceScheduleTasks = [],
+            XrefServiceScheduleServiceTasks = [],
             MaintenanceHistories = [],
             WorkOrderLineItems = []
         };

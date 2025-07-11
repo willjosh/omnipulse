@@ -108,7 +108,7 @@ public class CreateServiceScheduleCommandHandlerTest
             IsActive = command.IsActive,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
-            ServiceScheduleTasks = [],
+            XrefServiceScheduleServiceTasks = [],
             ServiceProgram = null!
         };
         _mockScheduleRepository.Setup(r => r.AddAsync(It.IsAny<ServiceSchedule>())).ReturnsAsync(expectedEntity);

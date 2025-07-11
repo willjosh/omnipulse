@@ -47,6 +47,6 @@ public class ServiceSchedule : BaseEntity
     public required bool IsActive { get; set; } = true;
 
     // Navigation Properties
-    public required ICollection<XrefServiceScheduleServiceTask> ServiceScheduleTasks { get; set; } = [];
+    public required ICollection<XrefServiceScheduleServiceTask> XrefServiceScheduleServiceTasks { get; set; } = [];
     public required ServiceProgram ServiceProgram { get; set; }
 }

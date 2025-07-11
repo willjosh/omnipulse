@@ -61,7 +61,7 @@ public class GetAllServiceTaskQueryHandlerTest
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                ServiceScheduleTasks = [],
+                XrefServiceScheduleServiceTasks = [],
                 MaintenanceHistories = [],
                 WorkOrderLineItems = []
             },
@@ -76,7 +76,7 @@ public class GetAllServiceTaskQueryHandlerTest
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                ServiceScheduleTasks = [],
+                XrefServiceScheduleServiceTasks = [],
                 MaintenanceHistories = [],
                 WorkOrderLineItems = []
             }

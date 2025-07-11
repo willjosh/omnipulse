@@ -104,7 +104,7 @@ public class UpdateServiceScheduleCommandHandlerTest
             FirstServiceTimeUnit = null,
             FirstServiceMileage = null,
             IsActive = true,
-            ServiceScheduleTasks = [],
+            XrefServiceScheduleServiceTasks = [],
             ServiceProgram = new ServiceProgram
             {
                 ID = 1,
@@ -179,7 +179,7 @@ public class UpdateServiceScheduleCommandHandlerTest
             FirstServiceTimeUnit = null,
             FirstServiceMileage = null,
             IsActive = true,
-            ServiceScheduleTasks = [],
+            XrefServiceScheduleServiceTasks = [],
             ServiceProgram = new ServiceProgram
             {
                 ID = 2,
