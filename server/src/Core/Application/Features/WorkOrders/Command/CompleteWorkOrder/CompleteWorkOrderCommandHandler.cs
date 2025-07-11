@@ -18,7 +18,7 @@ public class CompleteWorkOrderCommandHandler : IRequestHandler<CompleteWorkOrder
 
     public CompleteWorkOrderCommandHandler(IWorkOrderRepository workOrderRepository, IMaintenanceHistoryRepository maintenanceHistoryRepository, IAppLogger<CompleteWorkOrderCommandHandler> logger, IMapper mapper)
     {
-        _workOrderRepository = workOrderRepository; 
+        _workOrderRepository = workOrderRepository;
         _maintenanceHistoryRepository = maintenanceHistoryRepository;
         _logger = logger;
         _mapper = mapper;

@@ -31,5 +31,5 @@ public class CompleteWorkOrderCommandHandlerTest
         });
 
         var mapper = config.CreateMapper();
-    } 
+    }
 }

@@ -21,7 +21,8 @@ public class MaintenanceHistoryRepository : GenericRepository<MaintenanceHistory
         query = query
             .Include(mh => mh.WorkOrder);
 
-        if (!string.IsNullOrWhiteSpace(parameters.Search)) {
+        if (!string.IsNullOrWhiteSpace(parameters.Search))
+        {
             var search = $"%{parameters.Search}%";
             query = query.Where(mh =>
                 EF.Functions.Like(mh.WorkOrder.Title, search) ||
