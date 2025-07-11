@@ -1,5 +1,7 @@
 using System;
 
+using Application.Features.ServiceTasks.Query.GetAllServiceTask;
+
 using Domain.Entities.Enums;
 
 namespace Application.Features.ServiceSchedules.Query.GetAllServiceSchedule;
@@ -19,4 +21,5 @@ public class GetAllServiceScheduleDTO
     public TimeUnitEnum? FirstServiceTimeUnit { get; set; }
     public int? FirstServiceMileage { get; set; }
     public required bool IsActive { get; set; }
+    public List<GetAllServiceTaskDTO> ServiceTasks { get; set; }
 }
