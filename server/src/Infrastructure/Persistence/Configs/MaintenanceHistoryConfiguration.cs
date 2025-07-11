@@ -22,10 +22,7 @@ public class MaintenanceHistoryConfiguration : IEntityTypeConfiguration<Maintena
         builder.Property(m => m.Cost).HasColumnType("decimal(18,2)");
 
         // Regular indexes
-        builder.HasIndex(m => m.VehicleID);
         builder.HasIndex(m => m.WorkOrderID);
-        builder.HasIndex(m => m.ServiceTaskID);
-        builder.HasIndex(m => m.TechnicianID);
         builder.HasIndex(m => m.ServiceDate);
         builder.HasIndex(m => m.CreatedAt);
 
@@ -36,12 +33,6 @@ public class MaintenanceHistoryConfiguration : IEntityTypeConfiguration<Maintena
         builder.ToTable(t => t.HasCheckConstraint("CK_MaintenanceHistory_ServiceDate", "ServiceDate >= CreatedAt"));
 
         // Table relationships
-        builder
-            .HasOne(m => m.Vehicle)
-            .WithMany()
-            .HasForeignKey(m => m.VehicleID)
-            .OnDelete(DeleteBehavior.Restrict);
-
         builder
             .HasOne(m => m.WorkOrder)
             .WithMany()

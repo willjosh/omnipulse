@@ -8,21 +8,9 @@ public class CreateMaintenanceHistoryCommandValidator : AbstractValidator<Create
 {
     public CreateMaintenanceHistoryCommandValidator()
     {
-        RuleFor(p => p.VehicleID)
-            .NotEmpty()
-            .WithMessage("Vehicle ID is required");
-
         RuleFor(p => p.WorkOrderID)
             .NotEmpty()
             .WithMessage("Work Order ID is required");
-
-        RuleFor(p => p.ServiceTaskID)
-            .NotEmpty()
-            .WithMessage("Service Task ID is required");
-
-        RuleFor(p => p.TechnicianID)
-            .NotEmpty()
-            .WithMessage("Technician ID is required");
 
         RuleFor(p => p.ServiceDate)
             .NotEmpty()

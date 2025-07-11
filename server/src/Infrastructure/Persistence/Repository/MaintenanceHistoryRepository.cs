@@ -19,21 +19,13 @@ public class MaintenanceHistoryRepository : GenericRepository<MaintenanceHistory
         var query = _dbSet.AsQueryable();
 
         query = query
-            .Include(mh => mh.Vehicle)
-            .Include(mh => mh.WorkOrder)
-            .Include(mh => mh.ServiceTask)
-            .Include(mh => mh.User);
+            .Include(mh => mh.WorkOrder);
 
-        if (!string.IsNullOrWhiteSpace(parameters.Search))
-        {
+        if (!string.IsNullOrWhiteSpace(parameters.Search)) {
             var search = $"%{parameters.Search}%";
             query = query.Where(mh =>
-                EF.Functions.Like(mh.Vehicle.Name, search) ||
                 EF.Functions.Like(mh.WorkOrder.Title, search) ||
                 mh.WorkOrderID.ToString().Contains(parameters.Search) ||
-                EF.Functions.Like(mh.ServiceTask.Name, search) ||
-                EF.Functions.Like(mh.User.FirstName, search) ||
-                EF.Functions.Like(mh.User.LastName, search) ||
                 (mh.Description != null && EF.Functions.Like(mh.Description, search))
             );
         }
@@ -62,10 +54,7 @@ public class MaintenanceHistoryRepository : GenericRepository<MaintenanceHistory
         return sortBy?.ToLowerInvariant() switch
         {
             "servicedate" => sortDescending ? query.OrderByDescending(mh => mh.ServiceDate) : query.OrderBy(mh => mh.ServiceDate),
-            "vehicleid" => sortDescending ? query.OrderByDescending(mh => mh.VehicleID) : query.OrderBy(mh => mh.VehicleID),
             "workorderid" => sortDescending ? query.OrderByDescending(mh => mh.WorkOrderID) : query.OrderBy(mh => mh.WorkOrderID),
-            "servicetaskid" => sortDescending ? query.OrderByDescending(mh => mh.ServiceTaskID) : query.OrderBy(mh => mh.ServiceTaskID),
-            "technicianid" => sortDescending ? query.OrderByDescending(mh => mh.TechnicianID) : query.OrderBy(mh => mh.TechnicianID),
             "mileageatservice" => sortDescending ? query.OrderByDescending(mh => mh.MileageAtService) : query.OrderBy(mh => mh.MileageAtService),
             "cost" => sortDescending ? query.OrderByDescending(mh => mh.Cost) : query.OrderBy(mh => mh.Cost),
             "labourhours" => sortDescending ? query.OrderByDescending(mh => mh.LabourHours) : query.OrderBy(mh => mh.LabourHours),

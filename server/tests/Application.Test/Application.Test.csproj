@@ -27,6 +27,7 @@
     <Folder Include="User/QueryTest/" />
     <Folder Include="WorkOrderLineItems/Command/" />
     <Folder Include="WorkOrderLineItems/Query/" />
+    <Folder Include="WorkOrders/CommandTest/CompleteWorkOrderTest/" />
   </ItemGroup>
 
 </Project>
