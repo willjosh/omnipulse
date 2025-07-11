@@ -33,6 +33,7 @@ public class ServiceScheduleMappingProfile : Profile
         CreateMap<ServiceSchedule, GetServiceScheduleDTO>(MemberList.Destination);
 
         // GetAllServiceSchedule
-        CreateMap<ServiceSchedule, GetAllServiceScheduleDTO>(MemberList.Destination);
+        CreateMap<ServiceSchedule, GetAllServiceScheduleDTO>(MemberList.Destination)
+            .ForMember(dest => dest.ServiceTasks, opt => opt.Ignore());
     }
 }
