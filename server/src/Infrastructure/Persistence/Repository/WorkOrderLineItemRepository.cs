@@ -30,7 +30,7 @@ public class WorkOrderLineItemRepository : GenericRepository<WorkOrderLineItem>,
     {
         if (workOrderIds == null || !workOrderIds.Any())
             return new List<WorkOrderLineItem>();
-         
+
         return await _dbSet
             .Include(woli => woli.User)
             .Include(woli => woli.InventoryItem)
