@@ -35,7 +35,7 @@ public class WorkOrderRepository : GenericRepository<WorkOrder>, IWorkOrderRepos
                 wo.Title.ToLowerInvariant().Contains(search) ||
                 (wo.Description != null && wo.Description.ToLowerInvariant().Contains(search)))
                 .Where(wo =>
-                    wo.User.UserName.ToLowerInvariant().Contains(search) ||
+                    (wo.User.UserName != null && wo.User.UserName.ToLowerInvariant().Contains(search)) ||
                     wo.Vehicle.Name.ToLowerInvariant().Contains(search)
                 );
         }
@@ -67,7 +67,7 @@ public class WorkOrderRepository : GenericRepository<WorkOrder>, IWorkOrderRepos
             .Include(wo => wo.User)
             .FirstOrDefaultAsync(wo => wo.ID == workOrderId);
     }
-    
+
     private IQueryable<WorkOrder> ApplySorting(IQueryable<WorkOrder> query, string? sortBy, bool sortDescending)
     {
         return sortBy?.ToLowerInvariant() switch
