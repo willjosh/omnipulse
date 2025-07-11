@@ -7,5 +7,5 @@ namespace Application.Contracts.Persistence;
 
 public interface IServiceScheduleRepository : IGenericRepository<ServiceSchedule>
 {
-    public Task<PagedResult<ServiceSchedule>> GetAllServiceSchedulePagedAsync(PaginationParameters parameters);
+    Task<PagedResult<ServiceSchedule>> GetAllServiceSchedulePagedAsync(PaginationParameters parameters);
 }
