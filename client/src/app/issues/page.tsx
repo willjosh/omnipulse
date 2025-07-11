@@ -9,6 +9,7 @@ import {
 import { PaginationControls } from "../_features/shared/table";
 import { useIssues } from "../_hooks/issue/useIssues";
 import { IssueStatusEnum } from "../_hooks/issue/issueEnum";
+import { useRouter } from "next/navigation";
 
 const DEFAULT_PAGE_SIZE = 10;
 
@@ -90,6 +91,13 @@ export default function IssuesPage() {
     setPage(1);
   }, [search, status, priority, category, activeTab]);
 
+  const router = useRouter();
+
+  // Handler for row click to navigate to details page
+  const handleRowClick = (row: IssueRow) => {
+    router.push(`/issues/${row.id}`);
+  };
+
   return (
     <div className="container mx-auto px-4">
       <div className="flex items-center justify-between mb-2">
@@ -143,6 +151,7 @@ export default function IssuesPage() {
               </div>
             </div>
           }
+          onRowClick={handleRowClick}
         />
       </div>
     </div>
