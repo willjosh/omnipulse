@@ -76,7 +76,7 @@ public class GetAllWorkOrderQueryHandler : IRequestHandler<GetAllWorkOrderQuery,
 
         // Map the work orders to DTOs
         var workOrderDtos = result.Items.Select(workOrder => CreateWorkOrderDetailDto(workOrder, lineItemsLookup)).ToList();
-        
+
         return new PagedResult<GetWorkOrderDetailDTO>
         {
             Items = workOrderDtos,
@@ -111,7 +111,7 @@ public class GetAllWorkOrderQueryHandler : IRequestHandler<GetAllWorkOrderQuery,
         workOrderDetailDto.TotalLaborCost = workOrderLineItemTotals.TotalLaborCost;
         workOrderDetailDto.TotalItemCost = workOrderLineItemTotals.TotalItemCost;
         workOrderDetailDto.TotalCost = workOrderLineItemTotals.TotalCost;
-        
+
         return workOrderDetailDto;
     }
 

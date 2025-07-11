@@ -8,22 +8,22 @@ using FluentValidation;
 
 namespace Application.Features.WorkOrders.Query.GetAllWorkOrder;
 
-public class GetAllWorkOrderQueryValidator: AbstractValidator<GetAllWorkOrderQuery>
+public class GetAllWorkOrderQueryValidator : AbstractValidator<GetAllWorkOrderQuery>
 {
     public GetAllWorkOrderQueryValidator()
     {
         var workOrderSortFields = new[] {
             "id",
-            "status", 
-            "workordertype",        
+            "status",
+            "workordertype",
             "priority",
-            "startodometer",       
-            "scheduledstartdate", 
-            "actualstartdate",   
+            "startodometer",
+            "scheduledstartdate",
+            "actualstartdate",
         };
 
         RuleFor(x => x.Parameters)
             .NotNull()
-            .SetValidator(new PaginationValidator<WorkOrder>(workOrderSortFields)); 
-    }    
+            .SetValidator(new PaginationValidator<WorkOrder>(workOrderSortFields));
+    }
 }
