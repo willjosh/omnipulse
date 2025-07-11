@@ -21,5 +21,5 @@ public class GetAllServiceScheduleDTO
     public TimeUnitEnum? FirstServiceTimeUnit { get; set; }
     public int? FirstServiceMileage { get; set; }
     public required bool IsActive { get; set; }
-    public List<GetAllServiceTaskDTO> ServiceTasks { get; set; }
+    public required List<GetAllServiceTaskDTO> ServiceTasks { get; set; }
 }
