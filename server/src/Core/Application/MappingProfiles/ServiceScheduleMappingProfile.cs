@@ -1,5 +1,6 @@
 using Application.Features.ServiceSchedules.Command.CreateServiceSchedule;
 using Application.Features.ServiceSchedules.Command.UpdateServiceSchedule;
+using Application.Features.ServiceSchedules.Query.GetServiceSchedule;
 
 using AutoMapper;
 
@@ -26,5 +27,8 @@ public class ServiceScheduleMappingProfile : Profile
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
             .ForMember(dest => dest.ServiceScheduleTasks, opt => opt.Ignore())
             .ForMember(dest => dest.ServiceProgram, opt => opt.Ignore());
+
+        // GetServiceSchedule
+        CreateMap<ServiceSchedule, GetServiceScheduleDTO>(MemberList.Destination);
     }
 }
