@@ -9,12 +9,6 @@ import {
 interface IssueListFiltersProps {
   searchValue: string;
   onSearchChange: (value: string) => void;
-  status: string;
-  onStatusChange: (value: string) => void;
-  priority: string;
-  onPriorityChange: (value: string) => void;
-  category: string;
-  onCategoryChange: (value: string) => void;
 }
 
 const statusOptions = [
@@ -49,12 +43,6 @@ const categoryOptions = [
 export const IssueListFilters: React.FC<IssueListFiltersProps> = ({
   searchValue,
   onSearchChange,
-  status,
-  onStatusChange,
-  priority,
-  onPriorityChange,
-  category,
-  onCategoryChange,
 }) => {
   return (
     <div className="flex flex-wrap gap-3 items-center mb-4">
@@ -63,24 +51,6 @@ export const IssueListFilters: React.FC<IssueListFiltersProps> = ({
         onSearchChange={onSearchChange}
         searchPlaceholder="Search issues..."
         onFilterChange={() => {}}
-      />
-      <DropdownFilter
-        value={status}
-        onChange={onStatusChange}
-        options={statusOptions}
-        placeholder="Status"
-      />
-      <DropdownFilter
-        value={priority}
-        onChange={onPriorityChange}
-        options={priorityOptions}
-        placeholder="Priority"
-      />
-      <DropdownFilter
-        value={category}
-        onChange={onCategoryChange}
-        options={categoryOptions}
-        placeholder="Category"
       />
     </div>
   );

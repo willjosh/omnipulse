@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useMemo } from "react";
-import { IssueTabs } from "../_features/issue/components/IssueTabs";
 import { IssueListFilters } from "../_features/issue/components/IssueListFilters";
 import {
   IssueListTable,
@@ -14,11 +13,7 @@ import { IssueWithLabels } from "../_hooks/issue/issueType";
 
 export default function IssuesPage() {
   // State for filters and pagination
-  const [activeTab, setActiveTab] = useState<string>("all");
   const [search, setSearch] = useState("");
-  const [status, setStatus] = useState("");
-  const [priority, setPriority] = useState("");
-  const [category, setCategory] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
 
@@ -49,9 +44,6 @@ export default function IssuesPage() {
     [issues],
   );
 
-  // Tab counts (optional, can be fetched separately if needed)
-  const tabCounts = undefined;
-
   // Pagination handlers
   const handlePreviousPage = () => setPage(p => Math.max(1, p - 1));
   const handleNextPage = () =>
@@ -62,10 +54,10 @@ export default function IssuesPage() {
     setPage(1);
   };
 
-  // Reset page when filters change
+  // Reset page when search changes
   React.useEffect(() => {
     setPage(1);
-  }, [search, status, priority, category, activeTab]);
+  }, [search]);
 
   const router = useRouter();
 
@@ -82,23 +74,9 @@ export default function IssuesPage() {
           Add Issue
         </button>
       </div>
-      <IssueTabs
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-        tabCounts={tabCounts}
-      />
       {/* Inline filters and pagination controls */}
       <div className="flex flex-wrap items-center gap-4 mb-4 justify-between">
-        <IssueListFilters
-          searchValue={search}
-          onSearchChange={setSearch}
-          status={status}
-          onStatusChange={setStatus}
-          priority={priority}
-          onPriorityChange={setPriority}
-          category={category}
-          onCategoryChange={setCategory}
-        />
+        <IssueListFilters searchValue={search} onSearchChange={setSearch} />
         {pagination && (
           <PaginationControls
             currentPage={pagination.pageNumber}
