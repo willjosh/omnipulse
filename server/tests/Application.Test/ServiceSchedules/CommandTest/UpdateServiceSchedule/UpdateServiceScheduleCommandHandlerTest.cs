@@ -23,6 +23,7 @@ public class UpdateServiceScheduleCommandHandlerTest
     private readonly UpdateServiceScheduleCommandHandler _commandHandler;
     private readonly Mock<IServiceScheduleRepository> _mockScheduleRepository = new();
     private readonly Mock<IServiceProgramRepository> _mockProgramRepository = new();
+    private readonly Mock<IXrefServiceScheduleServiceTaskRepository> _mockXrefRepository = new();
     private readonly Mock<IValidator<UpdateServiceScheduleCommand>> _mockValidator = new();
     private readonly Mock<IAppLogger<UpdateServiceScheduleCommandHandler>> _mockLogger = new();
 
@@ -30,9 +31,11 @@ public class UpdateServiceScheduleCommandHandlerTest
     {
         var config = new MapperConfiguration(cfg => cfg.AddProfile<ServiceScheduleMappingProfile>());
         var mapper = config.CreateMapper();
+
         _commandHandler = new UpdateServiceScheduleCommandHandler(
             _mockScheduleRepository.Object,
             _mockProgramRepository.Object,
+            _mockXrefRepository.Object,
             _mockValidator.Object,
             _mockLogger.Object,
             mapper);
@@ -42,6 +45,7 @@ public class UpdateServiceScheduleCommandHandlerTest
         int serviceScheduleID = 1,
         int serviceProgramId = 1,
         string name = "5000 km / 6-week service",
+        List<int>? serviceTaskIDs = null,
         int? timeIntervalValue = 6,
         TimeUnitEnum? timeIntervalUnit = TimeUnitEnum.Weeks,
         int? timeBufferValue = 1,
@@ -55,6 +59,7 @@ public class UpdateServiceScheduleCommandHandlerTest
             ServiceScheduleID: serviceScheduleID,
             ServiceProgramID: serviceProgramId,
             Name: name,
+            ServiceTaskIDs: serviceTaskIDs ?? [1, 2],
             TimeIntervalValue: timeIntervalValue,
             TimeIntervalUnit: timeIntervalUnit,
             TimeBufferValue: timeBufferValue,
@@ -84,7 +89,8 @@ public class UpdateServiceScheduleCommandHandlerTest
     public async Task Handle_ValidCommand_ReturnsServiceScheduleID()
     {
         // Arrange
-        var command = CreateValidCommand();
+        var serviceTaskIDs = new List<int> { 1, 2 };
+        var command = CreateValidCommand(serviceTaskIDs: serviceTaskIDs);
         SetupValidValidation(command);
 
         var existingSchedule = new ServiceSchedule
@@ -118,7 +124,6 @@ public class UpdateServiceScheduleCommandHandlerTest
                 ServiceSchedules = []
             }
         };
-
         _mockScheduleRepository.Setup(r => r.GetByIdAsync(command.ServiceScheduleID)).ReturnsAsync(existingSchedule);
         _mockProgramRepository.Setup(r => r.ExistsAsync(command.ServiceProgramID)).ReturnsAsync(true);
 
@@ -127,6 +132,11 @@ public class UpdateServiceScheduleCommandHandlerTest
 
         // Assert
         Assert.Equal(existingSchedule.ID, result);
+        Assert.Equal(serviceTaskIDs.Count, existingSchedule.XrefServiceScheduleServiceTasks.Count);
+        foreach (var id in serviceTaskIDs)
+        {
+            Assert.Contains(existingSchedule.XrefServiceScheduleServiceTasks, x => x.ServiceTaskID == id);
+        }
         _mockScheduleRepository.Verify(r => r.Update(existingSchedule), Times.Once);
         _mockScheduleRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
