@@ -30,6 +30,13 @@ public class CreateInventoryItemLocationCommandHandler : IRequestHandler<CreateI
         _validator = validator;
     }
 
+    /// <summary>
+    /// Handles the creation of a new inventory item location.
+    /// </summary>
+    /// <param name="request">The command containing the details of the inventory item location to create.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>The ID of the newly created inventory item location.</returns>
+    /// <exception cref="BadRequestException">Thrown when the validation of the request fails.</exception>
     public async Task<int> Handle(CreateInventoryItemLocationCommand request, CancellationToken cancellationToken)
     {
         // validate request
