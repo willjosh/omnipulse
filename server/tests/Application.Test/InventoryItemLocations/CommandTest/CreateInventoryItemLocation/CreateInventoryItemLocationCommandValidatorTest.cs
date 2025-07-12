@@ -88,7 +88,7 @@ public class CreateInventoryItemLocationCommandValidatorTest
 
     [Theory]
     [InlineData(-181)]
-    [InlineData(180)]
+    [InlineData(181)]
     public async Task Validator_Should_Fail_When_Longitude_Is_Out_Of_Range(double longitude)
     {
         var command = CreateValidCommand(longitude: longitude);
