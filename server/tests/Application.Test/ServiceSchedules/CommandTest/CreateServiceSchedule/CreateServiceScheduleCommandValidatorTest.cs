@@ -1,5 +1,3 @@
-using System;
-
 using Application.Features.ServiceSchedules.Command.CreateServiceSchedule;
 
 using Domain.Entities.Enums;
@@ -16,6 +14,7 @@ public class CreateServiceScheduleCommandValidatorTest
     protected override CreateServiceScheduleCommand CreateValidCommand(
         int serviceProgramId = 1,
         string name = "5000 km / 6 week service",
+        List<int>? serviceTaskIDs = null,
         int? timeIntervalValue = 6,
         TimeUnitEnum? timeIntervalUnit = TimeUnitEnum.Weeks,
         int? timeBufferValue = 1,
@@ -28,6 +27,7 @@ public class CreateServiceScheduleCommandValidatorTest
         bool isActive = true) => new(
             ServiceProgramID: serviceProgramId,
             Name: name,
+            ServiceTaskIDs: serviceTaskIDs ?? [1],
             TimeIntervalValue: timeIntervalValue,
             TimeIntervalUnit: timeIntervalUnit,
             TimeBufferValue: timeBufferValue,
