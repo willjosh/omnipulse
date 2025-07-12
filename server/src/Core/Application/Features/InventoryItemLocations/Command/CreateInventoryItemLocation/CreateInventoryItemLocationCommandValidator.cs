@@ -25,8 +25,8 @@ public class CreateInventoryItemLocationCommandValidator : AbstractValidator<Cre
         RuleFor(p => p.Longitude)
             .NotEmpty()
             .WithMessage("Longitude is required")
-            .GreaterThan(-180)
-            .LessThan(180)
+            .GreaterThanOrEqualTo(-180)
+            .LessThanOrEqualTo(180)
             .WithMessage("Longitude must be between -180 and 180");
 
         RuleFor(p => p.Latitude)
