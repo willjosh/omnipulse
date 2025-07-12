@@ -73,25 +73,24 @@ export function useIssues(filter: IssueFilter) {
   // Build query params to match backend canonical names
   const queryParams = new URLSearchParams();
   if (debouncedFilter.page)
-    queryParams.append("PageNumber", debouncedFilter.page.toString());
+    queryParams.append("page", debouncedFilter.page.toString());
   if (debouncedFilter.pageSize)
-    queryParams.append("PageSize", debouncedFilter.pageSize.toString());
+    queryParams.append("pageSize", debouncedFilter.pageSize.toString());
   if (debouncedFilter.search)
-    queryParams.append("Search", debouncedFilter.search);
+    queryParams.append("search", debouncedFilter.search);
   if (debouncedFilter.sortBy)
-    queryParams.append("SortBy", debouncedFilter.sortBy);
+    queryParams.append("sortBy", debouncedFilter.sortBy);
   if (debouncedFilter.sortOrder)
-    queryParams.append(
-      "SortDescending",
-      (debouncedFilter.sortOrder === "desc").toString(),
-    );
+    queryParams.append("sortOrder", debouncedFilter.sortOrder);
 
   const queryString = queryParams.toString();
 
-  const { data, isPending, isError, isSuccess, error } = useQuery({
+  const { data, isPending, isError, isSuccess, error } = useQuery<
+    PagedResponse<IssueWithLabels>
+  >({
     queryKey: ["issues", debouncedFilter],
     queryFn: async () => {
-      const { data } = await agent.get(
+      const { data } = await agent.get<PagedResponse<Issue>>(
         `/issues${queryString ? `?${queryString}` : ""}`,
       );
 
