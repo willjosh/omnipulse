@@ -61,4 +61,11 @@ public interface IXrefServiceScheduleServiceTaskRepository
     /// <param name="serviceTaskId">The ID of the service task.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     Task RemoveAsync(int serviceScheduleId, int serviceTaskId);
+
+    /// <summary>
+    /// Removes all links between a service schedule and its service tasks.
+    /// </summary>
+    /// <param name="serviceScheduleId">The ID of the service schedule.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    Task RemoveAllForScheduleAsync(int serviceScheduleId);
 }
