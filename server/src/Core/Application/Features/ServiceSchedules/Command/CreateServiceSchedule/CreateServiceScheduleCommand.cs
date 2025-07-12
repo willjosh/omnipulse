@@ -17,6 +17,7 @@ namespace Application.Features.ServiceSchedules.Command.CreateServiceSchedule;
 /// </remarks>
 /// <param name="ServiceProgramID">The ID of the service program this schedule belongs to.</param>
 /// <param name="Name">The name of the service schedule.</param>
+/// <param name="ServiceTaskIDs">The list of service task IDs to associate with this schedule.</param>
 /// <param name="TimeIntervalValue">The time interval value for the schedule (requires TimeIntervalUnit).</param>
 /// <param name="TimeIntervalUnit">The time interval unit for the schedule (requires TimeIntervalValue).</param>
 /// <param name="TimeBufferValue">The time buffer value for the schedule (optional).</param>
@@ -31,6 +32,7 @@ namespace Application.Features.ServiceSchedules.Command.CreateServiceSchedule;
 public record CreateServiceScheduleCommand(
     int ServiceProgramID,
     string Name,
+    List<int> ServiceTaskIDs,
     int? TimeIntervalValue,
     TimeUnitEnum? TimeIntervalUnit,
     int? TimeBufferValue,

@@ -48,6 +48,13 @@ public interface IXrefServiceScheduleServiceTaskRepository
     Task AddAsync(XrefServiceScheduleServiceTask xref);
 
     /// <summary>
+    /// Adds a range of links between a service schedule and a service task.
+    /// </summary>
+    /// <param name="xrefs">The xref entities to add.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    Task AddRangeAsync(IEnumerable<XrefServiceScheduleServiceTask> xrefs);
+
+    /// <summary>
     /// Removes a link between a service schedule and a service task.
     /// </summary>
     /// <param name="serviceScheduleId">The ID of the service schedule.</param>
