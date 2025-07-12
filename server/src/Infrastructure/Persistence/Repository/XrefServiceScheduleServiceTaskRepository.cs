@@ -50,9 +50,10 @@ public class XrefServiceScheduleServiceTaskRepository : IXrefServiceScheduleServ
         await _dbContext.SaveChangesAsync();
     }
 
-    public Task AddRangeAsync(IEnumerable<XrefServiceScheduleServiceTask> xrefs)
+    public async Task AddRangeAsync(IEnumerable<XrefServiceScheduleServiceTask> xrefs)
     {
-        throw new NotImplementedException();
+        await _dbSet.AddRangeAsync(xrefs);
+        await _dbContext.SaveChangesAsync();
     }
 
     public async Task RemoveAsync(int serviceScheduleId, int serviceTaskId)
@@ -65,8 +66,13 @@ public class XrefServiceScheduleServiceTaskRepository : IXrefServiceScheduleServ
         }
     }
 
-    public Task RemoveAllForScheduleAsync(int serviceScheduleId)
+    public async Task RemoveAllForScheduleAsync(int serviceScheduleId)
     {
-        throw new NotImplementedException();
+        var xrefs = await _dbSet.Where(x => x.ServiceScheduleID == serviceScheduleId).ToListAsync();
+        if (xrefs.Count != 0)
+        {
+            _dbSet.RemoveRange(xrefs);
+            await _dbContext.SaveChangesAsync();
+        }
     }
 }
