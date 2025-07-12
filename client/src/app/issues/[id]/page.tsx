@@ -7,27 +7,7 @@ import LoadingSpinner from "@/app/_features/shared/feedback/LoadingSpinner";
 import EmptyState from "@/app/_features/shared/feedback/EmptyState";
 import DetailFieldRow from "@/app/_features/shared/detail/DetailFieldRow";
 import { useIssue } from "@/app/_hooks/issue/useIssues";
-
-function getTimeToResolve(
-  reportedDate?: string | null,
-  resolvedDate?: string | null,
-) {
-  if (!reportedDate || !resolvedDate) return "-";
-  const start = new Date(reportedDate);
-  const end = new Date(resolvedDate);
-  const diffMs = end.getTime() - start.getTime();
-  if (isNaN(diffMs) || diffMs < 0) return "-";
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  const diffHrs = Math.floor((diffMs / (1000 * 60 * 60)) % 24);
-  const diffMin = Math.floor((diffMs / (1000 * 60)) % 60);
-  let result = [];
-  if (diffDays > 0)
-    result.push(`${diffDays} ${diffDays === 1 ? "day" : "days"}`);
-  if (diffHrs > 0) result.push(`${diffHrs} ${diffHrs === 1 ? "hr" : "hrs"}`);
-  if (diffMin > 0) result.push(`${diffMin} ${diffMin === 1 ? "min" : "mins"}`);
-  if (result.length === 0) result.push("0 min");
-  return result.join(" ");
-}
+import { getTimeToResolve } from "@/app/_utils/issueEnumHelper";
 
 const IssueDetailsPage = () => {
   const params = useParams();
@@ -98,9 +78,7 @@ const IssueDetailsPage = () => {
                   Reported by {issue.ReportedByUserName}
                 </span>
                 <span className="text-gray-600">
-                  {issue.ReportedDate
-                    ? new Date(issue.ReportedDate).toLocaleString()
-                    : "-"}
+                  {issue.ReportedDate ? issue.ReportedDate : "Unknown"}
                 </span>
               </div>
             </div>
@@ -157,11 +135,7 @@ const IssueDetailsPage = () => {
                   />
                   <DetailFieldRow
                     label="Reported Date"
-                    value={
-                      issue.ReportedDate
-                        ? new Date(issue.ReportedDate).toLocaleString()
-                        : "-"
-                    }
+                    value={issue.ReportedDate ? issue.ReportedDate : "Unknown"}
                   />
                   <DetailFieldRow
                     label="Description"
@@ -188,11 +162,7 @@ const IssueDetailsPage = () => {
                 <div className="p-3 space-y-2">
                   <DetailFieldRow
                     label="Resolved Date"
-                    value={
-                      issue.ResolvedDate
-                        ? new Date(issue.ResolvedDate).toLocaleString()
-                        : "-"
-                    }
+                    value={issue.ResolvedDate ? issue.ResolvedDate : "Unknown"}
                   />
                   <DetailFieldRow
                     label="Time to Resolve"
@@ -237,10 +207,8 @@ const IssueDetailsPage = () => {
                         Issue reported
                       </h3>
                       <p className="text-xs text-gray-500">
-                        {issue.ReportedDate
-                          ? new Date(issue.ReportedDate).toLocaleString()
-                          : "-"}{" "}
-                        by {issue.ReportedByUserName}
+                        {issue.ReportedDate ? issue.ReportedDate : "Unknown"} by{" "}
+                        {issue.ReportedByUserName}
                       </p>
                     </li>
                     {/* Issue resolved event, only if resolved */}
@@ -259,7 +227,7 @@ const IssueDetailsPage = () => {
                           Issue resolved
                         </h3>
                         <p className="text-xs text-gray-500">
-                          {new Date(issue.ResolvedDate).toLocaleString()} by{" "}
+                          {issue.ResolvedDate} by{" "}
                           {issue.ResolvedByUserName || "Unassigned"}
                         </p>
                       </li>
