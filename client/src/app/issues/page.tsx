@@ -8,18 +8,9 @@ import {
 } from "../_features/issue/components/IssueListTable";
 import { PaginationControls } from "../_features/shared/table";
 import { useIssues } from "../_hooks/issue/useIssues";
-import { IssueStatusEnum } from "../_hooks/issue/issueEnum";
 import { useRouter } from "next/navigation";
-
-const DEFAULT_PAGE_SIZE = 10;
-
-const tabToStatus: Record<string, number | undefined> = {
-  all: undefined,
-  open: IssueStatusEnum.OPEN,
-  overdue: IssueStatusEnum.OPEN, // Overdue logic can be refined if needed
-  resolved: IssueStatusEnum.RESOLVED,
-  closed: IssueStatusEnum.CLOSED,
-};
+import { DEFAULT_PAGE_SIZE } from "@/app/_hooks/issue/useIssues";
+import { IssueWithLabels } from "../_hooks/issue/issueType";
 
 export default function IssuesPage() {
   // State for filters and pagination
@@ -32,30 +23,17 @@ export default function IssuesPage() {
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
 
   // Compose filter object for useIssues
-  const filter = useMemo(() => {
-    let statusValue: number | undefined = undefined;
-    if (status) {
-      const parsed = Number(status);
-      statusValue = isNaN(parsed) ? undefined : parsed;
-    } else if (activeTab !== "all") {
-      statusValue = tabToStatus[activeTab];
-    }
-    return {
-      page,
-      limit: pageSize,
-      search,
-      status: statusValue,
-      priorityLevel: priority ? Number(priority) : undefined,
-      category: category ? Number(category) : undefined,
-    };
-  }, [page, pageSize, search, status, priority, category, activeTab]);
+  const filter = useMemo(
+    () => ({ page, pageSize, search }),
+    [page, pageSize, search],
+  );
 
   const { issues, pagination, isPending } = useIssues(filter);
 
   // Map issues to IssueRow for the table
   const tableData: IssueRow[] = useMemo(
     () =>
-      issues.map(issue => ({
+      issues.map((issue: IssueWithLabels) => ({
         id: issue.id.toString(),
         priority: issue.PriorityLevelLabel,
         assetName: issue.VehicleName,
@@ -64,10 +42,8 @@ export default function IssuesPage() {
         summary: issue.Title,
         status: issue.StatusLabel,
         source: issue.ReportedByUserName,
-        reportedDate: issue.ReportedDate
-          ? new Date(issue.ReportedDate).toLocaleDateString()
-          : "",
-        assigned: issue.ResolvedByUserName || "",
+        reportedDate: issue.ReportedDate || "Unknown",
+        assigned: issue.ResolvedByUserName || "Unknown",
         labels: issue.CategoryLabel,
       })),
     [issues],
