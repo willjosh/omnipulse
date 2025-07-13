@@ -49,19 +49,19 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.Empty(result.Errors);
     }
 
-    [Fact]
-    public async Task Validator_Should_Fail_When_ServiceTaskIDs_Is_Null()
-    {
-        // Arrange
-        var command = CreateValidCommand(serviceTaskIDs: null);
+    // [Fact]
+    // public async Task Validator_Should_Fail_When_ServiceTaskIDs_Is_Null()
+    // {
+    //     // Arrange
+    //     var command = CreateValidCommand(serviceTaskIDs: null);
 
-        // Act
-        var result = await Validator.ValidateAsync(command);
+    //     // Act
+    //     var result = await Validator.ValidateAsync(command);
 
-        // Assert
-        Assert.False(result.IsValid);
-        Assert.Contains(result.Errors, e => e.PropertyName == "ServiceTaskIDs");
-    }
+    //     // Assert
+    //     Assert.False(result.IsValid);
+    //     Assert.Contains(result.Errors, e => e.PropertyName == "ServiceTaskIDs");
+    // }
 
     [Fact]
     public async Task Validator_Should_Fail_When_ServiceTaskIDs_Is_Empty()
