@@ -10,12 +10,7 @@ namespace Application.Test.ServiceSchedules.QueryTest.GetAllServiceSchedule;
 
 public class GetAllServiceScheduleQueryValidatorTest
 {
-    private readonly GetAllServiceScheduleQueryValidator _queryValidator;
-
-    public GetAllServiceScheduleQueryValidatorTest()
-    {
-        _queryValidator = new GetAllServiceScheduleQueryValidator();
-    }
+    private readonly GetAllServiceScheduleQueryValidator _queryValidator = new();
 
     private GetAllServiceScheduleQuery CreateValidQuery(
         int pageNumber = 1,
