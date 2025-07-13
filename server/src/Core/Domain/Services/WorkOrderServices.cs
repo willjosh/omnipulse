@@ -28,6 +28,8 @@ public static class WorkOrderDomainExtension
     {
         return workOrder.ActualStartDate != null &&
             workOrder.ScheduledStartDate != null &&
+            workOrder.ScheduledCompletionDate != null &&
+            workOrder.ActualCompletionDate != null &&
             workOrder.EndOdometer != null;
     }
 }

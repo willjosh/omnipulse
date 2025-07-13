@@ -150,7 +150,9 @@ public class CompleteWorkOrderCommandHandlerTest
         WorkOrderStatusEnum status = WorkOrderStatusEnum.IN_PROGRESS,
         double? endOdometer = 1500,
         DateTime? scheduledStartDate = null,
-        DateTime? actualStartDate = null
+        DateTime? actualStartDate = null,
+        DateTime? scheduledCompletionDate = null,
+        DateTime? actualCompletionDate = null
     )
     {
         var user = CreateUser();
@@ -170,6 +172,8 @@ public class CompleteWorkOrderCommandHandlerTest
             Status = status,
             ScheduledStartDate = scheduledStartDate,
             ActualStartDate = actualStartDate,
+            ScheduledCompletionDate = scheduledCompletionDate,
+            ActualCompletionDate = actualCompletionDate,
             StartOdometer = 1000,
             EndOdometer = endOdometer,
             User = user,
@@ -201,7 +205,12 @@ public class CompleteWorkOrderCommandHandlerTest
     {
         // Given 
         var command = new CompleteWorkOrderCommand(1);
-        var workOrder = CreateWorkOrder(scheduledStartDate: DateTime.UtcNow.AddDays(-1), actualStartDate: DateTime.UtcNow.AddDays(1));
+        var workOrder = CreateWorkOrder(
+            scheduledStartDate: DateTime.UtcNow.AddDays(-1),
+            actualStartDate: DateTime.UtcNow.AddDays(1),
+            scheduledCompletionDate: DateTime.UtcNow.AddDays(2),
+            actualCompletionDate: DateTime.UtcNow.AddDays(3)
+        );
         var maintenanceHistory = CreateMaintenanceHistory(workOrder);
 
         _mockWorkOrderRepository.Setup(r => r.GetWorkOrderWithDetailsAsync(command.ID)).ReturnsAsync(workOrder);

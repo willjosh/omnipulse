@@ -47,7 +47,6 @@ public class CreateWorkOrderHandlerTest
         _mockLogger = new Mock<IAppLogger<CreateWorkOrderCommandHandler>>();
         _mockValidator = new Mock<IValidator<CreateWorkOrderCommand>>();
 
-        // ✅ FIX: Include the missing mapping profile
         var config = new MapperConfiguration(cfg =>
         {
             cfg.AddProfile<WorkOrderMappingProfile>();
@@ -70,7 +69,6 @@ public class CreateWorkOrderHandlerTest
             _mockValidator.Object);
     }
 
-    // ✅ UPDATED: Removed estimatedCost, actualCost, estimatedHours, actualHours
     private CreateWorkOrderCommand CreateValidCommand(
         int vehicleId = 1,
         string assignedToUserId = "1a0a07ba-19b9-4e88-bcfd-2ae76e81fca5",
@@ -81,6 +79,8 @@ public class CreateWorkOrderHandlerTest
         WorkOrderStatusEnum status = WorkOrderStatusEnum.ASSIGNED,
         DateTime? scheduledStartDate = null,
         DateTime? actualStartDate = null,
+        DateTime? scheduledCompletionDate = null,
+        DateTime? actualCompletionDate = null,
         double startOdometer = 1000.0,
         double? endOdometer = null,
         List<int>? issueIdList = null,
@@ -97,6 +97,8 @@ public class CreateWorkOrderHandlerTest
             status,
             scheduledStartDate,
             actualStartDate,
+            scheduledCompletionDate,
+            actualCompletionDate,
             startOdometer,
             endOdometer,
             issueIdList,
@@ -136,10 +138,9 @@ public class CreateWorkOrderHandlerTest
         }
     }
 
-    // ✅ UPDATED: Removed EstimatedCost, ActualCost, EstimatedHours, ActualHours
-    private Domain.Entities.WorkOrder CreateWorkOrderFromCommand(CreateWorkOrderCommand command)
+    private WorkOrder CreateWorkOrderFromCommand(CreateWorkOrderCommand command)
     {
-        return new Domain.Entities.WorkOrder
+        return new WorkOrder
         {
             ID = 1,
             CreatedAt = DateTime.UtcNow,
@@ -158,6 +159,8 @@ public class CreateWorkOrderHandlerTest
             Description = command.Description,
             ScheduledStartDate = command.ScheduledStartDate,
             ActualStartDate = command.ActualStartDate,
+            ScheduledCompletionDate = command.ScheduledCompletionDate,
+            ActualCompletionDate = command.ActualCompletionDate,
             EndOdometer = command.EndOdometer,
 
             // Required navigation properties - initialize as empty collections or null
@@ -170,7 +173,7 @@ public class CreateWorkOrderHandlerTest
         };
     }
 
-    private List<WorkOrderIssue> CreateWorkOrderIssuesFromCommand(CreateWorkOrderCommand command, Domain.Entities.WorkOrder workOrder)
+    private List<WorkOrderIssue> CreateWorkOrderIssuesFromCommand(CreateWorkOrderCommand command, WorkOrder workOrder)
     {
         if (command.IssueIdList == null || !command.IssueIdList.Any())
         {
