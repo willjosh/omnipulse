@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import Loading from "./Loading";
+import { Loading } from "../feedback";
 import { ActionsColumnHeader, ActionsColumnCell } from "./ActionsColumn";
 import { ActionItem } from "./ActionDropdown";
 

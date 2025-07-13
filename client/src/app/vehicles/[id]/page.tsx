@@ -2,15 +2,14 @@
 import React, { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Edit, ArrowLeft } from "lucide-react";
-import TabNavigation from "@/app/_features/shared/TabNavigation";
-import PrimaryButton from "@/app/_features/shared/button/PrimaryButton";
-import Loading from "@/app/_features/shared/Loading";
+import { TabNavigation } from "@/app/_features/shared/tabs";
+import { PrimaryButton, OptionButton } from "@/app/_features/shared/button";
+import { Loading } from "@/app/_features/shared/feedback";
 import {
   getStatusDot,
   getStatusColor,
   getVehicleIcon,
 } from "@/app/_utils/vehicleEnumHelper";
-import OptionButton from "@/app/_features/shared/button/OptionButton";
 import { useVehicles } from "@/app/_hooks/vehicle/useVehicles";
 
 const VehicleDetailsPage = () => {
