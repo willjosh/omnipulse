@@ -1,18 +1,10 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
 using Application.Features.ServiceTasks.Query.GetAllServiceTask;
-using Application.Models;
 using Application.Models.PaginationModels;
 
 using AutoMapper;
-
-using Domain.Entities;
 
 using FluentValidation;
 
@@ -20,7 +12,7 @@ using MediatR;
 
 namespace Application.Features.ServiceSchedules.Query.GetAllServiceSchedule;
 
-public class GetAllServiceScheduleQueryHandler : IRequestHandler<GetAllServiceScheduleQuery, PagedResult<GetAllServiceScheduleDTO>>
+public class GetAllServiceScheduleQueryHandler : IRequestHandler<GetAllServiceScheduleQuery, PagedResult<ServiceScheduleDTO>>
 {
     private readonly IServiceScheduleRepository _serviceScheduleRepository;
     private readonly IValidator<GetAllServiceScheduleQuery> _validator;
@@ -39,7 +31,7 @@ public class GetAllServiceScheduleQueryHandler : IRequestHandler<GetAllServiceSc
         _mapper = mapper;
     }
 
-    public async Task<PagedResult<GetAllServiceScheduleDTO>> Handle(GetAllServiceScheduleQuery request, CancellationToken cancellationToken)
+    public async Task<PagedResult<ServiceScheduleDTO>> Handle(GetAllServiceScheduleQuery request, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Handling GetAllServiceScheduleQuery");
         // Validate the request
@@ -57,14 +49,14 @@ public class GetAllServiceScheduleQueryHandler : IRequestHandler<GetAllServiceSc
         // Map schedules to DTOs and include ServiceTasks
         var scheduleDTOs = result.Items.Select(schedule =>
         {
-            var dto = _mapper.Map<GetAllServiceScheduleDTO>(schedule);
+            var dto = _mapper.Map<ServiceScheduleDTO>(schedule);
             dto.ServiceTasks = schedule.XrefServiceScheduleServiceTasks
                 .Select(xref => _mapper.Map<GetAllServiceTaskDTO>(xref.ServiceTask))
                 .ToList();
             return dto;
         }).ToList();
 
-        var pagedResult = new PagedResult<GetAllServiceScheduleDTO>
+        var pagedResult = new PagedResult<ServiceScheduleDTO>
         {
             Items = scheduleDTOs,
             TotalCount = result.TotalCount,

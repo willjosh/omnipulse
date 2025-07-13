@@ -12,7 +12,7 @@ using MediatR;
 
 namespace Application.Features.ServiceSchedules.Query.GetServiceSchedule;
 
-public class GetServiceScheduleQueryHandler : IRequestHandler<GetServiceScheduleQuery, GetServiceScheduleDTO>
+public class GetServiceScheduleQueryHandler : IRequestHandler<GetServiceScheduleQuery, ServiceScheduleDTO>
 {
     private readonly IServiceScheduleRepository _serviceScheduleRepository;
     private readonly IAppLogger<GetServiceScheduleQueryHandler> _logger;
@@ -28,7 +28,7 @@ public class GetServiceScheduleQueryHandler : IRequestHandler<GetServiceSchedule
         _mapper = mapper;
     }
 
-    public async Task<GetServiceScheduleDTO> Handle(GetServiceScheduleQuery request, CancellationToken cancellationToken)
+    public async Task<ServiceScheduleDTO> Handle(GetServiceScheduleQuery request, CancellationToken cancellationToken)
     {
         _logger.LogInformation($"GetServiceScheduleQuery for ServiceScheduleID: {request.ServiceScheduleID}");
         var serviceSchedule = await _serviceScheduleRepository.GetByIdAsync(request.ServiceScheduleID);
@@ -37,7 +37,7 @@ public class GetServiceScheduleQueryHandler : IRequestHandler<GetServiceSchedule
             _logger.LogError($"ServiceSchedule with ID {request.ServiceScheduleID} not found.");
             throw new EntityNotFoundException(typeof(ServiceSchedule).ToString(), "ServiceScheduleID", request.ServiceScheduleID.ToString());
         }
-        var dto = _mapper.Map<GetServiceScheduleDTO>(serviceSchedule);
+        var dto = _mapper.Map<ServiceScheduleDTO>(serviceSchedule);
 
         // Map ServiceTasks to GetAllServiceTaskDTO
         dto.ServiceTasks = serviceSchedule.XrefServiceScheduleServiceTasks
