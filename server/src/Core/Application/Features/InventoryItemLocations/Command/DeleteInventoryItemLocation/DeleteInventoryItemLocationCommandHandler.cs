@@ -20,8 +20,24 @@ public class DeleteInventoryItemLocationCommandHandler : IRequestHandler<DeleteI
         _logger = logger;
     }
 
-    public Task<int> Handle(DeleteInventoryItemLocationCommand request, CancellationToken cancellationToken)
+    public async Task<int> Handle(DeleteInventoryItemLocationCommand request, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        // Validate InventoryItemLocationID
+        _logger.LogInformation($"Validating InventoryItemLocation with ID: {request.InventoryItemLocationID}");
+        var inventoryItemLocation = await _inventoryItemLocationRepository.GetByIdAsync(request.InventoryItemLocationID);
+        if (inventoryItemLocation == null)
+        {
+            _logger.LogError($"InventoryItemLocation with ID {request.InventoryItemLocationID} not found.");
+            throw new EntityNotFoundException(typeof(InventoryItemLocation).ToString(), "ID", request.InventoryItemLocationID.ToString());
+        }
+
+        // Delete InventoryItemLocation
+        _inventoryItemLocationRepository.Delete(inventoryItemLocation);
+
+        // Save Changes
+        await _inventoryItemLocationRepository.SaveChangesAsync();
+        _logger.LogInformation($"InventoryItemLocation with ID: {request.InventoryItemLocationID} deleted");
+
+        return request.InventoryItemLocationID;
     }
 }
