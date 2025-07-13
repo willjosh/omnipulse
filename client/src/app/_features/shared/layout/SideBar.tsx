@@ -21,15 +21,8 @@ import {
   ChevronRight,
   Settings,
 } from "lucide-react";
-
-type NavChild = { label: string; path: string };
-
-type NavItem = {
-  label: string;
-  icon: React.ElementType;
-  path?: string;
-  children?: NavChild[];
-};
+import SettingsSidebar from "./SettingsSidebar";
+import { NavChild, NavItem } from "./types";
 
 const navItems: NavItem[] = [
   { label: "Dashboard", icon: LayoutDashboard, path: "/" },
@@ -89,6 +82,15 @@ const SideBar = () => {
     Vehicles: true,
   });
 
+  // Check if we're on a settings page
+  const isSettingsPage = pathname.startsWith("/settings");
+
+  // If on settings page, render the SettingsSidebar
+  if (isSettingsPage) {
+    return <SettingsSidebar />;
+  }
+
+  // Otherwise render the main navigation sidebar
   const toggleExpand = (label: string) => {
     setExpandedItems(prev => ({ ...prev, [label]: !prev[label] }));
   };
