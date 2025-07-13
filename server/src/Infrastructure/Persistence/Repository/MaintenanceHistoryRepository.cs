@@ -26,8 +26,7 @@ public class MaintenanceHistoryRepository : GenericRepository<MaintenanceHistory
             var search = $"%{parameters.Search}%";
             query = query.Where(mh =>
                 EF.Functions.Like(mh.WorkOrder.Title, search) ||
-                mh.WorkOrderID.ToString().Contains(parameters.Search) ||
-                (mh.Description != null && EF.Functions.Like(mh.Description, search))
+                mh.WorkOrderID.ToString().Contains(parameters.Search)
             );
         }
 
@@ -57,8 +56,6 @@ public class MaintenanceHistoryRepository : GenericRepository<MaintenanceHistory
             "servicedate" => sortDescending ? query.OrderByDescending(mh => mh.ServiceDate) : query.OrderBy(mh => mh.ServiceDate),
             "workorderid" => sortDescending ? query.OrderByDescending(mh => mh.WorkOrderID) : query.OrderBy(mh => mh.WorkOrderID),
             "mileageatservice" => sortDescending ? query.OrderByDescending(mh => mh.MileageAtService) : query.OrderBy(mh => mh.MileageAtService),
-            "cost" => sortDescending ? query.OrderByDescending(mh => mh.Cost) : query.OrderBy(mh => mh.Cost),
-            "labourhours" => sortDescending ? query.OrderByDescending(mh => mh.LabourHours) : query.OrderBy(mh => mh.LabourHours),
             "createdat" => sortDescending ? query.OrderByDescending(mh => mh.CreatedAt) : query.OrderBy(mh => mh.CreatedAt),
             _ => query.OrderBy(mh => mh.ID)
         };

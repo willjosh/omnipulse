@@ -7,10 +7,6 @@ public class MaintenanceHistory : BaseEntity
     public required int WorkOrderID { get; set; }
     public required DateTime ServiceDate { get; set; }
     public required double MileageAtService { get; set; }
-    public string? Description { get; set; }
-    public required decimal Cost { get; set; }
-    public required double LabourHours { get; set; }
-    public string? Notes { get; set; }
 
     // navigation properties
     public required WorkOrder WorkOrder { get; set; }
