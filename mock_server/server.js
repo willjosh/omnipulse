@@ -218,6 +218,34 @@ server.get("/issues", (req, res) => {
   });
 });
 
+// Create a new issue (minimal, flexible for incremental requirements)
+server.post("/issues", (req, res) => {
+  const db = router.db;
+  const issues = db.get("issues");
+  const newIssue = req.body;
+
+  // Generate new unique ID
+  const maxId = issues
+    .value()
+    .reduce((max, issue) => Math.max(max, issue.id || 0), 0);
+  newIssue.id = maxId + 1;
+
+  // Add createdAt timestamp
+  newIssue.createdAt = new Date().toISOString();
+
+  // Only require Title and ReportedByUserID for now
+  if (!newIssue.Title || !newIssue.ReportedByUserID) {
+    return res
+      .status(400)
+      .json({ error: "Title and ReportedByUserID are required." });
+  }
+
+  // Add the new issue
+  issues.push(newIssue).write();
+
+  res.status(201).json(newIssue);
+});
+
 // Get single issue
 server.get("/issues/:id", (req, res) => {
   const db = router.db;
@@ -674,6 +702,7 @@ server.listen(PORT, () => {
   console.log(`GET /issues?page=1&limit=5 - Get issues with pagination`);
   console.log(`GET /issues?search=issue - Search issues`);
   console.log(`GET /issues/:id - Get single issue`);
+  console.log(`POST /issues - Create new issue (minimal)`);
 
   // Vehicle Groups
   console.log(`GET /vehicleGroups - Get paginated vehicle groups`);
