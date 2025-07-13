@@ -132,11 +132,11 @@ public class UpdateServiceScheduleCommandHandlerTest
 
         // Assert
         Assert.Equal(existingSchedule.ID, result);
-        Assert.Equal(serviceTaskIDs.Count, existingSchedule.XrefServiceScheduleServiceTasks.Count);
-        foreach (var id in serviceTaskIDs)
-        {
-            Assert.Contains(existingSchedule.XrefServiceScheduleServiceTasks, x => x.ServiceTaskID == id);
-        }
+        _mockXrefRepository.Verify(r => r.AddRangeAsync(
+            It.Is<List<XrefServiceScheduleServiceTask>>(xrefs =>
+                xrefs.Count == serviceTaskIDs.Count &&
+                serviceTaskIDs.All(id => xrefs.Any(x => x.ServiceTaskID == id && x.ServiceScheduleID == existingSchedule.ID))
+            )), Times.Once);
         _mockScheduleRepository.Verify(r => r.Update(existingSchedule), Times.Once);
         _mockScheduleRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
