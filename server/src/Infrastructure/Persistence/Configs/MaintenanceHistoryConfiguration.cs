@@ -14,13 +14,6 @@ public class MaintenanceHistoryConfiguration : IEntityTypeConfiguration<Maintena
         builder.ToTable("MaintenanceHistories");
         builder.HasKey(m => m.ID);
 
-        // String length constraints
-        builder.Property(m => m.Description).HasMaxLength(1000);
-        builder.Property(m => m.Notes).HasMaxLength(1000);
-
-        // Decimal precision constraints
-        builder.Property(m => m.Cost).HasColumnType("decimal(18,2)");
-
         // Regular indexes
         builder.HasIndex(m => m.WorkOrderID);
         builder.HasIndex(m => m.ServiceDate);
