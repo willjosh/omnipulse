@@ -8,6 +8,7 @@ namespace Application.Features.ServiceSchedules.Query.GetAllServiceSchedule;
 
 public class GetAllServiceScheduleDTO
 {
+    public required List<GetAllServiceTaskDTO> ServiceTasks { get; set; }
     public required int ID { get; set; }
     public required int ServiceProgramID { get; set; }
     public required string Name { get; set; }
@@ -21,5 +22,4 @@ public class GetAllServiceScheduleDTO
     public TimeUnitEnum? FirstServiceTimeUnit { get; set; }
     public int? FirstServiceMileage { get; set; }
     public required bool IsActive { get; set; }
-    public required List<GetAllServiceTaskDTO> ServiceTasks { get; set; }
 }
