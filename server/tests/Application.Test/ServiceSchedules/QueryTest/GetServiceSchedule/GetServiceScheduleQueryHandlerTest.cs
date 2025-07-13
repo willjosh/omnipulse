@@ -26,7 +26,11 @@ public class GetServiceScheduleQueryHandlerTest
 
     public GetServiceScheduleQueryHandlerTest()
     {
-        var config = new MapperConfiguration(cfg => cfg.AddProfile(new ServiceScheduleMappingProfile()));
+        var config = new MapperConfiguration(cfg =>
+        {
+            cfg.AddProfile(new ServiceScheduleMappingProfile());
+            cfg.AddProfile(new ServiceTaskMappingProfile());
+        });
         config.AssertConfigurationIsValid();
 
         _mapper = config.CreateMapper();
@@ -132,6 +136,10 @@ public class GetServiceScheduleQueryHandlerTest
         Assert.Equal(serviceSchedule.FirstServiceTimeUnit, result.FirstServiceTimeUnit);
         Assert.Equal(serviceSchedule.FirstServiceMileage, result.FirstServiceMileage);
         Assert.Equal(serviceSchedule.IsActive, result.IsActive);
+        Assert.NotNull(result.ServiceTasks);
+        Assert.Equal(2, result.ServiceTasks.Count);
+        Assert.Contains(result.ServiceTasks, t => t.ID == 1 && t.Name == "Task 1");
+        Assert.Contains(result.ServiceTasks, t => t.ID == 2 && t.Name == "Task 2");
     }
 
     [Fact]
@@ -247,5 +255,10 @@ public class GetServiceScheduleQueryHandlerTest
         Assert.Equal(navSchedule.Name, result.Name);
         Assert.Equal(navSchedule.ServiceProgramID, result.ServiceProgramID);
         Assert.Equal(navSchedule.IsActive, result.IsActive);
+        Assert.NotNull(result.ServiceTasks);
+        Assert.Equal(3, result.ServiceTasks.Count);
+        Assert.Contains(result.ServiceTasks, t => t.ID == 3 && t.Name == "Task 3");
+        Assert.Contains(result.ServiceTasks, t => t.ID == 4 && t.Name == "Task 4");
+        Assert.Contains(result.ServiceTasks, t => t.ID == 5 && t.Name == "Task 5");
     }
 }
