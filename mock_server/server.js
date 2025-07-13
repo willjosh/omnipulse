@@ -261,6 +261,24 @@ server.get("/issues/:id", (req, res) => {
   }
 });
 
+// Create a new vehicle group
+server.post("/vehicleGroups", (req, res) => {
+  const db = router.db;
+  const vehicleGroups = db.get("vehicleGroups");
+  const newVehicleGroup = req.body;
+
+  // Generate new ID
+  const maxId = vehicleGroups
+    .value()
+    .reduce((max, group) => Math.max(max, group.id || 0), 0);
+  newVehicleGroup.id = maxId + 1;
+
+  // Add the new vehicle group
+  vehicleGroups.push(newVehicleGroup).write();
+
+  res.status(201).json(newVehicleGroup);
+});
+
 // Custom route for vehicleGroups with pagination wrapper
 server.get("/vehicleGroups", (req, res) => {
   const db = router.db;
