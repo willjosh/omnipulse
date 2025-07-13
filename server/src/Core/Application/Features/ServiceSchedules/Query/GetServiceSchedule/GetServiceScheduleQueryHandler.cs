@@ -2,6 +2,8 @@ using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
 
+using Application.Features.ServiceTasks.Query.GetAllServiceTask;
+
 using AutoMapper;
 
 using Domain.Entities;
@@ -36,6 +38,12 @@ public class GetServiceScheduleQueryHandler : IRequestHandler<GetServiceSchedule
             throw new EntityNotFoundException(typeof(ServiceSchedule).ToString(), "ServiceScheduleID", request.ServiceScheduleID.ToString());
         }
         var dto = _mapper.Map<GetServiceScheduleDTO>(serviceSchedule);
+
+        // Map ServiceTasks to GetAllServiceTaskDTO
+        dto.ServiceTasks = serviceSchedule.XrefServiceScheduleServiceTasks
+            .Select(xref => _mapper.Map<GetAllServiceTaskDTO>(xref.ServiceTask))
+            .ToList();
+
         _logger.LogInformation($"Returning ServiceScheduleDTO for ServiceScheduleID: {request.ServiceScheduleID}");
         return dto;
     }
