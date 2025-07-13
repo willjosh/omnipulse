@@ -55,12 +55,8 @@ export interface UpdateIssueCommand extends CreateIssueCommand {
 
 export interface IssueFilter {
   page?: number;
-  limit?: number;
+  pageSize?: number;
   sortBy?: string;
   sortOrder?: "asc" | "desc";
   search?: string;
-  status?: number;
-  priorityLevel?: number;
-  category?: number;
-  vehicleId?: number;
 }

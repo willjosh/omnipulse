@@ -18,6 +18,14 @@ import {
   getIssueStatusLabel,
 } from "@/app/_utils/issueEnumHelper";
 
+export const DEFAULT_PAGE_SIZE = 10;
+
+function formatDate(date?: string | null): string {
+  if (!date) return "Unknown";
+  const d = new Date(date);
+  return isNaN(d.getTime()) ? "Unknown" : d.toLocaleString();
+}
+
 // Helper to convert Issue to IssueWithLabels
 const convertIssueData = (issue: Issue): IssueWithLabels => ({
   ...issue,
@@ -30,15 +38,9 @@ const convertIssueData = (issue: Issue): IssueWithLabels => ({
   Status: issue.Status as number,
   StatusLabel: getIssueStatusLabel(issue.Status),
   StatusEnum: issue.Status as IssueStatusEnum,
+  ReportedDate: formatDate(issue.ReportedDate),
+  ResolvedDate: formatDate(issue.ResolvedDate),
 });
-
-// Fetch paged issues
-const fetchIssues = async (
-  params: IssueFilter,
-): Promise<PagedResponse<IssueWithLabels>> => {
-  const { data } = await agent.get("/issues", { params });
-  return { ...data, Items: data.Items.map(convertIssueData) };
-};
 
 // Fetch single issue
 const fetchIssue = async (id: number): Promise<IssueWithLabels> => {
@@ -68,9 +70,32 @@ export function useIssues(filter: IssueFilter) {
   const debouncedSearch = useDebounce(filter?.search || "", 300);
   const debouncedFilter = { ...filter, search: debouncedSearch };
 
-  const { data, isPending, isError, isSuccess, error } = useQuery({
+  // Build query params to match backend canonical names
+  const queryParams = new URLSearchParams();
+  if (debouncedFilter.page)
+    queryParams.append("page", debouncedFilter.page.toString());
+  if (debouncedFilter.pageSize)
+    queryParams.append("pageSize", debouncedFilter.pageSize.toString());
+  if (debouncedFilter.search)
+    queryParams.append("search", debouncedFilter.search);
+  if (debouncedFilter.sortBy)
+    queryParams.append("sortBy", debouncedFilter.sortBy);
+  if (debouncedFilter.sortOrder)
+    queryParams.append("sortOrder", debouncedFilter.sortOrder);
+
+  const queryString = queryParams.toString();
+
+  const { data, isPending, isError, isSuccess, error } = useQuery<
+    PagedResponse<IssueWithLabels>
+  >({
     queryKey: ["issues", debouncedFilter],
-    queryFn: () => fetchIssues(debouncedFilter),
+    queryFn: async () => {
+      const { data } = await agent.get<PagedResponse<Issue>>(
+        `/issues${queryString ? `?${queryString}` : ""}`,
+      );
+
+      return { ...data, Items: data.Items.map(convertIssueData) };
+    },
   });
 
   return {
