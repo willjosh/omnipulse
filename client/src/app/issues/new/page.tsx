@@ -1,6 +1,3 @@
-// NOTE: Most create-issue functionality and fields are commented out for user story separation.
-// Only Title and ReportedByUserID are active. Uncomment other fields and logic in the relevant user story branch.
-
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -10,21 +7,18 @@ import FormContainer from "../../_features/shared/form/FormContainer";
 import SecondaryButton from "../../_features/shared/button/SecondaryButton";
 import PrimaryButton from "../../_features/shared/button/PrimaryButton";
 // import { useCreateIssue } from "../../_hooks/issue/useIssues";
+import {
+  IssueFormState,
+  validateIssueForm,
+  mapFormToCreateIssueCommand,
+  emptyIssueFormState,
+} from "../../_utils/issueFormUtils";
 
 export default function CreateIssueHeaderOnly() {
   const router = useRouter();
 
   // Form state
-  const [form, setForm] = useState({
-    // VehicleID: "", // Relating an issue to a vehicle (commented out for separate user story)
-    // PriorityLevel: "", // Setting a priority level (commented out for separate user story)
-    // ReportedDate: "", // System auto-generates timestamp (commented out for separate user story)
-    Title: "",
-    // Description: "", // Updating a detailed and formatted description (commented out for separate user story)
-    // Category: "", // Selecting an issue category (commented out for separate user story)
-    // Status: "", // Selecting a status category (commented out for separate user story)
-    ReportedByUserID: "",
-  });
+  const [form, setForm] = useState<IssueFormState>(emptyIssueFormState);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [resetKey, setResetKey] = useState(0); // for resetting form
 
@@ -33,15 +27,7 @@ export default function CreateIssueHeaderOnly() {
 
   // Validation
   const validate = () => {
-    const newErrors: { [key: string]: string } = {};
-    // if (!form.VehicleID) newErrors.VehicleID = "Vehicle is required"; // Relating an issue to a vehicle
-    // if (!form.PriorityLevel) newErrors.PriorityLevel = "Priority is required"; // Setting a priority level
-    // if (!form.ReportedDate) newErrors.ReportedDate = "Reported date is required"; // System auto-generates timestamp
-    if (!form.Title) newErrors.Title = "Summary is required";
-    // if (!form.Category) newErrors.Category = "Category is required"; // Selecting an issue category
-    // if (!form.Status) newErrors.Status = "Status is required"; // Selecting a status category
-    if (!form.ReportedByUserID)
-      newErrors.ReportedByUserID = "Reported By is required";
+    const newErrors = validateIssueForm(form);
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -53,16 +39,7 @@ export default function CreateIssueHeaderOnly() {
   };
 
   // Convert form state to CreateIssueCommand
-  const toCreateIssueCommand = () => ({
-    // VehicleID: Number(form.VehicleID), // Relating an issue to a vehicle
-    Title: form.Title,
-    // Description: form.Description, // Updating a detailed and formatted description
-    // PriorityLevel: Number(form.PriorityLevel), // Setting a priority level
-    // Category: Number(form.Category), // Selecting an issue category
-    // Status: Number(form.Status), // Selecting a status category
-    ReportedByUserID: form.ReportedByUserID,
-    // ReportedDate: form.ReportedDate, // System auto-generates timestamp
-  });
+  const toCreateIssueCommand = () => mapFormToCreateIssueCommand(form);
 
   // Save Issue handler
   // const handleSave = () => {
