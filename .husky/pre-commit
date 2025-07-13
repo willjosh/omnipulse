@@ -38,8 +38,20 @@ run_backend_checks() {
     pushd "$BACKEND_DIR" > /dev/null || exit 1
 
     run_step "▶️ Backend - Build" dotnet build --nologo
-    run_step "▶️ Backend - Format" dotnet format
-    run_step "▶️ Backend - Format (Verify no Changes)" dotnet format --verify-no-changes --verbosity quiet
+
+    # Format only staged backend files
+    backend_staged_files=$(echo "$staged_files" | grep "^$BACKEND_DIR/" | grep -E "\.cs$|\.csproj$|\.props$" | sed "s|^$BACKEND_DIR/||")
+    if [ -n "$backend_staged_files" ]; then
+        included_files=$(echo "$backend_staged_files" | tr '\n' ' ')
+
+        run_step "▶️ Backend - Format - Staged Files" dotnet format --include $included_files
+        run_step "▶️ Backend - Format (Verify no Changes)" dotnet format --include $included_files --verify-no-changes --verbosity quiet
+
+        # Restage potentially formatted files
+        echo "▶️ Backend - Restage Formatted Files"
+        git add -- $included_files
+    fi
+
     run_step "▶️ Backend - Test" dotnet test
 
     popd > /dev/null

@@ -1,18 +1,16 @@
 "use client";
 import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import DataTable from "@/app/_features/shared/DataTable";
-import OptionButton from "@/app/_features/shared/button/OptionButton";
-import PrimaryButton from "@/app/_features/shared/button/PrimaryButton";
-import { vehicleTableColumns } from "./VehicleTableColumns";
-import { useVehicles } from "@/app/_hooks/Vehicle/useVehicles";
-import { Vehicle, VehicleWithLabels } from "@/app/_hooks/Vehicle/vehicleType";
-import TabNavigation from "@/app/_features/shared/TabNavigation";
-import { vehicleFilterConfig, vehicleTabConfig } from "./VehicleListFilters";
-import PaginationControls from "@/app/_features/shared/PaginationControls";
-import ConfirmModal from "@/app/_features/shared/ConfirmModal";
-import FilterBar from "@/app/_features/shared/FilterBar";
+import { DataTable, PaginationControls } from "@/app/_features/shared/table";
+import { OptionButton, PrimaryButton } from "@/app/_features/shared/button";
+import { TabNavigation } from "@/app/_features/shared/tabs";
+import { ConfirmModal } from "@/app/_features/shared/modal";
+import { FilterBar } from "@/app/_features/shared/filter";
 import { Archive, Edit, Details } from "@/app/_features/shared/icons";
+import { vehicleTableColumns } from "./VehicleTableColumns";
+import { useVehicles } from "@/app/_hooks/vehicle/useVehicles";
+import { Vehicle, VehicleWithLabels } from "@/app/_hooks/vehicle/vehicleType";
+import { vehicleFilterConfig, vehicleTabConfig } from "./VehicleListFilters";
 import {
   VehicleActionType,
   VEHICLE_ACTION_CONFIG,

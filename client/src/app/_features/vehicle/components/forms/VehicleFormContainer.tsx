@@ -9,13 +9,13 @@ import {
   useVehicleFormStatus,
   useVehicleFormReferenceData,
 } from "../../store/VehicleFormStore";
-import { useVehicles } from "@/app/_hooks/Vehicle/useVehicles";
-import { Vehicle } from "@/app/_hooks/Vehicle/vehicleType";
+import { useVehicles } from "@/app/_hooks/vehicle/useVehicles";
+import { Vehicle } from "@/app/_hooks/vehicle/vehicleType";
 import {
   VehicleTypeEnum,
   FuelTypeEnum,
   VehicleStatusEnum,
-} from "@/app/_hooks/Vehicle/vehicleEnum";
+} from "@/app/_hooks/vehicle/vehicleEnum";
 import PrimaryButton from "@/app/_features/shared/button/PrimaryButton";
 import SecondaryButton from "@/app/_features/shared/button/SecondaryButton";
 
@@ -66,6 +66,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
   const router = useRouter();
   const params = useParams();
 
+  // Use selector hooks for better performance
   const formData = useVehicleFormData();
   const formMode = useVehicleFormMode();
   const { showValidation, validationErrors, isFormValid } =
@@ -73,6 +74,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
   const { isLoading, isDirty, vehicleId } = useVehicleFormStatus();
   const { vehicleGroups, technicians } = useVehicleFormReferenceData();
 
+  // Add the useVehicles hook to get mutation functions
   const { createVehicleMutation, updateVehicleMutation } = useVehicles();
 
   // Store actions

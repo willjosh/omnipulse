@@ -14,10 +14,6 @@ public class CreateWorkOrderCommandValidator : AbstractValidator<CreateWorkOrder
             .GreaterThan(0)
             .WithMessage("Vehicle ID must be greater than 0");
 
-        RuleFor(x => x.ServiceReminderID)
-            .GreaterThan(0)
-            .WithMessage("Service Reminder ID must be greater than 0");
-
         // AssignedToUserId validation - required
         RuleFor(x => x.AssignedToUserID)
             .NotEmpty()
@@ -35,32 +31,6 @@ public class CreateWorkOrderCommandValidator : AbstractValidator<CreateWorkOrder
             .MaximumLength(2000)
             .WithMessage("Description cannot exceed 2000 characters")
             .When(x => !string.IsNullOrEmpty(x.Description));
-
-        // EstimatedCost validation - matches check constraint >= 0 and precision(10,2)
-        RuleFor(x => x.EstimatedCost)
-            .GreaterThanOrEqualTo(0)
-            .WithMessage("Estimated Cost must be greater than or equal to 0")
-            .Must(CustomValidation.HaveValidPrecision)
-            .WithMessage("Estimated Cost must have maximum 2 decimal places and 10 total digits")
-            .When(x => x.EstimatedCost.HasValue);
-
-        RuleFor(x => x.ActualCost)
-            .GreaterThanOrEqualTo(0)
-            .WithMessage("Actual Cost must be greater than or equal to 0")
-            .Must(CustomValidation.HaveValidPrecision)
-            .WithMessage("Actual Cost must have maximum 2 decimal places and 10 total digits")
-            .When(x => x.ActualCost.HasValue);
-
-        // EstimatedHours validation - must be positive
-        RuleFor(x => x.EstimatedHours)
-            .GreaterThan(0)
-            .WithMessage("Estimated Hours must be greater than 0")
-            .When(x => x.EstimatedHours.HasValue);
-
-        RuleFor(x => x.ActualHours)
-            .GreaterThan(0)
-            .WithMessage("Actual Hours must be greater than 0")
-            .When(x => x.ActualHours.HasValue);
 
         // StartOdometer validation - matches check constraint >= 0
         RuleFor(x => x.StartOdometer)

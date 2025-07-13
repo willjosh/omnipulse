@@ -4,12 +4,12 @@ import {
   Vehicle,
   CreateVehicleCommand,
   UpdateVehicleCommand,
-} from "@/app/_hooks/Vehicle/vehicleType";
+} from "@/app/_hooks/vehicle/vehicleType";
 import {
   VehicleTypeEnum,
   FuelTypeEnum,
   VehicleStatusEnum,
-} from "@/app/_hooks/Vehicle/vehicleEnum";
+} from "@/app/_hooks/vehicle/vehicleEnum";
 
 interface VehicleFormData {
   // Basic vehicle information

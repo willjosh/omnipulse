@@ -15,18 +15,14 @@ namespace Persistence.Repository;
 
 public class IssueRepository : GenericRepository<Issue>, IIssueRepository
 {
-    private readonly OmnipulseDatabaseContext _context;
     public IssueRepository(OmnipulseDatabaseContext context) : base(context)
     {
-        _context = context;
     }
+
 
     public async Task<PagedResult<Issue>> GetAllIssuesPagedAsync(PaginationParameters parameters)
     {
-        var query = _context.Issues
-            .Include(i => i.ReportedByUser)
-            .Include(i => i.Vehicle)
-            .AsQueryable();
+        var query = _dbSet.AsQueryable();
 
         // Filtering (search by title, description, or issue number)
         if (!string.IsNullOrWhiteSpace(parameters.Search))
@@ -71,5 +67,13 @@ public class IssueRepository : GenericRepository<Issue>, IIssueRepository
             PageNumber = parameters.PageNumber,
             PageSize = parameters.PageSize
         };
+    }
+
+    public async Task<Issue?> GetIssueWithDetailsAsync(int issueID)
+    {
+        return await _dbSet
+            .Include(i => i.ReportedByUser)
+            .Include(i => i.Vehicle)
+            .FirstOrDefaultAsync(i => i.ID == issueID);
     }
 }
