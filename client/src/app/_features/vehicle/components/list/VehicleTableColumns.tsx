@@ -11,8 +11,7 @@ export const vehicleTableColumns = [
   {
     key: "Name",
     header: "Name",
-    width: "220px",
-    sortable: true,
+    sortable: false,
     render: (vehicle: VehicleWithLabels) => (
       <div className="flex items-center">
         <div className="flex-shrink-0">
@@ -31,16 +30,14 @@ export const vehicleTableColumns = [
   {
     key: "Year",
     header: "Year",
-    width: "80px",
-    sortable: true,
+    sortable: false,
     render: (vehicle: VehicleWithLabels) => vehicle.Year,
   },
-  { key: "Make", header: "Make", width: "130px", sortable: true },
-  { key: "Model", header: "Model", width: "120px", sortable: true },
+  { key: "Make", header: "Make", sortable: false },
+  { key: "Model", header: "Model", sortable: false },
   {
     key: "VIN",
     header: "VIN",
-    width: "180px",
     render: (vehicle: VehicleWithLabels) => (
       <span className="text-sm">{vehicle.VIN}</span>
     ),
@@ -48,8 +45,7 @@ export const vehicleTableColumns = [
   {
     key: "Status",
     header: "Status",
-    width: "135px",
-    sortable: true,
+    sortable: false,
     render: (vehicle: VehicleWithLabels) => (
       <div className="flex items-center">
         <div
@@ -62,32 +58,24 @@ export const vehicleTableColumns = [
   {
     key: "VehicleType",
     header: "Type",
-    width: "100px",
-    sortable: true,
+    sortable: false,
     render: (vehicle: VehicleWithLabels) =>
       getVehicleTypeLabel(vehicle.VehicleType),
   },
-  { key: "VehicleGroupName", header: "Group", width: "100px", sortable: true },
+  { key: "VehicleGroupName", header: "Group", sortable: false },
   {
     key: "Mileage",
     header: "Meter",
-    width: "120px",
     render: (vehicle: VehicleWithLabels) => (
       <span className="text-primary hover:text-blue-800 cursor-pointer underline">
         {vehicle.Mileage.toLocaleString()} mi{" "}
       </span>
     ),
   },
-  {
-    key: "LicensePlate",
-    header: "License Plate",
-    width: "140px",
-    sortable: true,
-  },
+  { key: "LicensePlate", header: "License Plate", sortable: false },
   {
     key: "AssignedTechnicianName",
     header: "Operator",
-    width: "160px",
     render: (vehicle: VehicleWithLabels) =>
       vehicle.AssignedTechnicianName ? (
         <div className="flex items-center">
