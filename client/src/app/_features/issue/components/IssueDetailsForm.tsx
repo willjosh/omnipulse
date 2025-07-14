@@ -1,17 +1,15 @@
-// NOTE: Most fields are commented out for user story separation. Only Title and ReportedByUserID are active.
-
-import React from "react";
+import React, { useState, useMemo } from "react";
 import FormContainer from "../../shared/form/FormContainer";
 import FormField from "../../shared/form/FormField";
-// import DropdownFilter from "../../shared/filter/DropdownFilter";
-import SearchInput from "../../shared/filter/SearchInput";
-// import {
-//   IssueCategoryEnum,
-//   PriorityLevelEnum,
-//   IssueStatusEnum,
-// } from "@/app/_hooks/issue/issueEnum";
+import {
+  Combobox,
+  ComboboxInput,
+  ComboboxButton,
+  ComboboxOptions,
+  ComboboxOption,
+} from "@headlessui/react";
 
-// Dummy data for users (replace with real data/fetch in future)
+// Dummy data for vehicles and users (replace with real data/fetch in future)
 const users = [
   { value: "5e6e0ab3-3a11-403e-adb9-7a25fe678936", label: "John Smith" },
   { value: "952188a4-dc48-4dad-9c7b-c75da50bb241", label: "Sarah Wilson" },
@@ -20,7 +18,7 @@ const users = [
 
 interface IssueDetailsFormProps {
   value: {
-    // VehicleID: string;
+    VehicleID: string;
     // PriorityLevel: string;
     // ReportedDate: string;
     Title: string;
@@ -32,6 +30,7 @@ interface IssueDetailsFormProps {
   errors: { [key: string]: string };
   onChange: (field: string, value: string) => void;
   disabled?: boolean;
+  vehicles: { value: string; label: string }[];
 }
 
 const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
@@ -39,84 +38,181 @@ const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
   errors,
   onChange,
   disabled = false,
+  vehicles,
 }) => {
+  type VehicleOption = { value: string; label: string };
+  // Search/filter state for vehicle dropdown
+  const [vehicleSearch, setVehicleSearch] = useState("");
+  const filteredVehicles = useMemo(() => {
+    if (!vehicleSearch) return vehicles;
+    const searchLower = vehicleSearch.toLowerCase();
+    return vehicles.filter(v => v.label.toLowerCase().includes(searchLower));
+  }, [vehicleSearch, vehicles]);
+  const selectedVehicle: VehicleOption | null =
+    vehicles.find(v => v.value === value.VehicleID) || null;
+
+  const usersList: { value: string; label: string }[] = users;
+  const [userSearch, setUserSearch] = useState("");
+  const filteredUsers = useMemo(() => {
+    if (!userSearch) return usersList;
+    const searchLower = userSearch.toLowerCase();
+    return usersList.filter(u => u.label.toLowerCase().includes(searchLower));
+  }, [userSearch, usersList]);
+  const selectedUser =
+    usersList.find(u => u.value === value.ReportedByUserID) || null;
+
   return (
     <FormContainer title="Details" className="mt-6 max-w-2xl mx-auto w-full">
-      {/* <FormField label="Asset" required error={errors.VehicleID}>
-        <DropdownFilter
-          value={value.VehicleID}
-          onChange={v => onChange("VehicleID", v)}
-          options={vehicles}
-          placeholder="Select vehicle"
-          className="w-full"
-        />
-      </FormField> */}
-      {/* <FormField label="Priority" required error={errors.PriorityLevel}>
-        <DropdownFilter
-          value={value.PriorityLevel}
-          onChange={v => onChange("PriorityLevel", v)}
-          options={priorityOptions}
-          placeholder="Select priority"
-          className="w-full"
-        />
-      </FormField> */}
-      {/* <FormField label="Reported Date" required error={errors.ReportedDate}>
-        <input
-          type="datetime-local"
-          className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
-          value={value.ReportedDate}
-          onChange={e => onChange("ReportedDate", e.target.value)}
-          disabled={disabled}
-        />
-      </FormField> */}
-      <FormField label="Summary" required error={errors.Title}>
-        <SearchInput
-          value={value.Title}
-          onChange={v => onChange("Title", v)}
-          placeholder="Enter summary"
-        />
-      </FormField>
-      {/* <FormField label="Description">
-        <textarea
-          className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full min-h-[80px]"
-          value={value.Description}
-          onChange={e => onChange("Description", e.target.value)}
-          placeholder="Enter description (optional)"
-          disabled={disabled}
-        />
-      </FormField> */}
-      {/* <FormField label="Category" required error={errors.Category}>
-        <DropdownFilter
-          value={value.Category}
-          onChange={v => onChange("Category", v)}
-          options={categoryOptions}
-          placeholder="Select category"
-          className="w-full"
-        />
-      </FormField> */}
-      {/* <FormField label="Status" required error={errors.Status}>
-        <DropdownFilter
-          value={value.Status}
-          onChange={v => onChange("Status", v)}
-          options={statusOptions}
-          placeholder="Select status"
-          className="w-full"
-        />
-      </FormField> */}
-      <FormField label="Reported By" required error={errors.ReportedByUserID}>
-        <select
-          value={value.ReportedByUserID}
-          onChange={e => onChange("ReportedByUserID", e.target.value)}
-          className="px-3 py-2 border border-gray-300 rounded-3xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white w-full"
+      {/* Asset (Vehicle) Dropdown with search */}
+      <FormField label="Asset" required error={errors.VehicleID}>
+        <Combobox
+          value={selectedVehicle}
+          onChange={v => v && onChange("VehicleID", v.value)}
           disabled={disabled}
         >
-          <option value="">Select user</option>
-          {users.map(opt => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
+          <div className="relative">
+            <ComboboxInput
+              className="w-full border border-gray-300 rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              displayValue={(vehicle: VehicleOption | null) =>
+                vehicle?.label || ""
+              }
+              onChange={e => setVehicleSearch(e.target.value)}
+              placeholder="Search vehicles..."
+              disabled={disabled}
+            />
+            <ComboboxButton className="absolute inset-y-0 right-0 flex items-center pr-2">
+              <svg
+                className="h-5 w-5 text-gray-400"
+                viewBox="0 0 20 20"
+                fill="none"
+                stroke="currentColor"
+              >
+                <path
+                  d="M7 7l3-3 3 3m0 6l-3 3-3-3"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </ComboboxButton>
+            <ComboboxOptions className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-3xl shadow-lg max-h-60 overflow-auto">
+              {filteredVehicles.length === 0 && (
+                <div className="px-4 py-2 text-gray-500">
+                  No vehicles found.
+                </div>
+              )}
+              {filteredVehicles.map(opt => (
+                <ComboboxOption
+                  key={opt.value}
+                  value={opt}
+                  className={({ active, selected }: any) =>
+                    `cursor-pointer select-none px-4 py-2 flex items-center ${active ? "bg-blue-100" : ""}`
+                  }
+                >
+                  {({ selected }: any) => (
+                    <>
+                      <span className="flex-1">{opt.label}</span>
+                      {selected && (
+                        <svg
+                          className="h-5 w-5 text-blue-600 ml-2"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                      )}
+                    </>
+                  )}
+                </ComboboxOption>
+              ))}
+            </ComboboxOptions>
+          </div>
+        </Combobox>
+      </FormField>
+      <FormField label="Summary" required error={errors.Title}>
+        <input
+          type="text"
+          value={value.Title}
+          onChange={e => onChange("Title", e.target.value)}
+          placeholder="Enter summary"
+          className="w-full border border-gray-300 rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white h-[40px]"
+          disabled={disabled}
+        />
+      </FormField>
+      <FormField label="Reported By" required error={errors.ReportedByUserID}>
+        <Combobox
+          value={selectedUser}
+          onChange={u => u && onChange("ReportedByUserID", u.value)}
+          disabled={disabled}
+        >
+          <div className="relative">
+            <ComboboxInput
+              className="w-full border border-gray-300 rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              displayValue={(user: { value: string; label: string } | null) =>
+                user?.label || ""
+              }
+              onChange={e => setUserSearch(e.target.value)}
+              placeholder="Search users..."
+              disabled={disabled}
+            />
+            <ComboboxButton className="absolute inset-y-0 right-0 flex items-center pr-2">
+              <svg
+                className="h-5 w-5 text-gray-400"
+                viewBox="0 0 20 20"
+                fill="none"
+                stroke="currentColor"
+              >
+                <path
+                  d="M7 7l3-3 3 3m0 6l-3 3-3-3"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </ComboboxButton>
+            <ComboboxOptions className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-3xl shadow-lg max-h-60 overflow-auto">
+              {filteredUsers.length === 0 && (
+                <div className="px-4 py-2 text-gray-500">No users found.</div>
+              )}
+              {filteredUsers.map(opt => (
+                <ComboboxOption
+                  key={opt.value}
+                  value={opt}
+                  className={({ active, selected }: any) =>
+                    `cursor-pointer select-none px-4 py-2 flex items-center ${active ? "bg-blue-100" : ""}`
+                  }
+                >
+                  {({ selected }: any) => (
+                    <>
+                      <span className="flex-1">{opt.label}</span>
+                      {selected && (
+                        <svg
+                          className="h-5 w-5 text-blue-600 ml-2"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                      )}
+                    </>
+                  )}
+                </ComboboxOption>
+              ))}
+            </ComboboxOptions>
+          </div>
+        </Combobox>
       </FormField>
     </FormContainer>
   );
