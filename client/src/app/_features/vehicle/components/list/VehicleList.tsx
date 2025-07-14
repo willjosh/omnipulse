@@ -148,7 +148,7 @@ const VehicleList: React.FC = () => {
   );
 
   return (
-    <div className="px-6 w-[1260px] min-h-screen mx-auto">
+    <div className="p-6 w-[1260px] min-h-screen mx-auto">
       <div className="flex items-center justify-between mb-2">
         <h1 className="text-2xl font-semibold text-gray-900">Vehicles</h1>
         <div className="flex items-center gap-3">
@@ -191,6 +191,7 @@ const VehicleList: React.FC = () => {
         onRowClick={handleRowClick}
         actions={vehicleActions}
         showActions={true}
+        fixedLayout={false}
         loading={isLoadingVehicles}
         getItemId={vehicle => vehicle.id.toString()}
         emptyState={emptyState}
