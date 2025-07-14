@@ -4,7 +4,7 @@ import {
 } from "@/app/_hooks/inventory-item/inventoryItemEnum";
 
 export function getInventoryItemCategoryLabel(
-  category?: InventoryItemCategoryEnum | 0 | null,
+  category?: InventoryItemCategoryEnum | null,
 ): string {
   switch (category) {
     case InventoryItemCategoryEnum.ENGINE:
@@ -31,7 +31,7 @@ export function getInventoryItemCategoryLabel(
 }
 
 export function getInventoryItemUnitCostMeasurementUnitLabel(
-  unit?: InventoryItemUnitCostMeasurementUnitEnum | 0 | null,
+  unit?: InventoryItemUnitCostMeasurementUnitEnum | null,
 ): string {
   switch (unit) {
     case InventoryItemUnitCostMeasurementUnitEnum.Unit:
