@@ -292,6 +292,43 @@ server.post("/vehicleGroups", (req, res) => {
   }
 });
 
+// Update vehicle group
+server.put("/vehicleGroups/:id", (req, res) => {
+  try {
+    const db = router.db;
+    const vehicleGroups = db.get("vehicleGroups");
+    const id = parseInt(req.params.id);
+    const updatedData = req.body;
+
+    if (!updatedData) {
+      return res.status(400).json({ error: "Request body is required" });
+    }
+
+    // Find the vehicle group
+    const groupIndex = vehicleGroups
+      .value()
+      .findIndex(group => group.id === id);
+
+    if (groupIndex === -1) {
+      return res.status(404).json({ error: "Vehicle group not found" });
+    }
+
+    // Update the vehicle group
+    const updatedGroup = {
+      ...vehicleGroups.value()[groupIndex],
+      ...updatedData,
+      id,
+    };
+    vehicleGroups.value()[groupIndex] = updatedGroup;
+    vehicleGroups.write();
+
+    res.json(updatedGroup);
+  } catch (error) {
+    console.error("Error updating vehicle group:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // Custom route for vehicleGroups with pagination wrapper
 server.get("/vehicleGroups", (req, res) => {
   const db = router.db;
