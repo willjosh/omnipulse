@@ -4,31 +4,41 @@ import React, { useState, useMemo } from "react";
 import { useVehicleGroups } from "@/app/_hooks/vehicle-groups/useVehicleGroups";
 import {
   CreateVehicleGroupCommand,
+  UpdateVehicleGroupCommand,
   VehicleGroup,
 } from "@/app/_hooks/vehicle-groups/vehicleGroupTypes";
 import { Plus, Layers } from "lucide-react";
 import { Loading } from "@/app/_features/shared/feedback";
 import { DataTable } from "@/app/_features/shared/table";
 import { ConfirmModal } from "@/app/_features/shared/modal";
-import { Archive } from "@/app/_features/shared/icons";
+import { Archive, Edit } from "@/app/_features/shared/icons";
 import { vehicleGroupTableColumns } from "@/app/_features/vehicle-groups/VehicleGroupTableColumns";
 
 const VehicleGroupsPage = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
     vehicleGroup?: VehicleGroup;
   }>({ isOpen: false });
+  const [editingGroup, setEditingGroup] = useState<VehicleGroup | null>(null);
 
   const {
     vehicleGroups,
     isLoading,
     createVehicleGroupMutation,
     deleteVehicleGroupMutation,
+    updateVehicleGroupMutation,
   } = useVehicleGroups();
 
   const [formData, setFormData] = useState({
+    Name: "",
+    Description: "",
+    IsActive: true,
+  });
+
+  const [editFormData, setEditFormData] = useState({
     Name: "",
     Description: "",
     IsActive: true,
@@ -58,6 +68,37 @@ const VehicleGroupsPage = () => {
     setFormData({ Name: "", Description: "", IsActive: true });
   };
 
+  const handleEditClick = (vehicleGroup: VehicleGroup) => {
+    setEditingGroup(vehicleGroup);
+    setEditFormData({
+      Name: vehicleGroup.Name,
+      Description: vehicleGroup.Description,
+      IsActive: vehicleGroup.IsActive,
+    });
+    setShowEditModal(true);
+  };
+
+  const handleUpdateGroup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingGroup || !editFormData.Name.trim()) return;
+
+    const updateCommand: UpdateVehicleGroupCommand = {
+      id: editingGroup.id,
+      Name: editFormData.Name.trim(),
+      Description: editFormData.Description.trim(),
+      IsActive: editFormData.IsActive,
+    };
+
+    try {
+      await updateVehicleGroupMutation.mutateAsync(updateCommand);
+      setShowEditModal(false);
+      setEditingGroup(null);
+      setEditFormData({ Name: "", Description: "", IsActive: true });
+    } catch (error) {
+      console.error("Error updating vehicle group:", error);
+    }
+  };
+
   const handleDeleteVehicleGroup = async () => {
     if (!confirmModal.vehicleGroup) return;
 
@@ -73,6 +114,15 @@ const VehicleGroupsPage = () => {
 
   const vehicleGroupActions = useMemo(
     () => [
+      {
+        key: "EDIT",
+        label: "Edit",
+        variant: "default" as const,
+        icon: <Edit />,
+        onClick: (vehicleGroup: VehicleGroup) => {
+          handleEditClick(vehicleGroup);
+        },
+      },
       {
         key: "DELETE",
         label: "Delete",
@@ -214,6 +264,90 @@ const VehicleGroupsPage = () => {
                   {createVehicleGroupMutation.isPending
                     ? "Creating..."
                     : "Create"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {showEditModal && editingGroup && (
+        <div className="fixed inset-0 backdrop-brightness-50 bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h2 className="text-lg font-semibold mb-4">Edit Vehicle Group</h2>
+            <form onSubmit={handleUpdateGroup}>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Group Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={editFormData.Name}
+                    onChange={e =>
+                      setEditFormData({ ...editFormData, Name: e.target.value })
+                    }
+                    className="w-full px-3 py-2 border border-[var(--border)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:border-transparent"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Description
+                  </label>
+                  <textarea
+                    value={editFormData.Description}
+                    onChange={e =>
+                      setEditFormData({
+                        ...editFormData,
+                        Description: e.target.value,
+                      })
+                    }
+                    rows={3}
+                    className="w-full px-3 py-2 border border-[var(--border)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:border-transparent"
+                  />
+                </div>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="editIsActive"
+                    checked={editFormData.IsActive}
+                    onChange={e =>
+                      setEditFormData({
+                        ...editFormData,
+                        IsActive: e.target.checked,
+                      })
+                    }
+                    className="mr-2"
+                  />
+                  <label
+                    htmlFor="editIsActive"
+                    className="text-sm text-gray-700"
+                  >
+                    Active
+                  </label>
+                </div>
+              </div>
+              <div className="flex justify-end gap-3 mt-6">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowEditModal(false);
+                    setEditingGroup(null);
+                  }}
+                  className="px-4 py-2 text-gray-700 border border-[var(--border)] rounded-md hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={updateVehicleGroupMutation.isPending}
+                  className="px-4 py-2 bg-[var(--primary-color)] text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
+                >
+                  {updateVehicleGroupMutation.isPending
+                    ? "Updating..."
+                    : "Update"}
                 </button>
               </div>
             </form>
