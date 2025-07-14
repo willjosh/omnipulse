@@ -9,9 +9,8 @@ export const useVehicleGroups = () => {
   const { data: vehicleGroups = [], isLoading } = useQuery<VehicleGroup[]>({
     queryKey: ["vehicleGroups"],
     queryFn: async () => {
-      const response = await agent.get<VehicleGroup[]>("vehicleGroups");
-      console.log(response.data);
-      return response.data;
+      const response = await agent.get<any>("vehicleGroups");
+      return response.data.Items || [];
     },
   });
 
@@ -22,10 +21,25 @@ export const useVehicleGroups = () => {
       return response.data;
     },
     onSuccess: async () => {
-      // Invalidate and refetch vehicle groups
       await queryClient.invalidateQueries({ queryKey: ["vehicleGroups"] });
     },
   });
 
-  return { vehicleGroups, isLoading, createVehicleGroupMutation };
+  // Delete vehicle group mutation
+  const deleteVehicleGroupMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const response = await agent.delete(`vehicleGroups/${id}`);
+      return response.data;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["vehicleGroups"] });
+    },
+  });
+
+  return {
+    vehicleGroups,
+    isLoading,
+    createVehicleGroupMutation,
+    deleteVehicleGroupMutation,
+  };
 };
