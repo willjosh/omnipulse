@@ -84,7 +84,7 @@ export interface UpdateVehicleCommand {
   PurchasePrice: number;
   VehicleStatus: VehicleStatusEnum;
   Location: string;
-  AssignedTechnicianID: string | null;
+  AssignedTechnicianID?: string | null;
 }
 
 export interface VehicleFilter {
