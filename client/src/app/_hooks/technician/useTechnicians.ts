@@ -92,7 +92,7 @@ export function useUpdateTechnician() {
     onSuccess: async (_data, variables) => {
       await queryClient.invalidateQueries({ queryKey: ["technicians"] });
       await queryClient.invalidateQueries({
-        queryKey: ["technician", variables.id.toString()],
+        queryKey: ["technician", variables.id],
       });
     },
   });

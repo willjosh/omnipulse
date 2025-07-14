@@ -128,7 +128,7 @@ export function useUpdateIssue() {
     onSuccess: async (_data, variables) => {
       await queryClient.invalidateQueries({ queryKey: ["issues"] });
       await queryClient.invalidateQueries({
-        queryKey: ["issue", variables.id.toString()],
+        queryKey: ["issue", variables.id],
       });
     },
   });
