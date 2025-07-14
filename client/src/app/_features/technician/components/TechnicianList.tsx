@@ -64,7 +64,9 @@ const TechnicianList: React.FC = () => {
     setFilters(prev => ({ ...prev, pageSize: newPageSize, page: 1 }));
   };
 
-  const handleRowClick = (technician: Technician) => {};
+  const handleRowClick = (technician: Technician) => {
+    router.push(`/contacts/${technician.id}`);
+  };
 
   const emptyState = (
     <div className="text-center py-8">
