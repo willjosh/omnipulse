@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import {
   LayoutDashboard,
@@ -64,7 +64,7 @@ const navItems: NavItem[] = [
       { label: "Service Program", path: "/service/program" },
     ],
   },
-  { label: "Contacts", icon: User },
+  { label: "Contacts", icon: User, path: "/contacts" },
   { label: "Vendors", icon: Store },
   { label: "Parts & Inventory", icon: Boxes },
   { label: "Fuel & Energy", icon: Fuel },
@@ -77,10 +77,27 @@ const navItems: NavItem[] = [
 const SideBar = () => {
   const router = useRouter();
   const pathname = usePathname();
-  const [activeParent, setActiveParent] = useState<string>("Vehicles");
-  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({
-    Vehicles: true,
-  });
+  const [activeParent, setActiveParent] = useState<string>("");
+  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>(
+    {},
+  );
+
+  // Clear activeParent when navigating to pages that don't belong to any parent
+  useEffect(() => {
+    if (activeParent) {
+      const activeParentItem = navItems.find(
+        item => item.label === activeParent,
+      );
+      if (activeParentItem?.children) {
+        const isOnActiveParentChild = activeParentItem.children.some(
+          child => pathname === child.path,
+        );
+        if (!isOnActiveParentChild) {
+          setActiveParent("");
+        }
+      }
+    }
+  }, [pathname, activeParent]);
 
   // Check if we're on a settings page
   const isSettingsPage = pathname.startsWith("/settings");
@@ -90,7 +107,6 @@ const SideBar = () => {
     return <SettingsSidebar />;
   }
 
-  // Otherwise render the main navigation sidebar
   const toggleExpand = (label: string) => {
     setExpandedItems(prev => ({ ...prev, [label]: !prev[label] }));
   };
@@ -114,10 +130,17 @@ const SideBar = () => {
   };
 
   const isParentActive = (label: string) => {
-    const hasActiveChild = navItems
-      .find(item => item.label === label)
-      ?.children?.some(child => pathname === child.path);
+    const item = navItems.find(item => item.label === label);
 
+    // For items without children, check if current path matches item path
+    if (!item?.children) {
+      return pathname === item?.path;
+    }
+
+    // For items with children, check if any child is active
+    const hasActiveChild = item.children.some(child => pathname === child.path);
+
+    // Return true if activeParent matches and no child is active
     return activeParent === label && !hasActiveChild;
   };
 
