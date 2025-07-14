@@ -97,7 +97,7 @@ export const useVehicles = (filters?: VehicleFilter, id?: string) => {
     onSuccess: async (data, variables) => {
       await queryClient.invalidateQueries({ queryKey: ["vehicles"] });
       await queryClient.invalidateQueries({
-        queryKey: ["vehicle", variables.id.toString()],
+        queryKey: ["vehicle", variables.id],
       });
     },
   });
