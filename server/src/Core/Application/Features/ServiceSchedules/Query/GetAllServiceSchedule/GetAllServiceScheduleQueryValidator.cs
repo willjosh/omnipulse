@@ -10,7 +10,7 @@ public class GetAllServiceScheduleQueryValidator : AbstractValidator<GetAllServi
 {
     public GetAllServiceScheduleQueryValidator()
     {
-        var validServiceScheduleSortFields = new[] { "name", "isactive", "createdat" };
+        var validServiceScheduleSortFields = new[] { "name", "isactive", "createdat", "updatedat" };
 
         RuleFor(x => x.Parameters)
             .NotNull()
