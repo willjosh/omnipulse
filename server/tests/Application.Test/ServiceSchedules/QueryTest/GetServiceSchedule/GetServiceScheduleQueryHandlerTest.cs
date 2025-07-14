@@ -48,10 +48,8 @@ public class GetServiceScheduleQueryHandlerTest
             CreatedAt = now,
             UpdatedAt = now,
             Name = "Test Program",
-            OEMTag = "OEM123",
-            PrimaryMeterType = Domain.Entities.Enums.MeterTypeEnum.MILES,
-            SecondaryMeterType = Domain.Entities.Enums.MeterTypeEnum.HOURS,
             IsActive = true,
+            VehicleServicePrograms = [],
             ServiceSchedules = []
         };
         var serviceSchedule = new ServiceSchedule
@@ -164,10 +162,8 @@ public class GetServiceScheduleQueryHandlerTest
             CreatedAt = now,
             UpdatedAt = now,
             Name = "Nav Program",
-            OEMTag = "OEM456",
-            PrimaryMeterType = Domain.Entities.Enums.MeterTypeEnum.KILOMETER,
-            SecondaryMeterType = Domain.Entities.Enums.MeterTypeEnum.HOURS,
             IsActive = true,
+            VehicleServicePrograms = [],
             ServiceSchedules = []
         };
         var navSchedule = new ServiceSchedule
