@@ -81,7 +81,7 @@ public class UpdateServiceTaskCommandHandlerTest
             EstimatedCost = 100.00m,
             Category = ServiceTaskCategoryEnum.CORRECTIVE,
             IsActive = true,
-            ServiceScheduleTasks = [],
+            XrefServiceScheduleServiceTasks = [],
             MaintenanceHistories = [],
             WorkOrderLineItems = []
         };

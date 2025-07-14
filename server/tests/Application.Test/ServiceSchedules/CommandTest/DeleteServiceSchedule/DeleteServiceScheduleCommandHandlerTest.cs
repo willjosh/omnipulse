@@ -17,13 +17,18 @@ public class DeleteServiceScheduleCommandHandlerTest
 {
     private readonly DeleteServiceScheduleCommandHandler _handler;
     private readonly Mock<IServiceScheduleRepository> _mockServiceScheduleRepository;
+    private readonly Mock<IXrefServiceScheduleServiceTaskRepository> _mockXrefRepo;
     private readonly Mock<IAppLogger<DeleteServiceScheduleCommandHandler>> _mockLogger;
 
     public DeleteServiceScheduleCommandHandlerTest()
     {
         _mockServiceScheduleRepository = new();
+        _mockXrefRepo = new();
         _mockLogger = new();
-        _handler = new(_mockServiceScheduleRepository.Object, _mockLogger.Object);
+        _handler = new(
+            _mockServiceScheduleRepository.Object,
+            _mockXrefRepo.Object,
+            _mockLogger.Object);
     }
 
     [Fact]
@@ -39,7 +44,7 @@ public class DeleteServiceScheduleCommandHandlerTest
             IsActive = true,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
-            ServiceScheduleTasks = [],
+            XrefServiceScheduleServiceTasks = [],
             ServiceProgram = new ServiceProgram
             {
                 ID = 1,
@@ -56,6 +61,7 @@ public class DeleteServiceScheduleCommandHandlerTest
         _mockServiceScheduleRepository.Setup(repo => repo.GetByIdAsync(command.ServiceScheduleID)).ReturnsAsync(returnedSchedule);
         _mockServiceScheduleRepository.Setup(repo => repo.Delete(returnedSchedule));
         _mockServiceScheduleRepository.Setup(repo => repo.SaveChangesAsync()).ReturnsAsync(1);
+        _mockXrefRepo.Setup(x => x.RemoveAllForScheduleAsync(command.ServiceScheduleID)).Returns(Task.CompletedTask);
 
         // Act
         var result = await _handler.Handle(command, CancellationToken.None);
@@ -63,6 +69,7 @@ public class DeleteServiceScheduleCommandHandlerTest
         // Assert
         Assert.Equal(command.ServiceScheduleID, result);
         _mockServiceScheduleRepository.Verify(repo => repo.GetByIdAsync(command.ServiceScheduleID), Times.Once);
+        _mockXrefRepo.Verify(x => x.RemoveAllForScheduleAsync(command.ServiceScheduleID), Times.Once);
         _mockServiceScheduleRepository.Verify(repo => repo.Delete(returnedSchedule), Times.Once);
         _mockServiceScheduleRepository.Verify(repo => repo.SaveChangesAsync(), Times.Once);
     }
@@ -79,6 +86,7 @@ public class DeleteServiceScheduleCommandHandlerTest
 
         // Assert
         _mockServiceScheduleRepository.Verify(repo => repo.GetByIdAsync(command.ServiceScheduleID), Times.Once);
+        _mockXrefRepo.Verify(x => x.RemoveAllForScheduleAsync(It.IsAny<int>()), Times.Never);
         _mockServiceScheduleRepository.Verify(repo => repo.Delete(It.IsAny<ServiceSchedule>()), Times.Never);
         _mockServiceScheduleRepository.Verify(repo => repo.SaveChangesAsync(), Times.Never);
     }

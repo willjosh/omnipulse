@@ -24,6 +24,7 @@ public class CreateServiceScheduleCommandHandlerTest
     private readonly CreateServiceScheduleCommandHandler _commandHandler;
     private readonly Mock<IServiceScheduleRepository> _mockScheduleRepository = new();
     private readonly Mock<IServiceProgramRepository> _mockProgramRepository = new();
+    private readonly Mock<IXrefServiceScheduleServiceTaskRepository> _mockXrefRepository = new();
     private readonly Mock<IValidator<CreateServiceScheduleCommand>> _mockValidator = new();
     private readonly Mock<IAppLogger<CreateServiceScheduleCommandHandler>> _mockLogger = new();
 
@@ -35,6 +36,7 @@ public class CreateServiceScheduleCommandHandlerTest
         _commandHandler = new CreateServiceScheduleCommandHandler(
             _mockScheduleRepository.Object,
             _mockProgramRepository.Object,
+            _mockXrefRepository.Object,
             _mockValidator.Object,
             _mockLogger.Object,
             mapper);
@@ -44,6 +46,7 @@ public class CreateServiceScheduleCommandHandlerTest
     private static CreateServiceScheduleCommand CreateValidCommand(
         int serviceProgramId = 1,
         string name = "5000 km / 6 month service",
+        List<int>? serviceTaskIDs = null,
         int? timeIntervalValue = 6,
         TimeUnitEnum? timeIntervalUnit = TimeUnitEnum.Weeks,
         int? timeBufferValue = 1,
@@ -56,6 +59,7 @@ public class CreateServiceScheduleCommandHandlerTest
         bool isActive = true) => new(
             ServiceProgramID: serviceProgramId,
             Name: name,
+            ServiceTaskIDs: serviceTaskIDs ?? new List<int> { 1, 2 },
             TimeIntervalValue: timeIntervalValue,
             TimeIntervalUnit: timeIntervalUnit,
             TimeBufferValue: timeBufferValue,
@@ -87,7 +91,8 @@ public class CreateServiceScheduleCommandHandlerTest
     public async Task Handler_Should_Return_ID_On_Success()
     {
         // Arrange
-        var command = CreateValidCommand();
+        var serviceTaskIDs = new List<int> { 1, 2 };
+        var command = CreateValidCommand(serviceTaskIDs: serviceTaskIDs);
         SetupValidValidation(command);
 
         _mockProgramRepository.Setup(r => r.ExistsAsync(command.ServiceProgramID)).ReturnsAsync(true);
@@ -108,8 +113,9 @@ public class CreateServiceScheduleCommandHandlerTest
             IsActive = command.IsActive,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
-            ServiceScheduleTasks = [],
-            ServiceProgram = null!
+            // Navigation Properties - Nullify
+            XrefServiceScheduleServiceTasks = [],
+            ServiceProgram = null!,
         };
         _mockScheduleRepository.Setup(r => r.AddAsync(It.IsAny<ServiceSchedule>())).ReturnsAsync(expectedEntity);
         _mockScheduleRepository.Setup(r => r.SaveChangesAsync()).ReturnsAsync(1);
