@@ -58,6 +58,17 @@ export function useTechnicians(filter: TechnicianFilter = {}) {
   };
 }
 
+export function useTechnician(id: string) {
+  return useQuery({
+    queryKey: ["technician", id],
+    queryFn: async () => {
+      const { data } = await agent.get(`/technicians/${id}`);
+      return data as Technician;
+    },
+    enabled: !!id,
+  });
+}
+
 export function useCreateTechnician() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -75,13 +86,13 @@ export function useUpdateTechnician() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (command: UpdateTechnicianCommand) => {
-      const { data } = await agent.put(`/technicians/${command.Id}`, command);
+      const { data } = await agent.put(`/technicians/${command.id}`, command);
       return data;
     },
     onSuccess: async (_data, variables) => {
       await queryClient.invalidateQueries({ queryKey: ["technicians"] });
       await queryClient.invalidateQueries({
-        queryKey: ["technician", variables.Id],
+        queryKey: ["technician", variables.id.toString()],
       });
     },
   });
