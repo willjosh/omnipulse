@@ -13,9 +13,9 @@ export interface CreateVehicleGroupCommand {
 
 export interface UpdateVehicleGroupCommand {
   id: number;
-  name: string;
-  description: string;
-  isActive: boolean;
+  Name: string;
+  Description: string;
+  IsActive: boolean;
 }
 
 export interface VehicleGroupFilter {
