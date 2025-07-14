@@ -14,6 +14,6 @@ public class ServiceProgramRepository : GenericRepository<ServiceProgram>, IServ
 
     public async Task<bool> IsNameUniqueAsync(string name)
     {
-        return !await _dbSet.AnyAsync(sp => sp.Name.Equals(name, StringComparison.CurrentCultureIgnoreCase));
+        return !await _dbSet.AnyAsync(sp => sp.Name == name);
     }
 }
