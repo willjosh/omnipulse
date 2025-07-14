@@ -1,16 +1,32 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useVehicleGroups } from "@/app/_hooks/vehicle-groups/useVehicleGroups";
-import { CreateVehicleGroupCommand } from "@/app/_hooks/vehicle-groups/vehicleGroupTypes";
+import {
+  CreateVehicleGroupCommand,
+  VehicleGroup,
+} from "@/app/_hooks/vehicle-groups/vehicleGroupTypes";
 import { Plus, Layers } from "lucide-react";
 import { Loading } from "@/app/_features/shared/feedback";
+import { DataTable } from "@/app/_features/shared/table";
+import { ConfirmModal } from "@/app/_features/shared/modal";
+import { Archive } from "@/app/_features/shared/icons";
+import { vehicleGroupTableColumns } from "@/app/_features/vehicle-groups/VehicleGroupTableColumns";
 
 const VehicleGroupsPage = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    vehicleGroup?: VehicleGroup;
+  }>({ isOpen: false });
 
-  const { vehicleGroups, isLoading, createVehicleGroupMutation } =
-    useVehicleGroups();
+  const {
+    vehicleGroups,
+    isLoading,
+    createVehicleGroupMutation,
+    deleteVehicleGroupMutation,
+  } = useVehicleGroups();
 
   const [formData, setFormData] = useState({
     Name: "",
@@ -42,82 +58,96 @@ const VehicleGroupsPage = () => {
     setFormData({ Name: "", Description: "", IsActive: true });
   };
 
+  const handleDeleteVehicleGroup = async () => {
+    if (!confirmModal.vehicleGroup) return;
+
+    try {
+      await deleteVehicleGroupMutation.mutateAsync(
+        confirmModal.vehicleGroup.id,
+      );
+      setConfirmModal({ isOpen: false });
+    } catch (error) {
+      console.error("Error deleting vehicle group:", error);
+    }
+  };
+
+  const vehicleGroupActions = useMemo(
+    () => [
+      {
+        key: "DELETE",
+        label: "Delete",
+        variant: "danger" as const,
+        icon: <Archive />,
+        onClick: (vehicleGroup: VehicleGroup) => {
+          setConfirmModal({ isOpen: true, vehicleGroup });
+        },
+      },
+    ],
+    [],
+  );
+
+  const handleSelectAll = () => {
+    if (!vehicleGroups) return;
+
+    const allGroupIds = vehicleGroups.map(group => group.id.toString());
+    const allSelected = allGroupIds.every(id => selectedGroups.includes(id));
+
+    if (allSelected) {
+      setSelectedGroups([]);
+    } else {
+      setSelectedGroups(allGroupIds);
+    }
+  };
+
+  const handleGroupSelect = (groupId: string) => {
+    setSelectedGroups(prev =>
+      prev.includes(groupId)
+        ? prev.filter(id => id !== groupId)
+        : [...prev, groupId],
+    );
+  };
+
   if (isLoading) {
     return <Loading />;
   }
 
   return (
     <div className="flex-1 p-6">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <Layers className="w-8 h-8 text-[var(--primary-color)]" />
-            <h1 className="text-2xl font-bold text-gray-900">Vehicle Groups</h1>
-          </div>
-          <button
-            onClick={handleCreateClick}
-            className="flex items-center gap-2 bg-[var(--primary-color)] text-white px-4 py-2 rounded-md hover:bg-[var(--primary-dark)] transition-colors"
-          >
-            <Plus size={16} />
-            Create Group
-          </button>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <Layers className="w-8 h-8 text-[var(--primary-color)]" />
+          <h1 className="text-2xl font-bold text-gray-900">Vehicle Groups</h1>
         </div>
-
-        {/* Vehicle Groups Table */}
-        <div className="bg-white rounded-lg shadow-sm border border-[var(--border)] overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b border-[var(--border)]">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Name
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Description
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {vehicleGroups.map(group => (
-                  <tr key={group.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
-                        {group.Name}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-gray-500 max-w-xs truncate">
-                        {group.Description || "No description"}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          group.IsActive
-                            ? "bg-green-100 text-green-800"
-                            : "bg-red-100 text-red-800"
-                        }`}
-                      >
-                        {group.IsActive ? "Active" : "Inactive"}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {vehicleGroups.length === 0 && (
-            <div className="text-center py-8">
-              <Layers className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500">No vehicle groups found</p>
-            </div>
-          )}
-        </div>
+        <button
+          onClick={handleCreateClick}
+          className="flex items-center gap-2 bg-[var(--primary-color)] text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+        >
+          <Plus size={16} />
+          Create Group
+        </button>
       </div>
+
+      {/* Vehicle Groups Table */}
+      <DataTable<VehicleGroup>
+        data={vehicleGroups || []}
+        columns={vehicleGroupTableColumns}
+        selectedItems={selectedGroups}
+        onSelectItem={handleGroupSelect}
+        onSelectAll={handleSelectAll}
+        actions={vehicleGroupActions}
+        showActions={true}
+        loading={isLoading}
+        fixedLayout={false}
+        getItemId={group =>
+          group.id ? group.id.toString() : `temp-${Date.now()}`
+        }
+        emptyState={
+          <div className="text-center py-8">
+            <Layers className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-500">No vehicle groups found</p>
+          </div>
+        }
+      />
 
       {/* Create Modal */}
       {showCreateModal && (
@@ -190,6 +220,16 @@ const VehicleGroupsPage = () => {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ isOpen: false })}
+        onConfirm={handleDeleteVehicleGroup}
+        title="Delete Vehicle Group"
+        message={`Are you sure you want to delete "${confirmModal.vehicleGroup?.Name}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
     </div>
   );
 };

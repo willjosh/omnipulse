@@ -7,6 +7,9 @@ const middlewares = jsonServer.defaults();
 // Add custom middleware for pagination wrapper
 server.use(middlewares);
 
+// Ensure body parsing for custom routes
+server.use(jsonServer.bodyParser);
+
 // Custom route for vehicles with pagination wrapper
 server.get("/vehicles", (req, res) => {
   const db = router.db;
@@ -263,20 +266,30 @@ server.get("/issues/:id", (req, res) => {
 
 // Create a new vehicle group
 server.post("/vehicleGroups", (req, res) => {
-  const db = router.db;
-  const vehicleGroups = db.get("vehicleGroups");
-  const newVehicleGroup = req.body;
+  try {
+    const db = router.db;
+    const vehicleGroups = db.get("vehicleGroups");
+    const newVehicleGroup = req.body;
 
-  // Generate new ID
-  const maxId = vehicleGroups
-    .value()
-    .reduce((max, group) => Math.max(max, group.id || 0), 0);
-  newVehicleGroup.id = maxId + 1;
+    if (!newVehicleGroup) {
+      return res.status(400).json({ error: "Request body is required" });
+    }
 
-  // Add the new vehicle group
-  vehicleGroups.push(newVehicleGroup).write();
+    const allGroups = vehicleGroups.value();
+    const maxId =
+      allGroups.length > 0
+        ? Math.max(...allGroups.map(group => parseInt(group.id) || 0))
+        : 0;
 
-  res.status(201).json(newVehicleGroup);
+    newVehicleGroup.id = maxId + 1;
+
+    vehicleGroups.push(newVehicleGroup).write();
+
+    res.status(201).json(newVehicleGroup);
+  } catch (error) {
+    console.error("Error creating vehicle group:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 // Custom route for vehicleGroups with pagination wrapper
