@@ -10,7 +10,7 @@ namespace Domain.Entities;
 /// <remarks>
 /// A service schedule can be configured by time, mileage, or a combination of both.
 /// It belongs to a single <see cref="ServiceProgram"/>.
-/// 1:N <see cref="ServiceScheduleTask"/>s.
+/// 1:N <see cref="XrefServiceScheduleServiceTask"/>s.
 ///
 /// <list type="bullet">
 ///   <item>Must reference exactly one ServiceProgram via <see cref="ServiceProgramID"/>.</item>
@@ -47,6 +47,6 @@ public class ServiceSchedule : BaseEntity
     public required bool IsActive { get; set; } = true;
 
     // Navigation Properties
-    public required ICollection<ServiceScheduleTask> ServiceScheduleTasks { get; set; } = [];
+    public required ICollection<XrefServiceScheduleServiceTask> XrefServiceScheduleServiceTasks { get; set; } = [];
     public required ServiceProgram ServiceProgram { get; set; }
 }

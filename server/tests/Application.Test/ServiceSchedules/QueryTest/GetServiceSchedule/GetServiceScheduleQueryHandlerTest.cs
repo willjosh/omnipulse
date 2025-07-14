@@ -26,7 +26,11 @@ public class GetServiceScheduleQueryHandlerTest
 
     public GetServiceScheduleQueryHandlerTest()
     {
-        var config = new MapperConfiguration(cfg => cfg.AddProfile(new ServiceScheduleMappingProfile()));
+        var config = new MapperConfiguration(cfg =>
+        {
+            cfg.AddProfile(new ServiceScheduleMappingProfile());
+            cfg.AddProfile(new ServiceTaskMappingProfile());
+        });
         config.AssertConfigurationIsValid();
 
         _mapper = config.CreateMapper();
@@ -68,17 +72,12 @@ public class GetServiceScheduleQueryHandlerTest
             FirstServiceMileage = 500,
             IsActive = true,
             ServiceProgram = serviceProgram,
-            ServiceScheduleTasks =
+            XrefServiceScheduleServiceTasks =
             [
-                new ServiceScheduleTask
+                new XrefServiceScheduleServiceTask
                 {
-                    ID = 1,
-                    CreatedAt = now,
-                    UpdatedAt = now,
                     ServiceScheduleID = 1,
                     ServiceTaskID = 1,
-                    IsMandatory = true,
-                    SequenceNumber = 1,
                     ServiceSchedule = null!, // Not needed for test
                     ServiceTask = new ServiceTask
                     {
@@ -90,20 +89,15 @@ public class GetServiceScheduleQueryHandlerTest
                         EstimatedCost = 100,
                         Category = Domain.Entities.Enums.ServiceTaskCategoryEnum.PREVENTIVE,
                         IsActive = true,
-                        ServiceScheduleTasks = [],
+                        XrefServiceScheduleServiceTasks = [],
                         MaintenanceHistories = [],
                         WorkOrderLineItems = []
                     }
                 },
-                new ServiceScheduleTask
+                new XrefServiceScheduleServiceTask
                 {
-                    ID = 2,
-                    CreatedAt = now,
-                    UpdatedAt = now,
                     ServiceScheduleID = 1,
                     ServiceTaskID = 2,
-                    IsMandatory = true,
-                    SequenceNumber = 2,
                     ServiceSchedule = null!, // Not needed for test
                     ServiceTask = new ServiceTask
                     {
@@ -115,7 +109,7 @@ public class GetServiceScheduleQueryHandlerTest
                         EstimatedCost = 200,
                         Category = Domain.Entities.Enums.ServiceTaskCategoryEnum.CORRECTIVE,
                         IsActive = true,
-                        ServiceScheduleTasks = [],
+                        XrefServiceScheduleServiceTasks = [],
                         MaintenanceHistories = [],
                         WorkOrderLineItems = []
                     }
@@ -142,6 +136,10 @@ public class GetServiceScheduleQueryHandlerTest
         Assert.Equal(serviceSchedule.FirstServiceTimeUnit, result.FirstServiceTimeUnit);
         Assert.Equal(serviceSchedule.FirstServiceMileage, result.FirstServiceMileage);
         Assert.Equal(serviceSchedule.IsActive, result.IsActive);
+        Assert.NotNull(result.ServiceTasks);
+        Assert.Equal(2, result.ServiceTasks.Count);
+        Assert.Contains(result.ServiceTasks, t => t.ID == 1 && t.Name == "Task 1");
+        Assert.Contains(result.ServiceTasks, t => t.ID == 2 && t.Name == "Task 2");
     }
 
     [Fact]
@@ -181,17 +179,12 @@ public class GetServiceScheduleQueryHandlerTest
             Name = "Nav Test",
             IsActive = true,
             ServiceProgram = navServiceProgram,
-            ServiceScheduleTasks =
+            XrefServiceScheduleServiceTasks =
             [
-                new ServiceScheduleTask
+                new XrefServiceScheduleServiceTask
                 {
-                    ID = 3,
-                    CreatedAt = now,
-                    UpdatedAt = now,
                     ServiceScheduleID = 3,
                     ServiceTaskID = 3,
-                    IsMandatory = true,
-                    SequenceNumber = 1,
                     ServiceSchedule = null!,
                     ServiceTask = new ServiceTask
                     {
@@ -203,20 +196,15 @@ public class GetServiceScheduleQueryHandlerTest
                         EstimatedCost = 150,
                         Category = Domain.Entities.Enums.ServiceTaskCategoryEnum.INSPECTION,
                         IsActive = true,
-                        ServiceScheduleTasks = [],
+                        XrefServiceScheduleServiceTasks = [],
                         MaintenanceHistories = [],
                         WorkOrderLineItems = []
                     }
                 },
-                new ServiceScheduleTask
+                new XrefServiceScheduleServiceTask
                 {
-                    ID = 4,
-                    CreatedAt = now,
-                    UpdatedAt = now,
                     ServiceScheduleID = 3,
                     ServiceTaskID = 4,
-                    IsMandatory = true,
-                    SequenceNumber = 2,
                     ServiceSchedule = null!,
                     ServiceTask = new ServiceTask
                     {
@@ -228,20 +216,15 @@ public class GetServiceScheduleQueryHandlerTest
                         EstimatedCost = 250,
                         Category = Domain.Entities.Enums.ServiceTaskCategoryEnum.WARRANTY,
                         IsActive = true,
-                        ServiceScheduleTasks = [],
+                        XrefServiceScheduleServiceTasks = [],
                         MaintenanceHistories = [],
                         WorkOrderLineItems = []
                     }
                 },
-                new ServiceScheduleTask
+                new XrefServiceScheduleServiceTask
                 {
-                    ID = 5,
-                    CreatedAt = now,
-                    UpdatedAt = now,
                     ServiceScheduleID = 3,
                     ServiceTaskID = 5,
-                    IsMandatory = true,
-                    SequenceNumber = 3,
                     ServiceSchedule = null!,
                     ServiceTask = new ServiceTask
                     {
@@ -253,7 +236,7 @@ public class GetServiceScheduleQueryHandlerTest
                         EstimatedCost = 350,
                         Category = Domain.Entities.Enums.ServiceTaskCategoryEnum.EMERGENCY,
                         IsActive = true,
-                        ServiceScheduleTasks = [],
+                        XrefServiceScheduleServiceTasks = [],
                         MaintenanceHistories = [],
                         WorkOrderLineItems = []
                     }
@@ -272,5 +255,10 @@ public class GetServiceScheduleQueryHandlerTest
         Assert.Equal(navSchedule.Name, result.Name);
         Assert.Equal(navSchedule.ServiceProgramID, result.ServiceProgramID);
         Assert.Equal(navSchedule.IsActive, result.IsActive);
+        Assert.NotNull(result.ServiceTasks);
+        Assert.Equal(3, result.ServiceTasks.Count);
+        Assert.Contains(result.ServiceTasks, t => t.ID == 3 && t.Name == "Task 3");
+        Assert.Contains(result.ServiceTasks, t => t.ID == 4 && t.Name == "Task 4");
+        Assert.Contains(result.ServiceTasks, t => t.ID == 5 && t.Name == "Task 5");
     }
 }

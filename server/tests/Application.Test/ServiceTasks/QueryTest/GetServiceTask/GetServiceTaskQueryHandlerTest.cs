@@ -53,7 +53,7 @@ public class GetServiceTaskQueryHandlerTest
             EstimatedCost = 85.50m,
             Category = ServiceTaskCategoryEnum.PREVENTIVE,
             IsActive = true,
-            ServiceScheduleTasks = [],
+            XrefServiceScheduleServiceTasks = [],
             MaintenanceHistories = [],
             WorkOrderLineItems = []
         };

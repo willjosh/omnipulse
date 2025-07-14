@@ -1,6 +1,6 @@
 using Application.Features.ServiceSchedules.Command.CreateServiceSchedule;
 using Application.Features.ServiceSchedules.Command.UpdateServiceSchedule;
-using Application.Features.ServiceSchedules.Query.GetServiceSchedule;
+using Application.Features.ServiceSchedules.Query;
 
 using AutoMapper;
 
@@ -17,7 +17,7 @@ public class ServiceScheduleMappingProfile : Profile
             .ForMember(dest => dest.ID, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
-            .ForMember(dest => dest.ServiceScheduleTasks, opt => opt.Ignore())
+            .ForMember(dest => dest.XrefServiceScheduleServiceTasks, opt => opt.Ignore())
             .ForMember(dest => dest.ServiceProgram, opt => opt.Ignore());
 
         // UpdateServiceSchedule
@@ -25,10 +25,11 @@ public class ServiceScheduleMappingProfile : Profile
             .ForMember(dest => dest.ID, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
-            .ForMember(dest => dest.ServiceScheduleTasks, opt => opt.Ignore())
+            .ForMember(dest => dest.XrefServiceScheduleServiceTasks, opt => opt.Ignore())
             .ForMember(dest => dest.ServiceProgram, opt => opt.Ignore());
 
-        // GetServiceSchedule
-        CreateMap<ServiceSchedule, GetServiceScheduleDTO>(MemberList.Destination);
+        // GetServiceSchedule & GetAllServiceSchedule
+        CreateMap<ServiceSchedule, ServiceScheduleDTO>(MemberList.Destination)
+            .ForMember(dest => dest.ServiceTasks, opt => opt.Ignore());
     }
 }
