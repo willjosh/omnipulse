@@ -49,7 +49,7 @@ public class GetServiceScheduleQueryHandlerTest
             UpdatedAt = now,
             Name = "Test Program",
             IsActive = true,
-            VehicleServicePrograms = [],
+            XrefServiceProgramVehicles = [],
             ServiceSchedules = []
         };
         var serviceSchedule = new ServiceSchedule
@@ -163,7 +163,7 @@ public class GetServiceScheduleQueryHandlerTest
             UpdatedAt = now,
             Name = "Nav Program",
             IsActive = true,
-            VehicleServicePrograms = [],
+            XrefServiceProgramVehicles = [],
             ServiceSchedules = []
         };
         var navSchedule = new ServiceSchedule

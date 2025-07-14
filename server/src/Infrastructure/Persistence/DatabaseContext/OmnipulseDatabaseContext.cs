@@ -45,7 +45,7 @@ public class OmnipulseDatabaseContext(DbContextOptions<OmnipulseDatabaseContext>
     public DbSet<VehicleGroup> VehicleGroups { get; set; }
     public DbSet<VehicleImage> VehicleImages { get; set; }
     public DbSet<VehicleInspection> VehicleInspections { get; set; }
-    public DbSet<VehicleServiceProgram> VehicleServicePrograms { get; set; }
+    public DbSet<XrefServiceProgramVehicle> XrefServiceProgramVehicles { get; set; }
     public DbSet<WorkOrder> WorkOrders { get; set; }
     public DbSet<WorkOrderIssue> WorkOrderIssues { get; set; }
     public DbSet<WorkOrderLineItem> WorkOrderLineItems { get; set; }

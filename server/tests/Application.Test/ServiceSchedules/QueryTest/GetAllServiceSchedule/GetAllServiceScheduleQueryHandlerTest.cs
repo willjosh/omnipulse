@@ -55,7 +55,7 @@ public class GetAllServiceScheduleQueryHandlerTest
             Name = name,
             IsActive = true,
             // Navigation Properties
-            VehicleServicePrograms = [],
+            XrefServiceProgramVehicles = [],
             ServiceSchedules = []
         };
     }

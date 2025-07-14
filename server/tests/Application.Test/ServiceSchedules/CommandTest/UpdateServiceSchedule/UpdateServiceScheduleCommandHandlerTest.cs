@@ -117,7 +117,7 @@ public class UpdateServiceScheduleCommandHandlerTest
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 Name = "Program",
-                VehicleServicePrograms = [],
+                XrefServiceProgramVehicles = [],
                 ServiceSchedules = [],
                 IsActive = true
             }
@@ -194,7 +194,7 @@ public class UpdateServiceScheduleCommandHandlerTest
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 Name = "Program 2",
-                VehicleServicePrograms = [],
+                XrefServiceProgramVehicles = [],
                 ServiceSchedules = [],
                 IsActive = true
             }

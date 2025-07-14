@@ -50,7 +50,7 @@ public class DeleteServiceScheduleCommandHandlerTest
                 ID = 1,
                 Name = "Test Program",
                 IsActive = true,
-                VehicleServicePrograms = [],
+                XrefServiceProgramVehicles = [],
                 ServiceSchedules = [],
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
