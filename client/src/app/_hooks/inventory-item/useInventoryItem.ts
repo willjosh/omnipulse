@@ -119,7 +119,7 @@ export function useUpdateInventoryItem() {
     onSuccess: async (_data, variables) => {
       await queryClient.invalidateQueries({ queryKey: ["inventoryItems"] });
       await queryClient.invalidateQueries({
-        queryKey: ["inventoryItem", variables.id],
+        queryKey: ["inventoryItem", variables.id.toString()],
       });
     },
   });
