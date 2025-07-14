@@ -2,7 +2,7 @@ export interface Technician {
   id: string;
   FirstName: string;
   LastName: string;
-  HireDate: string; // ISO string
+  HireDate: string;
   IsActive: boolean;
   Email: string;
 }
@@ -12,16 +12,16 @@ export interface CreateTechnicianCommand {
   Password: string;
   FirstName: string;
   LastName: string;
-  HireDate: string; // ISO string
-  IsActive?: boolean; // optional, default true
+  HireDate: string;
+  IsActive: boolean;
 }
 
 export interface UpdateTechnicianCommand {
-  Id: string;
-  FirstName?: string;
-  LastName?: string;
-  HireDate?: string; // ISO string, optional
-  IsActive?: boolean;
+  id: string;
+  FirstName?: string | null;
+  LastName?: string | null;
+  HireDate?: string | null;
+  IsActive?: boolean | null;
 }
 
 export interface TechnicianFilter {

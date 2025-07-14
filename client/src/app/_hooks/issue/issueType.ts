@@ -41,16 +41,27 @@ export interface IssueWithLabels
 export interface CreateIssueCommand {
   VehicleID: number;
   Title: string;
-  Description?: string;
+  Description?: string | null;
   PriorityLevel: PriorityLevelEnum;
   Category: IssueCategoryEnum;
   Status: IssueStatusEnum;
   ReportedByUserID: string;
-  ReportedDate?: string;
+  ReportedDate?: string | null;
 }
 
-export interface UpdateIssueCommand extends CreateIssueCommand {
+export interface UpdateIssueCommand {
   id: number;
+  VehicleID: number;
+  Title: string;
+  Description?: string | null;
+  PriorityLevel: PriorityLevelEnum;
+  Category: IssueCategoryEnum;
+  Status: IssueStatusEnum;
+  ReportedByUserID: string;
+  ReportedDate?: string | null;
+  ResolutionNotes?: string | null;
+  ResolvedDate?: string | null;
+  ResolvedByUserID?: string | null;
 }
 
 export interface IssueFilter {
