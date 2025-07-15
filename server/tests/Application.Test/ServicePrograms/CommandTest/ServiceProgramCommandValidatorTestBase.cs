@@ -1,4 +1,6 @@
 using Application.Features.ServicePrograms.Command.CreateServiceProgram;
+using Application.Test.ServicePrograms.CommandTest.CreateServiceProgram;
+// using Application.Test.ServicePrograms.CommandTest.UpdateServiceProgram; // TODO: Not implemented yet
 
 using FluentValidation;
 
@@ -13,7 +15,6 @@ namespace Application.Test.ServicePrograms.CommandTest;
 ///   <item><see cref="CreateServiceProgramCommandValidatorTest"/></item>
 ///   <item><see cref="UpdateServiceProgramCommandValidatorTest"/></item>
 /// </list>
-/// </summary>
 /// </summary>
 /// <typeparam name="TCommand">The type of command to test.</typeparam>
 /// <typeparam name="TValidator">The type of validator to test. Must be <see cref="IValidator{TCommand}"/>.</typeparam>
