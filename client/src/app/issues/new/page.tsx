@@ -6,7 +6,7 @@ import IssueDetailsForm from "../../_features/issue/components/IssueDetailsForm"
 import FormContainer from "../../_features/shared/form/FormContainer";
 import SecondaryButton from "../../_features/shared/button/SecondaryButton";
 import PrimaryButton from "../../_features/shared/button/PrimaryButton";
-// import { useCreateIssue } from "../../_hooks/issue/useIssues";
+import { useCreateIssue } from "../../_hooks/issue/useIssues";
 import {
   IssueFormState,
   validateIssueForm,
@@ -31,7 +31,7 @@ export default function CreateIssueHeaderOnly() {
   }));
 
   // Create issue mutation
-  // const { mutate: createIssue, isPending } = useCreateIssue();
+  const { mutate: createIssue, isPending } = useCreateIssue();
 
   // Validation
   const validate = () => {
@@ -50,34 +50,34 @@ export default function CreateIssueHeaderOnly() {
   const toCreateIssueCommand = () => mapFormToCreateIssueCommand(form);
 
   // Save Issue handler
-  // const handleSave = () => {
-  //   if (!validate()) return;
-  //   createIssue(toCreateIssueCommand(), {
-  //     onSuccess: () => {
-  //       router.push("/issues");
-  //     },
-  //   });
-  // };
+  const handleSave = () => {
+    if (!validate()) return;
+    createIssue(toCreateIssueCommand(), {
+      onSuccess: () => {
+        router.push("/issues");
+      },
+    });
+  };
 
   // Save & Add Another handler
-  // const handleSaveAndAddAnother = () => {
-  //   if (!validate()) return;
-  //   createIssue(toCreateIssueCommand(), {
-  //     onSuccess: () => {
-  //       setForm({
-  //         VehicleID: "", // Relating an issue to a vehicle
-  //         PriorityLevel: "", // Setting a priority level
-  //         ReportedDate: "", // System auto-generates timestamp
-  //         Title: "",
-  //         Description: "", // Updating a detailed and formatted description
-  //         Category: "", // Selecting an issue category
-  //         Status: "1", // Selecting a status category
-  //         ReportedByUserID: "",
-  //       });
-  //       setResetKey(k => k + 1);
-  //     },
-  //   });
-  // };
+  const handleSaveAndAddAnother = () => {
+    if (!validate()) return;
+    createIssue(toCreateIssueCommand(), {
+      onSuccess: () => {
+        setForm({
+          VehicleID: "", // Relating an issue to a vehicle
+          PriorityLevel: "", // Setting a priority level
+          ReportedDate: "", // System auto-generates timestamp
+          Title: "",
+          Description: "", // Updating a detailed and formatted description
+          Category: "", // Selecting an issue category
+          Status: "1", // Selecting a status category
+          ReportedByUserID: "",
+        });
+        setResetKey(k => k + 1);
+      },
+    });
+  };
 
   const breadcrumbs = [
     { label: "Issues", href: "/issues" },
@@ -90,14 +90,16 @@ export default function CreateIssueHeaderOnly() {
         title="New Issue"
         breadcrumbs={breadcrumbs}
         onCancel={() => router.back()}
-        // onSave={handleSave}
+        onSave={handleSave}
+        saveText={isPending ? "Saving..." : "Save Issue"}
+        isSaving={isPending}
       />
       <IssueDetailsForm
         key={resetKey}
         value={form}
         errors={errors}
         onChange={handleFormChange}
-        // disabled={isPending}
+        disabled={isPending}
         vehicles={isLoadingVehicles ? [] : vehicleOptions}
       />
       {/* Photos & Documents Row */}
@@ -152,14 +154,14 @@ export default function CreateIssueHeaderOnly() {
             Cancel
           </SecondaryButton>
           <div className="flex gap-3">
-            <SecondaryButton /* onClick={handleSaveAndAddAnother} disabled={isPending} */
+            <SecondaryButton
+              onClick={handleSaveAndAddAnother}
+              disabled={isPending}
             >
-              {/* {isPending ? "Saving..." : "Save & Add Another"} */}
-              Save & Add Another
+              {isPending ? "Saving..." : "Save & Add Another"}
             </SecondaryButton>
-            <PrimaryButton /* onClick={handleSave} disabled={isPending} */>
-              {/* {isPending ? "Saving..." : "Save Issue"} */}
-              Save Issue
+            <PrimaryButton onClick={handleSave} disabled={isPending}>
+              {isPending ? "Saving..." : "Save Issue"}
             </PrimaryButton>
           </div>
         </div>
