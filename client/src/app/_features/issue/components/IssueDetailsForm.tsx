@@ -18,13 +18,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Autocomplete, TextField } from "@mui/material";
 import { useTechnicians } from "../../../_hooks/technician/useTechnicians";
 import { useVehicles } from "../../../_hooks/vehicle/useVehicles";
-
-// Add time options for dropdown
-const timeOptions: string[] = [];
-for (let hour = 0; hour < 24; hour++) {
-  timeOptions.push(`${hour % 12 || 12}:00${hour < 12 ? "am" : "pm"}`);
-  timeOptions.push(`${hour % 12 || 12}:30${hour < 12 ? "am" : "pm"}`);
-}
+import { getTimeOptions } from "@/app/_utils/dateTimeUtils";
 
 interface IssueDetailsFormProps {
   value: {
@@ -48,6 +42,7 @@ const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
   onChange,
   disabled = false,
 }) => {
+  const timeOptions = getTimeOptions();
   type VehicleOption = { value: string; label: string };
   // Search/filter state for vehicle dropdown
   const [vehicleSearch, setVehicleSearch] = useState("");
