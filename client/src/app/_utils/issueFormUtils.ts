@@ -14,7 +14,7 @@ export interface IssueFormState {
 export function validateIssueForm(form: IssueFormState) {
   const errors: { [key: string]: string } = {};
   if (!form.VehicleID) errors.VehicleID = "Vehicle is required";
-  // if (!form.PriorityLevel) errors.PriorityLevel = "Priority is required";
+  if (!form.PriorityLevel) errors.PriorityLevel = "Priority is required";
   // if (!form.ReportedDate) errors.ReportedDate = "Reported date is required";
   if (!form.Title) errors.Title = "Summary is required";
   if (!form.Description) errors.Description = "Description is required";
@@ -28,7 +28,7 @@ export function validateIssueForm(form: IssueFormState) {
 export function mapFormToCreateIssueCommand(form: IssueFormState) {
   return {
     VehicleID: Number(form.VehicleID),
-    // PriorityLevel: Number(form.PriorityLevel),
+    PriorityLevel: Number(form.PriorityLevel),
     // ReportedDate: form.ReportedDate,
     Title: form.Title,
     Description: form.Description,
