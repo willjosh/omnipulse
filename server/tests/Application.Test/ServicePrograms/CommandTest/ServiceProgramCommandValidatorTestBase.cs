@@ -1,11 +1,10 @@
 using Application.Features.ServicePrograms.Command.CreateServiceProgram;
 using Application.Test.ServicePrograms.CommandTest.CreateServiceProgram;
-// using Application.Test.ServicePrograms.CommandTest.UpdateServiceProgram; // TODO: Not implemented yet
+using Application.Test.ServicePrograms.CommandTest.UpdateServiceProgram;
 
 using FluentValidation;
 
 using Xunit;
-// using Application.Test.ServicePrograms.CommandTest.UpdateServiceProgram; // TODO: Not implemented yet
 
 namespace Application.Test.ServicePrograms.CommandTest;
 
