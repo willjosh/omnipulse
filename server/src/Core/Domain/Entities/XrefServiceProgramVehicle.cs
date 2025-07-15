@@ -6,7 +6,7 @@ public class XrefServiceProgramVehicle
     public required int ServiceProgramID { get; set; }
     public required int VehicleID { get; set; }
 
-    public required string AddedByUserID { get; set; } // FK
+    // public required string AddedByUserID { get; set; } // FK // TODO
     public required DateTime AddedAt { get; set; } = DateTime.UtcNow;
 
     // Navigation Properties

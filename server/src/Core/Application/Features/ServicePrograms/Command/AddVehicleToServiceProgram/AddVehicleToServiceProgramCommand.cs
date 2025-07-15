@@ -13,4 +13,5 @@ namespace Application.Features.ServicePrograms.Command.AddVehicleToServiceProgra
 public record AddVehicleToServiceProgramCommand(
     int ServiceProgramID,
     int VehicleID
+    // string AddedByUserID // TODO
 ) : IRequest<(int ServiceProgramID, int VehicleID)>;
