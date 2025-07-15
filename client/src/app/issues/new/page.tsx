@@ -13,7 +13,6 @@ import {
   mapFormToCreateIssueCommand,
   emptyIssueFormState,
 } from "../../_utils/issueFormUtils";
-import { useVehicles } from "../../_hooks/vehicle/useVehicles";
 
 export default function CreateIssueHeaderOnly() {
   const router = useRouter();
@@ -22,13 +21,6 @@ export default function CreateIssueHeaderOnly() {
   const [form, setForm] = useState<IssueFormState>(emptyIssueFormState);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [resetKey, setResetKey] = useState(0); // for resetting form
-
-  // Fetch vehicles for dropdown
-  const { vehicles, isLoadingVehicles } = useVehicles();
-  const vehicleOptions = vehicles.map(v => ({
-    value: v.id.toString(),
-    label: v.Name,
-  }));
 
   // Create issue mutation
   const { mutate: createIssue, isPending } = useCreateIssue();
@@ -100,7 +92,6 @@ export default function CreateIssueHeaderOnly() {
         errors={errors}
         onChange={handleFormChange}
         disabled={isPending}
-        vehicles={isLoadingVehicles ? [] : vehicleOptions}
       />
       {/* Photos & Documents Row */}
       <div className="max-w-2xl mx-auto w-full mt-6 flex gap-6">
@@ -166,7 +157,6 @@ export default function CreateIssueHeaderOnly() {
           </div>
         </div>
       </div>
-      {/* Page content goes here */}
     </div>
   );
 }
