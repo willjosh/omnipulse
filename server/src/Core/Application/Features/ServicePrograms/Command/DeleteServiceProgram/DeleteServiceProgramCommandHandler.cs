@@ -16,7 +16,8 @@ public class DeleteServiceProgramCommandHandler : IRequestHandler<DeleteServiceP
 
     public DeleteServiceProgramCommandHandler(
         IServiceProgramRepository serviceProgramRepository,
-        IServiceScheduleRepository serviceScheduleRepository)
+        IServiceScheduleRepository serviceScheduleRepository,
+        IAppLogger<DeleteServiceProgramCommandHandler> logger)
     {
         _serviceProgramRepository = serviceProgramRepository;
         _serviceScheduleRepository = serviceScheduleRepository;
@@ -26,13 +27,23 @@ public class DeleteServiceProgramCommandHandler : IRequestHandler<DeleteServiceP
     public async Task<int> Handle(DeleteServiceProgramCommand request, CancellationToken cancellationToken)
     {
         // Get ServiceProgram by ID
-        var serviceProgram = await _serviceProgramRepository.GetByIdAsync(request.ServiceProgramID);
-        if (serviceProgram == null)
+        var targetServiceProgram = await _serviceProgramRepository.GetByIdAsync(request.ServiceProgramID);
+        if (targetServiceProgram == null)
         {
             _logger.LogError($"{nameof(ServiceProgram)} with {nameof(ServiceProgram.ID)} {request.ServiceProgramID} not found.");
             throw new EntityNotFoundException(nameof(ServiceProgram), nameof(ServiceProgram.ID), request.ServiceProgramID.ToString());
         }
 
-        // TODO
+        // Delete all Service Schedules inside the Service Program
+
+        // Delete all related XrefServiceProgramVehicle entries
+
+        // Delete the Service Program
+
+        // Save changes
+        await _serviceProgramRepository.SaveChangesAsync();
+
+        // Return the deleted ServiceProgramID
+        return request.ServiceProgramID;
     }
 }

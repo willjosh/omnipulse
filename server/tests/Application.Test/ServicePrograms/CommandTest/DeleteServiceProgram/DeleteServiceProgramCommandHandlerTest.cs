@@ -1,3 +1,4 @@
+using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
 using Application.Features.ServicePrograms.Command.DeleteServiceProgram;
@@ -15,12 +16,14 @@ public class DeleteServiceProgramCommandHandlerTest
     private readonly DeleteServiceProgramCommandHandler _commandHandler;
     private readonly Mock<IServiceProgramRepository> _mockServiceProgramRepository = new();
     private readonly Mock<IServiceScheduleRepository> _mockServiceScheduleRepository = new();
+    private readonly Mock<IAppLogger<DeleteServiceProgramCommandHandler>> _mockLogger = new();
 
     public DeleteServiceProgramCommandHandlerTest()
     {
         _commandHandler = new(
             _mockServiceProgramRepository.Object,
-            _mockServiceScheduleRepository.Object);
+            _mockServiceScheduleRepository.Object,
+            _mockLogger.Object);
     }
 
     [Fact]
