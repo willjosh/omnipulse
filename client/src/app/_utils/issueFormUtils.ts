@@ -40,18 +40,25 @@ export function mapFormToCreateIssueCommand(form: IssueFormState) {
 }
 
 export function mapFormToUpdateIssueCommand(form: IssueFormState, id: number) {
+  function toISOorNull(dateStr: string | undefined): string | null {
+    if (!dateStr) return null;
+    const d = new Date(dateStr);
+    return isNaN(d.getTime())
+      ? null
+      : d.toISOString().replace(/\.\d{3}Z$/, "Z");
+  }
   return {
     id,
     VehicleID: Number(form.VehicleID),
     PriorityLevel: Number(form.PriorityLevel),
-    ReportedDate: form.ReportedDate || null,
+    ReportedDate: toISOorNull(form.ReportedDate),
     Title: form.Title,
     Description: form.Description,
     Category: Number(form.Category),
     Status: Number(form.Status),
     ReportedByUserID: form.ReportedByUserID,
     ResolutionNotes: form.ResolutionNotes || null,
-    ResolvedDate: form.ResolvedDate || null,
+    ResolvedDate: toISOorNull(form.ResolvedDate),
     ResolvedByUserID: form.ResolvedByUserID || null,
   };
 }
