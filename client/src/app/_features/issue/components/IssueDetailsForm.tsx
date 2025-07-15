@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import FormContainer from "../../shared/form/FormContainer";
 import FormField from "../../shared/form/FormField";
 import {
@@ -63,7 +63,22 @@ const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
     usersList.find(u => u.value === value.ReportedByUserID) || null;
 
   // Local state for time selection
-  const [reportedTime, setReportedTime] = React.useState<string>("");
+  const [reportedTime, setReportedTime] = useState<string>("");
+
+  // Utility to extract time in HH:mm from ISO string
+  function extractTimeFromISO(isoString: string | null | undefined): string {
+    if (!isoString) return "";
+    const date = new Date(isoString);
+    if (isNaN(date.getTime())) return "";
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    return `${hours}:${minutes}`;
+  }
+
+  // Prefill reportedTime when value.ReportedDate changes
+  useEffect(() => {
+    setReportedTime(extractTimeFromISO(value.ReportedDate));
+  }, [value.ReportedDate]);
 
   return (
     <FormContainer title="Details" className="mt-6 max-w-2xl mx-auto w-full">
@@ -286,7 +301,12 @@ const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
           <div className="w-1/3 mr-4">
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <DatePicker
-                value={value.ReportedDate ? new Date(value.ReportedDate) : null}
+                value={
+                  value.ReportedDate &&
+                  !isNaN(new Date(value.ReportedDate).getTime())
+                    ? new Date(value.ReportedDate)
+                    : null
+                }
                 onChange={date => {
                   let newTime = reportedTime;
                   if (!newTime) {
