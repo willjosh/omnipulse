@@ -221,31 +221,50 @@ server.get("/issues", (req, res) => {
   });
 });
 
-// Create a new issue (minimal, flexible for incremental requirements)
 server.post("/issues", (req, res) => {
   const db = router.db;
   const issues = db.get("issues");
-  const newIssue = req.body;
+  const vehicles = db.get("vehicles").value();
+  const users = db.get("technicians").value();
 
-  // Generate new unique ID
-  const maxId = issues
-    .value()
-    .reduce((max, issue) => Math.max(max, issue.id || 0), 0);
-  newIssue.id = maxId + 1;
+  // Find next id and IssueNumber
+  const allIssues = issues.value();
+  const nextId = allIssues.length
+    ? Math.max(...allIssues.map(i => i.id)) + 1
+    : 1;
+  const nextIssueNumber = allIssues.length
+    ? Math.max(...allIssues.map(i => i.IssueNumber)) + 1
+    : 1001;
 
-  // Add createdAt timestamp
-  newIssue.createdAt = new Date().toISOString();
+  // Look up vehicle name
+  const vehicle = vehicles.find(v => v.id === req.body.VehicleID);
+  const vehicleName = vehicle ? vehicle.Name || vehicle.VehicleName : "";
 
-  // Only require Title and ReportedByUserID for now
-  if (!newIssue.Title || !newIssue.ReportedByUserID) {
-    return res
-      .status(400)
-      .json({ error: "Title and ReportedByUserID are required." });
-  }
+  // Look up user name
+  const user = users.find(u => u.id === req.body.ReportedByUserID);
+  const reportedByUserName = user ? `${user.FirstName} ${user.LastName}` : "";
 
-  // Add the new issue
+  // Compose new issue
+  const newIssue = {
+    id: nextId,
+    IssueNumber: nextIssueNumber,
+    VehicleID: req.body.VehicleID,
+    VehicleName: vehicleName,
+    Title: req.body.Title,
+    Description: req.body.Description,
+    Category: req.body.Category,
+    PriorityLevel: req.body.PriorityLevel,
+    Status: req.body.Status,
+    ReportedByUserID: req.body.ReportedByUserID,
+    ReportedByUserName: reportedByUserName,
+    ReportedDate: req.body.ReportedDate,
+    ResolvedDate: null,
+    ResolvedByUserID: null,
+    ResolvedByUserName: null,
+    ResolutionNotes: null,
+  };
+
   issues.push(newIssue).write();
-
   res.status(201).json(newIssue);
 });
 
