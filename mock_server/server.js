@@ -230,6 +230,34 @@ server.put("/issues/:id", (req, res) => {
   const issue = db.get("issues").find({ id: issueId });
 
   if (issue.value()) {
+    // Map VehicleID to VehicleName
+    const vehicles = db.get("vehicles").value();
+    const vehicle = vehicles.find(v => v.id === updatedIssue.VehicleID);
+    updatedIssue.VehicleName = vehicle
+      ? vehicle.Name || vehicle.VehicleName
+      : "";
+
+    // Map ReportedByUserID to ReportedByUserName
+    const users = db.get("technicians").value();
+    const reportedByUser = users.find(
+      u => u.id === updatedIssue.ReportedByUserID,
+    );
+    updatedIssue.ReportedByUserName = reportedByUser
+      ? `${reportedByUser.FirstName} ${reportedByUser.LastName}`
+      : "";
+
+    // Map ResolvedByUserID to ResolvedByUserName (if not null)
+    if (updatedIssue.ResolvedByUserID) {
+      const resolvedByUser = users.find(
+        u => u.id === updatedIssue.ResolvedByUserID,
+      );
+      updatedIssue.ResolvedByUserName = resolvedByUser
+        ? `${resolvedByUser.FirstName} ${resolvedByUser.LastName}`
+        : "";
+    } else {
+      updatedIssue.ResolvedByUserName = null;
+    }
+
     issue.assign(updatedIssue).write();
     res.json(issue.value());
   } else {
