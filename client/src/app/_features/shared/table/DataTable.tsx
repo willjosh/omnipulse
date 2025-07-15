@@ -24,7 +24,7 @@ interface DataTableProps<T> {
   loading?: boolean;
   emptyState?: React.ReactNode;
   fixedLayout?: boolean;
-  actions?: ActionItem[];
+  actions?: ActionItem[] | ((item: T) => ActionItem[]);
   showActions?: boolean;
   // Function to extract the ID from each item
   getItemId: (item: T) => string;
@@ -180,7 +180,11 @@ function DataTable<T>({
                     {showActions && (
                       <ActionsColumnCell
                         item={item}
-                        actions={actions}
+                        actions={
+                          typeof actions === "function"
+                            ? actions(item)
+                            : actions
+                        }
                         onActionClick={handleActionClick}
                       />
                     )}

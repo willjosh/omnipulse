@@ -629,6 +629,26 @@ server.post("/technicians", (req, res) => {
   res.status(201).json(newTechnician);
 });
 
+server.post("/technicians/status/:id", (req, res) => {
+  const db = router.db;
+  const technicianId = req.params.id;
+
+  const technician = db.get("technicians").find({ id: technicianId });
+
+  if (technician.value()) {
+    const currentStatus = technician.value().IsActive;
+    const newStatus = !currentStatus;
+
+    technician.assign({ IsActive: newStatus }).write();
+    res.json({
+      message: `Technician ${newStatus ? "activated" : "deactivated"} successfully`,
+      technician: technician.value(),
+    });
+  } else {
+    res.status(404).json({ error: "Technician not found" });
+  }
+});
+
 // Custom route for inventoryItems with pagination wrapper
 server.get("/inventoryItems", (req, res) => {
   const db = router.db;
@@ -893,7 +913,6 @@ server.listen(PORT, () => {
   );
   console.log(`GET /technicians/:id - Get single technician`);
   console.log(`POST /technicians - Create new technician`);
-  console.log(`PUT /technicians/:id - Update technician`);
   console.log(`POST /technicians/deactivate/:id - Deactivate technician`);
 
   // Inventory Items
