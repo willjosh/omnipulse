@@ -18,3 +18,20 @@ export function combineDateAndTime(dateStr: string, timeStr: string): string {
   date.setHours(hours, minutes, 0, 0);
   return date.toISOString().replace(/\.\d{3}Z$/, "Z");
 }
+
+export function toISOorNull(dateStr: string | undefined): string | null {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  return isNaN(d.getTime()) ? null : d.toISOString().replace(/\.\d{3}Z$/, "Z");
+}
+
+export function extractTimeFromISO(
+  isoString: string | null | undefined,
+): string {
+  if (!isoString) return "";
+  const date = new Date(isoString);
+  if (isNaN(date.getTime())) return "";
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  return `${hours}:${minutes}`;
+}
