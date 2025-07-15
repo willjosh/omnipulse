@@ -24,7 +24,7 @@ interface IssueListTableProps {
 
 const columns = [
   { key: "issueNumber", header: "Issue #" },
-  { key: "title", header: "Title" },
+  { key: "title", header: "Title", width: "280px" },
   { key: "vehicle", header: "Vehicle" },
   { key: "category", header: "Category" },
   { key: "priority", header: "Priority" },

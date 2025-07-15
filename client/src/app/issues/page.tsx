@@ -69,7 +69,10 @@ export default function IssuesPage() {
     <div className="container mx-auto px-4 mt-4">
       <div className="flex items-center justify-between mb-2">
         <h1 className="text-2xl font-bold">Issues</h1>
-        <button className="bg-blue-600 text-white px-4 rounded-lg font-semibold hover:bg-blue-700 transition">
+        <button
+          className="bg-blue-600 text-white px-4 rounded-lg font-semibold hover:bg-blue-700 transition"
+          onClick={() => router.push("/issues/new")}
+        >
           Add Issue
         </button>
       </div>
