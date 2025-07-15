@@ -221,6 +221,22 @@ server.get("/issues", (req, res) => {
   });
 });
 
+// Update issue
+server.put("/issues/:id", (req, res) => {
+  const db = router.db;
+  const issueId = parseInt(req.params.id);
+  const updatedIssue = req.body;
+
+  const issue = db.get("issues").find({ id: issueId });
+
+  if (issue.value()) {
+    issue.assign(updatedIssue).write();
+    res.json(issue.value());
+  } else {
+    res.status(404).json({ error: "Issue not found" });
+  }
+});
+
 server.post("/issues", (req, res) => {
   const db = router.db;
   const issues = db.get("issues");
@@ -827,7 +843,8 @@ server.listen(PORT, () => {
   console.log(`GET /issues?page=1&limit=5 - Get issues with pagination`);
   console.log(`GET /issues?search=issue - Search issues`);
   console.log(`GET /issues/:id - Get single issue`);
-  console.log(`POST /issues - Create new issue (minimal)`);
+  console.log(`PUT /issues/:id - Update issue`);
+  console.log(`POST /issues - Create new issue`);
 
   // Vehicle Groups
   console.log(`GET /vehicleGroups - Get paginated vehicle groups`);
