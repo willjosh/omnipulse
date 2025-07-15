@@ -18,7 +18,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Autocomplete, TextField } from "@mui/material";
 import { useTechnicians } from "../../../_hooks/technician/useTechnicians";
 import { useVehicles } from "../../../_hooks/vehicle/useVehicles";
-import { getTimeOptions } from "@/app/_utils/dateTimeUtils";
+import { getTimeOptions, combineDateAndTime } from "@/app/_utils/dateTimeUtils";
 import { IssueDetailsFormProps } from "@/app/_types/issueTypes";
 import { VehicleOption } from "@/app/_types/vehicleTypes";
 
@@ -64,17 +64,6 @@ const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
 
   // Local state for time selection
   const [reportedTime, setReportedTime] = React.useState<string>("");
-  // Helper to combine date and time into ISO string
-  function combineDateAndTime(dateStr: string, timeStr: string): string {
-    if (!dateStr || !timeStr) return "";
-    const date = new Date(dateStr);
-    const [time, meridian] = timeStr.split(/(am|pm)/);
-    let [hours, minutes] = time.split(":").map(Number);
-    if (meridian === "pm" && hours !== 12) hours += 12;
-    if (meridian === "am" && hours === 12) hours = 0;
-    date.setHours(hours, minutes, 0, 0);
-    return date.toISOString();
-  }
 
   return (
     <FormContainer title="Details" className="mt-6 max-w-2xl mx-auto w-full">
