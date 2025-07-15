@@ -19,22 +19,7 @@ import { Autocomplete, TextField } from "@mui/material";
 import { useTechnicians } from "../../../_hooks/technician/useTechnicians";
 import { useVehicles } from "../../../_hooks/vehicle/useVehicles";
 import { getTimeOptions } from "@/app/_utils/dateTimeUtils";
-
-interface IssueDetailsFormProps {
-  value: {
-    VehicleID: string;
-    PriorityLevel: string;
-    ReportedDate: string;
-    Title: string;
-    Description: string;
-    Status: string;
-    ReportedByUserID: string;
-    Category: string;
-  };
-  errors: { [key: string]: string };
-  onChange: (field: string, value: string) => void;
-  disabled?: boolean;
-}
+import { IssueDetailsFormProps } from "@/app/_types/issueTypes";
 
 const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
   value,
