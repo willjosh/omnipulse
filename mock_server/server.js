@@ -547,6 +547,44 @@ server.get("/technicians/:id", (req, res) => {
   }
 });
 
+// Create a new technician
+server.post("/technicians", (req, res) => {
+  const db = router.db;
+  const technicians = db.get("technicians");
+  const newTechnician = req.body;
+
+  const generateUUID = () => {
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+      /[xy]/g,
+      function (c) {
+        const r = (Math.random() * 16) | 0;
+        const v = c === "x" ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+      },
+    );
+  };
+
+  newTechnician.id = generateUUID();
+
+  if (newTechnician.HireDate && !newTechnician.HireDate.includes("T")) {
+    newTechnician.HireDate = new Date(newTechnician.HireDate).toISOString();
+  }
+
+  if (
+    !newTechnician.FirstName ||
+    !newTechnician.LastName ||
+    !newTechnician.Email
+  ) {
+    return res
+      .status(400)
+      .json({ error: "FirstName, LastName, and Email are required." });
+  }
+
+  technicians.push(newTechnician).write();
+
+  res.status(201).json(newTechnician);
+});
+
 // Custom route for inventoryItems with pagination wrapper
 server.get("/inventoryItems", (req, res) => {
   const db = router.db;
@@ -809,6 +847,9 @@ server.listen(PORT, () => {
     `GET /technicians?sortBy=firstname - Sort technicians by firstname`,
   );
   console.log(`GET /technicians/:id - Get single technician`);
+  console.log(`POST /technicians - Create new technician`);
+  console.log(`PUT /technicians/:id - Update technician`);
+  console.log(`POST /technicians/deactivate/:id - Deactivate technician`);
 
   // Inventory Items
   console.log(`GET /inventoryItems - Get paginated inventory items`);
