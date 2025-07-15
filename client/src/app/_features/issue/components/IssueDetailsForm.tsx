@@ -9,33 +9,15 @@ import {
   ComboboxOption,
 } from "@headlessui/react";
 import {
-  IssueCategoryEnum,
-  PriorityLevelEnum,
-} from "../../../_hooks/issue/issueEnum";
+  getCategoryOptions,
+  getPriorityOptions,
+} from "@/app/_utils/issueOptions";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Autocomplete, TextField } from "@mui/material";
 import { useTechnicians } from "../../../_hooks/technician/useTechnicians";
 import { useVehicles } from "../../../_hooks/vehicle/useVehicles";
-
-const categoryOptions = [
-  { value: IssueCategoryEnum.ENGINE.toString(), label: "Engine" },
-  { value: IssueCategoryEnum.TRANSMISSION.toString(), label: "Transmission" },
-  { value: IssueCategoryEnum.BRAKES.toString(), label: "Brakes" },
-  { value: IssueCategoryEnum.ELECTRICAL.toString(), label: "Electrical" },
-  { value: IssueCategoryEnum.BODY.toString(), label: "Body" },
-  { value: IssueCategoryEnum.TIRES.toString(), label: "Tires" },
-  { value: IssueCategoryEnum.HVAC.toString(), label: "HVAC" },
-  { value: IssueCategoryEnum.OTHER.toString(), label: "Other" },
-];
-
-const priorityOptions = [
-  { value: PriorityLevelEnum.LOW.toString(), label: "Low" },
-  { value: PriorityLevelEnum.MEDIUM.toString(), label: "Medium" },
-  { value: PriorityLevelEnum.HIGH.toString(), label: "High" },
-  { value: PriorityLevelEnum.CRITICAL.toString(), label: "Critical" },
-];
 
 // Add time options for dropdown
 const timeOptions: string[] = [];
@@ -193,8 +175,9 @@ const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
       <FormField label="Priority Level" required error={errors.PriorityLevel}>
         <Combobox
           value={
-            priorityOptions.find(opt => opt.value === value.PriorityLevel) ||
-            null
+            getPriorityOptions().find(
+              opt => opt.value === value.PriorityLevel,
+            ) || null
           }
           onChange={opt => opt && onChange("PriorityLevel", opt.value)}
           disabled={disabled}
@@ -225,7 +208,7 @@ const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
               </svg>
             </ComboboxButton>
             <ComboboxOptions className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-3xl shadow-lg max-h-60 overflow-auto">
-              {priorityOptions.map(opt => (
+              {getPriorityOptions().map(opt => (
                 <ComboboxOption
                   key={opt.value}
                   value={opt}
@@ -307,7 +290,8 @@ const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
       <FormField label="Category" required error={errors.Category}>
         <Combobox
           value={
-            categoryOptions.find(opt => opt.value === value.Category) || null
+            getCategoryOptions().find(opt => opt.value === value.Category) ||
+            null
           }
           onChange={opt => opt && onChange("Category", opt.value)}
           disabled={disabled}
@@ -338,7 +322,7 @@ const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
               </svg>
             </ComboboxButton>
             <ComboboxOptions className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-3xl shadow-lg max-h-60 overflow-auto">
-              {categoryOptions.map(opt => (
+              {getCategoryOptions().map(opt => (
                 <ComboboxOption
                   key={opt.value}
                   value={opt}
