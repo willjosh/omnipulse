@@ -4,16 +4,15 @@ import { DataTable } from "../../shared/table/";
 // Define the type for a single issue row (should match the data from useIssues)
 export interface IssueRow {
   id: string;
+  issueNumber: string;
+  title: string;
+  vehicle: string;
+  category: string;
   priority: string;
-  assetName: string;
-  assetRecordType: string;
-  number: string;
-  summary: string;
   status: string;
-  source: string;
+  reportedBy: string;
   reportedDate: string;
-  assigned: string;
-  labels: string;
+  assignedTo: string;
 }
 
 interface IssueListTableProps {
@@ -24,16 +23,15 @@ interface IssueListTableProps {
 }
 
 const columns = [
+  { key: "issueNumber", header: "Issue #" },
+  { key: "title", header: "Title" },
+  { key: "vehicle", header: "Vehicle" },
+  { key: "category", header: "Category" },
   { key: "priority", header: "Priority" },
-  { key: "assetName", header: "Asset Name" },
-  { key: "assetRecordType", header: "Asset Record Type" },
-  { key: "number", header: "Issue #" },
-  { key: "summary", header: "Summary" },
   { key: "status", header: "Status" },
-  { key: "source", header: "Source" },
+  { key: "reportedBy", header: "Reported By" },
   { key: "reportedDate", header: "Reported Date" },
-  { key: "assigned", header: "Assigned" },
-  { key: "labels", header: "Labels" },
+  { key: "assignedTo", header: "Assigned To" },
 ];
 
 export const IssueListTable: React.FC<IssueListTableProps> = ({

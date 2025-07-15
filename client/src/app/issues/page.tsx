@@ -30,16 +30,15 @@ export default function IssuesPage() {
     () =>
       issues.map((issue: IssueWithLabels) => ({
         id: issue.id.toString(),
+        issueNumber: `#${issue.IssueNumber}`,
+        title: issue.Title,
+        vehicle: issue.VehicleName,
+        category: issue.CategoryLabel,
         priority: issue.PriorityLevelLabel,
-        assetName: issue.VehicleName,
-        assetRecordType: "Vehicle",
-        number: `#${issue.IssueNumber}`,
-        summary: issue.Title,
         status: issue.StatusLabel,
-        source: issue.ReportedByUserName,
+        reportedBy: issue.ReportedByUserName,
         reportedDate: issue.ReportedDate || "Unknown",
-        assigned: issue.ResolvedByUserName || "Unknown",
-        labels: issue.CategoryLabel,
+        assignedTo: issue.ResolvedByUserName || "Unassigned",
       })),
     [issues],
   );
