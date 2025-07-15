@@ -80,7 +80,6 @@ public sealed class AddVehicleToServiceProgramCommandHandler : IRequestHandler<A
         newXref.User = null!; // TODO
 
         await _xrefRepository.AddAsync(newXref);
-        // await _xrefRepository.SaveChangesAsync(); // TODO: Do we need to save?
         _logger.LogInformation($"{nameof(XrefServiceProgramVehicle)} created successfully: {nameof(XrefServiceProgramVehicle.ServiceProgramID)}={request.ServiceProgramID}, {nameof(XrefServiceProgramVehicle.VehicleID)}={request.VehicleID}");
 
         return (request.ServiceProgramID, request.VehicleID);
