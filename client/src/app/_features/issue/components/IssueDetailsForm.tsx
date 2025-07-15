@@ -20,6 +20,7 @@ import { useTechnicians } from "../../../_hooks/technician/useTechnicians";
 import { useVehicles } from "../../../_hooks/vehicle/useVehicles";
 import { getTimeOptions } from "@/app/_utils/dateTimeUtils";
 import { IssueDetailsFormProps } from "@/app/_types/issueTypes";
+import { VehicleOption } from "@/app/_types/vehicleTypes";
 
 const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
   value,
@@ -28,7 +29,6 @@ const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
   disabled = false,
 }) => {
   const timeOptions = getTimeOptions();
-  type VehicleOption = { value: string; label: string };
   // Search/filter state for vehicle dropdown
   const [vehicleSearch, setVehicleSearch] = useState("");
   const { vehicles, isLoadingVehicles } = useVehicles();
