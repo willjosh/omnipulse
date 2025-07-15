@@ -24,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="InventoryItemLocations/QueryTest/GetAllInventoryItemLocation/" />
     <Folder Include="User/QueryTest/" />
     <Folder Include="WorkOrderLineItems/Command/" />
     <Folder Include="WorkOrderLineItems/Query/" />

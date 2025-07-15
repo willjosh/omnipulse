@@ -53,11 +53,9 @@ public class GetAllServiceScheduleQueryHandlerTest
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
             Name = name,
-            OEMTag = $"OEM{id}",
-            PrimaryMeterType = MeterTypeEnum.KILOMETER,
-            SecondaryMeterType = MeterTypeEnum.HOURS,
             IsActive = true,
             // Navigation Properties
+            XrefServiceProgramVehicles = [],
             ServiceSchedules = []
         };
     }

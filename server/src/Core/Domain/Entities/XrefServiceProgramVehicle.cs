@@ -2,7 +2,7 @@ using System;
 
 namespace Domain.Entities;
 
-public class VehicleServiceProgram
+public class XrefServiceProgramVehicle
 {
     public required int VehicleID { get; set; }
     public required int ServiceProgramID { get; set; }

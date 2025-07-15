@@ -49,10 +49,8 @@ public class DeleteServiceScheduleCommandHandlerTest
             {
                 ID = 1,
                 Name = "Test Program",
-                OEMTag = "OEM-123",
-                PrimaryMeterType = Domain.Entities.Enums.MeterTypeEnum.KILOMETER,
-                SecondaryMeterType = Domain.Entities.Enums.MeterTypeEnum.HOURS,
                 IsActive = true,
+                XrefServiceProgramVehicles = [],
                 ServiceSchedules = [],
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow

@@ -1,4 +1,5 @@
-using System;
+using Application.Test.ServiceSchedules.CommandTest.CreateServiceSchedule;
+using Application.Test.ServiceSchedules.CommandTest.UpdateServiceSchedule;
 
 using Domain.Entities.Enums;
 
@@ -8,6 +9,11 @@ using Xunit;
 
 namespace Application.Test.ServiceSchedules.CommandTest;
 
+/// <summary>
+/// Base validator test for <see cref="CreateServiceScheduleCommandValidatorTest"/> and <see cref="UpdateServiceScheduleCommandValidatorTest"/>.
+/// </summary>
+/// <typeparam name="TCommand">The type of command to test.</typeparam>
+/// <typeparam name="TValidator">The type of validator to test. Must be <see cref="IValidator{TCommand}"/>.</typeparam>
 public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidator>
     where TValidator : IValidator<TCommand>
 {

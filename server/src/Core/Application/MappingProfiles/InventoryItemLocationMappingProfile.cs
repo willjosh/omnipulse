@@ -1,4 +1,3 @@
-using System;
 
 using Application.Features.InventoryItemLocations.Command;
 
@@ -17,5 +16,7 @@ public class InventoryItemLocationMappingProfile : Profile
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore()) // Handled by BaseEntity
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore()) // Handled by BaseEntity
             .ForMember(dest => dest.Inventories, opt => opt.Ignore()); // Navigation collection
+
+        CreateMap<InventoryItemLocation, Application.Features.InventoryItemLocations.Query.GetAllInventoryItemLocation.GetAllInventoryItemLocationDTO>();
     }
 }

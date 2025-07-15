@@ -133,7 +133,7 @@ public class GetAllVehicleQueryHandlerTest
                 VehicleImages = [],
                 VehicleAssignments = [],
                 VehicleDocuments = [],
-                VehicleServicePrograms = [],
+                XrefServiceProgramVehicles = [],
                 ServiceReminders = [],
                 Issues = [],
                 VehicleInspections = []
@@ -166,7 +166,7 @@ public class GetAllVehicleQueryHandlerTest
                 VehicleImages = [],
                 VehicleAssignments = [],
                 VehicleDocuments = [],
-                VehicleServicePrograms = [],
+                XrefServiceProgramVehicles = [],
                 ServiceReminders = [],
                 Issues = [],
                 VehicleInspections = []
