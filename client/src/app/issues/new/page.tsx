@@ -65,13 +65,13 @@ export default function CreateIssueHeaderOnly() {
   //   createIssue(toCreateIssueCommand(), {
   //     onSuccess: () => {
   //       setForm({
-  //         // VehicleID: "", // Relating an issue to a vehicle
-  //         // PriorityLevel: "", // Setting a priority level
-  //         // ReportedDate: "", // System auto-generates timestamp
+  //         VehicleID: "", // Relating an issue to a vehicle
+  //         PriorityLevel: "", // Setting a priority level
+  //         ReportedDate: "", // System auto-generates timestamp
   //         Title: "",
-  //         // Description: "", // Updating a detailed and formatted description
-  //         // Category: "", // Selecting an issue category
-  //         // Status: "", // Selecting a status category
+  //         Description: "", // Updating a detailed and formatted description
+  //         Category: "", // Selecting an issue category
+  //         Status: "", // Selecting a status category
   //         ReportedByUserID: "",
   //       });
   //       setResetKey(k => k + 1);

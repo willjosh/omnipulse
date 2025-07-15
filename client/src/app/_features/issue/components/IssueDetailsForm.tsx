@@ -8,12 +8,24 @@ import {
   ComboboxOptions,
   ComboboxOption,
 } from "@headlessui/react";
+import { IssueCategoryEnum } from "../../../_hooks/issue/issueEnum";
 
 // Dummy data for vehicles and users (replace with real data/fetch in future)
 const users = [
   { value: "5e6e0ab3-3a11-403e-adb9-7a25fe678936", label: "John Smith" },
   { value: "952188a4-dc48-4dad-9c7b-c75da50bb241", label: "Sarah Wilson" },
   { value: "f1e2d3c4-b5a6-9870-fedc-ba0987654321", label: "Emma Davis" },
+];
+
+const categoryOptions = [
+  { value: IssueCategoryEnum.ENGINE.toString(), label: "Engine" },
+  { value: IssueCategoryEnum.TRANSMISSION.toString(), label: "Transmission" },
+  { value: IssueCategoryEnum.BRAKES.toString(), label: "Brakes" },
+  { value: IssueCategoryEnum.ELECTRICAL.toString(), label: "Electrical" },
+  { value: IssueCategoryEnum.BODY.toString(), label: "Body" },
+  { value: IssueCategoryEnum.TIRES.toString(), label: "Tires" },
+  { value: IssueCategoryEnum.HVAC.toString(), label: "HVAC" },
+  { value: IssueCategoryEnum.OTHER.toString(), label: "Other" },
 ];
 
 interface IssueDetailsFormProps {
@@ -26,6 +38,7 @@ interface IssueDetailsFormProps {
     // Category: string;
     // Status: string;
     ReportedByUserID: string;
+    Category: string;
   };
   errors: { [key: string]: string };
   onChange: (field: string, value: string) => void;
@@ -110,6 +123,75 @@ const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
                   }
                 >
                   {({ selected }: any) => (
+                    <>
+                      <span className="flex-1">{opt.label}</span>
+                      {selected && (
+                        <svg
+                          className="h-5 w-5 text-blue-600 ml-2"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                      )}
+                    </>
+                  )}
+                </ComboboxOption>
+              ))}
+            </ComboboxOptions>
+          </div>
+        </Combobox>
+      </FormField>
+      {/* Category Dropdown */}
+      <FormField label="Category" required error={errors.Category}>
+        <Combobox
+          value={
+            categoryOptions.find(opt => opt.value === value.Category) || null
+          }
+          onChange={opt => opt && onChange("Category", opt.value)}
+          disabled={disabled}
+        >
+          <div className="relative">
+            <ComboboxInput
+              className="w-full border border-gray-300 rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              displayValue={(opt: { value: string; label: string } | null) =>
+                opt?.label || ""
+              }
+              placeholder="Select category..."
+              disabled={disabled}
+              readOnly // disables typing, dropdown only
+            />
+            <ComboboxButton className="absolute inset-y-0 right-0 flex items-center pr-2">
+              <svg
+                className="h-5 w-5 text-gray-400"
+                viewBox="0 0 20 20"
+                fill="none"
+                stroke="currentColor"
+              >
+                <path
+                  d="M7 7l3-3 3 3m0 6l-3 3-3-3"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </ComboboxButton>
+            <ComboboxOptions className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-3xl shadow-lg max-h-60 overflow-auto">
+              {categoryOptions.map(opt => (
+                <ComboboxOption
+                  key={opt.value}
+                  value={opt}
+                  className={({ active, selected }) =>
+                    `cursor-pointer select-none px-4 py-2 flex items-center ${active ? "bg-blue-100" : ""}`
+                  }
+                >
+                  {({ selected }) => (
                     <>
                       <span className="flex-1">{opt.label}</span>
                       {selected && (
