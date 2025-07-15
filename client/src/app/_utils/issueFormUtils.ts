@@ -17,7 +17,7 @@ export function validateIssueForm(form: IssueFormState) {
   // if (!form.PriorityLevel) errors.PriorityLevel = "Priority is required";
   // if (!form.ReportedDate) errors.ReportedDate = "Reported date is required";
   if (!form.Title) errors.Title = "Summary is required";
-  // if (!form.Description) errors.Description = "Description is required";
+  if (!form.Description) errors.Description = "Description is required";
   if (!form.Category) errors.Category = "Category is required";
   // if (!form.Status) errors.Status = "Status is required";
   if (!form.ReportedByUserID)
@@ -31,7 +31,7 @@ export function mapFormToCreateIssueCommand(form: IssueFormState) {
     // PriorityLevel: Number(form.PriorityLevel),
     // ReportedDate: form.ReportedDate,
     Title: form.Title,
-    // Description: form.Description,
+    Description: form.Description,
     Category: Number(form.Category),
     // Status: Number(form.Status),
     ReportedByUserID: form.ReportedByUserID,
