@@ -5,7 +5,7 @@ export const technicianTableColumns = [
   {
     key: "FirstName",
     header: "Name",
-    sortable: false,
+    sortable: true,
     render: (technician: Technician) => (
       <div className="flex items-center">
         <div className="flex-shrink-0">
@@ -35,7 +35,7 @@ export const technicianTableColumns = [
   {
     key: "HireDate",
     header: "Hire Date",
-    sortable: false,
+    sortable: true,
     render: (technician: Technician) => {
       const hireDate = new Date(technician.HireDate);
       return (
