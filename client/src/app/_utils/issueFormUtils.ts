@@ -19,7 +19,7 @@ export function validateIssueForm(form: IssueFormState) {
   if (!form.Title) errors.Title = "Summary is required";
   if (!form.Description) errors.Description = "Description is required";
   if (!form.Category) errors.Category = "Category is required";
-  // if (!form.Status) errors.Status = "Status is required";
+  if (!form.Status) errors.Status = "Status is required";
   if (!form.ReportedByUserID)
     errors.ReportedByUserID = "Reported By is required";
   return errors;
@@ -33,7 +33,7 @@ export function mapFormToCreateIssueCommand(form: IssueFormState) {
     Title: form.Title,
     Description: form.Description,
     Category: Number(form.Category),
-    // Status: Number(form.Status),
+    Status: Number(form.Status),
     ReportedByUserID: form.ReportedByUserID,
   };
 }
@@ -44,7 +44,7 @@ export const emptyIssueFormState: IssueFormState = {
   ReportedDate: "",
   Description: "",
   Category: "",
-  Status: "",
+  Status: "1", // Default to "Open"
   Title: "",
   ReportedByUserID: "",
 };

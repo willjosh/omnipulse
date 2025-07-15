@@ -46,7 +46,7 @@ interface IssueDetailsFormProps {
     Title: string;
     Description: string;
     // Category: string;
-    // Status: string;
+    Status: string;
     ReportedByUserID: string;
     Category: string;
   };

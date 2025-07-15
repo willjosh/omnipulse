@@ -71,7 +71,7 @@ export default function CreateIssueHeaderOnly() {
   //         Title: "",
   //         Description: "", // Updating a detailed and formatted description
   //         Category: "", // Selecting an issue category
-  //         Status: "", // Selecting a status category
+  //         Status: "1", // Selecting a status category
   //         ReportedByUserID: "",
   //       });
   //       setResetKey(k => k + 1);
