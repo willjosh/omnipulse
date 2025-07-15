@@ -9,6 +9,9 @@ using AutoMapper;
 using Domain.Entities;
 using Domain.Entities.Enums;
 
+using FluentValidation;
+using FluentValidation.Results;
+
 using Moq;
 
 using Xunit;
@@ -21,6 +24,7 @@ public class AddVehicleToServiceProgramCommandHandlerTest
     private readonly Mock<IXrefServiceProgramVehicleRepository> _mockXrefRepository = new();
     private readonly Mock<IServiceProgramRepository> _mockServiceProgramRepository = new();
     private readonly Mock<IVehicleRepository> _mockVehicleRepository = new();
+    private readonly Mock<IValidator<AddVehicleToServiceProgramCommand>> _mockValidator = new();
 
     // Constants
     private static readonly DateTime FixedDate = new(2025, 6, 2, 9, 0, 0, DateTimeKind.Utc);
@@ -34,9 +38,24 @@ public class AddVehicleToServiceProgramCommandHandlerTest
             _mockXrefRepository.Object,
             _mockServiceProgramRepository.Object,
             _mockVehicleRepository.Object,
+            _mockValidator.Object,
             mockLogger.Object,
             mapper
         );
+    }
+
+    private void SetupValidValidation(AddVehicleToServiceProgramCommand command)
+    {
+        var validResult = new ValidationResult();
+        _mockValidator.Setup(v => v.ValidateAsync(command, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(validResult);
+    }
+
+    private void SetupInvalidValidation(AddVehicleToServiceProgramCommand command, string propertyName = nameof(AddVehicleToServiceProgramCommand.ServiceProgramID), string errorMessage = "Invalid Validation")
+    {
+        var invalidResult = new ValidationResult([new ValidationFailure(propertyName, errorMessage)]);
+        _mockValidator.Setup(v => v.ValidateAsync(command, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(invalidResult);
     }
 
     private static ServiceProgram CreateServiceProgram(int id = 1, bool isActive = true) => new()
@@ -89,6 +108,7 @@ public class AddVehicleToServiceProgramCommandHandlerTest
     {
         // Arrange
         var command = new AddVehicleToServiceProgramCommand(1, 2);
+        SetupValidValidation(command);
         var serviceProgram = CreateServiceProgram(1, true);
         var vehicle = CreateVehicle(2, VehicleStatusEnum.ACTIVE);
         _mockServiceProgramRepository.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(serviceProgram);
@@ -108,6 +128,7 @@ public class AddVehicleToServiceProgramCommandHandlerTest
     {
         // Arrange
         var command = new AddVehicleToServiceProgramCommand(1, 2);
+        SetupValidValidation(command);
         var serviceProgram = CreateServiceProgram(1, true);
         var vehicle = CreateVehicle(2, VehicleStatusEnum.ACTIVE);
         _mockServiceProgramRepository.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(serviceProgram);
@@ -123,6 +144,7 @@ public class AddVehicleToServiceProgramCommandHandlerTest
     {
         // Arrange
         var command = new AddVehicleToServiceProgramCommand(1, 2);
+        SetupValidValidation(command);
         _mockServiceProgramRepository.Setup(r => r.GetByIdAsync(1)).ReturnsAsync((ServiceProgram?)null);
 
         // Act & Assert
@@ -134,6 +156,7 @@ public class AddVehicleToServiceProgramCommandHandlerTest
     {
         // Arrange
         var command = new AddVehicleToServiceProgramCommand(1, 2);
+        SetupValidValidation(command);
         var serviceProgram = CreateServiceProgram(1, false);
         _mockServiceProgramRepository.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(serviceProgram);
 
@@ -146,6 +169,7 @@ public class AddVehicleToServiceProgramCommandHandlerTest
     {
         // Arrange
         var command = new AddVehicleToServiceProgramCommand(1, 2);
+        SetupValidValidation(command);
         var serviceProgram = CreateServiceProgram(1, true);
         _mockServiceProgramRepository.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(serviceProgram);
         _mockVehicleRepository.Setup(r => r.GetByIdAsync(2)).ReturnsAsync((Vehicle?)null);
@@ -159,6 +183,7 @@ public class AddVehicleToServiceProgramCommandHandlerTest
     {
         // Arrange
         var command = new AddVehicleToServiceProgramCommand(1, 2);
+        SetupValidValidation(command);
         var serviceProgram = CreateServiceProgram(1, true);
         var vehicle = CreateVehicle(2, VehicleStatusEnum.INACTIVE);
         _mockServiceProgramRepository.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(serviceProgram);
