@@ -117,11 +117,9 @@ public class UpdateServiceScheduleCommandHandlerTest
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 Name = "Program",
-                OEMTag = "TAG",
-                PrimaryMeterType = MeterTypeEnum.HOURS,
-                SecondaryMeterType = MeterTypeEnum.KILOMETER,
-                IsActive = true,
-                ServiceSchedules = []
+                XrefServiceProgramVehicles = [],
+                ServiceSchedules = [],
+                IsActive = true
             }
         };
         _mockScheduleRepository.Setup(r => r.GetByIdAsync(command.ServiceScheduleID)).ReturnsAsync(existingSchedule);
@@ -196,11 +194,9 @@ public class UpdateServiceScheduleCommandHandlerTest
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 Name = "Program 2",
-                OEMTag = "TAG2",
-                PrimaryMeterType = MeterTypeEnum.HOURS,
-                SecondaryMeterType = MeterTypeEnum.KILOMETER,
-                IsActive = true,
-                ServiceSchedules = []
+                XrefServiceProgramVehicles = [],
+                ServiceSchedules = [],
+                IsActive = true
             }
         };
         _mockScheduleRepository.Setup(r => r.GetByIdAsync(command.ServiceScheduleID)).ReturnsAsync(existingSchedule);

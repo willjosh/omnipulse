@@ -1,5 +1,3 @@
-using System;
-
 using Domain.Entities;
 
 using Microsoft.EntityFrameworkCore;
@@ -7,11 +5,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Persistence.Configs;
 
-public class VehicleServiceProgramConfiguration : IEntityTypeConfiguration<VehicleServiceProgram>
+public class XrefServiceProgramVehicleConfiguration : IEntityTypeConfiguration<XrefServiceProgramVehicle>
 {
-    public void Configure(EntityTypeBuilder<VehicleServiceProgram> builder)
+    public void Configure(EntityTypeBuilder<XrefServiceProgramVehicle> builder)
     {
-        builder.ToTable("VehicleServicePrograms");
+        builder.ToTable("XrefServiceProgramVehicles");
 
         // Composite Primary Key
         builder.HasKey(vsp => new { vsp.VehicleID, vsp.ServiceProgramID });
@@ -26,13 +24,13 @@ public class VehicleServiceProgramConfiguration : IEntityTypeConfiguration<Vehic
         builder.HasIndex(vsp => new { vsp.IsActive, vsp.AssignedDate });
 
         // Check Constraints
-        builder.ToTable(t => t.HasCheckConstraint("CK_VehicleServiceProgram_AssignedDate",
+        builder.ToTable(t => t.HasCheckConstraint("CK_XrefServiceProgramVehicle_AssignedDate",
             "AssignedDate >= '2000-01-01' AND AssignedDate <= GETDATE()"));
 
         // Table Relationships
         builder
             .HasOne(vsp => vsp.Vehicle)
-            .WithMany(v => v.VehicleServicePrograms)
+            .WithMany(v => v.XrefServiceProgramVehicles)
             .HasForeignKey(vsp => vsp.VehicleID)
             .OnDelete(DeleteBehavior.Cascade);
 
