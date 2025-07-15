@@ -25,13 +25,13 @@ interface IssueListTableProps {
 const columns = [
   { key: "issueNumber", header: "Issue #" },
   { key: "title", header: "Title", width: "280px" },
-  { key: "vehicle", header: "Vehicle" },
+  { key: "vehicle", header: "Vehicle", width: "180px" },
   { key: "category", header: "Category" },
   { key: "priority", header: "Priority" },
   { key: "status", header: "Status" },
-  { key: "reportedBy", header: "Reported By" },
-  { key: "reportedDate", header: "Reported Date" },
-  { key: "assignedTo", header: "Assigned To" },
+  { key: "reportedBy", header: "Reported By", width: "150px" },
+  { key: "reportedDate", header: "Reported Date", width: "190px" },
+  { key: "assignedTo", header: "Assigned To", width: "150px" },
 ];
 
 export const IssueListTable: React.FC<IssueListTableProps> = ({
