@@ -118,6 +118,9 @@ const TechnicianList: React.FC = () => {
         onSelectItem={handleTechnicianSelect}
         onSelectAll={handleSelectAll}
         onRowClick={handleRowClick}
+        onSort={handleSort}
+        sortBy={filters.sortBy}
+        sortOrder={filters.sortOrder}
         actions={[]}
         showActions={true}
         fixedLayout={false}
