@@ -5,7 +5,7 @@ export const technicianTableColumns = [
   {
     key: "FirstName",
     header: "Name",
-    sortable: false,
+    sortable: true,
     render: (technician: Technician) => (
       <div className="flex items-center">
         <div className="flex-shrink-0">
