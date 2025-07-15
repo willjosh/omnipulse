@@ -34,7 +34,7 @@ interface IssueDetailsFormProps {
     // PriorityLevel: string;
     // ReportedDate: string;
     Title: string;
-    // Description: string;
+    Description: string;
     // Category: string;
     // Status: string;
     ReportedByUserID: string;
@@ -224,6 +224,17 @@ const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
           onChange={e => onChange("Title", e.target.value)}
           placeholder="Enter summary"
           className="w-full border border-gray-300 rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white h-[40px]"
+          disabled={disabled}
+        />
+      </FormField>
+      {/* Description Field (Rich Text Editor placeholder) */}
+      <FormField label="Description" error={errors.Description}>
+        {/* TODO: Replace with a real rich text editor (e.g., React Quill, Slate, Tiptap) */}
+        <textarea
+          value={value.Description}
+          onChange={e => onChange("Description", e.target.value)}
+          placeholder="Describe the issue in detail..."
+          className="w-full border border-gray-300 rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white min-h-[100px] resize-y"
           disabled={disabled}
         />
       </FormField>
