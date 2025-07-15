@@ -16,5 +16,5 @@ export function combineDateAndTime(dateStr: string, timeStr: string): string {
   if (meridian === "pm" && hours !== 12) hours += 12;
   if (meridian === "am" && hours === 12) hours = 0;
   date.setHours(hours, minutes, 0, 0);
-  return date.toISOString();
+  return date.toISOString().replace(/\.\d{3}Z$/, "Z");
 }
