@@ -27,6 +27,16 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Autocomplete, TextField } from "@mui/material";
 import { getTimeOptions, combineDateAndTime } from "@/app/_utils/dateTimeUtils";
 
+// Utility to extract time in HH:mm from ISO string
+function extractTimeFromISO(isoString: string | null | undefined): string {
+  if (!isoString) return "";
+  const date = new Date(isoString);
+  if (isNaN(date.getTime())) return "";
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  return `${hours}:${minutes}`;
+}
+
 export default function EditIssuePage() {
   const router = useRouter();
   const params = useParams();
@@ -77,18 +87,28 @@ export default function EditIssuePage() {
   // Save handler
   const handleSave = () => {
     if (!validate() || !id) return;
-    // Convert ReportedDate and ResolvedDate from Sydney time to ISO string
-    const updatedForm = {
-      ...form,
-      ReportedDate:
-        (form.ReportedDate || "") && reportedTime
-          ? combineDateAndTime(form.ReportedDate || "", reportedTime)
-          : "",
-      ResolvedDate:
-        (form.ResolvedDate || "") && resolvedTime
-          ? combineDateAndTime(form.ResolvedDate || "", resolvedTime)
-          : "",
-    };
+
+    // Only recombine if the user changed date or time
+    let reportedDateToSave = form.ReportedDate;
+    if (reportedTime && form.ReportedDate) {
+      const originalTime = extractTimeFromISO(form.ReportedDate);
+      // Compare only the date part (YYYY-MM-DD)
+      const originalDate = form.ReportedDate
+        ? new Date(form.ReportedDate).toISOString().split("T")[0]
+        : "";
+      const currentDate = form.ReportedDate
+        ? new Date(form.ReportedDate).toISOString().split("T")[0]
+        : "";
+      if (reportedTime !== originalTime || currentDate !== originalDate) {
+        reportedDateToSave = combineDateAndTime(
+          form.ReportedDate,
+          reportedTime,
+        );
+      }
+    }
+
+    const updatedForm = { ...form, ReportedDate: reportedDateToSave };
+
     updateIssue(mapFormToUpdateIssueCommand(updatedForm, id), {
       onSuccess: () => {
         router.push("/issues");
@@ -177,7 +197,13 @@ export default function EditIssuePage() {
                     );
                     handleFormChange("ResolvedDate", iso);
                   }}
-                  slotProps={{ textField: { size: "small" } }}
+                  slotProps={{
+                    textField: {
+                      size: "small",
+                      error: !!errors.ResolvedDate,
+                      helperText: errors.ResolvedDate || undefined,
+                    },
+                  }}
                   disabled={isPending || isLoading}
                 />
               </LocalizationProvider>
