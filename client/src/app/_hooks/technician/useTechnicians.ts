@@ -98,11 +98,11 @@ export function useUpdateTechnician() {
   });
 }
 
-export function useDeactivateTechnician() {
+export function useHandleTechnicianStatus() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { data } = await agent.post(`/technicians/deactivate/${id}`);
+      const { data } = await agent.post(`/technicians/status/${id}`);
       return data;
     },
     onSuccess: async (_data, id) => {
