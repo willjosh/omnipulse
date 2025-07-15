@@ -211,50 +211,6 @@ const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
           </div>
         </Combobox>
       </FormField>
-      <FormField label="Reported Date" required error={errors.ReportedDate}>
-        <div className="flex">
-          <div className="w-1/3 mr-4">
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
-              <DatePicker
-                value={value.ReportedDate ? new Date(value.ReportedDate) : null}
-                onChange={date => {
-                  let newTime = reportedTime;
-                  if (!newTime) {
-                    newTime = timeOptions[0];
-                    setReportedTime(newTime);
-                  }
-                  const iso = combineDateAndTime(
-                    date ? date.toISOString() : "",
-                    newTime,
-                  );
-                  onChange("ReportedDate", iso);
-                }}
-                slotProps={{ textField: { size: "small" } }}
-                disabled={disabled}
-              />
-            </LocalizationProvider>
-          </div>
-          <div className="w-1/3">
-            <Autocomplete
-              options={timeOptions}
-              value={reportedTime}
-              onChange={(_e, newValue) => {
-                setReportedTime(newValue || "");
-                const iso = combineDateAndTime(
-                  value.ReportedDate,
-                  newValue || "",
-                );
-                onChange("ReportedDate", iso);
-              }}
-              renderInput={params => (
-                <TextField {...params} placeholder="Select time" size="small" />
-              )}
-              disabled={disabled}
-              ListboxProps={{ style: { maxHeight: 200, overflowY: "auto" } }}
-            />
-          </div>
-        </div>
-      </FormField>
       {/* Category Dropdown */}
       <FormField label="Category" required error={errors.Category}>
         <Combobox
@@ -324,6 +280,50 @@ const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
             </ComboboxOptions>
           </div>
         </Combobox>
+      </FormField>
+      <FormField label="Reported Date" error={errors.ReportedDate}>
+        <div className="flex">
+          <div className="w-1/3 mr-4">
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+              <DatePicker
+                value={value.ReportedDate ? new Date(value.ReportedDate) : null}
+                onChange={date => {
+                  let newTime = reportedTime;
+                  if (!newTime) {
+                    newTime = timeOptions[0];
+                    setReportedTime(newTime);
+                  }
+                  const iso = combineDateAndTime(
+                    date ? date.toISOString() : "",
+                    newTime,
+                  );
+                  onChange("ReportedDate", iso);
+                }}
+                slotProps={{ textField: { size: "small" } }}
+                disabled={disabled}
+              />
+            </LocalizationProvider>
+          </div>
+          <div className="w-1/3">
+            <Autocomplete
+              options={timeOptions}
+              value={reportedTime}
+              onChange={(_e, newValue) => {
+                setReportedTime(newValue || "");
+                const iso = combineDateAndTime(
+                  value.ReportedDate,
+                  newValue || "",
+                );
+                onChange("ReportedDate", iso);
+              }}
+              renderInput={params => (
+                <TextField {...params} placeholder="Select time" size="small" />
+              )}
+              disabled={disabled}
+              ListboxProps={{ style: { maxHeight: 200, overflowY: "auto" } }}
+            />
+          </div>
+        </div>
       </FormField>
       <FormField label="Summary" required error={errors.Title}>
         <input
