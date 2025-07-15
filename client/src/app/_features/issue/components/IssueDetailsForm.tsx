@@ -50,7 +50,7 @@ const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
   // Fetch technicians for Reported By dropdown
   const { technicians, isPending: isLoadingTechnicians } = useTechnicians();
   const usersList = technicians.map(t => ({
-    value: t.id,
+    value: String(t.id),
     label: `${t.FirstName} ${t.LastName}`,
   }));
   const [userSearch, setUserSearch] = useState("");
@@ -60,7 +60,7 @@ const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
     return usersList.filter(u => u.label.toLowerCase().includes(searchLower));
   }, [userSearch, usersList]);
   const selectedUser =
-    usersList.find(u => u.value === value.ReportedByUserID) || null;
+    usersList.find(u => u.value === String(value.ReportedByUserID)) || null;
 
   // Local state for time selection
   const [reportedTime, setReportedTime] = useState<string>("");

@@ -63,7 +63,7 @@ export default function EditIssuePage() {
         Description: issue.Description || "",
         Category: issue.Category?.toString() || "",
         Status: issue.Status?.toString() || "1",
-        ReportedByUserID: issue.ReportedByUserID || "",
+        ReportedByUserID: issue.ReportedByUserID,
         ResolutionNotes: issue.ResolutionNotes || "",
         ResolvedDate: issue.ResolvedDate || "",
         ResolvedByUserID: issue.ResolvedByUserID || "",
