@@ -25,17 +25,11 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Autocomplete, TextField } from "@mui/material";
-import { getTimeOptions, combineDateAndTime } from "@/app/_utils/dateTimeUtils";
-
-// Utility to extract time in HH:mm from ISO string
-function extractTimeFromISO(isoString: string | null | undefined): string {
-  if (!isoString) return "";
-  const date = new Date(isoString);
-  if (isNaN(date.getTime())) return "";
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  return `${hours}:${minutes}`;
-}
+import {
+  getTimeOptions,
+  combineDateAndTime,
+  extractTimeFromISO,
+} from "@/app/_utils/dateTimeUtils";
 
 export default function EditIssuePage() {
   const router = useRouter();

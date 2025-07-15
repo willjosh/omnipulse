@@ -1,15 +1,15 @@
 // Utilities for issue form state, validation, and mapping
+import { toISOorNull } from "@/app/_utils/dateTimeUtils";
 
 export interface IssueFormState {
-  VehicleID: string; // Relating an issue to a vehicle
-  PriorityLevel: string; // Setting a priority level
-  ReportedDate: string; // System auto-generates timestamp
-  Description: string; // Updating a detailed and formatted description
-  Category: string; // Selecting an issue category
-  Status: string; // Selecting a status category
+  VehicleID: string;
+  PriorityLevel: string;
+  ReportedDate: string;
+  Description: string;
+  Category: string;
+  Status: string;
   Title: string;
   ReportedByUserID: string;
-  // Add resolution fields
   ResolutionNotes?: string;
   ResolvedDate?: string;
   ResolvedByUserID?: string;
@@ -40,13 +40,6 @@ export function mapFormToCreateIssueCommand(form: IssueFormState) {
 }
 
 export function mapFormToUpdateIssueCommand(form: IssueFormState, id: number) {
-  function toISOorNull(dateStr: string | undefined): string | null {
-    if (!dateStr) return null;
-    const d = new Date(dateStr);
-    return isNaN(d.getTime())
-      ? null
-      : d.toISOString().replace(/\.\d{3}Z$/, "Z");
-  }
   return {
     id,
     VehicleID: Number(form.VehicleID),
@@ -72,7 +65,6 @@ export const emptyIssueFormState: IssueFormState = {
   Status: "1",
   Title: "",
   ReportedByUserID: "",
-  // Add resolution fields
   ResolutionNotes: "",
   ResolvedDate: "",
   ResolvedByUserID: "",

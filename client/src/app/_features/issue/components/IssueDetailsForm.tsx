@@ -18,7 +18,11 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Autocomplete, TextField } from "@mui/material";
 import { useTechnicians } from "../../../_hooks/technician/useTechnicians";
 import { useVehicles } from "../../../_hooks/vehicle/useVehicles";
-import { getTimeOptions, combineDateAndTime } from "@/app/_utils/dateTimeUtils";
+import {
+  getTimeOptions,
+  combineDateAndTime,
+  extractTimeFromISO,
+} from "@/app/_utils/dateTimeUtils";
 import { IssueDetailsFormProps } from "@/app/_types/issueTypes";
 import { VehicleOption } from "@/app/_types/vehicleTypes";
 
@@ -64,16 +68,6 @@ const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
 
   // Local state for time selection
   const [reportedTime, setReportedTime] = useState<string>("");
-
-  // Utility to extract time in HH:mm from ISO string
-  function extractTimeFromISO(isoString: string | null | undefined): string {
-    if (!isoString) return "";
-    const date = new Date(isoString);
-    if (isNaN(date.getTime())) return "";
-    const hours = String(date.getHours()).padStart(2, "0");
-    const minutes = String(date.getMinutes()).padStart(2, "0");
-    return `${hours}:${minutes}`;
-  }
 
   // Prefill reportedTime when value.ReportedDate changes
   useEffect(() => {
