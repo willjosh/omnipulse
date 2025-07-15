@@ -12,6 +12,10 @@ import {
   IssueCategoryEnum,
   PriorityLevelEnum,
 } from "../../../_hooks/issue/issueEnum";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { Autocomplete, TextField } from "@mui/material";
 
 // Dummy data for vehicles and users (replace with real data/fetch in future)
 const users = [
@@ -38,14 +42,20 @@ const priorityOptions = [
   { value: PriorityLevelEnum.CRITICAL.toString(), label: "Critical" },
 ];
 
+// Add time options for dropdown
+const timeOptions: string[] = [];
+for (let hour = 0; hour < 24; hour++) {
+  timeOptions.push(`${hour % 12 || 12}:00${hour < 12 ? "am" : "pm"}`);
+  timeOptions.push(`${hour % 12 || 12}:30${hour < 12 ? "am" : "pm"}`);
+}
+
 interface IssueDetailsFormProps {
   value: {
     VehicleID: string;
     PriorityLevel: string;
-    // ReportedDate: string;
+    ReportedDate: string;
     Title: string;
     Description: string;
-    // Category: string;
     Status: string;
     ReportedByUserID: string;
     Category: string;
@@ -83,6 +93,20 @@ const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
   }, [userSearch, usersList]);
   const selectedUser =
     usersList.find(u => u.value === value.ReportedByUserID) || null;
+
+  // Local state for time selection
+  const [reportedTime, setReportedTime] = React.useState<string>("");
+  // Helper to combine date and time into ISO string
+  function combineDateAndTime(dateStr: string, timeStr: string): string {
+    if (!dateStr || !timeStr) return "";
+    const date = new Date(dateStr);
+    const [time, meridian] = timeStr.split(/(am|pm)/);
+    let [hours, minutes] = time.split(":").map(Number);
+    if (meridian === "pm" && hours !== 12) hours += 12;
+    if (meridian === "am" && hours === 12) hours = 0;
+    date.setHours(hours, minutes, 0, 0);
+    return date.toISOString();
+  }
 
   return (
     <FormContainer title="Details" className="mt-6 max-w-2xl mx-auto w-full">
@@ -226,6 +250,50 @@ const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
             </ComboboxOptions>
           </div>
         </Combobox>
+      </FormField>
+      <FormField label="Reported Date" required error={errors.ReportedDate}>
+        <div className="flex">
+          <div className="w-1/3 mr-4">
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+              <DatePicker
+                value={value.ReportedDate ? new Date(value.ReportedDate) : null}
+                onChange={date => {
+                  let newTime = reportedTime;
+                  if (!newTime) {
+                    newTime = timeOptions[0];
+                    setReportedTime(newTime);
+                  }
+                  const iso = combineDateAndTime(
+                    date ? date.toISOString() : "",
+                    newTime,
+                  );
+                  onChange("ReportedDate", iso);
+                }}
+                slotProps={{ textField: { size: "small" } }}
+                disabled={disabled}
+              />
+            </LocalizationProvider>
+          </div>
+          <div className="w-1/3">
+            <Autocomplete
+              options={timeOptions}
+              value={reportedTime}
+              onChange={(_e, newValue) => {
+                setReportedTime(newValue || "");
+                const iso = combineDateAndTime(
+                  value.ReportedDate,
+                  newValue || "",
+                );
+                onChange("ReportedDate", iso);
+              }}
+              renderInput={params => (
+                <TextField {...params} placeholder="Select time" size="small" />
+              )}
+              disabled={disabled}
+              ListboxProps={{ style: { maxHeight: 200, overflowY: "auto" } }}
+            />
+          </div>
+        </div>
       </FormField>
       {/* Category Dropdown */}
       <FormField label="Category" required error={errors.Category}>
