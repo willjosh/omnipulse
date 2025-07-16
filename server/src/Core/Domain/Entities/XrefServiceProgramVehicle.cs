@@ -1,18 +1,16 @@
-using System;
-
 namespace Domain.Entities;
 
 public class XrefServiceProgramVehicle
 {
-    public required int VehicleID { get; set; }
+    // Composite PK
     public required int ServiceProgramID { get; set; }
-    public required DateTime AssignedDate { get; set; }
-    public required bool IsActive { get; set; }
+    public required int VehicleID { get; set; }
 
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    // public required string AddedByUserID { get; set; } // FK // TODO
+    public required DateTime AddedAt { get; set; } = DateTime.UtcNow;
 
-    // navigation properties
-    public required Vehicle Vehicle { get; set; }
+    // Navigation Properties
     public required ServiceProgram ServiceProgram { get; set; }
+    public required Vehicle Vehicle { get; set; }
+    public required User User { get; set; }
 }
