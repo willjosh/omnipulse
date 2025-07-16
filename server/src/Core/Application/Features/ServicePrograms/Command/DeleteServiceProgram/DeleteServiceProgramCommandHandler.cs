@@ -45,7 +45,7 @@ public class DeleteServiceProgramCommandHandler : IRequestHandler<DeleteServiceP
             throw new EntityNotFoundException(nameof(ServiceProgram), nameof(ServiceProgram.ID), request.ServiceProgramID.ToString());
         }
 
-        // Cascade delete in ServiceProgramConfiguration will handle related ServiceSchedules and XrefServiceProgramVehicles
+        // Cascade delete behaviour is configured in ServiceScheduleConfiguration and XrefServiceProgramVehicleConfiguration
         _serviceProgramRepository.Delete(targetServiceProgram);
 
         // Save changes
