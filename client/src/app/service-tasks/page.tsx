@@ -21,14 +21,12 @@ const columns = [
 
 export default function ServiceTaskListPage() {
   const router = useRouter();
-  const [search, setSearch] = useState("");
+  // --- Search functionality is commented out for a future user story ---
+  // const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
 
-  const filter = useMemo(
-    () => ({ page, pageSize, search }),
-    [page, pageSize, search],
-  );
+  const filter = useMemo(() => ({ page, pageSize }), [page, pageSize]);
 
   const { serviceTasks, pagination, isPending } = useServiceTasks(filter);
 
@@ -57,9 +55,9 @@ export default function ServiceTaskListPage() {
   };
 
   // Reset page when search changes
-  React.useEffect(() => {
-    setPage(1);
-  }, [search]);
+  // React.useEffect(() => {
+  //   setPage(1);
+  // }, [search]);
 
   // Handler for row click to navigate to details page (to be implemented)
   const handleRowClick = (row: any) => {
@@ -70,7 +68,7 @@ export default function ServiceTaskListPage() {
     <div className="text-center py-8">
       <p className="text-gray-500 mb-2">No service tasks found.</p>
       <button
-        onClick={() => setSearch("")}
+        onClick={() => {}}
         className="text-blue-600 hover:text-blue-800 text-sm"
       >
         Clear search
@@ -87,12 +85,12 @@ export default function ServiceTaskListPage() {
         </PrimaryButton>
       </div>
       <div className="flex items-center justify-between mb-4">
-        <FilterBar
+        {/* <FilterBar
           searchValue={search}
           onSearchChange={setSearch}
           searchPlaceholder="Search service tasks"
           onFilterChange={() => {}}
-        />
+        /> */}
         {pagination && (
           <PaginationControls
             currentPage={pagination.pageNumber}
