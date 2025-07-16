@@ -10,6 +10,7 @@ import { technicianTableColumns } from "./TechnicianTableColumns";
 import {
   useTechnicians,
   useHandleTechnicianStatus,
+  useUpdateTechnician,
 } from "@/app/_hooks/technician/useTechnicians";
 import { Technician } from "@/app/_hooks/technician/technicianType";
 
@@ -30,7 +31,7 @@ const TechnicianList: React.FC = () => {
 
   const { technicians, pagination, isPending, isError } =
     useTechnicians(filters);
-  const deactivateTechnicianMutation = useHandleTechnicianStatus();
+  const handleTechnicianStatusMutation = useHandleTechnicianStatus();
 
   const handleSelectAll = () => {
     if (selectedTechnicians.length === technicians.length) {
@@ -77,11 +78,11 @@ const TechnicianList: React.FC = () => {
     router.push(`/contacts/${technician.id}`);
   };
 
-  const handleDeactivateTechnician = async () => {
+  const handleToggleTechnicianStatus = async () => {
     if (!confirmModal.technician) return;
 
     try {
-      await deactivateTechnicianMutation.mutateAsync(
+      await handleTechnicianStatusMutation.mutateAsync(
         confirmModal.technician.id,
       );
       setConfirmModal({ isOpen: false });
@@ -98,6 +99,14 @@ const TechnicianList: React.FC = () => {
         icon: <Details />,
         onClick: (tech: Technician) => {
           router.push(`/contacts/${tech.id}`);
+        },
+      },
+      {
+        key: "edit",
+        label: "Edit Technician",
+        icon: <Edit />,
+        onClick: (tech: Technician) => {
+          router.push(`/contacts/${tech.id}/edit`);
         },
       },
       {
@@ -179,7 +188,7 @@ const TechnicianList: React.FC = () => {
       <ConfirmModal
         isOpen={confirmModal.isOpen}
         onClose={() => setConfirmModal({ isOpen: false })}
-        onConfirm={handleDeactivateTechnician}
+        onConfirm={handleToggleTechnicianStatus}
         title={`${confirmModal.technician?.IsActive ? "Deactivate" : "Activate"} Technician`}
         message={`Are you sure you want to ${confirmModal.technician?.IsActive ? "deactivate" : "activate"} ${confirmModal.technician?.FirstName} ${confirmModal.technician?.LastName}?`}
         confirmText={
