@@ -1,23 +1,36 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { FormField } from "@/app/_features/shared/form";
 import { PrimaryButton, SecondaryButton } from "@/app/_features/shared/button";
-import { useCreateTechnician } from "@/app/_hooks/technician/useTechnicians";
-import { CreateTechnicianCommand } from "@/app/_hooks/technician/technicianType";
+import {
+  useCreateTechnician,
+  useUpdateTechnician,
+  useTechnician,
+} from "@/app/_hooks/technician/useTechnicians";
+import {
+  CreateTechnicianCommand,
+  UpdateTechnicianCommand,
+} from "@/app/_hooks/technician/technicianType";
 
 interface TechnicianFormProps {
   mode: "create" | "edit";
   technicianId?: string;
 }
 
-const TechnicianForm: React.FC<TechnicianFormProps> = ({ mode }) => {
+const TechnicianForm: React.FC<TechnicianFormProps> = ({
+  mode,
+  technicianId,
+}) => {
   const router = useRouter();
   const createTechnicianMutation = useCreateTechnician();
+  const updateTechnicianMutation = useUpdateTechnician();
+
+  const { data: existingTechnician, isLoading: isLoadingTechnician } =
+    useTechnician(technicianId || "");
 
   const [formData, setFormData] = useState<CreateTechnicianCommand>({
     Email: "",
-    Password: "",
     FirstName: "",
     LastName: "",
     HireDate: new Date().toISOString().split("T")[0],
@@ -25,6 +38,19 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({ mode }) => {
   });
 
   const [errors, setErrors] = useState<Partial<CreateTechnicianCommand>>({});
+
+  // Load existing technician data when in edit mode
+  useEffect(() => {
+    if (mode === "edit" && existingTechnician) {
+      setFormData({
+        Email: existingTechnician.Email,
+        FirstName: existingTechnician.FirstName,
+        LastName: existingTechnician.LastName,
+        HireDate: existingTechnician.HireDate.split("T")[0],
+        IsActive: existingTechnician.IsActive,
+      });
+    }
+  }, [mode, existingTechnician]);
 
   const handleInputChange = (
     field: keyof CreateTechnicianCommand,
@@ -50,11 +76,7 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({ mode }) => {
     } else if (!/\S+@\S+\.\S+/.test(formData.Email)) {
       newErrors.Email = "Email format is invalid";
     }
-    if (!formData.Password.trim()) {
-      newErrors.Password = "Password is required";
-    } else if (formData.Password.length < 6) {
-      newErrors.Password = "Password must be at least 6 characters";
-    }
+
     if (!formData.HireDate) {
       newErrors.HireDate = "Hire date is required";
     }
@@ -71,10 +93,27 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({ mode }) => {
     }
 
     try {
-      await createTechnicianMutation.mutateAsync(formData);
+      if (mode === "create") {
+        await createTechnicianMutation.mutateAsync(formData);
+      } else {
+        const updateData: UpdateTechnicianCommand = {
+          id: technicianId!,
+          FirstName: formData.FirstName,
+          LastName: formData.LastName,
+          Email: formData.Email,
+          HireDate: formData.HireDate,
+          IsActive: formData.IsActive,
+        };
+
+        await updateTechnicianMutation.mutateAsync(updateData);
+      }
+
       router.push("/contacts");
     } catch (error) {
-      console.error("Error creating technician:", error);
+      console.error(
+        `Error ${mode === "create" ? "creating" : "updating"} technician:`,
+        error,
+      );
     }
   };
 
@@ -135,22 +174,6 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({ mode }) => {
       </FormField>
 
       <FormField
-        label="Password"
-        htmlFor="password"
-        required
-        error={errors.Password}
-      >
-        <input
-          id="password"
-          type="password"
-          value={formData.Password}
-          onChange={e => handleInputChange("Password", e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder="Enter password (min. 6 characters)"
-        />
-      </FormField>
-
-      <FormField
         label="Hire Date"
         htmlFor="hireDate"
         required
@@ -196,11 +219,19 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({ mode }) => {
         </SecondaryButton>
         <PrimaryButton
           type="submit"
-          disabled={createTechnicianMutation.isPending}
+          disabled={
+            mode === "create"
+              ? createTechnicianMutation.isPending
+              : updateTechnicianMutation.isPending
+          }
         >
-          {createTechnicianMutation.isPending
-            ? "Creating..."
-            : "Create Technician"}
+          {mode === "create"
+            ? createTechnicianMutation.isPending
+              ? "Creating..."
+              : "Create Technician"
+            : updateTechnicianMutation.isPending
+              ? "Updating..."
+              : "Update Technician"}
         </PrimaryButton>
       </div>
     </form>
