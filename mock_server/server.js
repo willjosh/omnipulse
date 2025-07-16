@@ -265,6 +265,19 @@ server.put("/issues/:id", (req, res) => {
   }
 });
 
+server.delete("/issues/:id", (req, res) => {
+  const db = router.db;
+  const issueId = parseInt(req.params.id);
+  const issues = db.get("issues");
+  const issue = issues.find({ id: issueId });
+  if (issue.value()) {
+    issues.remove({ id: issueId }).write();
+    res.status(204).end();
+  } else {
+    res.status(404).json({ error: "Issue not found" });
+  }
+});
+
 server.post("/issues", (req, res) => {
   const db = router.db;
   const issues = db.get("issues");
@@ -920,6 +933,7 @@ server.listen(PORT, () => {
   console.log(`GET /issues/:id - Get single issue`);
   console.log(`PUT /issues/:id - Update issue`);
   console.log(`POST /issues - Create new issue`);
+  console.log(`DELETE /issues/:id - Delete issue`);
 
   // Vehicle Groups
   console.log(`GET /vehicleGroups - Get paginated vehicle groups`);

@@ -1,19 +1,21 @@
 "use client";
 import React from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Edit, ArrowLeft } from "lucide-react";
+import { Edit, ArrowLeft, Trash2 } from "lucide-react";
 import StatusBadge from "@/app/_features/shared/feedback/StatusBadge";
 import LoadingSpinner from "@/app/_features/shared/feedback/LoadingSpinner";
 import EmptyState from "@/app/_features/shared/feedback/EmptyState";
 import DetailFieldRow from "@/app/_features/shared/detail/DetailFieldRow";
 import { useIssue } from "@/app/_hooks/issue/useIssues";
 import { getTimeToResolve } from "@/app/_utils/issueEnumHelper";
+import { useDeleteIssue } from "@/app/_hooks/issue/useIssues";
 
 const IssueDetailsPage = () => {
   const params = useParams();
   const router = useRouter();
   const id = params?.id ? Number(params.id) : undefined;
   const isValidId = typeof id === "number" && !isNaN(id);
+  const { mutate: deleteIssue, isPending: isDeleting } = useDeleteIssue();
   const { data: issue, isPending, isError } = useIssue(isValidId ? id : 0);
 
   if (!isValidId) {
@@ -48,6 +50,20 @@ const IssueDetailsPage = () => {
 
   const handleEdit = () => {
     router.push(`/issues/${issue.id}/edit`);
+  };
+
+  const handleDelete = () => {
+    if (
+      window.confirm(
+        "Are you sure you want to delete this issue? This action cannot be undone.",
+      )
+    ) {
+      deleteIssue(issue.id, {
+        onSuccess: () => {
+          router.push("/issues");
+        },
+      });
+    }
   };
 
   return (
@@ -89,6 +105,14 @@ const IssueDetailsPage = () => {
               >
                 <Edit className="w-4 h-4 mr-2" />
                 Edit
+              </button>
+              <button
+                onClick={handleDelete}
+                className="inline-flex items-center px-4 py-2 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition"
+                disabled={isDeleting}
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                {isDeleting ? "Deleting..." : "Delete"}
               </button>
             </div>
           </div>
