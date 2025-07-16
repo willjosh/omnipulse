@@ -8,15 +8,19 @@ import { ServiceTaskWithLabels } from "@/app/_hooks/service-task/serviceTaskType
 import { getServiceTaskCategoryLabel } from "@/app/_utils/serviceTaskEnumHelper";
 import { DEFAULT_PAGE_SIZE } from "@/app/_features/shared/table/constants";
 import { serviceTaskTableColumns } from "@/app/_features/service-task/components/ServiceTaskTableColumns";
+import { FilterBar } from "@/app/_features/shared/filter";
 
 export default function ServiceTaskListPage() {
   const router = useRouter();
-  // --- Search functionality is commented out for a future user story ---
-  // const [search, setSearch] = useState("");
+  // --- Search functionality is now enabled ---
+  const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
 
-  const filter = useMemo(() => ({ page, pageSize }), [page, pageSize]);
+  const filter = useMemo(
+    () => ({ page, pageSize, search }),
+    [page, pageSize, search],
+  );
 
   const { serviceTasks, pagination, isPending } = useServiceTasks(filter);
 
@@ -45,9 +49,9 @@ export default function ServiceTaskListPage() {
   };
 
   // Reset page when search changes
-  // React.useEffect(() => {
-  //   setPage(1);
-  // }, [search]);
+  React.useEffect(() => {
+    setPage(1);
+  }, [search]);
 
   // Handler for row click to navigate to details page (to be implemented)
   const handleRowClick = (row: any) => {
@@ -58,7 +62,7 @@ export default function ServiceTaskListPage() {
     <div className="text-center py-8">
       <p className="text-gray-500 mb-2">No service tasks found.</p>
       <button
-        onClick={() => {}}
+        onClick={() => setSearch("")}
         className="text-blue-600 hover:text-blue-800 text-sm"
       >
         Clear search
@@ -68,19 +72,22 @@ export default function ServiceTaskListPage() {
 
   return (
     <div className="p-6 w-[1260px] min-h-screen mx-auto">
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-semibold text-gray-900">Service Tasks</h1>
         <PrimaryButton onClick={() => router.push("/service-tasks/new")}>
-          + Add Service Task
+          <span className="flex items-center justify-center text-xl leading-none">
+            +
+          </span>
+          <span className="ml-1">Add Service Task</span>
         </PrimaryButton>
       </div>
-      <div className="flex items-center justify-between mb-4">
-        {/* <FilterBar
+      <div className="flex items-center justify-between mb-6">
+        <FilterBar
           searchValue={search}
           onSearchChange={setSearch}
           searchPlaceholder="Search service tasks"
           onFilterChange={() => {}}
-        /> */}
+        />
         {pagination && (
           <PaginationControls
             currentPage={pagination.pageNumber}
