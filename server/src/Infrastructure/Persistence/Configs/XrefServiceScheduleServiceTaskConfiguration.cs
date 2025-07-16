@@ -29,10 +29,11 @@ public class XrefServiceScheduleServiceTaskConfiguration : IEntityTypeConfigurat
             .HasForeignKey(xssst => xssst.ServiceScheduleID)
             .OnDelete(DeleteBehavior.Cascade);
 
+        // XrefServiceScheduleServiceTask N:1 ServiceTask
         builder
             .HasOne(xssst => xssst.ServiceTask)
             .WithMany(ss => ss.XrefServiceScheduleServiceTasks)
             .HasForeignKey(xssst => xssst.ServiceTaskID)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
