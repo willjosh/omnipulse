@@ -629,6 +629,33 @@ server.post("/technicians", (req, res) => {
   res.status(201).json(newTechnician);
 });
 
+// Update technician
+server.put("/technicians/:id", (req, res) => {
+  const db = router.db;
+  const technicianId = req.params.id;
+  const updatedData = req.body;
+
+  const technician = db.get("technicians").find({ id: technicianId });
+
+  if (technician.value()) {
+    if (updatedData.HireDate && !updatedData.HireDate.includes("T")) {
+      updatedData.HireDate = new Date(updatedData.HireDate).toISOString();
+    }
+
+    const cleanedData = Object.fromEntries(
+      Object.entries(updatedData).filter(([_, value]) => value != null),
+    );
+
+    technician.assign(cleanedData).write();
+    res.json({
+      message: "Technician updated successfully",
+      technician: technician.value(),
+    });
+  } else {
+    res.status(404).json({ error: "Technician not found" });
+  }
+});
+
 server.post("/technicians/status/:id", (req, res) => {
   const db = router.db;
   const technicianId = req.params.id;
@@ -913,7 +940,8 @@ server.listen(PORT, () => {
   );
   console.log(`GET /technicians/:id - Get single technician`);
   console.log(`POST /technicians - Create new technician`);
-  console.log(`POST /technicians/deactivate/:id - Deactivate technician`);
+  console.log(`PUT /technicians/:id - Update technician`);
+  console.log(`POST /technicians/status/:id - Toggle technician status`);
 
   // Inventory Items
   console.log(`GET /inventoryItems - Get paginated inventory items`);
