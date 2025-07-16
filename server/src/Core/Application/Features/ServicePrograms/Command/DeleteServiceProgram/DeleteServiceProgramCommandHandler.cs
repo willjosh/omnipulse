@@ -4,6 +4,8 @@ using Application.Exceptions;
 
 using Domain.Entities;
 
+using FluentValidation;
+
 using MediatR;
 
 namespace Application.Features.ServicePrograms.Command.DeleteServiceProgram;
@@ -11,21 +13,30 @@ namespace Application.Features.ServicePrograms.Command.DeleteServiceProgram;
 public class DeleteServiceProgramCommandHandler : IRequestHandler<DeleteServiceProgramCommand, int>
 {
     private readonly IServiceProgramRepository _serviceProgramRepository;
-    private readonly IServiceScheduleRepository _serviceScheduleRepository;
+    private readonly IValidator<DeleteServiceProgramCommand> _validator;
     private readonly IAppLogger<DeleteServiceProgramCommandHandler> _logger;
 
     public DeleteServiceProgramCommandHandler(
         IServiceProgramRepository serviceProgramRepository,
-        IServiceScheduleRepository serviceScheduleRepository,
+        IValidator<DeleteServiceProgramCommand> validator,
         IAppLogger<DeleteServiceProgramCommandHandler> logger)
     {
         _serviceProgramRepository = serviceProgramRepository;
-        _serviceScheduleRepository = serviceScheduleRepository;
+        _validator = validator;
         _logger = logger;
     }
 
     public async Task<int> Handle(DeleteServiceProgramCommand request, CancellationToken cancellationToken)
     {
+        // Validate request
+        var validationResult = await _validator.ValidateAsync(request, cancellationToken);
+        if (!validationResult.IsValid)
+        {
+            var errorMessages = string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage));
+            _logger.LogWarning($"{nameof(DeleteServiceProgramCommand)} - Validation failed: {errorMessages}");
+            throw new BadRequestException(errorMessages);
+        }
+
         // Get ServiceProgram by ID
         var targetServiceProgram = await _serviceProgramRepository.GetByIdAsync(request.ServiceProgramID);
         if (targetServiceProgram == null)
@@ -34,11 +45,8 @@ public class DeleteServiceProgramCommandHandler : IRequestHandler<DeleteServiceP
             throw new EntityNotFoundException(nameof(ServiceProgram), nameof(ServiceProgram.ID), request.ServiceProgramID.ToString());
         }
 
-        // Delete all Service Schedules inside the Service Program
-
-        // Delete all related XrefServiceProgramVehicle entries
-
-        // Delete the Service Program
+        // Cascade delete in ServiceProgramConfiguration will handle related ServiceSchedules and XrefServiceProgramVehicles
+        _serviceProgramRepository.Delete(targetServiceProgram);
 
         // Save changes
         await _serviceProgramRepository.SaveChangesAsync();
