@@ -3,21 +3,11 @@ import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { DataTable, PaginationControls } from "@/app/_features/shared/table";
 import { PrimaryButton } from "@/app/_features/shared/button";
-import { FilterBar } from "@/app/_features/shared/filter";
 import { useServiceTasks } from "@/app/_hooks/service-task/useServiceTask";
 import { ServiceTaskWithLabels } from "@/app/_hooks/service-task/serviceTaskType";
 import { getServiceTaskCategoryLabel } from "@/app/_utils/serviceTaskEnumHelper";
-
-const DEFAULT_PAGE_SIZE = 10;
-
-const columns = [
-  { key: "Name", header: "Name", width: "250px" },
-  { key: "Description", header: "Description", width: "320px" },
-  { key: "EstimatedLabourHours", header: "Est. Labour Hours", width: "200px" },
-  { key: "EstimatedCost", header: "Est. Cost" },
-  { key: "CategoryLabel", header: "Category" },
-  { key: "IsActive", header: "Active" },
-];
+import { DEFAULT_PAGE_SIZE } from "@/app/_features/shared/table/constants";
+import { serviceTaskTableColumns } from "@/app/_features/service-task/components/ServiceTaskTableColumns";
 
 export default function ServiceTaskListPage() {
   const router = useRouter();
@@ -106,7 +96,7 @@ export default function ServiceTaskListPage() {
         )}
       </div>
       <DataTable
-        columns={columns}
+        columns={serviceTaskTableColumns}
         data={tableData}
         selectedItems={[]}
         onSelectItem={() => {}}
