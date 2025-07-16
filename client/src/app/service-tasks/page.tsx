@@ -9,6 +9,7 @@ import { getServiceTaskCategoryLabel } from "@/app/_utils/serviceTaskEnumHelper"
 import { DEFAULT_PAGE_SIZE } from "@/app/_features/shared/table/constants";
 import { serviceTaskTableColumns } from "@/app/_features/service-task/components/ServiceTaskTableColumns";
 import { FilterBar } from "@/app/_features/shared/filter";
+import { Plus } from "lucide-react";
 
 export default function ServiceTaskListPage() {
   const router = useRouter();
@@ -74,11 +75,14 @@ export default function ServiceTaskListPage() {
     <div className="p-6 w-[1260px] min-h-screen mx-auto">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-semibold text-gray-900">Service Tasks</h1>
-        <PrimaryButton onClick={() => router.push("/service-tasks/new")}>
-          <span className="flex items-center justify-center text-xl leading-none">
-            +
-          </span>
-          <span className="ml-1">Add Service Task</span>
+        <PrimaryButton
+          onClick={() => router.push("/service-tasks/new")}
+          className="flex items-center justify-center text-center"
+        >
+          <div className="flex items-center justify-center">
+            <Plus className="w-5 h-5" />
+            <span className="ml-2 flex items-center">Add Service Task</span>
+          </div>
         </PrimaryButton>
       </div>
       <div className="flex items-center justify-between mb-6">
