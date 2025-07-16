@@ -66,7 +66,7 @@ const navItems: NavItem[] = [
   },
   { label: "Contacts", icon: User, path: "/contacts" },
   { label: "Vendors", icon: Store },
-  { label: "Parts & Inventory", icon: Boxes },
+  { label: "Parts & Inventory", icon: Boxes, path: "/parts-inventory" },
   { label: "Fuel & Energy", icon: Fuel },
   { label: "Places", icon: MapPin },
   { label: "Documents", icon: FileText },
