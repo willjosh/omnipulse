@@ -5,7 +5,7 @@ using Domain.Entities.Enums;
 namespace Domain.Entities;
 
 /// <summary>
-/// Represents a service schedule that defines the cadence at which maintenance tasks should be performed for vehicles.
+/// Represents a service schedule that defines the cadence at which maintenance tasks should be performed for vehicles by mapping intervals to <see cref="ServiceTask"/>s.
 /// </summary>
 /// <remarks>
 /// A service schedule can be configured by time, mileage, or a combination of both.
