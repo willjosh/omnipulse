@@ -1,6 +1,7 @@
 import {
   IssueCategoryEnum,
   PriorityLevelEnum,
+  IssueStatusEnum,
 } from "../_hooks/issue/issueEnum";
 
 export const getCategoryOptions = () => [
@@ -19,4 +20,12 @@ export const getPriorityOptions = () => [
   { value: PriorityLevelEnum.MEDIUM.toString(), label: "Medium" },
   { value: PriorityLevelEnum.HIGH.toString(), label: "High" },
   { value: PriorityLevelEnum.CRITICAL.toString(), label: "Critical" },
+];
+
+export const getStatusOptions = () => [
+  { value: IssueStatusEnum.OPEN.toString(), label: "Open" },
+  { value: IssueStatusEnum.IN_PROGRESS.toString(), label: "In Progress" },
+  { value: IssueStatusEnum.RESOLVED.toString(), label: "Resolved" },
+  { value: IssueStatusEnum.CLOSED.toString(), label: "Closed" },
+  { value: IssueStatusEnum.CANCELLED.toString(), label: "Cancelled" },
 ];
