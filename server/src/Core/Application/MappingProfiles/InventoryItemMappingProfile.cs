@@ -2,6 +2,7 @@ using System;
 
 using Application.Features.InventoryItems.Command.CreateInventoryItem;
 using Application.Features.InventoryItems.Command.UpdateInventoryItem;
+using Application.Features.InventoryItems.Query.GetAllInventoryItem;
 using Application.Features.InventoryItems.Query.GetInventoryItem;
 
 using AutoMapper;
@@ -32,6 +33,14 @@ public class InventoryItemMappingProfile : Profile
 
         // GetInventoryItem
         CreateMap<InventoryItem, GetInventoryItemDTO>()
+            .ForSourceMember(src => src.Inventories, opt => opt.DoNotValidate()) // Navigation Property - not included in DTO
+            .ForSourceMember(src => src.WorkOrderLineItems, opt => opt.DoNotValidate()) // Navigation Property - not included in DTO
+            .ForSourceMember(src => src.CreatedAt, opt => opt.DoNotValidate()) // not needed in DTO
+            .ForSourceMember(src => src.UpdatedAt, opt => opt.DoNotValidate()) // not needed in DTO
+            .ValidateMemberList(MemberList.Destination);
+
+        // GetAllInventoryItem
+        CreateMap<InventoryItem, GetAllInventoryItemDTO>()
             .ForSourceMember(src => src.Inventories, opt => opt.DoNotValidate()) // Navigation Property - not included in DTO
             .ForSourceMember(src => src.WorkOrderLineItems, opt => opt.DoNotValidate()) // Navigation Property - not included in DTO
             .ForSourceMember(src => src.CreatedAt, opt => opt.DoNotValidate()) // not needed in DTO
