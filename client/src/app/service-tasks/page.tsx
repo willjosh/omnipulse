@@ -13,18 +13,27 @@ import { Plus } from "lucide-react";
 
 export default function ServiceTaskListPage() {
   const router = useRouter();
-  // --- Search functionality is now enabled ---
+
+  // UI state: search, pagination, etc.
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
 
+  // Reset page to 1 when search changes
+  React.useEffect(() => {
+    setPage(1);
+  }, [search]);
+
+  // Compose filter object for data fetching
   const filter = useMemo(
     () => ({ page, pageSize, search }),
     [page, pageSize, search],
   );
 
+  // Fetch data using the filter
   const { serviceTasks, pagination, isPending } = useServiceTasks(filter);
 
+  // Transform data for the table
   const tableData = useMemo(
     () =>
       serviceTasks.map((task: ServiceTaskWithLabels) => ({
@@ -49,16 +58,12 @@ export default function ServiceTaskListPage() {
     setPage(1);
   };
 
-  // Reset page when search changes
-  React.useEffect(() => {
-    setPage(1);
-  }, [search]);
-
-  // Handler for row click to navigate to details page (to be implemented)
+  // Row click handler
   const handleRowClick = (row: any) => {
     router.push(`/service-tasks/${row.id}`);
   };
 
+  // Empty state
   const emptyState = (
     <div className="text-center py-8">
       <p className="text-gray-500 mb-2">No service tasks found.</p>
