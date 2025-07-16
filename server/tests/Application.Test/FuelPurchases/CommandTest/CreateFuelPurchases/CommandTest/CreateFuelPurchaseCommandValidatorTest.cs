@@ -1,7 +1,6 @@
 using System;
 
-using Application.Features.FuelPurchases.Command;
-using Application.Features.FuelPurchases.Command.CreateFuelPurchase;
+using Application.Features.FuelLogging.Command.CreateFuelPurchase;
 
 using Domain.Entities;
 

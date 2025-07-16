@@ -3,8 +3,7 @@ using System;
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
-using Application.Features.FuelPurchases.Command;
-using Application.Features.FuelPurchases.Command.CreateFuelPurchase;
+using Application.Features.FuelLogging.Command.CreateFuelPurchase;
 using Application.MappingProfiles;
 
 using AutoMapper;
