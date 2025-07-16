@@ -25,5 +25,18 @@ public class ServiceProgramConfiguration : IEntityTypeConfiguration<ServiceProgr
 
         // Query Filter for soft deletes
         builder.HasQueryFilter(sp => sp.IsActive);
+
+        // Relationships & Delete Behavior
+        builder
+            .HasMany(sp => sp.ServiceSchedules)
+            .WithOne(ss => ss.ServiceProgram)
+            .HasForeignKey(ss => ss.ServiceProgramID)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder
+            .HasMany(sp => sp.XrefServiceProgramVehicles)
+            .WithOne(xspv => xspv.ServiceProgram)
+            .HasForeignKey(xspv => xspv.ServiceProgramID)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
