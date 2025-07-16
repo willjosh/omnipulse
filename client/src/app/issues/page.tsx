@@ -8,7 +8,7 @@ import {
 import { PaginationControls } from "../_features/shared/table";
 import { useIssues } from "../_hooks/issue/useIssues";
 import { useRouter } from "next/navigation";
-import { DEFAULT_PAGE_SIZE } from "@/app/_hooks/issue/useIssues";
+import { DEFAULT_PAGE_SIZE } from "@/app/_features/shared/table/constants";
 import { IssueWithLabels } from "../_hooks/issue/issueType";
 
 export default function IssuesPage() {

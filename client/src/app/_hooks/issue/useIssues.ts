@@ -18,8 +18,6 @@ import {
   getIssueStatusLabel,
 } from "@/app/_utils/issueEnumHelper";
 
-export const DEFAULT_PAGE_SIZE = 10;
-
 function formatDate(date?: string | null): string {
   if (!date) return "Unknown";
   const d = new Date(date);
