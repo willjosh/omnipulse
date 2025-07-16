@@ -41,7 +41,7 @@ export function useInventoryItems(filter: InventoryItemFilter = {}) {
   if (debouncedFilter.page)
     queryParams.append("page", debouncedFilter.page.toString());
   if (debouncedFilter.pageSize)
-    queryParams.append("limit", debouncedFilter.pageSize.toString());
+    queryParams.append("pageSize", debouncedFilter.pageSize.toString());
   if (debouncedFilter.search)
     queryParams.append("search", debouncedFilter.search);
   if (debouncedFilter.sortBy)
