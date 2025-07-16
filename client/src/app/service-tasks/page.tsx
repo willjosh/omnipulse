@@ -118,6 +118,7 @@ export default function ServiceTaskListPage() {
         showActions={false}
         emptyState={emptyState}
         onRowClick={handleRowClick}
+        fixedLayout={false}
       />
     </div>
   );
