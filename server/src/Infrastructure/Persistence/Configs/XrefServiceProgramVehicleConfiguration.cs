@@ -20,6 +20,7 @@ public class XrefServiceProgramVehicleConfiguration : IEntityTypeConfiguration<X
         builder.HasIndex(xspv => xspv.AddedAt);
 
         // Table Relationships
+        // XrefServiceProgramVehicles N:1 ServiceProgram
         builder
             .HasOne(xspv => xspv.ServiceProgram)
             .WithMany(sp => sp.XrefServiceProgramVehicles)
