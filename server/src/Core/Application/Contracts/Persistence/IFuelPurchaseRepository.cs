@@ -1,5 +1,8 @@
 using System;
 
+using Application.Models;
+using Application.Models.PaginationModels;
+
 using Domain.Entities;
 
 namespace Application.Contracts.Persistence;
@@ -20,4 +23,6 @@ public interface IFuelPurchaseRepository : IGenericRepository<FuelPurchase>
     /// <param name="receiptNumber">The receipt number to check</param>
     /// <returns>True if unique, false if already exists</returns>
     Task<bool> IsReceiptNumberUniqueAsync(string receiptNumber);
+
+    public Task<PagedResult<FuelPurchase>> GetAllFuelPurchasesPagedAsync(PaginationParameters parameters);
 }

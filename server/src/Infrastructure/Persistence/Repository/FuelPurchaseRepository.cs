@@ -37,7 +37,7 @@ public class FuelPurchasesRepository : GenericRepository<FuelPurchase>, IFuelPur
             "PurchasedByUserId" => sortDescending ?
                 query.OrderByDescending(fp => fp.PurchasedByUserId) :
                 query.OrderBy(fp => fp.PurchasedByUserId),
-            "purchasedate" => sortDescending ?
+            "PurchaseDate" => sortDescending ?
                 query.OrderByDescending(fp => fp.PurchaseDate) :
                 query.OrderBy(fp => fp.PurchaseDate),
             "OdometerReading" => sortDescending ?
@@ -63,7 +63,7 @@ public class FuelPurchasesRepository : GenericRepository<FuelPurchase>, IFuelPur
     }
     public async Task<PagedResult<FuelPurchase>> GetAllFuelPurchasesPagedAsync(PaginationParameters parameters)
     {
-        var query = _dbSet.AsNoTracking().AsQueryable();
+        var query = _dbSet.AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(parameters.Search))
         {
