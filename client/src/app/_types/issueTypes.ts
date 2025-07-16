@@ -12,4 +12,6 @@ export interface IssueDetailsFormProps {
   errors: { [key: string]: string };
   onChange: (field: string, value: string) => void;
   disabled?: boolean;
+  showStatus?: boolean;
+  statusEditable?: boolean;
 }
