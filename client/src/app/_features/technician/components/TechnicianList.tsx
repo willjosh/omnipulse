@@ -1,12 +1,17 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { DataTable, PaginationControls } from "@/app/_features/shared/table";
 import { OptionButton, PrimaryButton } from "@/app/_features/shared/button";
-
+import { ConfirmModal } from "@/app/_features/shared/modal";
 import { FilterBar } from "@/app/_features/shared/filter";
+import { Archive, Edit, Details } from "@/app/_features/shared/icons";
 import { technicianTableColumns } from "./TechnicianTableColumns";
-import { useTechnicians } from "@/app/_hooks/technician/useTechnicians";
+import {
+  useTechnicians,
+  useHandleTechnicianStatus,
+  useUpdateTechnician,
+} from "@/app/_hooks/technician/useTechnicians";
 import { Technician } from "@/app/_hooks/technician/technicianType";
 
 const TechnicianList: React.FC = () => {
@@ -19,9 +24,14 @@ const TechnicianList: React.FC = () => {
     sortOrder: "asc" as "asc" | "desc",
     search: "",
   });
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    technician?: Technician;
+  }>({ isOpen: false });
 
   const { technicians, pagination, isPending, isError } =
     useTechnicians(filters);
+  const handleTechnicianStatusMutation = useHandleTechnicianStatus();
 
   const handleSelectAll = () => {
     if (selectedTechnicians.length === technicians.length) {
@@ -67,6 +77,52 @@ const TechnicianList: React.FC = () => {
   const handleRowClick = (technician: Technician) => {
     router.push(`/contacts/${technician.id}`);
   };
+
+  const handleToggleTechnicianStatus = async () => {
+    if (!confirmModal.technician) return;
+
+    try {
+      await handleTechnicianStatusMutation.mutateAsync(
+        confirmModal.technician.id,
+      );
+      setConfirmModal({ isOpen: false });
+    } catch (error) {
+      console.error("Error handling technician status:", error);
+    }
+  };
+
+  const getTechnicianActions = useMemo(
+    () => (technician: Technician) => [
+      {
+        key: "view",
+        label: "View Details",
+        icon: <Details />,
+        onClick: (tech: Technician) => {
+          router.push(`/contacts/${tech.id}`);
+        },
+      },
+      {
+        key: "edit",
+        label: "Edit Technician",
+        icon: <Edit />,
+        onClick: (tech: Technician) => {
+          router.push(`/contacts/${tech.id}/edit`);
+        },
+      },
+      {
+        key: technician.IsActive ? "deactivate" : "activate",
+        label: technician.IsActive ? "Deactivate" : "Activate",
+        variant: technician.IsActive
+          ? ("danger" as const)
+          : ("default" as const),
+        icon: <Archive />,
+        onClick: (tech: Technician) => {
+          setConfirmModal({ isOpen: true, technician: tech });
+        },
+      },
+    ],
+    [router],
+  );
 
   const emptyState = (
     <div className="text-center py-8">
@@ -121,12 +177,24 @@ const TechnicianList: React.FC = () => {
         onSort={handleSort}
         sortBy={filters.sortBy}
         sortOrder={filters.sortOrder}
-        actions={[]}
+        actions={getTechnicianActions}
         showActions={true}
         fixedLayout={false}
         loading={isPending}
         getItemId={technician => technician.id}
         emptyState={emptyState}
+      />
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ isOpen: false })}
+        onConfirm={handleToggleTechnicianStatus}
+        title={`${confirmModal.technician?.IsActive ? "Deactivate" : "Activate"} Technician`}
+        message={`Are you sure you want to ${confirmModal.technician?.IsActive ? "deactivate" : "activate"} ${confirmModal.technician?.FirstName} ${confirmModal.technician?.LastName}?`}
+        confirmText={
+          confirmModal.technician?.IsActive ? "Deactivate" : "Activate"
+        }
+        cancelText="Cancel"
       />
     </div>
   );

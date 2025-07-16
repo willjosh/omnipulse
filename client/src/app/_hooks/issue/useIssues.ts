@@ -133,3 +133,17 @@ export function useUpdateIssue() {
     },
   });
 }
+
+export function useDeleteIssue() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number) => {
+      const { data } = await agent.delete(`/issues/${id}`);
+      return data;
+    },
+    onSuccess: async (_data, id) => {
+      await queryClient.invalidateQueries({ queryKey: ["issues"] });
+      await queryClient.invalidateQueries({ queryKey: ["issue", id] });
+    },
+  });
+}

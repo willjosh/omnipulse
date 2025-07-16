@@ -221,31 +221,107 @@ server.get("/issues", (req, res) => {
   });
 });
 
-// Create a new issue (minimal, flexible for incremental requirements)
+// Update issue
+server.put("/issues/:id", (req, res) => {
+  const db = router.db;
+  const issueId = parseInt(req.params.id);
+  const updatedIssue = req.body;
+
+  const issue = db.get("issues").find({ id: issueId });
+
+  if (issue.value()) {
+    // Map VehicleID to VehicleName
+    const vehicles = db.get("vehicles").value();
+    const vehicle = vehicles.find(v => v.id === updatedIssue.VehicleID);
+    updatedIssue.VehicleName = vehicle
+      ? vehicle.Name || vehicle.VehicleName
+      : "";
+
+    // Map ReportedByUserID to ReportedByUserName
+    const users = db.get("technicians").value();
+    const reportedByUser = users.find(
+      u => u.id === updatedIssue.ReportedByUserID,
+    );
+    updatedIssue.ReportedByUserName = reportedByUser
+      ? `${reportedByUser.FirstName} ${reportedByUser.LastName}`
+      : "";
+
+    // Map ResolvedByUserID to ResolvedByUserName (if not null)
+    if (updatedIssue.ResolvedByUserID) {
+      const resolvedByUser = users.find(
+        u => u.id === updatedIssue.ResolvedByUserID,
+      );
+      updatedIssue.ResolvedByUserName = resolvedByUser
+        ? `${resolvedByUser.FirstName} ${resolvedByUser.LastName}`
+        : "";
+    } else {
+      updatedIssue.ResolvedByUserName = null;
+    }
+
+    issue.assign(updatedIssue).write();
+    res.json(issue.value());
+  } else {
+    res.status(404).json({ error: "Issue not found" });
+  }
+});
+
+server.delete("/issues/:id", (req, res) => {
+  const db = router.db;
+  const issueId = parseInt(req.params.id);
+  const issues = db.get("issues");
+  const issue = issues.find({ id: issueId });
+  if (issue.value()) {
+    issues.remove({ id: issueId }).write();
+    res.status(204).end();
+  } else {
+    res.status(404).json({ error: "Issue not found" });
+  }
+});
+
 server.post("/issues", (req, res) => {
   const db = router.db;
   const issues = db.get("issues");
-  const newIssue = req.body;
+  const vehicles = db.get("vehicles").value();
+  const users = db.get("technicians").value();
 
-  // Generate new unique ID
-  const maxId = issues
-    .value()
-    .reduce((max, issue) => Math.max(max, issue.id || 0), 0);
-  newIssue.id = maxId + 1;
+  // Find next id and IssueNumber
+  const allIssues = issues.value();
+  const nextId = allIssues.length
+    ? Math.max(...allIssues.map(i => i.id)) + 1
+    : 1;
+  const nextIssueNumber = allIssues.length
+    ? Math.max(...allIssues.map(i => i.IssueNumber)) + 1
+    : 1001;
 
-  // Add createdAt timestamp
-  newIssue.createdAt = new Date().toISOString();
+  // Look up vehicle name
+  const vehicle = vehicles.find(v => v.id === req.body.VehicleID);
+  const vehicleName = vehicle ? vehicle.Name || vehicle.VehicleName : "";
 
-  // Only require Title and ReportedByUserID for now
-  if (!newIssue.Title || !newIssue.ReportedByUserID) {
-    return res
-      .status(400)
-      .json({ error: "Title and ReportedByUserID are required." });
-  }
+  // Look up user name
+  const user = users.find(u => u.id === req.body.ReportedByUserID);
+  const reportedByUserName = user ? `${user.FirstName} ${user.LastName}` : "";
 
-  // Add the new issue
+  // Compose new issue
+  const newIssue = {
+    id: nextId,
+    IssueNumber: nextIssueNumber,
+    VehicleID: req.body.VehicleID,
+    VehicleName: vehicleName,
+    Title: req.body.Title,
+    Description: req.body.Description,
+    Category: req.body.Category,
+    PriorityLevel: req.body.PriorityLevel,
+    Status: req.body.Status,
+    ReportedByUserID: req.body.ReportedByUserID,
+    ReportedByUserName: reportedByUserName,
+    ReportedDate: req.body.ReportedDate,
+    ResolvedDate: null,
+    ResolvedByUserID: null,
+    ResolvedByUserName: null,
+    ResolutionNotes: null,
+  };
+
   issues.push(newIssue).write();
-
   res.status(201).json(newIssue);
 });
 
@@ -528,6 +604,91 @@ server.get("/technicians/:id", (req, res) => {
   }
 });
 
+// Create a new technician
+server.post("/technicians", (req, res) => {
+  const db = router.db;
+  const technicians = db.get("technicians");
+  const newTechnician = req.body;
+
+  const generateUUID = () => {
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+      /[xy]/g,
+      function (c) {
+        const r = (Math.random() * 16) | 0;
+        const v = c === "x" ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+      },
+    );
+  };
+
+  newTechnician.id = generateUUID();
+
+  if (newTechnician.HireDate && !newTechnician.HireDate.includes("T")) {
+    newTechnician.HireDate = new Date(newTechnician.HireDate).toISOString();
+  }
+
+  if (
+    !newTechnician.FirstName ||
+    !newTechnician.LastName ||
+    !newTechnician.Email
+  ) {
+    return res
+      .status(400)
+      .json({ error: "FirstName, LastName, and Email are required." });
+  }
+
+  technicians.push(newTechnician).write();
+
+  res.status(201).json(newTechnician);
+});
+
+// Update technician
+server.put("/technicians/:id", (req, res) => {
+  const db = router.db;
+  const technicianId = req.params.id;
+  const updatedData = req.body;
+
+  const technician = db.get("technicians").find({ id: technicianId });
+
+  if (technician.value()) {
+    if (updatedData.HireDate && !updatedData.HireDate.includes("T")) {
+      updatedData.HireDate = new Date(updatedData.HireDate).toISOString();
+    }
+
+    const cleanedData = Object.fromEntries(
+      Object.entries(updatedData).filter(([_, value]) => value != null),
+    );
+
+    technician.assign(cleanedData).write();
+    res.json({
+      message: "Technician updated successfully",
+      technician: technician.value(),
+    });
+  } else {
+    res.status(404).json({ error: "Technician not found" });
+  }
+});
+
+server.post("/technicians/status/:id", (req, res) => {
+  const db = router.db;
+  const technicianId = req.params.id;
+
+  const technician = db.get("technicians").find({ id: technicianId });
+
+  if (technician.value()) {
+    const currentStatus = technician.value().IsActive;
+    const newStatus = !currentStatus;
+
+    technician.assign({ IsActive: newStatus }).write();
+    res.json({
+      message: `Technician ${newStatus ? "activated" : "deactivated"} successfully`,
+      technician: technician.value(),
+    });
+  } else {
+    res.status(404).json({ error: "Technician not found" });
+  }
+});
+
 // Custom route for inventoryItems with pagination wrapper
 server.get("/inventoryItems", (req, res) => {
   const db = router.db;
@@ -770,7 +931,9 @@ server.listen(PORT, () => {
   console.log(`GET /issues?page=1&limit=5 - Get issues with pagination`);
   console.log(`GET /issues?search=issue - Search issues`);
   console.log(`GET /issues/:id - Get single issue`);
-  console.log(`POST /issues - Create new issue (minimal)`);
+  console.log(`PUT /issues/:id - Update issue`);
+  console.log(`POST /issues - Create new issue`);
+  console.log(`DELETE /issues/:id - Delete issue`);
 
   // Vehicle Groups
   console.log(`GET /vehicleGroups - Get paginated vehicle groups`);
@@ -790,6 +953,9 @@ server.listen(PORT, () => {
     `GET /technicians?sortBy=firstname - Sort technicians by firstname`,
   );
   console.log(`GET /technicians/:id - Get single technician`);
+  console.log(`POST /technicians - Create new technician`);
+  console.log(`PUT /technicians/:id - Update technician`);
+  console.log(`POST /technicians/status/:id - Toggle technician status`);
 
   // Inventory Items
   console.log(`GET /inventoryItems - Get paginated inventory items`);
