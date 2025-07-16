@@ -9,7 +9,6 @@ export interface Technician {
 
 export interface CreateTechnicianCommand {
   Email: string;
-  Password: string;
   FirstName: string;
   LastName: string;
   HireDate: string;
@@ -20,6 +19,7 @@ export interface UpdateTechnicianCommand {
   id: string;
   FirstName?: string | null;
   LastName?: string | null;
+  Email?: string | null;
   HireDate?: string | null;
   IsActive?: boolean | null;
 }
