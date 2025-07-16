@@ -57,13 +57,13 @@ export default function CreateIssueHeaderOnly() {
     createIssue(toCreateIssueCommand(), {
       onSuccess: () => {
         setForm({
-          VehicleID: "", // Relating an issue to a vehicle
-          PriorityLevel: "", // Setting a priority level
-          ReportedDate: "", // System auto-generates timestamp
+          VehicleID: "",
+          PriorityLevel: "",
+          ReportedDate: "",
           Title: "",
-          Description: "", // Updating a detailed and formatted description
-          Category: "", // Selecting an issue category
-          Status: "1", // Selecting a status category
+          Description: "",
+          Category: "",
+          Status: "1",
           ReportedByUserID: "",
         });
         setResetKey(k => k + 1);
@@ -92,6 +92,8 @@ export default function CreateIssueHeaderOnly() {
         errors={errors}
         onChange={handleFormChange}
         disabled={isPending}
+        showStatus={false}
+        statusEditable={false}
       />
       {/* Photos & Documents Row */}
       <div className="max-w-2xl mx-auto w-full mt-6 flex gap-6">
