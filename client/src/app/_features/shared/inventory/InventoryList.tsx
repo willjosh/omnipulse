@@ -14,7 +14,7 @@ import { PrimaryButton, OptionButton } from "@/app/_features/shared/button";
 import { ConfirmModal } from "@/app/_features/shared/modal";
 import { Archive, Edit, Details } from "@/app/_features/shared/icons";
 import { inventoryTableColumns } from "./InventoryTableColumns";
-import AddInventoryModal from "./AddInventoryModal";
+import InventoryModal from "./InventoryModal";
 import {
   InventoryActionType,
   INVENTORY_ACTION_CONFIG,
@@ -22,7 +22,11 @@ import {
 
 const InventoryList = () => {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [modal, setModal] = useState<{
+    isOpen: boolean;
+    mode: "create" | "edit";
+    item?: InventoryItemWithLabels;
+  }>({ isOpen: false, mode: "create" });
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
     item?: InventoryItemWithLabels;
@@ -95,6 +99,14 @@ const InventoryList = () => {
   const inventoryActions = useMemo(
     () => [
       {
+        key: InventoryActionType.EDIT,
+        label: INVENTORY_ACTION_CONFIG[InventoryActionType.EDIT].label,
+        icon: <Edit />,
+        onClick: (item: InventoryItemWithLabels) => {
+          setModal({ isOpen: true, mode: "edit", item });
+        },
+      },
+      {
         key: InventoryActionType.ARCHIVE,
         label: INVENTORY_ACTION_CONFIG[InventoryActionType.ARCHIVE].label,
         variant: INVENTORY_ACTION_CONFIG[InventoryActionType.ARCHIVE].variant,
@@ -126,7 +138,9 @@ const InventoryList = () => {
       title="No Inventory Items Found"
       message="Get started by adding your first inventory item to track your parts and supplies."
       action={
-        <PrimaryButton onClick={() => setIsAddModalOpen(true)}>
+        <PrimaryButton
+          onClick={() => setModal({ isOpen: true, mode: "create" })}
+        >
           <span>+</span>
           Add Your First Item
         </PrimaryButton>
@@ -142,7 +156,9 @@ const InventoryList = () => {
         </h1>
         <div className="flex items-center gap-3">
           <OptionButton />
-          <PrimaryButton onClick={() => setIsAddModalOpen(true)}>
+          <PrimaryButton
+            onClick={() => setModal({ isOpen: true, mode: "create" })}
+          >
             <span>+</span>
             Add Item
           </PrimaryButton>
@@ -186,9 +202,11 @@ const InventoryList = () => {
         />
       )}
 
-      <AddInventoryModal
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
+      <InventoryModal
+        isOpen={modal.isOpen}
+        onClose={() => setModal({ isOpen: false, mode: "create" })}
+        mode={modal.mode}
+        item={modal.item}
       />
 
       <ConfirmModal
