@@ -1,18 +1,16 @@
 using Application.Features.ServiceSchedules.Query;
 
-namespace Application.Features.ServicePrograms.Query.GetServiceProgram;
+namespace Application.Features.ServicePrograms.Query;
 
 /// <summary>
-/// Data Transfer Object representing detailed information about a single service program.
+/// Data Transfer Object representing detailed information about a single service program and its service schedules.
 /// </summary>
 public class ServiceProgramDTO
 {
-    public int ID { get; set; }
+    public required int ServiceProgramID { get; set; }
     public required string Name { get; set; }
     public string? Description { get; set; }
     public required bool IsActive { get; set; }
     public required List<ServiceScheduleDTO> ServiceSchedules { get; set; } = [];
-    public required List<int> AssignedVehicleIds { get; set; } = [];
-    public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public required List<int> AssignedVehicleIDs { get; set; } = [];
 }
