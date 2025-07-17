@@ -880,6 +880,50 @@ server.post("/inventoryItems", (req, res) => {
   }
 });
 
+// Update an inventory item
+server.put("/inventoryItems/:id", (req, res) => {
+  try {
+    const db = router.db;
+    const itemId = parseInt(req.params.id);
+    const updatedItem = req.body;
+
+    if (!itemId) {
+      return res.status(400).json({ error: "Invalid inventory item ID" });
+    }
+
+    if (!updatedItem.ItemNumber || !updatedItem.ItemName) {
+      return res
+        .status(400)
+        .json({ error: "ItemNumber and ItemName are required" });
+    }
+
+    const inventoryItem = db.get("inventoryItems").find({ id: itemId }).value();
+
+    if (!inventoryItem) {
+      return res.status(404).json({ error: "Inventory item not found" });
+    }
+
+    // Update the item
+    const updatedInventoryItem = {
+      ...inventoryItem,
+      ...updatedItem,
+      id: itemId, // Ensure ID remains the same
+      updatedAt: new Date().toISOString(),
+    };
+
+    db.get("inventoryItems")
+      .find({ id: itemId })
+      .assign(updatedInventoryItem)
+      .write();
+
+    console.log(`Updated inventory item with ID: ${itemId}`);
+    res.json(updatedInventoryItem);
+  } catch (error) {
+    console.error("Error updating inventory item:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // Custom route for serviceTasks with pagination wrapper
 server.get("/serviceTasks", (req, res) => {
   const db = router.db;
@@ -1031,6 +1075,7 @@ server.listen(PORT, () => {
   console.log(`GET /inventoryItems?search=oil - Search inventory items`);
   console.log(`GET /inventoryItems/:id - Get single inventory item`);
   console.log(`POST /inventoryItems - Create new inventory item`);
+  console.log(`PUT /inventoryItems/:id - Update inventory item`);
   console.log(`POST /inventoryItems/deactivate/:id - Archive inventory item`);
 
   // Service Tasks

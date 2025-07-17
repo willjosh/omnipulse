@@ -1,8 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
-import { useCreateInventoryItem } from "@/app/_hooks/inventory-item/useInventoryItem";
-import { CreateInventoryItemCommand } from "@/app/_hooks/inventory-item/inventoryItemType";
+import React, { useState, useEffect } from "react";
+import {
+  useCreateInventoryItem,
+  useUpdateInventoryItem,
+} from "@/app/_hooks/inventory-item/useInventoryItem";
+import {
+  CreateInventoryItemCommand,
+  UpdateInventoryItemCommand,
+  InventoryItemWithLabels,
+} from "@/app/_hooks/inventory-item/inventoryItemType";
 import {
   InventoryItemCategoryEnum,
   InventoryItemUnitCostMeasurementUnitEnum,
@@ -10,16 +17,20 @@ import {
 import { X } from "lucide-react";
 import { PrimaryButton, SecondaryButton } from "@/app/_features/shared/button";
 
-interface AddInventoryModalProps {
+interface InventoryModalProps {
   isOpen: boolean;
   onClose: () => void;
+  mode: "create" | "edit";
+  item?: InventoryItemWithLabels | null;
 }
 
-const AddInventoryModal: React.FC<AddInventoryModalProps> = ({
+const InventoryModal: React.FC<InventoryModalProps> = ({
   isOpen,
   onClose,
+  mode,
+  item,
 }) => {
-  const [formData, setFormData] = useState<CreateInventoryItemCommand>({
+  const [formData, setFormData] = useState({
     ItemNumber: "",
     ItemName: "",
     Description: "",
@@ -35,25 +46,29 @@ const AddInventoryModal: React.FC<AddInventoryModalProps> = ({
   });
 
   const createInventoryMutation = useCreateInventoryItem();
+  const updateInventoryMutation = useUpdateInventoryItem();
 
-  const handleInputChange = (
-    field: keyof CreateInventoryItemCommand,
-    value: any,
-  ) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!formData.ItemNumber.trim() || !formData.ItemName.trim()) {
-      alert("Item Number and Item Name are required");
-      return;
-    }
-
-    try {
-      await createInventoryMutation.mutateAsync(formData);
-
+  // Pre-fill form for edit mode or reset for create mode
+  useEffect(() => {
+    if (mode === "edit" && item) {
+      setFormData({
+        ItemNumber: item.ItemNumber || "",
+        ItemName: item.ItemName || "",
+        Description: item.Description || "",
+        Category: item.Category ?? InventoryItemCategoryEnum.ENGINE,
+        Manufacturer: item.Manufacturer || "",
+        ManufacturerPartNumber: item.ManufacturerPartNumber || "",
+        UniversalProductCode: item.UniversalProductCode || "",
+        UnitCost: item.UnitCost ?? 0,
+        UnitCostMeasurementUnit:
+          item.UnitCostMeasurementUnit ??
+          InventoryItemUnitCostMeasurementUnitEnum.Unit,
+        Supplier: item.Supplier || "",
+        WeightKG: item.WeightKG ?? 0,
+        IsActive: item.IsActive ?? true,
+      });
+    } else if (mode === "create") {
+      // Reset form for create mode
       setFormData({
         ItemNumber: "",
         ItemName: "",
@@ -68,32 +83,72 @@ const AddInventoryModal: React.FC<AddInventoryModalProps> = ({
         WeightKG: 0,
         IsActive: true,
       });
+    }
+  }, [mode, item, isOpen]);
+
+  const handleInputChange = (field: string, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!formData.ItemNumber.trim() || !formData.ItemName.trim()) {
+      alert("Item Number and Item Name are required");
+      return;
+    }
+
+    try {
+      if (mode === "create") {
+        const createCommand: CreateInventoryItemCommand = formData;
+        await createInventoryMutation.mutateAsync(createCommand);
+      } else {
+        const updateCommand: UpdateInventoryItemCommand = {
+          id: item!.id,
+          ...formData,
+        };
+        await updateInventoryMutation.mutateAsync(updateCommand);
+      }
+
       onClose();
     } catch (error) {
-      console.error("Error creating inventory item:", error);
-      alert("Failed to create inventory item. Please try again.");
+      console.error(
+        `Error ${mode === "create" ? "creating" : "updating"} inventory item:`,
+        error,
+      );
+      alert(
+        `Failed to ${mode === "create" ? "create" : "update"} inventory item. Please try again.`,
+      );
     }
   };
 
   const handleClose = () => {
-    setFormData({
-      ItemNumber: "",
-      ItemName: "",
-      Description: "",
-      Category: InventoryItemCategoryEnum.ENGINE,
-      Manufacturer: "",
-      ManufacturerPartNumber: "",
-      UniversalProductCode: "",
-      UnitCost: 0,
-      UnitCostMeasurementUnit: InventoryItemUnitCostMeasurementUnitEnum.Unit,
-      Supplier: "",
-      WeightKG: 0,
-      IsActive: true,
-    });
+    // Reset form when closing in create mode
+    if (mode === "create") {
+      setFormData({
+        ItemNumber: "",
+        ItemName: "",
+        Description: "",
+        Category: InventoryItemCategoryEnum.ENGINE,
+        Manufacturer: "",
+        ManufacturerPartNumber: "",
+        UniversalProductCode: "",
+        UnitCost: 0,
+        UnitCostMeasurementUnit: InventoryItemUnitCostMeasurementUnitEnum.Unit,
+        Supplier: "",
+        WeightKG: 0,
+        IsActive: true,
+      });
+    }
     onClose();
   };
 
   if (!isOpen) return null;
+
+  const isLoading =
+    mode === "create"
+      ? createInventoryMutation.isPending
+      : updateInventoryMutation.isPending;
 
   const categoryOptions = [
     { value: InventoryItemCategoryEnum.ENGINE, label: "Engine" },
@@ -127,11 +182,23 @@ const AddInventoryModal: React.FC<AddInventoryModalProps> = ({
     { value: InventoryItemUnitCostMeasurementUnitEnum.Box, label: "Box" },
   ];
 
+  const modalTitle =
+    mode === "create" ? "Add New Item" : `Edit Item - ${item?.ItemName}`;
+
+  const submitButtonText =
+    mode === "create"
+      ? isLoading
+        ? "Creating..."
+        : "Create Item"
+      : isLoading
+        ? "Updating..."
+        : "Update Item";
+
   return (
     <div className="fixed inset-0 backdrop-brightness-50 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">Add New Item</h2>
+          <h2 className="text-xl font-semibold text-gray-900">{modalTitle}</h2>
           <button
             onClick={handleClose}
             className="text-gray-400 hover:text-gray-600"
@@ -161,7 +228,7 @@ const AddInventoryModal: React.FC<AddInventoryModalProps> = ({
               </label>
               <input
                 type="text"
-                value={formData.ItemName}
+                value={formData.ItemName || ""}
                 onChange={e => handleInputChange("ItemName", e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
@@ -334,13 +401,8 @@ const AddInventoryModal: React.FC<AddInventoryModalProps> = ({
 
           <div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
             <SecondaryButton onClick={handleClose}>Cancel</SecondaryButton>
-            <PrimaryButton
-              type="submit"
-              disabled={createInventoryMutation.isPending}
-            >
-              {createInventoryMutation.isPending
-                ? "Creating..."
-                : "Create Part"}
+            <PrimaryButton type="submit" disabled={isLoading}>
+              {submitButtonText}
             </PrimaryButton>
           </div>
         </form>
@@ -349,4 +411,4 @@ const AddInventoryModal: React.FC<AddInventoryModalProps> = ({
   );
 };
 
-export default AddInventoryModal;
+export default InventoryModal;
