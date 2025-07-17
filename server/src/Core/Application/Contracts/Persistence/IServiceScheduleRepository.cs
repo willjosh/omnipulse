@@ -13,4 +13,12 @@ public interface IServiceScheduleRepository : IGenericRepository<ServiceSchedule
     /// <param name="parameters">Pagination parameters.</param>
     /// <returns>A <see cref="PagedResult{ServiceSchedule}"/> containing the paged list of service schedules.</returns>
     Task<PagedResult<ServiceSchedule>> GetAllServiceSchedulesPagedAsync(PaginationParameters parameters);
+
+    /// <summary>
+    /// Retrieves all service schedules for a given service program, paged.
+    /// </summary>
+    /// <param name="serviceProgramID">The ID of the service program.</param>
+    /// <param name="parameters">The pagination parameters.</param>
+    /// <returns>A paged result containing <see cref="ServiceSchedule"/> entities for the given service program.</returns>
+    Task<PagedResult<ServiceSchedule>> GetAllByServiceProgramIDPagedAsync(int serviceProgramID, PaginationParameters parameters);
 }

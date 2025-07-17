@@ -16,11 +16,26 @@ public class ServiceScheduleRepository : GenericRepository<ServiceSchedule>, ISe
 
     public async Task<PagedResult<ServiceSchedule>> GetAllServiceSchedulesPagedAsync(PaginationParameters parameters)
     {
+        return await BuildPagedServiceScheduleQuery(parameters);
+    }
+
+    public async Task<PagedResult<ServiceSchedule>> GetAllByServiceProgramIDPagedAsync(int serviceProgramId, PaginationParameters parameters)
+    {
+        return await BuildPagedServiceScheduleQuery(parameters, serviceProgramId);
+    }
+
+    private async Task<PagedResult<ServiceSchedule>> BuildPagedServiceScheduleQuery(PaginationParameters parameters, int? serviceProgramID = null)
+    {
         var query = _dbSet
             .Include(ss => ss.ServiceProgram)
             .Include(ss => ss.XrefServiceScheduleServiceTasks)
                 .ThenInclude(xref => xref.ServiceTask)
             .AsQueryable();
+
+        if (serviceProgramID.HasValue)
+        {
+            query = query.Where(ss => ss.ServiceProgramID == serviceProgramID.Value);
+        }
 
         // Filtering (search)
         if (!string.IsNullOrWhiteSpace(parameters.Search))
