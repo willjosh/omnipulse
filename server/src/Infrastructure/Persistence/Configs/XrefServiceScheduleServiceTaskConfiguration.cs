@@ -12,26 +12,28 @@ public class XrefServiceScheduleServiceTaskConfiguration : IEntityTypeConfigurat
     public void Configure(EntityTypeBuilder<XrefServiceScheduleServiceTask> builder)
     {
         builder.ToTable("XrefServiceScheduleServiceTasks");
-        builder.HasKey(ssst => new { ssst.ServiceScheduleID, ssst.ServiceTaskID });
+        builder.HasKey(xssst => new { xssst.ServiceScheduleID, xssst.ServiceTaskID });
 
         // Regular Indexes
-        builder.HasIndex(ssst => ssst.ServiceScheduleID);
-        builder.HasIndex(ssst => ssst.ServiceTaskID);
+        builder.HasIndex(xssst => xssst.ServiceScheduleID);
+        builder.HasIndex(xssst => xssst.ServiceTaskID);
 
         // Unique constraint to prevent duplicate tasks in same schedule
-        builder.HasIndex(ssst => new { ssst.ServiceScheduleID, ssst.ServiceTaskID }).IsUnique();
+        builder.HasIndex(xssst => new { xssst.ServiceScheduleID, xssst.ServiceTaskID }).IsUnique();
 
         // Table Relationships
+        // XrefServiceScheduleServiceTask N:1 ServiceSchedule
         builder
-            .HasOne(ssst => ssst.ServiceSchedule)
+            .HasOne(xssst => xssst.ServiceSchedule)
             .WithMany(ss => ss.XrefServiceScheduleServiceTasks)
-            .HasForeignKey(ssst => ssst.ServiceScheduleID)
+            .HasForeignKey(xssst => xssst.ServiceScheduleID)
             .OnDelete(DeleteBehavior.Cascade);
 
+        // XrefServiceScheduleServiceTask N:1 ServiceTask
         builder
-            .HasOne(ssst => ssst.ServiceTask)
+            .HasOne(xssst => xssst.ServiceTask)
             .WithMany(ss => ss.XrefServiceScheduleServiceTasks)
-            .HasForeignKey(ssst => ssst.ServiceTaskID)
-            .OnDelete(DeleteBehavior.Restrict);
+            .HasForeignKey(xssst => xssst.ServiceTaskID)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
