@@ -1,5 +1,6 @@
 using Application.Features.ServicePrograms.Command.CreateServiceProgram;
 using Application.Features.ServicePrograms.Command.UpdateServiceProgram;
+using Application.Features.ServicePrograms.Query;
 
 using AutoMapper;
 
@@ -26,5 +27,11 @@ public class ServiceProgramMappingProfile : Profile
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
             .ForMember(dest => dest.ServiceSchedules, opt => opt.Ignore()) // Navigation Property
             .ForMember(dest => dest.XrefServiceProgramVehicles, opt => opt.Ignore()); // Navigation Property
+
+        // GetServiceProgram
+        CreateMap<ServiceProgram, ServiceProgramDTO>(MemberList.Destination)
+            .ForMember(dest => dest.ServiceProgramID, opt => opt.MapFrom(src => src.ID))
+            .ForMember(dest => dest.ServiceSchedules, opt => opt.Ignore()) // Handled in query handlers
+            .ForMember(dest => dest.AssignedVehicleIDs, opt => opt.Ignore()); // Handled in query handlers
     }
 }
