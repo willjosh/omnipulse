@@ -1,18 +1,32 @@
 "use client";
 
-import React, { useState } from "react";
-import { useInventoryItems } from "@/app/_hooks/inventory-item/useInventoryItem";
+import React, { useState, useMemo } from "react";
+import {
+  useInventoryItems,
+  useDeactivateInventoryItem,
+} from "@/app/_hooks/inventory-item/useInventoryItem";
 import { InventoryItemWithLabels } from "@/app/_hooks/inventory-item/inventoryItemType";
 import { Loading } from "@/app/_features/shared/feedback";
+import EmptyState from "@/app/_features/shared/feedback/EmptyState";
 import { DataTable, PaginationControls } from "@/app/_features/shared/table";
 import { FilterBar } from "@/app/_features/shared/filter";
 import { PrimaryButton, OptionButton } from "@/app/_features/shared/button";
+import { ConfirmModal } from "@/app/_features/shared/modal";
+import { Archive, Edit, Details } from "@/app/_features/shared/icons";
 import { inventoryTableColumns } from "./InventoryTableColumns";
 import AddInventoryModal from "./AddInventoryModal";
+import {
+  InventoryActionType,
+  INVENTORY_ACTION_CONFIG,
+} from "./inventoryActions";
 
 const InventoryList = () => {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    item?: InventoryItemWithLabels;
+  }>({ isOpen: false });
   const [filters, setFilters] = useState({
     page: 1,
     pageSize: 10,
@@ -23,6 +37,7 @@ const InventoryList = () => {
 
   const { inventoryItems, pagination, isPending, isError } =
     useInventoryItems(filters);
+  const deactivateInventoryMutation = useDeactivateInventoryItem();
 
   const handleSelectAll = () => {
     if (!inventoryItems) return;
@@ -51,47 +66,72 @@ const InventoryList = () => {
       sortBy: sortKey,
       sortOrder:
         prev.sortBy === sortKey && prev.sortOrder === "asc" ? "desc" : "asc",
-      page: 1, // Reset to first page when sorting
+      page: 1,
     }));
   };
 
   const handleSearch = (searchTerm: string) => {
-    setFilters(prev => ({
-      ...prev,
-      search: searchTerm,
-      page: 1, // Reset to first page when searching
-    }));
+    setFilters(prev => ({ ...prev, search: searchTerm, page: 1 }));
   };
 
   const handlePageChange = (newPage: number) => {
     setFilters(prev => ({ ...prev, page: newPage }));
   };
 
-  const handleRowClick = (item: InventoryItemWithLabels) => {
-    // TODO: Navigate to item detail page when implemented
-    console.log("Clicked item:", item);
+  const handleRowClick = (item: InventoryItemWithLabels) => {};
+
+  const handleArchiveItem = async () => {
+    if (!confirmModal.item) return;
+
+    try {
+      const itemId = confirmModal.item.id;
+      await deactivateInventoryMutation.mutateAsync(itemId);
+      setConfirmModal({ isOpen: false });
+    } catch (error) {
+      console.error("Error archiving inventory item:", error);
+    }
   };
+
+  const inventoryActions = useMemo(
+    () => [
+      {
+        key: InventoryActionType.ARCHIVE,
+        label: INVENTORY_ACTION_CONFIG[InventoryActionType.ARCHIVE].label,
+        variant: INVENTORY_ACTION_CONFIG[InventoryActionType.ARCHIVE].variant,
+        icon: <Archive />,
+        onClick: (item: InventoryItemWithLabels) => {
+          setConfirmModal({ isOpen: true, item });
+        },
+      },
+    ],
+    [],
+  );
 
   if (isError) {
     return (
       <div className="p-6 w-[1260px] min-h-screen mx-auto">
-        <div className="text-center py-8">
-          <div className="w-12 h-12 text-red-400 mx-auto mb-4 flex items-center justify-center">
-            ⚠️
-          </div>
-          <p className="text-red-500">Error loading inventory items</p>
-        </div>
+        <EmptyState
+          icon="⚠️"
+          title="Error Loading Inventory"
+          message="Unable to load inventory items. Please check your connection and try again."
+          className="text-red-500"
+        />
       </div>
     );
   }
 
   const emptyState = (
-    <div className="text-center py-8">
-      <div className="w-12 h-12 text-gray-400 mx-auto mb-4 flex items-center justify-center">
-        📦
-      </div>
-      <p className="text-gray-500">No inventory items found</p>
-    </div>
+    <EmptyState
+      icon="📦"
+      title="No Inventory Items Found"
+      message="Get started by adding your first inventory item to track your parts and supplies."
+      action={
+        <PrimaryButton onClick={() => setIsAddModalOpen(true)}>
+          <span>+</span>
+          Add Your First Item
+        </PrimaryButton>
+      }
+    />
   );
 
   return (
@@ -104,7 +144,7 @@ const InventoryList = () => {
           <OptionButton />
           <PrimaryButton onClick={() => setIsAddModalOpen(true)}>
             <span>+</span>
-            Add Part
+            Add Item
           </PrimaryButton>
         </div>
       </div>
@@ -137,7 +177,8 @@ const InventoryList = () => {
           onSelectItem={handleItemSelect}
           onSelectAll={handleSelectAll}
           onRowClick={handleRowClick}
-          showActions={false}
+          actions={inventoryActions}
+          showActions={true}
           fixedLayout={false}
           loading={isPending}
           getItemId={item => item.id.toString()}
@@ -148,6 +189,16 @@ const InventoryList = () => {
       <AddInventoryModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
+      />
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ isOpen: false })}
+        onConfirm={handleArchiveItem}
+        title="Archive Item"
+        message={`Are you sure you want to archive ${confirmModal.item?.ItemName}?`}
+        confirmText="Archive"
+        cancelText="Cancel"
       />
     </div>
   );
