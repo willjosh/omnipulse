@@ -7,7 +7,7 @@ namespace Application.Features.ServicePrograms.Query;
 /// </summary>
 public class ServiceProgramDTO
 {
-    public required int ServiceProgramID { get; set; }
+    public required int ID { get; set; }
     public required string Name { get; set; }
     public string? Description { get; set; }
     public required bool IsActive { get; set; }
