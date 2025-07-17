@@ -111,6 +111,21 @@ export default function CreateServiceTaskPage() {
           disabled={isSaving || isPending}
         />
       </div>
+      {/* Footer Actions */}
+      <div className="max-w-2xl mx-auto w-full mt-8 mb-12">
+        <hr className="mb-6 border-gray-300" />
+        <div className="flex justify-between items-center">
+          <SecondaryButton
+            onClick={handleCancel}
+            disabled={isSaving || isPending}
+          >
+            Cancel
+          </SecondaryButton>
+          <PrimaryButton onClick={handleSave} disabled={isSaving || isPending}>
+            {isSaving || isPending ? "Saving..." : "Save Service Task"}
+          </PrimaryButton>
+        </div>
+      </div>
     </div>
   );
 }
