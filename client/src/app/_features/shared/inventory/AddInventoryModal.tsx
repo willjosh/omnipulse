@@ -54,7 +54,6 @@ const AddInventoryModal: React.FC<AddInventoryModalProps> = ({
     try {
       await createInventoryMutation.mutateAsync(formData);
 
-      // Reset form and close modal
       setFormData({
         ItemNumber: "",
         ItemName: "",
@@ -77,7 +76,6 @@ const AddInventoryModal: React.FC<AddInventoryModalProps> = ({
   };
 
   const handleClose = () => {
-    // Reset form when closing
     setFormData({
       ItemNumber: "",
       ItemName: "",
@@ -146,7 +144,7 @@ const AddInventoryModal: React.FC<AddInventoryModalProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Item Number *
+                Item Number
               </label>
               <input
                 type="text"
@@ -159,7 +157,7 @@ const AddInventoryModal: React.FC<AddInventoryModalProps> = ({
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Item Name *
+                Item Name
               </label>
               <input
                 type="text"
