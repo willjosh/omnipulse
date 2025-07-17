@@ -814,6 +814,40 @@ server.get("/inventoryItems/:id", (req, res) => {
   }
 });
 
+// Create a new inventory item
+server.post("/inventoryItems", (req, res) => {
+  try {
+    const db = router.db;
+    const inventoryItems = db.get("inventoryItems");
+    const newInventoryItem = req.body;
+
+    if (!newInventoryItem) {
+      return res.status(400).json({ error: "Request body is required" });
+    }
+
+    if (!newInventoryItem.ItemNumber || !newInventoryItem.ItemName) {
+      return res
+        .status(400)
+        .json({ error: "ItemNumber and ItemName are required" });
+    }
+
+    const allItems = inventoryItems.value();
+    const maxId =
+      allItems.length > 0
+        ? Math.max(...allItems.map(item => parseInt(item.id) || 0))
+        : 0;
+
+    newInventoryItem.id = maxId + 1;
+
+    inventoryItems.push(newInventoryItem).write();
+
+    res.status(201).json(newInventoryItem);
+  } catch (error) {
+    console.error("Error creating inventory item:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // Custom route for serviceTasks with pagination wrapper
 server.get("/serviceTasks", (req, res) => {
   const db = router.db;
@@ -964,6 +998,7 @@ server.listen(PORT, () => {
   );
   console.log(`GET /inventoryItems?search=oil - Search inventory items`);
   console.log(`GET /inventoryItems/:id - Get single inventory item`);
+  console.log(`POST /inventoryItems - Create new inventory item`);
 
   // Service Tasks
   console.log(`GET /serviceTasks - Get paginated service tasks`);

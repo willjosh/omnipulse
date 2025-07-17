@@ -3,14 +3,16 @@
 import React, { useState } from "react";
 import { useInventoryItems } from "@/app/_hooks/inventory-item/useInventoryItem";
 import { InventoryItemWithLabels } from "@/app/_hooks/inventory-item/inventoryItemType";
-import { Package } from "lucide-react";
 import { Loading } from "@/app/_features/shared/feedback";
 import { DataTable, PaginationControls } from "@/app/_features/shared/table";
 import { FilterBar } from "@/app/_features/shared/filter";
+import { PrimaryButton, OptionButton } from "@/app/_features/shared/button";
 import { inventoryTableColumns } from "./InventoryTableColumns";
+import AddInventoryModal from "./AddInventoryModal";
 
 const InventoryList = () => {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [filters, setFilters] = useState({
     page: 1,
     pageSize: 10,
@@ -43,6 +45,16 @@ const InventoryList = () => {
     );
   };
 
+  const handleSort = (sortKey: string) => {
+    setFilters(prev => ({
+      ...prev,
+      sortBy: sortKey,
+      sortOrder:
+        prev.sortBy === sortKey && prev.sortOrder === "asc" ? "desc" : "asc",
+      page: 1, // Reset to first page when sorting
+    }));
+  };
+
   const handleSearch = (searchTerm: string) => {
     setFilters(prev => ({
       ...prev,
@@ -55,37 +67,45 @@ const InventoryList = () => {
     setFilters(prev => ({ ...prev, page: newPage }));
   };
 
-  const handleSort = (sortKey: string) => {
-    setFilters(prev => ({
-      ...prev,
-      sortBy: sortKey,
-      sortOrder:
-        prev.sortBy === sortKey && prev.sortOrder === "asc" ? "desc" : "asc",
-      page: 1, // Reset to first page when sorting
-    }));
+  const handleRowClick = (item: InventoryItemWithLabels) => {
+    // TODO: Navigate to item detail page when implemented
+    console.log("Clicked item:", item);
   };
-
-  if (isPending) {
-    return <Loading />;
-  }
 
   if (isError) {
     return (
-      <div className="flex-1 p-6">
+      <div className="p-6 w-[1260px] min-h-screen mx-auto">
         <div className="text-center py-8">
-          <Package className="w-12 h-12 text-red-400 mx-auto mb-4" />
+          <div className="w-12 h-12 text-red-400 mx-auto mb-4 flex items-center justify-center">
+            ⚠️
+          </div>
           <p className="text-red-500">Error loading inventory items</p>
         </div>
       </div>
     );
   }
 
+  const emptyState = (
+    <div className="text-center py-8">
+      <div className="w-12 h-12 text-gray-400 mx-auto mb-4 flex items-center justify-center">
+        📦
+      </div>
+      <p className="text-gray-500">No inventory items found</p>
+    </div>
+  );
+
   return (
-    <div className="flex-1 p-6">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-6 w-[1260px] min-h-screen mx-auto">
+      <div className="flex items-center justify-between mb-2">
+        <h1 className="text-2xl font-semibold text-gray-900">
+          Parts & Inventory
+        </h1>
         <div className="flex items-center gap-3">
-          <Package className="w-8 h-8 text-[var(--primary-color)]" />
-          <h1 className="text-2xl font-bold text-gray-900">Parts Inventory</h1>
+          <OptionButton />
+          <PrimaryButton onClick={() => setIsAddModalOpen(true)}>
+            <span>+</span>
+            Add Part
+          </PrimaryButton>
         </div>
       </div>
 
@@ -107,26 +127,27 @@ const InventoryList = () => {
         />
       </div>
 
-      {/* Inventory Items Table */}
-      <DataTable<InventoryItemWithLabels>
-        data={inventoryItems || []}
-        columns={inventoryTableColumns}
-        selectedItems={selectedItems}
-        onSelectItem={handleItemSelect}
-        onSelectAll={handleSelectAll}
-        actions={[]}
-        showActions={false}
-        loading={isPending}
-        fixedLayout={false}
-        getItemId={item =>
-          item.id ? item.id.toString() : `temp-${Date.now()}`
-        }
-        emptyState={
-          <div className="text-center py-8">
-            <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500">No inventory items found</p>
-          </div>
-        }
+      {isPending ? (
+        <Loading />
+      ) : (
+        <DataTable<InventoryItemWithLabels>
+          data={inventoryItems || []}
+          columns={inventoryTableColumns}
+          selectedItems={selectedItems}
+          onSelectItem={handleItemSelect}
+          onSelectAll={handleSelectAll}
+          onRowClick={handleRowClick}
+          showActions={false}
+          fixedLayout={false}
+          loading={isPending}
+          getItemId={item => item.id.toString()}
+          emptyState={emptyState}
+        />
+      )}
+
+      <AddInventoryModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
       />
     </div>
   );
