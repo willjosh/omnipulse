@@ -7,6 +7,7 @@ import ServiceTaskDetailsForm, {
 } from "@/app/_features/service-task/components/ServiceTaskDetailsForm";
 import { PrimaryButton, SecondaryButton } from "@/app/_features/shared/button";
 import { useCreateServiceTask } from "@/app/_hooks/service-task/useServiceTask";
+import { useNotification } from "@/app/_features/shared/feedback/NotificationProvider";
 
 const initialForm: ServiceTaskDetailsFormValues = {
   Name: "",
@@ -26,6 +27,7 @@ export default function CreateServiceTaskPage() {
   const [isSaving, setIsSaving] = useState(false);
 
   const { mutate: createServiceTask, isPending } = useCreateServiceTask();
+  const notify = useNotification();
 
   const breadcrumbs = [
     { label: "Service Tasks", href: "/service-tasks" },
@@ -71,6 +73,7 @@ export default function CreateServiceTaskPage() {
       {
         onSuccess: () => {
           setIsSaving(false);
+          notify("Service Task created successfully!", "success");
           router.push("/service-tasks");
         },
         onError: () => setIsSaving(false),
