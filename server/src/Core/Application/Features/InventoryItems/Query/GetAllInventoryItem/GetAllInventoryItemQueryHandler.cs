@@ -29,8 +29,33 @@ public class GetAllInventoryItemQueryHandler : IRequestHandler<GetAllInventoryIt
         _validator = validator;
     }
 
-    public Task<PagedResult<GetAllInventoryItemDTO>> Handle(GetAllInventoryItemQuery request, CancellationToken cancellationToken)
+    public async Task<PagedResult<GetAllInventoryItemDTO>> Handle(GetAllInventoryItemQuery request, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        _logger.LogInformation("Handling GetAllInventoryItemQuery");
+        // validate the request
+        var validationResult = _validator.Validate(request);
+        if (!validationResult.IsValid)
+        {
+            var errorMessages = string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage));
+            _logger.LogWarning($"GetAllInventoryItem - Validation failed: {errorMessages}");
+            throw new BadRequestException(errorMessages);
+        }
+
+        // get all inventory items from the repository
+        var result = await _inventoryItemRepository.GetAllInventoryItemsPagedAsync(request.Parameters);
+
+        // map the inventory items to DTOs
+        var inventoryItemDTOs = _mapper.Map<List<GetAllInventoryItemDTO>>(result.Items);
+
+        var pagedResult = new PagedResult<GetAllInventoryItemDTO>
+        {
+            Items = inventoryItemDTOs,
+            TotalCount = result.TotalCount,
+            PageNumber = result.PageNumber,
+            PageSize = result.PageSize
+        };
+
+        _logger.LogInformation($"Returning {pagedResult.TotalCount} inventory items for page {pagedResult.PageNumber} with page size {pagedResult.PageSize}");
+        return pagedResult;
     }
 }
