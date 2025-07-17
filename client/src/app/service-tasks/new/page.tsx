@@ -25,6 +25,7 @@ export default function CreateServiceTaskPage() {
     Partial<Record<keyof ServiceTaskDetailsFormValues, string>>
   >({});
   const [isSaving, setIsSaving] = useState(false);
+  const [resetKey, setResetKey] = useState(0); // for resetting form
 
   const { mutate: createServiceTask, isPending } = useCreateServiceTask();
   const notify = useNotification();
@@ -81,6 +82,30 @@ export default function CreateServiceTaskPage() {
     );
   };
 
+  const handleSaveAndAddAnother = async () => {
+    if (!validate()) return;
+    setIsSaving(true);
+    createServiceTask(
+      {
+        Name: form.Name,
+        Description: form.Description,
+        EstimatedLabourHours: Number(form.EstimatedLabourHours),
+        EstimatedCost: Number(form.EstimatedCost),
+        Category: Number(form.Category),
+        IsActive: form.IsActive,
+      },
+      {
+        onSuccess: () => {
+          setIsSaving(false);
+          notify("Service Task created successfully!", "success");
+          setForm(initialForm);
+          setResetKey(k => k + 1);
+        },
+        onError: () => setIsSaving(false),
+      },
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <ServiceTaskHeader
@@ -105,6 +130,7 @@ export default function CreateServiceTaskPage() {
       />
       <div className="px-6 pb-12 mt-4 max-w-2xl mx-auto">
         <ServiceTaskDetailsForm
+          key={resetKey} // Add key to force re-render and reset form
           value={form}
           errors={errors}
           onChange={handleChange}
@@ -121,9 +147,20 @@ export default function CreateServiceTaskPage() {
           >
             Cancel
           </SecondaryButton>
-          <PrimaryButton onClick={handleSave} disabled={isSaving || isPending}>
-            {isSaving || isPending ? "Saving..." : "Save Service Task"}
-          </PrimaryButton>
+          <div className="flex gap-3">
+            <SecondaryButton
+              onClick={handleSaveAndAddAnother}
+              disabled={isSaving || isPending}
+            >
+              {isSaving || isPending ? "Saving..." : "Save & Add Another"}
+            </SecondaryButton>
+            <PrimaryButton
+              onClick={handleSave}
+              disabled={isSaving || isPending}
+            >
+              {isSaving || isPending ? "Saving..." : "Save Service Task"}
+            </PrimaryButton>
+          </div>
         </div>
       </div>
     </div>
