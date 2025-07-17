@@ -799,6 +799,38 @@ server.get("/inventoryItems", (req, res) => {
   });
 });
 
+// Deactivate (archive) an inventory item
+server.post("/inventoryItems/deactivate/:id", (req, res) => {
+  try {
+    const db = router.db;
+    const itemId = parseInt(req.params.id);
+
+    if (!itemId) {
+      return res.status(400).json({ error: "Invalid inventory item ID" });
+    }
+
+    const inventoryItem = db.get("inventoryItems").find({ id: itemId }).value();
+
+    if (!inventoryItem) {
+      return res.status(404).json({ error: "Inventory item not found" });
+    }
+
+    // Update the item to set IsActive to false
+    db.get("inventoryItems")
+      .find({ id: itemId })
+      .assign({ IsActive: false, updatedAt: new Date().toISOString() })
+      .write();
+
+    console.log(`Deactivated inventory item with ID: ${itemId}`);
+    res
+      .status(200)
+      .json({ message: "Inventory item deactivated successfully" });
+  } catch (error) {
+    console.error("Error deactivating inventory item:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // Get single inventory item
 server.get("/inventoryItems/:id", (req, res) => {
   const db = router.db;
@@ -999,6 +1031,7 @@ server.listen(PORT, () => {
   console.log(`GET /inventoryItems?search=oil - Search inventory items`);
   console.log(`GET /inventoryItems/:id - Get single inventory item`);
   console.log(`POST /inventoryItems - Create new inventory item`);
+  console.log(`POST /inventoryItems/deactivate/:id - Archive inventory item`);
 
   // Service Tasks
   console.log(`GET /serviceTasks - Get paginated service tasks`);
