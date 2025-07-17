@@ -1005,6 +1005,28 @@ server.get("/serviceTasks", (req, res) => {
   });
 });
 
+// Create a new service task
+server.post("/serviceTasks", (req, res) => {
+  const db = router.db;
+  const serviceTasks = db.get("serviceTasks");
+  const newTask = req.body;
+
+  // Generate new ID
+  const maxId = serviceTasks
+    .value()
+    .reduce((max, task) => Math.max(max, task.id || 0), 0);
+  newTask.id = maxId + 1;
+
+  // Set IsActive to true by default
+  if (typeof newTask.IsActive === "undefined") {
+    newTask.IsActive = true;
+  }
+
+  serviceTasks.push(newTask).write();
+
+  res.status(201).json(newTask);
+});
+
 // Get single service task
 server.get("/serviceTasks/:id", (req, res) => {
   const db = router.db;
