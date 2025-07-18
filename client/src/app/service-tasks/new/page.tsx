@@ -30,10 +30,7 @@ export default function CreateServiceTaskPage() {
   const { mutate: createServiceTask, isPending } = useCreateServiceTask();
   const notify = useNotification();
 
-  const breadcrumbs = [
-    { label: "Service Tasks", href: "/service-tasks" },
-    { label: "New Service Task" },
-  ];
+  const breadcrumbs = [{ label: "Service Tasks", href: "/service-tasks" }];
 
   const validate = () => {
     const newErrors: typeof errors = {};
@@ -138,7 +135,7 @@ export default function CreateServiceTaskPage() {
         />
       </div>
       {/* Footer Actions */}
-      <div className="max-w-2xl mx-auto w-full mt-8 mb-12">
+      <div className="max-w-2xl mx-auto w-full mb-12">
         <hr className="mb-6 border-gray-300" />
         <div className="flex justify-between items-center">
           <SecondaryButton
