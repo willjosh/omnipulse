@@ -1027,6 +1027,22 @@ server.post("/serviceTasks", (req, res) => {
   res.status(201).json(newTask);
 });
 
+// Update service task
+server.put("/serviceTasks/:id", (req, res) => {
+  const db = router.db;
+  const taskId = parseInt(req.params.id);
+  const updatedTask = req.body;
+
+  const task = db.get("serviceTasks").find({ id: taskId });
+
+  if (task.value()) {
+    task.assign(updatedTask).write();
+    res.json(task.value());
+  } else {
+    res.status(404).json({ error: "Service Task not found" });
+  }
+});
+
 // Get single service task
 server.get("/serviceTasks/:id", (req, res) => {
   const db = router.db;
