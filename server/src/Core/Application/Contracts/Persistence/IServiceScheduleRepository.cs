@@ -8,6 +8,20 @@ namespace Application.Contracts.Persistence;
 public interface IServiceScheduleRepository : IGenericRepository<ServiceSchedule>
 {
     /// <summary>
+    /// Retrieves all service schedules for a given service program by ID.
+    /// </summary>
+    /// <param name="serviceProgramID">The ID of the <see cref="ServiceProgram"/>.</param>
+    /// <returns>A list of <see cref="ServiceSchedule"/> entities for the given service program.</returns>
+    Task<List<ServiceSchedule>> GetAllByServiceProgramIDAsync(int serviceProgramID);
+
+    /// <summary>
+    /// Retrieves all service schedules for a given service program.
+    /// </summary>
+    /// <param name="serviceProgramID">The ID of the <see cref="ServiceProgram"/>.</param>
+    /// <returns>A list of <see cref="ServiceSchedule"/> entities for the given service program.</returns>
+    Task<List<ServiceSchedule>> GetAllWithServiceTasksByServiceProgramIDAsync(int serviceProgramID);
+
+    /// <summary>
     /// Retrieves all service schedules in the system.
     /// </summary>
     /// <param name="parameters">Pagination parameters.</param>

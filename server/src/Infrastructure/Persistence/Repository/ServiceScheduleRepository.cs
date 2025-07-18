@@ -14,6 +14,22 @@ public class ServiceScheduleRepository : GenericRepository<ServiceSchedule>, ISe
 {
     public ServiceScheduleRepository(OmnipulseDatabaseContext context) : base(context) { }
 
+    public async Task<List<ServiceSchedule>> GetAllByServiceProgramIDAsync(int serviceProgramID)
+    {
+        return await _dbSet
+            .Where(ss => ss.ServiceProgramID == serviceProgramID)
+            .ToListAsync();
+    }
+
+    public async Task<List<ServiceSchedule>> GetAllWithServiceTasksByServiceProgramIDAsync(int serviceProgramID)
+    {
+        return await _dbSet
+            .Include(ss => ss.XrefServiceScheduleServiceTasks)
+                .ThenInclude(xref => xref.ServiceTask)
+            .Where(ss => ss.ServiceProgramID == serviceProgramID)
+            .ToListAsync();
+    }
+
     public async Task<PagedResult<ServiceSchedule>> GetAllServiceSchedulesPagedAsync(PaginationParameters parameters)
     {
         return await BuildPagedServiceScheduleQuery(parameters);
