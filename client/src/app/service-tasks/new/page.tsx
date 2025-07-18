@@ -30,10 +30,7 @@ export default function CreateServiceTaskPage() {
   const { mutate: createServiceTask, isPending } = useCreateServiceTask();
   const notify = useNotification();
 
-  const breadcrumbs = [
-    { label: "Service Tasks", href: "/service-tasks" },
-    { label: "New Service Task" },
-  ];
+  const breadcrumbs = [{ label: "Service Tasks", href: "/service-tasks" }];
 
   const validate = () => {
     const newErrors: typeof errors = {};

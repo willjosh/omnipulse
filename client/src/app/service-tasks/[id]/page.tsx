@@ -30,10 +30,7 @@ export default function ServiceTaskDetailPage() {
     );
   }
 
-  const breadcrumbs = [
-    { label: "Service Tasks", href: "/service-tasks" },
-    { label: task.Name },
-  ];
+  const breadcrumbs = [{ label: "Service Tasks", href: "/service-tasks" }];
 
   return (
     <div className="min-h-screen mx-auto bg-gray-50">
