@@ -99,6 +99,8 @@ public class GetServiceProgramQueryHandlerTest
             .ReturnsAsync(expectedServiceProgram.ServiceSchedules.ToList());
         _mockXrefServiceScheduleServiceTaskRepository.Setup(r => r.GetByServiceScheduleIdsAsync(It.IsAny<IEnumerable<int>>()))
             .ReturnsAsync([]);
+        _mockServiceTaskRepository.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<int>>()))
+            .ReturnsAsync([]);
         _mockXrefServiceProgramVehicleRepository.Setup(r => r.GetByServiceProgramIDAsync(1))
             .ReturnsAsync(expectedServiceProgram.XrefServiceProgramVehicles.ToList());
 
@@ -161,6 +163,8 @@ public class GetServiceProgramQueryHandlerTest
         _mockServiceScheduleRepository.Setup(r => r.GetAllByServiceProgramIDAsync(1))
             .ReturnsAsync([]);
         _mockXrefServiceScheduleServiceTaskRepository.Setup(r => r.GetByServiceScheduleIdsAsync(It.IsAny<IEnumerable<int>>()))
+            .ReturnsAsync([]);
+        _mockServiceTaskRepository.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<int>>()))
             .ReturnsAsync([]);
         _mockXrefServiceProgramVehicleRepository.Setup(r => r.GetByServiceProgramIDAsync(1))
             .ReturnsAsync([]);
