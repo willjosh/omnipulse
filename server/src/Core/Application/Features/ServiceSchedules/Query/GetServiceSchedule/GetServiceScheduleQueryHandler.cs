@@ -1,8 +1,7 @@
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
-
-using Application.Features.ServiceTasks.Query.GetAllServiceTask;
+using Application.Features.ServiceTasks.Query;
 
 using AutoMapper;
 
@@ -41,7 +40,7 @@ public class GetServiceScheduleQueryHandler : IRequestHandler<GetServiceSchedule
 
         // Map ServiceTasks to GetAllServiceTaskDTO
         dto.ServiceTasks = serviceSchedule.XrefServiceScheduleServiceTasks
-            .Select(xref => _mapper.Map<GetAllServiceTaskDTO>(xref.ServiceTask))
+            .Select(xref => _mapper.Map<ServiceTaskDTO>(xref.ServiceTask))
             .ToList();
 
         _logger.LogInformation($"Returning ServiceScheduleDTO for ServiceScheduleID: {request.ServiceScheduleID}");

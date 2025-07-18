@@ -1,11 +1,8 @@
 using Domain.Entities.Enums;
 
-namespace Application.Features.ServiceTasks.Query.GetServiceTask;
+namespace Application.Features.ServiceTasks.Query;
 
-/// <summary>
-/// Data Transfer Object representing detailed information about a single service task.
-/// </summary>
-public class GetServiceTaskDTO
+public class ServiceTaskDTO
 {
     public int ID { get; set; }
     public required string Name { get; set; }

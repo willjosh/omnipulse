@@ -4,7 +4,7 @@ namespace Domain.Entities;
 
 public class XrefServiceScheduleServiceTask
 {
-    // FKs
+    // Composite PK
     public required int ServiceScheduleID { get; set; }
     public required int ServiceTaskID { get; set; }
 

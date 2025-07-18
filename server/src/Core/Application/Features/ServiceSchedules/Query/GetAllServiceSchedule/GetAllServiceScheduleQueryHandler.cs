@@ -1,7 +1,7 @@
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
-using Application.Features.ServiceTasks.Query.GetAllServiceTask;
+using Application.Features.ServiceTasks.Query;
 using Application.Models.PaginationModels;
 
 using AutoMapper;
@@ -51,7 +51,7 @@ public class GetAllServiceScheduleQueryHandler : IRequestHandler<GetAllServiceSc
         {
             var dto = _mapper.Map<ServiceScheduleDTO>(schedule);
             dto.ServiceTasks = schedule.XrefServiceScheduleServiceTasks
-                .Select(xref => _mapper.Map<GetAllServiceTaskDTO>(xref.ServiceTask))
+                .Select(xref => _mapper.Map<ServiceTaskDTO>(xref.ServiceTask))
                 .ToList();
             return dto;
         }).ToList();
