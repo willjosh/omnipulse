@@ -8,11 +8,15 @@ import { getServiceTaskCategoryLabel } from "@/app/_utils/serviceTaskEnumHelper"
 import Loading from "@/app/_features/shared/feedback/Loading";
 import EmptyState from "@/app/_features/shared/feedback/EmptyState";
 import ServiceTaskHeader from "@/app/_features/service-task/components/ServiceTaskHeader";
+import PrimaryButton from "@/app/_features/shared/button/PrimaryButton";
+import EditIcon from "@/app/_features/shared/icons/Edit";
+import { useRouter } from "next/navigation";
 
 export default function ServiceTaskDetailPage() {
   const params = useParams();
   const id = params.id ? Number(params.id) : undefined;
   const { data: task, isPending, isError } = useServiceTask(id!);
+  const router = useRouter();
 
   if (isPending) {
     return <Loading />;
@@ -36,7 +40,13 @@ export default function ServiceTaskDetailPage() {
       <ServiceTaskHeader
         title={task.Name}
         breadcrumbs={breadcrumbs}
-        actions={null}
+        actions={
+          <PrimaryButton
+            onClick={() => router.push(`/service-tasks/${id}/edit`)}
+          >
+            <EditIcon /> Edit
+          </PrimaryButton>
+        }
       />
       <div className="m-4 px-6 pb-12">
         <FormContainer title="Details" className="max-w-2xl mx-auto">
