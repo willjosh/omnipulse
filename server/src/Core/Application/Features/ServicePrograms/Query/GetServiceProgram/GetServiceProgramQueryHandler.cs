@@ -60,19 +60,11 @@ public sealed class GetServiceProgramQueryHandler : IRequestHandler<GetServicePr
         // Get all unique Service Task IDs
         var serviceTaskIds = allXrefs.Select(xref => xref.ServiceTaskID).Distinct().ToList();
 
-        // Get all Service Tasks
-        var serviceTasks = new List<ServiceTask>();
-        foreach (var taskId in serviceTaskIds)
-        {
-            var task = await _serviceTaskRepository.GetByIdAsync(taskId);
-            if (task != null)
-            {
-                serviceTasks.Add(task);
-            }
-        }
+        // Get all Service Tasks in a single database call
+        var serviceTasks = await _serviceTaskRepository.GetByIdsAsync(serviceTaskIds);
 
         // Create a lookup for quick access
-        var serviceTaskLookup = serviceTasks.ToDictionary(st => st.ID);
+        var serviceTaskLookup = serviceTasks?.ToDictionary(st => st.ID) ?? [];
 
         // Map ServiceSchedules and their ServiceTasks
         var serviceScheduleDTOs = serviceSchedules.Select(schedule =>
