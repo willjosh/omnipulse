@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import {
   useInventoryItems,
   useDeactivateInventoryItem,
@@ -21,6 +22,7 @@ import {
 } from "./inventoryActions";
 
 const InventoryList = () => {
+  const router = useRouter();
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [modal, setModal] = useState<{
     isOpen: boolean;
@@ -82,7 +84,9 @@ const InventoryList = () => {
     setFilters(prev => ({ ...prev, page: newPage }));
   };
 
-  const handleRowClick = (item: InventoryItemWithLabels) => {};
+  const handleRowClick = (item: InventoryItemWithLabels) => {
+    router.push(`/parts-inventory/${item.id}`);
+  };
 
   const handleArchiveItem = async () => {
     if (!confirmModal.item) return;
@@ -98,6 +102,14 @@ const InventoryList = () => {
 
   const inventoryActions = useMemo(
     () => [
+      {
+        key: InventoryActionType.VIEW,
+        label: INVENTORY_ACTION_CONFIG[InventoryActionType.VIEW].label,
+        icon: <Details />,
+        onClick: (item: InventoryItemWithLabels) => {
+          router.push(`/parts-inventory/${item.id}`);
+        },
+      },
       {
         key: InventoryActionType.EDIT,
         label: INVENTORY_ACTION_CONFIG[InventoryActionType.EDIT].label,
@@ -116,7 +128,7 @@ const InventoryList = () => {
         },
       },
     ],
-    [],
+    [router],
   );
 
   if (isError) {
