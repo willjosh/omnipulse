@@ -119,7 +119,7 @@ export default function EditServiceTaskPage() {
         />
       </div>
       {/* Footer Actions */}
-      <div className="max-w-2xl mx-auto w-full mt-8 mb-12">
+      <div className="max-w-2xl mx-auto w-full mb-12">
         <hr className="mb-6 border-gray-300" />
         <div className="flex justify-between items-center">
           <SecondaryButton onClick={handleCancel} disabled={isUpdating}>
