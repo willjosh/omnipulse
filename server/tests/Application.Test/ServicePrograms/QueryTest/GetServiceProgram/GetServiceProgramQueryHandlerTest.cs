@@ -20,6 +20,10 @@ public class GetServiceProgramQueryHandlerTest
 {
     private readonly GetServiceProgramQueryHandler _queryHandler;
     private readonly Mock<IServiceProgramRepository> _mockServiceProgramRepository = new();
+    private readonly Mock<IServiceScheduleRepository> _mockServiceScheduleRepository = new();
+    private readonly Mock<IXrefServiceScheduleServiceTaskRepository> _mockXrefServiceScheduleServiceTaskRepository = new();
+    private readonly Mock<IServiceTaskRepository> _mockServiceTaskRepository = new();
+    private readonly Mock<IXrefServiceProgramVehicleRepository> _mockXrefServiceProgramVehicleRepository = new();
 
     // Constants
     private static readonly DateTime FixedDate = new(2025, 6, 2, 9, 0, 0, DateTimeKind.Utc);
@@ -31,11 +35,16 @@ public class GetServiceProgramQueryHandlerTest
         {
             cfg.AddProfile<ServiceProgramMappingProfile>();
             cfg.AddProfile<ServiceScheduleMappingProfile>();
+            cfg.AddProfile<ServiceTaskMappingProfile>();
         });
         var mapper = config.CreateMapper();
 
         _queryHandler = new GetServiceProgramQueryHandler(
             _mockServiceProgramRepository.Object,
+            _mockServiceScheduleRepository.Object,
+            _mockXrefServiceScheduleServiceTaskRepository.Object,
+            _mockServiceTaskRepository.Object,
+            _mockXrefServiceProgramVehicleRepository.Object,
             mockLogger.Object,
             mapper
         );
@@ -67,8 +76,8 @@ public class GetServiceProgramQueryHandlerTest
                     TimeIntervalUnit = TimeUnitEnum.Weeks,
                     MileageInterval = 5000,
                     IsActive = true,
-                    XrefServiceScheduleServiceTasks = [], // Will be set by EF
-                    ServiceProgram = null! // Will be set by EF
+                    XrefServiceScheduleServiceTasks = [],
+                    ServiceProgram = null!
                 }
             ],
             XrefServiceProgramVehicles = [
@@ -77,15 +86,21 @@ public class GetServiceProgramQueryHandlerTest
                     ServiceProgramID = 1,
                     VehicleID = 1,
                     AddedAt = FixedDate,
-                    ServiceProgram = null!, // Will be set by EF
-                    Vehicle = null!, // Will be set by EF
-                    User = null! // Will be set by EF
+                    ServiceProgram = null!,
+                    Vehicle = null!,
+                    User = null!
                 }
             ]
         };
 
         _mockServiceProgramRepository.Setup(r => r.GetByIdAsync(query.ServiceProgramID))
             .ReturnsAsync(expectedServiceProgram);
+        _mockServiceScheduleRepository.Setup(r => r.GetAllByServiceProgramIDAsync(1))
+            .ReturnsAsync(expectedServiceProgram.ServiceSchedules.ToList());
+        _mockXrefServiceScheduleServiceTaskRepository.Setup(r => r.GetByServiceScheduleIdsAsync(It.IsAny<IEnumerable<int>>()))
+            .ReturnsAsync([]);
+        _mockXrefServiceProgramVehicleRepository.Setup(r => r.GetByServiceProgramIDAsync(1))
+            .ReturnsAsync(expectedServiceProgram.XrefServiceProgramVehicles.ToList());
 
         // Act
         var result = await _queryHandler.Handle(query, CancellationToken.None);
@@ -143,6 +158,12 @@ public class GetServiceProgramQueryHandlerTest
 
         _mockServiceProgramRepository.Setup(r => r.GetByIdAsync(query.ServiceProgramID))
             .ReturnsAsync(expectedServiceProgram);
+        _mockServiceScheduleRepository.Setup(r => r.GetAllByServiceProgramIDAsync(1))
+            .ReturnsAsync([]);
+        _mockXrefServiceScheduleServiceTaskRepository.Setup(r => r.GetByServiceScheduleIdsAsync(It.IsAny<IEnumerable<int>>()))
+            .ReturnsAsync([]);
+        _mockXrefServiceProgramVehicleRepository.Setup(r => r.GetByServiceProgramIDAsync(1))
+            .ReturnsAsync([]);
 
         // Act
         var result = await _queryHandler.Handle(query, CancellationToken.None);
@@ -154,5 +175,7 @@ public class GetServiceProgramQueryHandlerTest
         Assert.Empty(result.ServiceSchedules);
         Assert.NotNull(result.AssignedVehicleIDs);
         Assert.Empty(result.AssignedVehicleIDs);
+
+        _mockServiceProgramRepository.Verify(r => r.GetByIdAsync(query.ServiceProgramID), Times.Once);
     }
 }
