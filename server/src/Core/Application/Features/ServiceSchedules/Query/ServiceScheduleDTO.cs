@@ -1,4 +1,4 @@
-using Application.Features.ServiceTasks.Query.GetAllServiceTask;
+using Application.Features.ServiceTasks.Query;
 
 using Domain.Entities.Enums;
 
@@ -6,7 +6,7 @@ namespace Application.Features.ServiceSchedules.Query;
 
 public class ServiceScheduleDTO
 {
-    public required List<GetAllServiceTaskDTO> ServiceTasks { get; set; }
+    public required List<ServiceTaskDTO> ServiceTasks { get; set; }
     public required int ID { get; set; }
     public required int ServiceProgramID { get; set; }
     public required string Name { get; set; }
