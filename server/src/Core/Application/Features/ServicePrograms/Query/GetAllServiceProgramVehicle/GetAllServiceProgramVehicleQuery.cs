@@ -15,4 +15,4 @@ namespace Application.Features.ServicePrograms.Query.GetAllServiceProgramVehicle
 public record GetAllServiceProgramVehicleQuery(
     int ServiceProgramID,
     PaginationParameters Parameters
-) : IRequest<PagedResult<ServiceProgramVehicleDTO>>;
+) : IRequest<PagedResult<XrefServiceProgramVehicleDTO>>;
