@@ -1,4 +1,6 @@
 using Application.Contracts.Persistence;
+using Application.Models;
+using Application.Models.PaginationModels;
 
 using Domain.Entities;
 
@@ -22,6 +24,62 @@ public class XrefServiceProgramVehicleRepository : IXrefServiceProgramVehicleRep
     public async Task<List<XrefServiceProgramVehicle>> GetByServiceProgramIDAsync(int serviceProgramId)
     {
         return await _dbSet.Where(x => x.ServiceProgramID == serviceProgramId).ToListAsync();
+    }
+
+    private static IQueryable<XrefServiceProgramVehicle> ApplySorting(IQueryable<XrefServiceProgramVehicle> query, string? sortBy, bool sortDescending)
+    {
+        return sortBy?.ToLowerInvariant() switch
+        {
+            "vehiclename" => sortDescending ?
+                query.OrderByDescending(x => x.Vehicle.Name) :
+                query.OrderBy(x => x.Vehicle.Name),
+            "addedat" => sortDescending ?
+                query.OrderByDescending(x => x.AddedAt) :
+                query.OrderBy(x => x.AddedAt),
+            _ => query.OrderBy(x => x.Vehicle.Name) // Default Sorting = Vehicle Name
+        };
+    }
+
+    public async Task<PagedResult<XrefServiceProgramVehicle>> GetAllByServiceProgramIDPagedAsync(int serviceProgramId, PaginationParameters parameters)
+    {
+        var query = _dbSet
+            .Include(x => x.Vehicle)
+                .ThenInclude(v => v.VehicleGroup)
+            .Where(x => x.ServiceProgramID == serviceProgramId)
+            .AsQueryable();
+
+        // Apply search filter
+        if (!string.IsNullOrWhiteSpace(parameters.Search))
+        {
+            var search = parameters.Search.ToLowerInvariant();
+            query = query.Where(x =>
+                x.Vehicle.Name.Contains(search, StringComparison.InvariantCultureIgnoreCase) ||
+                x.Vehicle.Make.Contains(search, StringComparison.InvariantCultureIgnoreCase) ||
+                x.Vehicle.Model.Contains(search, StringComparison.InvariantCultureIgnoreCase) ||
+                x.Vehicle.VehicleType.ToString().Contains(search, StringComparison.InvariantCultureIgnoreCase) ||
+                x.Vehicle.VehicleGroup.Name.Contains(search, StringComparison.InvariantCultureIgnoreCase)
+            );
+        }
+
+        // Apply sorting
+        query = ApplySorting(query, parameters.SortBy, parameters.SortDescending);
+
+        // Get total count before pagination
+        var totalCount = await query.CountAsync();
+
+        // Apply pagination
+        var items = await query
+            .Skip((parameters.PageNumber - 1) * parameters.PageSize)
+            .Take(parameters.PageSize)
+            .ToListAsync();
+
+        return new PagedResult<XrefServiceProgramVehicle>
+        {
+            Items = items,
+            TotalCount = totalCount,
+            PageNumber = parameters.PageNumber,
+            PageSize = parameters.PageSize
+        };
     }
 
     public async Task<List<XrefServiceProgramVehicle>> GetByVehicleIDAsync(int vehicleId)
