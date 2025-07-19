@@ -26,13 +26,78 @@ public class XrefServiceProgramVehicleRepository : IXrefServiceProgramVehicleRep
         return await _dbSet.Where(x => x.ServiceProgramID == serviceProgramId).ToListAsync();
     }
 
-    private static IQueryable<XrefServiceProgramVehicle> ApplySorting(IQueryable<XrefServiceProgramVehicle> query, string? sortBy, bool sortDescending)
+    public async Task<PagedResult<XrefServiceProgramVehicle>> GetAllByServiceProgramIDPagedAsync(int serviceProgramId, PaginationParameters parameters)
+    {
+        var baseQuery = BuildBaseQuery(serviceProgramId);
+        var filteredQuery = ApplyXrefSearchFilter(baseQuery, parameters.Search);
+        var sortedQuery = ApplyXrefSorting(filteredQuery, parameters.SortBy, parameters.SortDescending);
+
+        return await ExecutePaginatedQuery(sortedQuery, parameters);
+    }
+
+    public async Task<PagedResult<Vehicle>> GetAllServiceProgramVehiclesPagedAsync(int serviceProgramId, PaginationParameters parameters)
+    {
+        var baseQuery = BuildBaseQuery(serviceProgramId).Select(x => x.Vehicle);
+        var filteredQuery = ApplyVehicleSearchFilter(baseQuery, parameters.Search);
+        var sortedQuery = ApplyVehicleSorting(filteredQuery, parameters.SortBy, parameters.SortDescending);
+
+        return await ExecutePaginatedQuery(sortedQuery, parameters);
+    }
+
+    private IQueryable<XrefServiceProgramVehicle> BuildBaseQuery(int serviceProgramId)
+    {
+        return _dbSet
+            .Include(x => x.Vehicle)
+                .ThenInclude(v => v.VehicleGroup)
+            .Where(x => x.ServiceProgramID == serviceProgramId);
+    }
+
+    private static IQueryable<XrefServiceProgramVehicle> ApplyXrefSearchFilter(IQueryable<XrefServiceProgramVehicle> query, string? search)
+    {
+        if (string.IsNullOrWhiteSpace(search))
+            return query;
+
+        var searchLower = search.ToLowerInvariant();
+        return query.Where(x =>
+            x.Vehicle.Name.Contains(searchLower, StringComparison.InvariantCultureIgnoreCase) ||
+            x.Vehicle.Make.Contains(searchLower, StringComparison.InvariantCultureIgnoreCase) ||
+            x.Vehicle.Model.Contains(searchLower, StringComparison.InvariantCultureIgnoreCase) ||
+            x.Vehicle.VehicleType.ToString().Contains(searchLower, StringComparison.InvariantCultureIgnoreCase) ||
+            x.Vehicle.VehicleGroup.Name.Contains(searchLower, StringComparison.InvariantCultureIgnoreCase)
+        );
+    }
+
+    private static IQueryable<Vehicle> ApplyVehicleSearchFilter(IQueryable<Vehicle> query, string? search)
+    {
+        if (string.IsNullOrWhiteSpace(search))
+            return query;
+
+        var searchLower = search.ToLowerInvariant();
+        return query.Where(v =>
+            v.Name.Contains(searchLower, StringComparison.InvariantCultureIgnoreCase) ||
+            v.Make.Contains(searchLower, StringComparison.InvariantCultureIgnoreCase) ||
+            v.Model.Contains(searchLower, StringComparison.InvariantCultureIgnoreCase) ||
+            v.VehicleType.ToString().Contains(searchLower, StringComparison.InvariantCultureIgnoreCase) ||
+            v.VehicleGroup.Name.Contains(searchLower, StringComparison.InvariantCultureIgnoreCase)
+        );
+    }
+
+    private static IQueryable<XrefServiceProgramVehicle> ApplyXrefSorting(IQueryable<XrefServiceProgramVehicle> query, string? sortBy, bool sortDescending)
     {
         return sortBy?.ToLowerInvariant() switch
         {
             "vehiclename" => sortDescending ?
                 query.OrderByDescending(x => x.Vehicle.Name) :
                 query.OrderBy(x => x.Vehicle.Name),
+            "make" => sortDescending ?
+                query.OrderByDescending(x => x.Vehicle.Make) :
+                query.OrderBy(x => x.Vehicle.Make),
+            "model" => sortDescending ?
+                query.OrderByDescending(x => x.Vehicle.Model) :
+                query.OrderBy(x => x.Vehicle.Model),
+            "vehiclegroup" => sortDescending ?
+                query.OrderByDescending(x => x.Vehicle.VehicleGroup.Name) :
+                query.OrderBy(x => x.Vehicle.VehicleGroup.Name),
             "addedat" => sortDescending ?
                 query.OrderByDescending(x => x.AddedAt) :
                 query.OrderBy(x => x.AddedAt),
@@ -40,30 +105,28 @@ public class XrefServiceProgramVehicleRepository : IXrefServiceProgramVehicleRep
         };
     }
 
-    public async Task<PagedResult<XrefServiceProgramVehicle>> GetAllByServiceProgramIDPagedAsync(int serviceProgramId, PaginationParameters parameters)
+    private static IQueryable<Vehicle> ApplyVehicleSorting(IQueryable<Vehicle> query, string? sortBy, bool sortDescending)
     {
-        var query = _dbSet
-            .Include(x => x.Vehicle)
-                .ThenInclude(v => v.VehicleGroup)
-            .Where(x => x.ServiceProgramID == serviceProgramId)
-            .AsQueryable();
-
-        // Apply search filter
-        if (!string.IsNullOrWhiteSpace(parameters.Search))
+        return sortBy?.ToLowerInvariant() switch
         {
-            var search = parameters.Search.ToLowerInvariant();
-            query = query.Where(x =>
-                x.Vehicle.Name.Contains(search, StringComparison.InvariantCultureIgnoreCase) ||
-                x.Vehicle.Make.Contains(search, StringComparison.InvariantCultureIgnoreCase) ||
-                x.Vehicle.Model.Contains(search, StringComparison.InvariantCultureIgnoreCase) ||
-                x.Vehicle.VehicleType.ToString().Contains(search, StringComparison.InvariantCultureIgnoreCase) ||
-                x.Vehicle.VehicleGroup.Name.Contains(search, StringComparison.InvariantCultureIgnoreCase)
-            );
-        }
+            "name" or "vehiclename" => sortDescending ?
+                query.OrderByDescending(v => v.Name) :
+                query.OrderBy(v => v.Name),
+            "make" => sortDescending ?
+                query.OrderByDescending(v => v.Make) :
+                query.OrderBy(v => v.Make),
+            "model" => sortDescending ?
+                query.OrderByDescending(v => v.Model) :
+                query.OrderBy(v => v.Model),
+            "vehiclegroup" => sortDescending ?
+                query.OrderByDescending(v => v.VehicleGroup.Name) :
+                query.OrderBy(v => v.VehicleGroup.Name),
+            _ => query.OrderBy(v => v.Name) // Default Sorting = Vehicle Name
+        };
+    }
 
-        // Apply sorting
-        query = ApplySorting(query, parameters.SortBy, parameters.SortDescending);
-
+    private static async Task<PagedResult<T>> ExecutePaginatedQuery<T>(IQueryable<T> query, PaginationParameters parameters)
+    {
         // Get total count before pagination
         var totalCount = await query.CountAsync();
 
@@ -73,7 +136,7 @@ public class XrefServiceProgramVehicleRepository : IXrefServiceProgramVehicleRep
             .Take(parameters.PageSize)
             .ToListAsync();
 
-        return new PagedResult<XrefServiceProgramVehicle>
+        return new PagedResult<T>
         {
             Items = items,
             TotalCount = totalCount,

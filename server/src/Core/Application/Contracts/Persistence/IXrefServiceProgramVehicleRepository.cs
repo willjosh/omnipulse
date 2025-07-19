@@ -23,6 +23,14 @@ public interface IXrefServiceProgramVehicleRepository
     Task<PagedResult<XrefServiceProgramVehicle>> GetAllByServiceProgramIDPagedAsync(int serviceProgramID, PaginationParameters parameters);
 
     /// <summary>
+    /// Gets paged vehicles for a given <see cref="ServiceProgram"/>.
+    /// </summary>
+    /// <param name="serviceProgramID">The ID of the Service Program.</param>
+    /// <param name="parameters">Pagination parameters.</param>
+    /// <returns>A paged result of vehicles associated with the specified Service Program.</returns>
+    Task<PagedResult<Vehicle>> GetAllServiceProgramVehiclesPagedAsync(int serviceProgramID, PaginationParameters parameters);
+
+    /// <summary>
     /// Gets all xref records for a given <see cref="Vehicle"/>.
     /// </summary>
     /// <param name="vehicleID">The ID of the vehicle.</param>
