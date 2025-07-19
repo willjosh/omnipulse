@@ -25,6 +25,7 @@ public class GetAllServiceProgramVehicleQueryHandlerTest
     private readonly GetAllServiceProgramVehicleQueryHandler _queryHandler;
     private readonly Mock<IServiceProgramRepository> _mockServiceProgramRepository = new();
     private readonly Mock<IXrefServiceProgramVehicleRepository> _mockXrefServiceProgramVehicleRepository = new();
+    private readonly Mock<IVehicleRepository> _mockVehicleRepository = new();
     private readonly Mock<IValidator<GetAllServiceProgramVehicleQuery>> _mockValidator = new();
 
     // Constants
@@ -39,6 +40,7 @@ public class GetAllServiceProgramVehicleQueryHandlerTest
         _queryHandler = new GetAllServiceProgramVehicleQueryHandler(
             _mockServiceProgramRepository.Object,
             _mockXrefServiceProgramVehicleRepository.Object,
+            _mockVehicleRepository.Object,
             _mockValidator.Object,
             mockLogger.Object,
             mapper
@@ -182,6 +184,8 @@ public class GetAllServiceProgramVehicleQueryHandlerTest
             .ReturnsAsync(serviceProgram);
         _mockXrefServiceProgramVehicleRepository.Setup(r => r.GetAllByServiceProgramIDPagedAsync(serviceProgramId, query.Parameters))
             .ReturnsAsync(pagedResult);
+        _mockVehicleRepository.Setup(r => r.GetByIdsAsync(It.Is<IEnumerable<int>>(ids => ids.Contains(vehicle.ID))))
+            .ReturnsAsync([vehicle]);
 
         // Act
         var result = await _queryHandler.Handle(query, CancellationToken.None);
@@ -192,10 +196,19 @@ public class GetAllServiceProgramVehicleQueryHandlerTest
         Assert.Equal(1, result.PageNumber);
         Assert.Equal(10, result.PageSize);
 
+        // Verify content of returned items
+        Assert.Single(result.Items);
+        var returnedVehicle = result.Items[0];
+        Assert.Equal(serviceProgramId, returnedVehicle.ServiceProgramID);
+        Assert.Equal(vehicle.ID, returnedVehicle.VehicleID);
+        Assert.Equal(vehicle.Name, returnedVehicle.VehicleName);
+        Assert.Equal(vehicleAssignment.AddedAt, returnedVehicle.AddedAt);
+
         // Verify all repository calls
         _mockValidator.Verify(v => v.ValidateAsync(query, It.IsAny<CancellationToken>()), Times.Once);
         _mockServiceProgramRepository.Verify(r => r.GetByIdAsync(serviceProgramId), Times.Once);
         _mockXrefServiceProgramVehicleRepository.Verify(r => r.GetAllByServiceProgramIDPagedAsync(serviceProgramId, query.Parameters), Times.Once);
+        _mockVehicleRepository.Verify(r => r.GetByIdsAsync(It.Is<IEnumerable<int>>(ids => ids.Contains(vehicle.ID))), Times.Once);
     }
 
     [Fact]
@@ -237,26 +250,47 @@ public class GetAllServiceProgramVehicleQueryHandlerTest
     }
 
     [Fact]
-    public async Task Handle_Should_Handle_Null_Vehicle_Gracefully()
+    public async Task Handle_Should_Filter_Out_Assignments_With_NonExistent_Vehicles()
     {
         // Arrange
         var serviceProgramId = 1;
         var query = CreateValidQuery(serviceProgramId);
         var serviceProgram = CreateServiceProgram(serviceProgramId);
-        var vehicleAssignment = CreateVehicleAssignment(serviceProgramId, 1, serviceProgram: serviceProgram, vehicle: null!);
-        var pagedResult = CreatePagedResult([vehicleAssignment], 1);
+        var validVehicle = CreateVehicle(1, "Valid Vehicle");
+        var nonExistentVehicleId = 999;
+
+        var validAssignment = CreateVehicleAssignment(serviceProgramId, validVehicle.ID, serviceProgram: serviceProgram, vehicle: validVehicle);
+        var invalidAssignment = CreateVehicleAssignment(serviceProgramId, nonExistentVehicleId, serviceProgram: serviceProgram, vehicle: null!);
+
+        var pagedResult = CreatePagedResult([validAssignment, invalidAssignment], 2);
 
         SetupValidValidation(query);
         _mockServiceProgramRepository.Setup(r => r.GetByIdAsync(serviceProgramId))
             .ReturnsAsync(serviceProgram);
         _mockXrefServiceProgramVehicleRepository.Setup(r => r.GetAllByServiceProgramIDPagedAsync(serviceProgramId, query.Parameters))
             .ReturnsAsync(pagedResult);
+        _mockVehicleRepository.Setup(r => r.GetByIdsAsync(It.Is<IEnumerable<int>>(ids => ids.Contains(validVehicle.ID) && ids.Contains(nonExistentVehicleId))))
+            .ReturnsAsync([validVehicle]); // Only valid vehicle exists
 
         // Act
         var result = await _queryHandler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
+        Assert.Equal(1, result.TotalCount); // Should be filtered to only valid assignment
+        Assert.Equal(1, result.PageNumber);
+        Assert.Equal(10, result.PageSize);
+
+        // Should only return the valid vehicle assignment
+        Assert.Single(result.Items);
+        var returnedVehicle = result.Items[0];
+        Assert.Equal(serviceProgramId, returnedVehicle.ServiceProgramID);
+        Assert.Equal(validVehicle.ID, returnedVehicle.VehicleID);
+        Assert.Equal(validVehicle.Name, returnedVehicle.VehicleName);
+        Assert.Equal(validAssignment.AddedAt, returnedVehicle.AddedAt);
+
+        // Verify repository calls
+        _mockVehicleRepository.Verify(r => r.GetByIdsAsync(It.Is<IEnumerable<int>>(ids => ids.Contains(validVehicle.ID) && ids.Contains(nonExistentVehicleId))), Times.Once);
     }
 
     [Fact]
@@ -273,6 +307,8 @@ public class GetAllServiceProgramVehicleQueryHandlerTest
             .ReturnsAsync(serviceProgram);
         _mockXrefServiceProgramVehicleRepository.Setup(r => r.GetAllByServiceProgramIDPagedAsync(serviceProgramId, query.Parameters))
             .ReturnsAsync(emptyPagedResult);
+        _mockVehicleRepository.Setup(r => r.GetByIdsAsync(It.Is<IEnumerable<int>>(ids => !ids.Any())))
+            .ReturnsAsync([]);
 
         // Act
         var result = await _queryHandler.Handle(query, CancellationToken.None);
@@ -283,5 +319,40 @@ public class GetAllServiceProgramVehicleQueryHandlerTest
         Assert.Empty(result.Items);
         Assert.Equal(1, result.PageNumber);
         Assert.Equal(10, result.PageSize);
+    }
+
+    [Fact]
+    public async Task Handle_Should_Call_Mapper_With_Correct_Data()
+    {
+        // Arrange
+        var serviceProgramId = 1;
+        var query = CreateValidQuery(serviceProgramId);
+        var serviceProgram = CreateServiceProgram(serviceProgramId);
+        var vehicle = CreateVehicle();
+        var vehicleAssignment = CreateVehicleAssignment(serviceProgramId, vehicle.ID, serviceProgram: serviceProgram, vehicle: vehicle);
+        var pagedResult = CreatePagedResult([vehicleAssignment], 1);
+
+        SetupValidValidation(query);
+        _mockServiceProgramRepository.Setup(r => r.GetByIdAsync(serviceProgramId))
+            .ReturnsAsync(serviceProgram);
+        _mockXrefServiceProgramVehicleRepository.Setup(r => r.GetAllByServiceProgramIDPagedAsync(serviceProgramId, query.Parameters))
+            .ReturnsAsync(pagedResult);
+        _mockVehicleRepository.Setup(r => r.GetByIdsAsync(It.Is<IEnumerable<int>>(ids => ids.Contains(vehicle.ID))))
+            .ReturnsAsync([vehicle]);
+
+        // Act
+        var result = await _queryHandler.Handle(query, CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Single(result.Items);
+
+        // Verify that the mapper was called with the correct input
+        // Note: We're using a real mapper configuration so we can't easily verify the mapper call but we can verify the result contains the expected mapped data
+        var returnedVehicle = result.Items[0];
+        Assert.Equal(serviceProgramId, returnedVehicle.ServiceProgramID);
+        Assert.Equal(vehicle.ID, returnedVehicle.VehicleID);
+        Assert.Equal(vehicle.Name, returnedVehicle.VehicleName);
+        Assert.Equal(vehicleAssignment.AddedAt, returnedVehicle.AddedAt);
     }
 }
