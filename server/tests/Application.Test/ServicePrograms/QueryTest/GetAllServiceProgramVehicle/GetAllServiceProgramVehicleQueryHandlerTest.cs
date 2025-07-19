@@ -300,4 +300,50 @@ public class GetAllServiceProgramVehicleQueryHandlerTest
         Assert.Equal("Toyota Tacoma", result.Items[2].VehicleName);
         Assert.Equal(3, result.Items[2].VehicleID);
     }
+
+    [Fact]
+    public async Task Handler_Should_Throw_ArgumentNullException_When_Request_Is_Null()
+    {
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentNullException>(
+            () => _queryHandler.Handle(null!, CancellationToken.None)
+        );
+    }
+
+    [Fact]
+    public async Task Handler_Should_Throw_ArgumentNullException_When_Request_Parameters_Is_Null()
+    {
+        // Arrange
+        var query = new GetAllServiceProgramVehicleQuery(1, null!);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentNullException>(
+            () => _queryHandler.Handle(query, CancellationToken.None)
+        );
+    }
+
+    // TODO
+    // [Fact]
+    // public async Task Handler_Should_Throw_BadRequestException_When_ServiceProgram_Is_Inactive()
+    // {
+    //     // Arrange
+    //     var serviceProgramId = 1;
+    //     var query = CreateValidQuery(serviceProgramId);
+    //     var inactiveServiceProgram = CreateServiceProgram(serviceProgramId, "Inactive Program", isActive: false);
+
+    //     SetupValidValidation(query);
+    //     _mockServiceProgramRepository.Setup(r => r.GetByIdAsync(serviceProgramId))
+    //         .ReturnsAsync(inactiveServiceProgram);
+
+    //     // Act & Assert
+    //     var exception = await Assert.ThrowsAsync<BadRequestException>(
+    //         () => _queryHandler.Handle(query, CancellationToken.None)
+    //     );
+
+    //     Assert.Contains($"ServiceProgram with ID {serviceProgramId} is not active.", exception.Message);
+
+    //     _mockValidator.Verify(v => v.ValidateAsync(query, It.IsAny<CancellationToken>()), Times.Once);
+    //     _mockServiceProgramRepository.Verify(r => r.GetByIdAsync(serviceProgramId), Times.Once);
+    //     _mockXrefServiceProgramVehicleRepository.Verify(r => r.GetServiceProgramVehiclesWithMetadataPagedAsync(It.IsAny<int>(), It.IsAny<PaginationParameters>()), Times.Never);
+    // }
 }
