@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace Application.Models.PaginationModels;
 
 public class PaginationParameters
@@ -19,6 +21,14 @@ public class PaginationParameters
 
     public override string ToString()
     {
-        return $@"{nameof(PageNumber)}={PageNumber}, {nameof(PageSize)}={PageSize}, {nameof(Search)}=""{Search ?? "null"}"", {nameof(SortBy)}=""{SortBy ?? "null"}"", {nameof(SortDescending)}={SortDescending}";
+        var sb = new StringBuilder();
+
+        sb.Append(nameof(PageNumber)).Append('=').Append(PageNumber).Append(", ");
+        sb.Append(nameof(PageSize)).Append('=').Append(PageSize).Append(", ");
+        sb.Append(nameof(Search)).Append("=\"").Append(Search ?? "null").Append("\", ");
+        sb.Append(nameof(SortBy)).Append("=\"").Append(SortBy ?? "null").Append("\", ");
+        sb.Append(nameof(SortDescending)).Append('=').Append(SortDescending);
+
+        return sb.ToString();
     }
 }
