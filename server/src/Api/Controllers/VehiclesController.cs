@@ -59,9 +59,8 @@ public sealed class VehiclesController : ControllerBase
         }
         catch (Exception ex)
         {
-            var errorMessage = $"{nameof(GetVehicles)} - ERROR: {ex.Message}";
-            _logger.LogError(errorMessage);
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = errorMessage });
+            _logger.LogError(ex, $"{nameof(GetVehicles)} - ERROR");
+            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while retrieving vehicles." });
         }
     }
 
@@ -91,9 +90,8 @@ public sealed class VehiclesController : ControllerBase
         }
         catch (Exception ex)
         {
-            var errorMessage = $"{nameof(GetVehicle)} - ERROR: {ex.Message}";
-            _logger.LogError(errorMessage);
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = errorMessage });
+            _logger.LogError(ex, $"{nameof(GetVehicle)} - ERROR");
+            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while retrieving the vehicle." });
         }
     }
 
@@ -126,9 +124,8 @@ public sealed class VehiclesController : ControllerBase
         }
         catch (Exception ex)
         {
-            var errorMessage = $"{nameof(CreateVehicle)} - ERROR: {ex.Message}";
-            _logger.LogError(errorMessage);
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = errorMessage });
+            _logger.LogError(ex, $"{nameof(CreateVehicle)} - ERROR");
+            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while creating the vehicle." });
         }
     }
 
@@ -165,9 +162,8 @@ public sealed class VehiclesController : ControllerBase
         }
         catch (Exception ex)
         {
-            var errorMessage = $"{nameof(UpdateVehicle)} - ERROR: {ex.Message}";
-            _logger.LogError(errorMessage);
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = errorMessage });
+            _logger.LogError(ex, $"{nameof(UpdateVehicle)} - ERROR");
+            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while updating the vehicle." });
         }
     }
 
@@ -197,9 +193,8 @@ public sealed class VehiclesController : ControllerBase
         }
         catch (Exception ex)
         {
-            var errorMessage = $"{nameof(DeactivateVehicle)} - ERROR: {ex.Message}";
-            _logger.LogError(errorMessage);
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = errorMessage });
+            _logger.LogError(ex, $"{nameof(DeactivateVehicle)} - ERROR");
+            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while deactivating the vehicle." });
         }
     }
 }
