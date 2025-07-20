@@ -59,6 +59,7 @@ public sealed class FuelPurchasesController : ControllerBase
 
             var fuelPurchaseId = await _mediator.Send(command, cancellationToken);
 
+            // TODO: Change Location header from nameof(CreateFuelPurchase) to nameof(GetFuelPurchase)
             return CreatedAtAction(nameof(CreateFuelPurchase), new { id = fuelPurchaseId }, fuelPurchaseId);
         }
         catch (Exception ex)

@@ -88,6 +88,7 @@ public sealed class InventoryItemLocationsController : ControllerBase
 
             var inventoryItemLocationId = await _mediator.Send(command, cancellationToken);
 
+            // TODO: Change Location header from nameof(GetInventoryItemLocations) to nameof(GetInventoryItemLocation)
             return CreatedAtAction(nameof(GetInventoryItemLocations), new { id = inventoryItemLocationId }, inventoryItemLocationId);
         }
         catch (Exception ex)

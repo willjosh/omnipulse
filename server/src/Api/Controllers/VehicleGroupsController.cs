@@ -95,6 +95,7 @@ public sealed class VehicleGroupsController : ControllerBase
 
             var vehicleGroupId = await _mediator.Send(command, cancellationToken);
 
+            // TODO: Change Location header from nameof(GetVehicleGroups) to nameof(GetVehicleGroup)
             return CreatedAtAction(nameof(GetVehicleGroups), new { id = vehicleGroupId }, vehicleGroupId);
         }
         catch (Exception ex)
