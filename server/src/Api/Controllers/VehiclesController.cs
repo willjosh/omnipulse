@@ -50,7 +50,7 @@ public sealed class VehiclesController : ControllerBase
     {
         try
         {
-            _logger.LogInformation($"{nameof(VehiclesController.GetVehicles)}() - Called");
+            _logger.LogInformation($"{nameof(GetVehicles)}() - Called");
 
             var query = new GetAllVehicleQuery(parameters);
             var result = await _mediator.Send(query, cancellationToken);
@@ -59,7 +59,7 @@ public sealed class VehiclesController : ControllerBase
         }
         catch (Exception ex)
         {
-            var errorMessage = $"{nameof(VehiclesController.GetVehicles)} - ERROR: {ex.Message}";
+            var errorMessage = $"{nameof(GetVehicles)} - ERROR: {ex.Message}";
             _logger.LogError(errorMessage);
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = errorMessage });
         }
@@ -82,7 +82,7 @@ public sealed class VehiclesController : ControllerBase
     {
         try
         {
-            _logger.LogInformation($"{nameof(VehiclesController.GetVehicle)}() - Called");
+            _logger.LogInformation($"{nameof(GetVehicle)}() - Called");
 
             var query = new GetVehicleDetailsQuery(id);
             var result = await _mediator.Send(query, cancellationToken);
@@ -91,7 +91,7 @@ public sealed class VehiclesController : ControllerBase
         }
         catch (Exception ex)
         {
-            var errorMessage = $"{nameof(VehiclesController.GetVehicle)} - ERROR: {ex.Message}";
+            var errorMessage = $"{nameof(GetVehicle)} - ERROR: {ex.Message}";
             _logger.LogError(errorMessage);
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = errorMessage });
         }
@@ -118,7 +118,7 @@ public sealed class VehiclesController : ControllerBase
     {
         try
         {
-            _logger.LogInformation($"{nameof(VehiclesController.CreateVehicle)}() - Called");
+            _logger.LogInformation($"{nameof(CreateVehicle)}() - Called");
 
             var vehicleId = await _mediator.Send(command, cancellationToken);
 
@@ -126,7 +126,7 @@ public sealed class VehiclesController : ControllerBase
         }
         catch (Exception ex)
         {
-            var errorMessage = $"{nameof(VehiclesController.CreateVehicle)} - ERROR: {ex.Message}";
+            var errorMessage = $"{nameof(CreateVehicle)} - ERROR: {ex.Message}";
             _logger.LogError(errorMessage);
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = errorMessage });
         }
@@ -155,39 +155,17 @@ public sealed class VehiclesController : ControllerBase
     {
         try
         {
-            _logger.LogInformation($"{nameof(VehiclesController.UpdateVehicle)}() - Called");
+            _logger.LogInformation($"{nameof(UpdateVehicle)}() - Called");
 
-            // Pass the Vehicle ID from the request to the command
-            var updateCommand = new UpdateVehicleCommand(
-                VehicleID: id,
-                Name: command.Name,
-                Make: command.Make,
-                Model: command.Model,
-                Year: command.Year,
-                VIN: command.VIN,
-                LicensePlate: command.LicensePlate,
-                LicensePlateExpirationDate: command.LicensePlateExpirationDate,
-                VehicleType: command.VehicleType,
-                VehicleGroupID: command.VehicleGroupID,
-                Trim: command.Trim,
-                Mileage: command.Mileage,
-                EngineHours: command.EngineHours,
-                FuelCapacity: command.FuelCapacity,
-                FuelType: command.FuelType,
-                PurchaseDate: command.PurchaseDate,
-                PurchasePrice: command.PurchasePrice,
-                Status: command.Status,
-                Location: command.Location,
-                AssignedTechnicianID: command.AssignedTechnicianID
-            );
+            if (id != command.VehicleID) return BadRequest("Route ID and body ID mismatch.");
 
-            var vehicleId = await _mediator.Send(updateCommand, cancellationToken);
+            var vehicleId = await _mediator.Send(command with { VehicleID = id }, cancellationToken);
 
             return Ok(vehicleId);
         }
         catch (Exception ex)
         {
-            var errorMessage = $"{nameof(VehiclesController.UpdateVehicle)} - ERROR: {ex.Message}";
+            var errorMessage = $"{nameof(UpdateVehicle)} - ERROR: {ex.Message}";
             _logger.LogError(errorMessage);
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = errorMessage });
         }
@@ -210,7 +188,7 @@ public sealed class VehiclesController : ControllerBase
     {
         try
         {
-            _logger.LogInformation($"{nameof(VehiclesController.DeactivateVehicle)}() - Called");
+            _logger.LogInformation($"{nameof(DeactivateVehicle)}() - Called");
 
             var command = new DeactivateVehicleCommand(id);
             var vehicleId = await _mediator.Send(command, cancellationToken);
@@ -219,7 +197,7 @@ public sealed class VehiclesController : ControllerBase
         }
         catch (Exception ex)
         {
-            var errorMessage = $"{nameof(VehiclesController.DeactivateVehicle)} - ERROR: {ex.Message}";
+            var errorMessage = $"{nameof(DeactivateVehicle)} - ERROR: {ex.Message}";
             _logger.LogError(errorMessage);
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = errorMessage });
         }
