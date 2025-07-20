@@ -89,6 +89,85 @@ public class GetAllServiceProgramVehicleQueryHandlerTest
         };
     }
 
+    private static Vehicle CreateVehicle(
+        int id = 1,
+        string name = "Test Vehicle Name",
+        string make = "Test Make",
+        string model = "Test Model")
+    {
+        return new Vehicle
+        {
+            ID = id,
+            CreatedAt = FixedDate,
+            UpdatedAt = FixedDate,
+            Name = name,
+            Make = make,
+            Model = model,
+            Year = 2020,
+            VIN = "TEST123456789",
+            LicensePlate = "TEST123",
+            LicensePlateExpirationDate = FixedDate.AddYears(1),
+            VehicleType = Domain.Entities.Enums.VehicleTypeEnum.TRUCK,
+            VehicleGroupID = 1,
+            Trim = "Test Trim",
+            Mileage = 1000.0,
+            EngineHours = 100.0,
+            FuelCapacity = 50.0,
+            FuelType = Domain.Entities.Enums.FuelTypeEnum.PETROL,
+            PurchaseDate = FixedDate,
+            PurchasePrice = 50000.0m,
+            Status = Domain.Entities.Enums.VehicleStatusEnum.ACTIVE,
+            Location = "Test Location",
+            VehicleGroup = new VehicleGroup
+            {
+                ID = 1,
+                Name = "Test Group",
+                CreatedAt = FixedDate,
+                UpdatedAt = FixedDate,
+                IsActive = true
+            },
+            VehicleImages = [],
+            VehicleAssignments = [],
+            VehicleDocuments = [],
+            XrefServiceProgramVehicles = [],
+            ServiceReminders = [],
+            Issues = [],
+            VehicleInspections = []
+        };
+    }
+
+    private static XrefServiceProgramVehicle CreateXrefServiceProgramVehicle(
+        int serviceProgramId = 1,
+        int vehicleId = 1,
+        Vehicle? vehicle = null)
+    {
+        return new XrefServiceProgramVehicle
+        {
+            ServiceProgramID = serviceProgramId,
+            VehicleID = vehicleId,
+            AddedAt = FixedDate,
+            ServiceProgram = CreateServiceProgram(serviceProgramId),
+            Vehicle = vehicle ?? CreateVehicle(vehicleId),
+            User = new User
+            {
+                Id = "test-user",
+                Email = "test@example.com",
+                FirstName = "Test",
+                LastName = "User",
+                HireDate = FixedDate,
+                IsActive = true,
+                CreatedAt = FixedDate,
+                UpdatedAt = FixedDate,
+                MaintenanceHistories = [],
+                IssueAttachments = [],
+                VehicleAssignments = [],
+                VehicleDocuments = [],
+                VehicleInspections = [],
+                Vehicles = []
+            }
+        };
+    }
+
     private static XrefServiceProgramVehicleDTO CreateXrefServiceProgramVehicleDTO(
         int serviceProgramId = 1,
         int vehicleId = 1,
@@ -101,6 +180,21 @@ public class GetAllServiceProgramVehicleQueryHandlerTest
             VehicleID = vehicleId,
             VehicleName = vehicleName,
             AddedAt = addedAt ?? FixedDate
+        };
+    }
+
+    private static PagedResult<XrefServiceProgramVehicle> CreatePagedXrefResult(
+        List<XrefServiceProgramVehicle> items,
+        int totalCount = 0,
+        int pageNumber = 1,
+        int pageSize = 10)
+    {
+        return new PagedResult<XrefServiceProgramVehicle>
+        {
+            Items = items,
+            TotalCount = totalCount,
+            PageNumber = pageNumber,
+            PageSize = pageSize
         };
     }
 
@@ -126,14 +220,15 @@ public class GetAllServiceProgramVehicleQueryHandlerTest
         var serviceProgramId = 1;
         var query = CreateValidQuery(serviceProgramId);
         var serviceProgram = CreateServiceProgram(serviceProgramId);
-        var xrefDTO = CreateXrefServiceProgramVehicleDTO(serviceProgramId);
-        var pagedResult = CreatePagedResult([xrefDTO], 1);
+        var vehicle = CreateVehicle(1, "Test Vehicle Name");
+        var xref = CreateXrefServiceProgramVehicle(serviceProgramId, 1, vehicle);
+        var pagedXrefResult = CreatePagedXrefResult([xref], 1);
 
         SetupValidValidation(query);
         _mockServiceProgramRepository.Setup(r => r.GetByIdAsync(serviceProgramId))
             .ReturnsAsync(serviceProgram);
-        _mockXrefServiceProgramVehicleRepository.Setup(r => r.GetServiceProgramVehiclesWithMetadataPagedAsync(serviceProgramId, query.Parameters))
-            .ReturnsAsync(pagedResult);
+        _mockXrefServiceProgramVehicleRepository.Setup(r => r.GetAllByServiceProgramIDPagedAsync(serviceProgramId, query.Parameters))
+            .ReturnsAsync(pagedXrefResult);
 
         // Act
         var result = await _queryHandler.Handle(query, CancellationToken.None);
@@ -143,8 +238,8 @@ public class GetAllServiceProgramVehicleQueryHandlerTest
         Assert.Equal(1, result.TotalCount);
         Assert.Single(result.Items);
         Assert.Equal(serviceProgramId, result.Items[0].ServiceProgramID);
-        Assert.Equal(xrefDTO.VehicleID, result.Items[0].VehicleID);
-        Assert.Equal(xrefDTO.VehicleName, result.Items[0].VehicleName);
+        Assert.Equal(vehicle.ID, result.Items[0].VehicleID);
+        Assert.Equal(vehicle.Name, result.Items[0].VehicleName);
     }
 
     [Fact]
@@ -180,7 +275,7 @@ public class GetAllServiceProgramVehicleQueryHandlerTest
         );
 
         _mockServiceProgramRepository.Verify(r => r.GetByIdAsync(serviceProgramId), Times.Once);
-        _mockXrefServiceProgramVehicleRepository.Verify(r => r.GetServiceProgramVehiclesWithMetadataPagedAsync(It.IsAny<int>(), It.IsAny<PaginationParameters>()), Times.Never);
+        _mockXrefServiceProgramVehicleRepository.Verify(r => r.GetAllByServiceProgramIDPagedAsync(It.IsAny<int>(), It.IsAny<PaginationParameters>()), Times.Never);
     }
 
     [Fact]
@@ -190,12 +285,12 @@ public class GetAllServiceProgramVehicleQueryHandlerTest
         var serviceProgramId = 1;
         var query = CreateValidQuery(serviceProgramId);
         var serviceProgram = CreateServiceProgram(serviceProgramId, "Empty Service Program Name");
-        var emptyPagedResult = CreatePagedResult([], 0);
+        var emptyPagedResult = CreatePagedXrefResult([], 0);
 
         SetupValidValidation(query);
         _mockServiceProgramRepository.Setup(r => r.GetByIdAsync(serviceProgramId))
             .ReturnsAsync(serviceProgram);
-        _mockXrefServiceProgramVehicleRepository.Setup(r => r.GetServiceProgramVehiclesWithMetadataPagedAsync(serviceProgramId, query.Parameters))
+        _mockXrefServiceProgramVehicleRepository.Setup(r => r.GetAllByServiceProgramIDPagedAsync(serviceProgramId, query.Parameters))
             .ReturnsAsync(emptyPagedResult);
 
         // Act
@@ -218,7 +313,7 @@ public class GetAllServiceProgramVehicleQueryHandlerTest
         SetupValidValidation(query);
         _mockServiceProgramRepository.Setup(r => r.GetByIdAsync(serviceProgramId))
             .ReturnsAsync(serviceProgram);
-        _mockXrefServiceProgramVehicleRepository.Setup(r => r.GetServiceProgramVehiclesWithMetadataPagedAsync(serviceProgramId, It.IsAny<PaginationParameters>()))
+        _mockXrefServiceProgramVehicleRepository.Setup(r => r.GetAllByServiceProgramIDPagedAsync(serviceProgramId, It.IsAny<PaginationParameters>()))
             .ThrowsAsync(new InvalidOperationException("Database connection failed"));
 
         // Act & Assert
@@ -228,7 +323,7 @@ public class GetAllServiceProgramVehicleQueryHandlerTest
 
         _mockValidator.Verify(v => v.ValidateAsync(query, It.IsAny<CancellationToken>()), Times.Once);
         _mockServiceProgramRepository.Verify(r => r.GetByIdAsync(serviceProgramId), Times.Once);
-        _mockXrefServiceProgramVehicleRepository.Verify(r => r.GetServiceProgramVehiclesWithMetadataPagedAsync(serviceProgramId, It.IsAny<PaginationParameters>()), Times.Once);
+        _mockXrefServiceProgramVehicleRepository.Verify(r => r.GetAllByServiceProgramIDPagedAsync(serviceProgramId, It.IsAny<PaginationParameters>()), Times.Once);
     }
 
     [Fact]
@@ -238,12 +333,12 @@ public class GetAllServiceProgramVehicleQueryHandlerTest
         var serviceProgramId = 1;
         var query = CreateValidQuery(serviceProgramId, 2, 5, "Ford", "vehiclename", true);
         var serviceProgram = CreateServiceProgram(serviceProgramId, "Test Program");
-        var pagedResult = CreatePagedResult([], 0, 2, 5);
+        var pagedResult = CreatePagedXrefResult([], 0, 2, 5);
 
         SetupValidValidation(query);
         _mockServiceProgramRepository.Setup(r => r.GetByIdAsync(serviceProgramId))
             .ReturnsAsync(serviceProgram);
-        _mockXrefServiceProgramVehicleRepository.Setup(r => r.GetServiceProgramVehiclesWithMetadataPagedAsync(serviceProgramId, query.Parameters))
+        _mockXrefServiceProgramVehicleRepository.Setup(r => r.GetAllByServiceProgramIDPagedAsync(serviceProgramId, query.Parameters))
             .ReturnsAsync(pagedResult);
 
         // Act
@@ -256,7 +351,7 @@ public class GetAllServiceProgramVehicleQueryHandlerTest
 
         // Verify that the repository was called with the exact parameters
         _mockXrefServiceProgramVehicleRepository.Verify(
-            r => r.GetServiceProgramVehiclesWithMetadataPagedAsync(serviceProgramId, query.Parameters),
+            r => r.GetAllByServiceProgramIDPagedAsync(serviceProgramId, query.Parameters),
             Times.Once
         );
     }
@@ -268,18 +363,22 @@ public class GetAllServiceProgramVehicleQueryHandlerTest
         var serviceProgramId = 1;
         var query = CreateValidQuery(serviceProgramId);
         var serviceProgram = CreateServiceProgram(serviceProgramId, "Test Program");
-        var multipleVehicles = new List<XrefServiceProgramVehicleDTO>
+        var vehicle1 = CreateVehicle(1, "Ford F-150");
+        var vehicle2 = CreateVehicle(2, "Chevrolet Silverado");
+        var vehicle3 = CreateVehicle(3, "Toyota Tacoma");
+
+        var multipleXrefs = new List<XrefServiceProgramVehicle>
         {
-            CreateXrefServiceProgramVehicleDTO(serviceProgramId, 1, "Ford F-150"),
-            CreateXrefServiceProgramVehicleDTO(serviceProgramId, 2, "Chevrolet Silverado"),
-            CreateXrefServiceProgramVehicleDTO(serviceProgramId, 3, "Toyota Tacoma")
+            CreateXrefServiceProgramVehicle(serviceProgramId, 1, vehicle1),
+            CreateXrefServiceProgramVehicle(serviceProgramId, 2, vehicle2),
+            CreateXrefServiceProgramVehicle(serviceProgramId, 3, vehicle3)
         };
-        var pagedResult = CreatePagedResult(multipleVehicles, 3);
+        var pagedResult = CreatePagedXrefResult(multipleXrefs, 3);
 
         SetupValidValidation(query);
         _mockServiceProgramRepository.Setup(r => r.GetByIdAsync(serviceProgramId))
             .ReturnsAsync(serviceProgram);
-        _mockXrefServiceProgramVehicleRepository.Setup(r => r.GetServiceProgramVehiclesWithMetadataPagedAsync(serviceProgramId, query.Parameters))
+        _mockXrefServiceProgramVehicleRepository.Setup(r => r.GetAllByServiceProgramIDPagedAsync(serviceProgramId, query.Parameters))
             .ReturnsAsync(pagedResult);
 
         // Act
@@ -344,6 +443,6 @@ public class GetAllServiceProgramVehicleQueryHandlerTest
 
     //     _mockValidator.Verify(v => v.ValidateAsync(query, It.IsAny<CancellationToken>()), Times.Once);
     //     _mockServiceProgramRepository.Verify(r => r.GetByIdAsync(serviceProgramId), Times.Once);
-    //     _mockXrefServiceProgramVehicleRepository.Verify(r => r.GetServiceProgramVehiclesWithMetadataPagedAsync(It.IsAny<int>(), It.IsAny<PaginationParameters>()), Times.Never);
+    //     _mockXrefServiceProgramVehicleRepository.Verify(r => r.GetAllByServiceProgramIDPagedAsync(It.IsAny<int>(), It.IsAny<PaginationParameters>()), Times.Never);
     // }
 }
