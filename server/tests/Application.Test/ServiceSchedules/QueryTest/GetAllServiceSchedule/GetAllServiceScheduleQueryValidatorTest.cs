@@ -1,8 +1,5 @@
-using System;
-using System.Threading.Tasks;
-
 using Application.Features.ServiceSchedules.Query.GetAllServiceSchedule;
-using Application.Models;
+using Application.Models.PaginationModels;
 
 using Xunit;
 

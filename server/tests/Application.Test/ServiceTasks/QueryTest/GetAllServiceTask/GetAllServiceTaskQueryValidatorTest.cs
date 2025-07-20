@@ -1,9 +1,5 @@
-using System;
-
 using Application.Features.ServiceTasks.Query.GetAllServiceTask;
-using Application.Models;
-
-using Domain.Entities;
+using Application.Models.PaginationModels;
 
 using FluentValidation.TestHelper;
 
