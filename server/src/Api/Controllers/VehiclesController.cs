@@ -1,25 +1,17 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-
 using Application.Features.Vehicles.Command.CreateVehicle;
 using Application.Features.Vehicles.Command.DeactivateVehicle;
 using Application.Features.Vehicles.Command.UpdateVehicle;
 using Application.Features.Vehicles.Query.GetAllVehicle;
 using Application.Features.Vehicles.Query.GetVehicleDetails;
-using Application.Models;
 using Application.Models.PaginationModels;
 
 using Domain.Entities;
 
 using MediatR;
 
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
-namespace Api.Controllers;
+namespace API.Controllers;
 
 /// <summary>
 /// Controller for <see cref="Vehicle"/>
