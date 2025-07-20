@@ -1,5 +1,4 @@
 using Application.Contracts.Persistence;
-using Application.Features.ServicePrograms.Query.GetAllServiceProgramVehicle;
 using Application.Models;
 using Application.Models.PaginationModels;
 
@@ -136,59 +135,6 @@ public class XrefServiceProgramVehicleRepository : IXrefServiceProgramVehicleRep
             .ToListAsync();
 
         return new PagedResult<Vehicle>
-        {
-            Items = items,
-            TotalCount = totalCount,
-            PageNumber = parameters.PageNumber,
-            PageSize = parameters.PageSize
-        };
-    }
-
-    public async Task<PagedResult<XrefServiceProgramVehicleDTO>> GetServiceProgramVehiclesWithMetadataPagedAsync(int serviceProgramID, PaginationParameters parameters)
-    {
-        var query = _dbContext.XrefServiceProgramVehicles
-            .Where(x => x.ServiceProgramID == serviceProgramID)
-            .Include(x => x.Vehicle)
-                .ThenInclude(v => v.VehicleGroup)
-            .Select(x => new XrefServiceProgramVehicleDTO
-            {
-                ServiceProgramID = x.ServiceProgramID,
-                VehicleID = x.Vehicle.ID,
-                VehicleName = x.Vehicle.Name,
-                AddedAt = x.AddedAt
-            });
-
-        // Apply search filter
-        if (!string.IsNullOrWhiteSpace(parameters.Search))
-        {
-            var searchLower = parameters.Search.ToLowerInvariant();
-            query = query.Where(x =>
-                x.VehicleName.Contains(searchLower, StringComparison.InvariantCultureIgnoreCase)
-            );
-        }
-
-        // Apply sorting
-        query = parameters.SortBy?.ToLowerInvariant() switch
-        {
-            "vehiclename" or "name" => parameters.SortDescending ?
-                query.OrderByDescending(x => x.VehicleName) :
-                query.OrderBy(x => x.VehicleName),
-            "addedat" => parameters.SortDescending ?
-                query.OrderByDescending(x => x.AddedAt) :
-                query.OrderBy(x => x.AddedAt),
-            _ => query.OrderBy(x => x.VehicleName) // Default Sorting = Vehicle Name
-        };
-
-        // Get total count before pagination
-        var totalCount = await query.CountAsync();
-
-        // Apply pagination
-        var items = await query
-            .Skip((parameters.PageNumber - 1) * parameters.PageSize)
-            .Take(parameters.PageSize)
-            .ToListAsync();
-
-        return new PagedResult<XrefServiceProgramVehicleDTO>
         {
             Items = items,
             TotalCount = totalCount,
