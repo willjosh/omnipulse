@@ -62,8 +62,25 @@ public class GetAllServiceProgramVehicleQueryHandler : IRequestHandler<GetAllSer
         //     throw new BadRequestException(errorMessage);
         // }
 
-        // Get paged vehicle assignments with metadata directly from repository
-        var result = await _xrefServiceProgramVehicleRepository.GetServiceProgramVehiclesWithMetadataPagedAsync(request.ServiceProgramID, request.Parameters);
+        // Get paged xref records with vehicle navigation properties from repository (domain entities only)
+        var xrefResult = await _xrefServiceProgramVehicleRepository.GetAllByServiceProgramIDPagedAsync(request.ServiceProgramID, request.Parameters);
+
+        // Transform domain entities to DTOs
+        var dtoItems = xrefResult.Items.Select(xref => new XrefServiceProgramVehicleDTO
+        {
+            ServiceProgramID = xref.ServiceProgramID,
+            VehicleID = xref.Vehicle.ID,
+            VehicleName = xref.Vehicle.Name,
+            AddedAt = xref.AddedAt
+        }).ToList();
+
+        var result = new PagedResult<XrefServiceProgramVehicleDTO>
+        {
+            Items = dtoItems,
+            TotalCount = xrefResult.TotalCount,
+            PageNumber = xrefResult.PageNumber,
+            PageSize = xrefResult.PageSize
+        };
 
         _logger.LogInformation($"Returning {result.Items.Count} vehicles for {nameof(ServiceProgram)} with {nameof(request.ServiceProgramID)} {request.ServiceProgramID}, page {request.Parameters.PageNumber}");
 
