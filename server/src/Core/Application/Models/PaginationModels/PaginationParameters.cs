@@ -1,6 +1,4 @@
-using System;
-
-namespace Application.Models;
+namespace Application.Models.PaginationModels;
 
 public class PaginationParameters
 {
@@ -18,4 +16,9 @@ public class PaginationParameters
     public string? Search { get; set; }
     public string? SortBy { get; set; }
     public bool SortDescending { get; set; } = false;
+
+    public override string ToString()
+    {
+        return $@"{nameof(PageNumber)}={PageNumber}, {nameof(PageSize)}={PageSize}, {nameof(Search)}=""{Search ?? "null"}"", {nameof(SortBy)}=""{SortBy ?? "null"}"", {nameof(SortDescending)}={SortDescending}";
+    }
 }
