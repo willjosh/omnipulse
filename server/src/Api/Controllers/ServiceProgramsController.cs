@@ -15,6 +15,15 @@ namespace Api.Controllers;
 /// <summary>
 /// Controller for <see cref="ServiceProgram"/>
 /// </summary>
+/// <remarks>
+/// <b>API Endpoints</b>:
+/// <list type="bullet">
+/// <item><b>GET /api/serviceprograms/{id}</b> - <see cref="GetServiceProgram"/> - <see cref="GetServiceProgramQuery"/></item>
+/// <item><b>POST /api/serviceprograms</b> - <see cref="CreateServiceProgram"/> - <see cref="CreateServiceProgramCommand"/></item>
+/// <item><b>PUT /api/serviceprograms/{id}</b> - <see cref="UpdateServiceProgram"/> - <see cref="UpdateServiceProgramCommand"/></item>
+/// <item><b>DELETE /api/serviceprograms/{id}</b> - <see cref="DeleteServiceProgram"/> - <see cref="DeleteServiceProgramCommand"/></item>
+/// </list>
+/// </remarks>
 [ApiController]
 [Route("api/[controller]")]
 [Consumes("application/json")]

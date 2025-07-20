@@ -12,6 +12,13 @@ namespace Api.Controllers;
 /// <summary>
 /// Controller for <see cref="WorkOrder"/>
 /// </summary>
+/// <remarks>
+/// <b>API Endpoints</b>:
+/// <list type="bullet">
+/// <item><b>GET /api/workorders/{id}</b> - <see cref="GetWorkOrder"/> - <see cref="GetWorkOrderDetailQuery"/></item>
+/// <item><b>POST /api/workorders</b> - <see cref="CreateWorkOrder"/> - <see cref="CreateWorkOrderCommand"/></item>
+/// </list>
+/// </remarks>
 [ApiController]
 [Route("api/[controller]")]
 [Consumes("application/json")]

@@ -14,6 +14,15 @@ namespace Api.Controllers;
 /// <summary>
 /// Controller for <see cref="InventoryItem"/>
 /// </summary>
+/// <remarks>
+/// <b>API Endpoints</b>:
+/// <list type="bullet">
+/// <item><b>GET /api/inventoryitems/{id}</b> - <see cref="GetInventoryItem"/> - <see cref="GetInventoryItemQuery"/></item>
+/// <item><b>POST /api/inventoryitems</b> - <see cref="CreateInventoryItem"/> - <see cref="CreateInventoryItemCommand"/></item>
+/// <item><b>PUT /api/inventoryitems/{id}</b> - <see cref="UpdateInventoryItem"/> - <see cref="UpdateInventoryItemCommand"/></item>
+/// <item><b>DELETE /api/inventoryitems/{id}</b> - <see cref="DeleteInventoryItem"/> - <see cref="DeleteInventoryItemCommand"/></item>
+/// </list>
+/// </remarks>
 [ApiController]
 [Route("api/[controller]")]
 [Consumes("application/json")]

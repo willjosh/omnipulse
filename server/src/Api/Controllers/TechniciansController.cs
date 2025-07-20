@@ -16,6 +16,16 @@ namespace Api.Controllers;
 /// <summary>
 /// Controller for <see cref="User"/> (Technician)
 /// </summary>
+/// <remarks>
+/// <b>API Endpoints</b>:
+/// <list type="bullet">
+/// <item><b>GET /api/technicians</b> - <see cref="GetTechnicians"/> - <see cref="GetAllTechnicianQuery"/></item>
+/// <item><b>GET /api/technicians/{id}</b> - <see cref="GetTechnician"/> - <see cref="GetTechnicianQuery"/></item>
+/// <item><b>POST /api/technicians</b> - <see cref="CreateTechnician"/> - <see cref="CreateTechnicianCommand"/></item>
+/// <item><b>PUT /api/technicians/{id}</b> - <see cref="UpdateTechnician"/> - <see cref="UpdateTechnicianCommand"/></item>
+/// <item><b>PATCH /api/technicians/{id}/deactivate</b> - <see cref="DeactivateTechnician"/> - <see cref="DeactivateTechnicianCommand"/></item>
+/// </list>
+/// </remarks>
 [ApiController]
 [Route("api/[controller]")]
 [Consumes("application/json")]

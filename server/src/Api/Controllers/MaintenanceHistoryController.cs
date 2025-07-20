@@ -12,6 +12,12 @@ namespace Api.Controllers;
 /// <summary>
 /// Controller for <see cref="MaintenanceHistory"/>
 /// </summary>
+/// <remarks>
+/// <b>API Endpoints</b>:
+/// <list type="bullet">
+/// <item><b>GET /api/maintenancehistory</b> - <see cref="GetMaintenanceHistories"/> - <see cref="GetAllMaintenanceHistoriesQuery"/></item>
+/// </list>
+/// </remarks>
 [ApiController]
 [Route("api/[controller]")]
 [Consumes("application/json")]

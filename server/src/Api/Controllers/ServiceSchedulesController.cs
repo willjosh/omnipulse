@@ -17,6 +17,16 @@ namespace Api.Controllers;
 /// <summary>
 /// Controller for <see cref="ServiceSchedule"/>
 /// </summary>
+/// <remarks>
+/// <b>API Endpoints</b>:
+/// <list type="bullet">
+/// <item><b>GET /api/serviceschedules</b> - <see cref="GetServiceSchedules"/> - <see cref="GetAllServiceScheduleQuery"/></item>
+/// <item><b>GET /api/serviceschedules/{id}</b> - <see cref="GetServiceSchedule"/> - <see cref="GetServiceScheduleQuery"/></item>
+/// <item><b>POST /api/serviceschedules</b> - <see cref="CreateServiceSchedule"/> - <see cref="CreateServiceScheduleCommand"/></item>
+/// <item><b>PUT /api/serviceschedules/{id}</b> - <see cref="UpdateServiceSchedule"/> - <see cref="UpdateServiceScheduleCommand"/></item>
+/// <item><b>DELETE /api/serviceschedules/{id}</b> - <see cref="DeleteServiceSchedule"/> - <see cref="DeleteServiceScheduleCommand"/></item>
+/// </list>
+/// </remarks>
 [ApiController]
 [Route("api/[controller]")]
 [Consumes("application/json")]

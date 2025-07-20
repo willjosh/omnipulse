@@ -17,6 +17,16 @@ namespace Api.Controllers;
 /// <summary>
 /// Controller for <see cref="ServiceTask"/>
 /// </summary>
+/// <remarks>
+/// <b>API Endpoints</b>:
+/// <list type="bullet">
+/// <item><b>GET /api/servicetasks</b> - <see cref="GetServiceTasks"/> - <see cref="GetAllServiceTaskQuery"/></item>
+/// <item><b>GET /api/servicetasks/{id}</b> - <see cref="GetServiceTask"/> - <see cref="GetServiceTaskQuery"/></item>
+/// <item><b>POST /api/servicetasks</b> - <see cref="CreateServiceTask"/> - <see cref="CreateServiceTaskCommand"/></item>
+/// <item><b>PUT /api/servicetasks/{id}</b> - <see cref="UpdateServiceTask"/> - <see cref="UpdateServiceTaskCommand"/></item>
+/// <item><b>DELETE /api/servicetasks/{id}</b> - <see cref="DeleteServiceTask"/> - <see cref="DeleteServiceTaskCommand"/></item>
+/// </list>
+/// </remarks>
 [ApiController]
 [Route("api/[controller]")]
 [Consumes("application/json")]

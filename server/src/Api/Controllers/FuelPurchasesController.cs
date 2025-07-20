@@ -11,6 +11,12 @@ namespace Api.Controllers;
 /// <summary>
 /// Controller for <see cref="FuelPurchase"/>
 /// </summary>
+/// <remarks>
+/// <b>API Endpoints</b>:
+/// <list type="bullet">
+/// <item><b>POST /api/fuelpurchases</b> - <see cref="CreateFuelPurchase"/> - <see cref="CreateFuelPurchaseCommand"/></item>
+/// </list>
+/// </remarks>
 [ApiController]
 [Route("api/[controller]")]
 [Consumes("application/json")]

@@ -16,6 +16,16 @@ namespace Api.Controllers;
 /// <summary>
 /// Controller for <see cref="Vehicle"/>
 /// </summary>
+/// <remarks>
+/// <b>API Endpoints</b>:
+/// <list type="bullet">
+/// <item><b>GET /api/vehicles</b> - <see cref="GetVehicles"/> - <see cref="GetAllVehicleQuery"/></item>
+/// <item><b>GET /api/vehicles/{id}</b> - <see cref="GetVehicle"/> - <see cref="GetVehicleDetailsQuery"/></item>
+/// <item><b>POST /api/vehicles</b> - <see cref="CreateVehicle"/> - <see cref="CreateVehicleCommand"/></item>
+/// <item><b>PUT /api/vehicles/{id}</b> - <see cref="UpdateVehicle"/> - <see cref="UpdateVehicleCommand"/></item>
+/// <item><b>PATCH /api/vehicles/{id}/deactivate</b> - <see cref="DeactivateVehicle"/> - <see cref="DeactivateVehicleCommand"/></item>
+/// </list>
+/// </remarks>
 [ApiController]
 [Route("api/[controller]")]
 [Consumes("application/json")]
