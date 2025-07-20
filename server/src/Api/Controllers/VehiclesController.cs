@@ -157,7 +157,7 @@ public sealed class VehiclesController : ControllerBase
         {
             _logger.LogInformation($"{nameof(UpdateVehicle)}() - Called");
 
-            if (id != command.VehicleID) return BadRequest("Route ID and body ID mismatch.");
+            if (id != command.VehicleID) return ValidationProblem($"{nameof(UpdateVehicle)} - Route ID and body ID mismatch.");
 
             var vehicleId = await _mediator.Send(command with { VehicleID = id }, cancellationToken);
 
