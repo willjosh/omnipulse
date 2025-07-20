@@ -55,7 +55,7 @@ public sealed class MaintenanceHistoryController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(GetMaintenanceHistories)} - ERROR");
+            _logger.LogError(ex, $"{nameof(GetMaintenanceHistories)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while retrieving maintenance history records." });
         }
     }

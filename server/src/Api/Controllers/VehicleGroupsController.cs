@@ -58,7 +58,7 @@ public sealed class VehicleGroupsController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(GetVehicleGroups)} - ERROR");
+            _logger.LogError(ex, $"{nameof(GetVehicleGroups)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while retrieving vehicle groups." });
         }
     }
@@ -90,7 +90,7 @@ public sealed class VehicleGroupsController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(CreateVehicleGroup)} - ERROR");
+            _logger.LogError(ex, $"{nameof(CreateVehicleGroup)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while creating the vehicle group." });
         }
     }
@@ -128,7 +128,7 @@ public sealed class VehicleGroupsController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(UpdateVehicleGroup)} - ERROR");
+            _logger.LogError(ex, $"{nameof(UpdateVehicleGroup)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while updating the vehicle group." });
         }
     }
@@ -161,7 +161,7 @@ public sealed class VehicleGroupsController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(DeleteVehicleGroup)} - ERROR");
+            _logger.LogError(ex, $"{nameof(DeleteVehicleGroup)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while deleting the vehicle group." });
         }
     }

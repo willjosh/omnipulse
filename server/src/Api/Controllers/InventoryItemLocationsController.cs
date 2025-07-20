@@ -52,7 +52,7 @@ public sealed class InventoryItemLocationsController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(GetInventoryItemLocations)} - ERROR");
+            _logger.LogError(ex, $"{nameof(GetInventoryItemLocations)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while retrieving inventory item locations." });
         }
     }
@@ -84,7 +84,7 @@ public sealed class InventoryItemLocationsController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(CreateInventoryItemLocation)} - ERROR");
+            _logger.LogError(ex, $"{nameof(CreateInventoryItemLocation)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while creating the inventory item location." });
         }
     }
@@ -117,7 +117,7 @@ public sealed class InventoryItemLocationsController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(DeleteInventoryItemLocation)} - ERROR");
+            _logger.LogError(ex, $"{nameof(DeleteInventoryItemLocation)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while deleting the inventory item location." });
         }
     }

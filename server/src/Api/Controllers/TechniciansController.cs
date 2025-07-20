@@ -59,7 +59,7 @@ public sealed class TechniciansController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(GetTechnicians)} - ERROR");
+            _logger.LogError(ex, $"{nameof(GetTechnicians)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while retrieving technicians." });
         }
     }
@@ -92,7 +92,7 @@ public sealed class TechniciansController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(GetTechnician)} - ERROR");
+            _logger.LogError(ex, $"{nameof(GetTechnician)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while retrieving the technician." });
         }
     }
@@ -124,7 +124,7 @@ public sealed class TechniciansController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(CreateTechnician)} - ERROR");
+            _logger.LogError(ex, $"{nameof(CreateTechnician)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while creating the technician." });
         }
     }
@@ -162,7 +162,7 @@ public sealed class TechniciansController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(UpdateTechnician)} - ERROR");
+            _logger.LogError(ex, $"{nameof(UpdateTechnician)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while updating the technician." });
         }
     }
@@ -195,7 +195,7 @@ public sealed class TechniciansController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(DeactivateTechnician)} - ERROR");
+            _logger.LogError(ex, $"{nameof(DeactivateTechnician)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while deactivating the technician." });
         }
     }

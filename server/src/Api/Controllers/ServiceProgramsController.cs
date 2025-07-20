@@ -58,7 +58,7 @@ public sealed class ServiceProgramsController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(GetServiceProgram)} - ERROR");
+            _logger.LogError(ex, $"{nameof(GetServiceProgram)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while retrieving the service program." });
         }
     }
@@ -92,7 +92,7 @@ public sealed class ServiceProgramsController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(CreateServiceProgram)} - ERROR");
+            _logger.LogError(ex, $"{nameof(CreateServiceProgram)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while creating the service program." });
         }
     }
@@ -132,7 +132,7 @@ public sealed class ServiceProgramsController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(UpdateServiceProgram)} - ERROR");
+            _logger.LogError(ex, $"{nameof(UpdateServiceProgram)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while updating the service program." });
         }
     }
@@ -165,7 +165,7 @@ public sealed class ServiceProgramsController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(DeleteServiceProgram)} - ERROR");
+            _logger.LogError(ex, $"{nameof(DeleteServiceProgram)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while deleting the service program." });
         }
     }

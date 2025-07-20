@@ -55,7 +55,7 @@ public sealed class WorkOrdersController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(GetWorkOrder)} - ERROR");
+            _logger.LogError(ex, $"{nameof(GetWorkOrder)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while retrieving the work order." });
         }
     }
@@ -89,7 +89,7 @@ public sealed class WorkOrdersController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(CreateWorkOrder)} - ERROR");
+            _logger.LogError(ex, $"{nameof(CreateWorkOrder)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while creating the work order." });
         }
     }

@@ -59,7 +59,7 @@ public sealed class VehiclesController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(GetVehicles)} - ERROR");
+            _logger.LogError(ex, $"{nameof(GetVehicles)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while retrieving vehicles." });
         }
     }
@@ -90,7 +90,7 @@ public sealed class VehiclesController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(GetVehicle)} - ERROR");
+            _logger.LogError(ex, $"{nameof(GetVehicle)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while retrieving the vehicle." });
         }
     }
@@ -124,7 +124,7 @@ public sealed class VehiclesController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(CreateVehicle)} - ERROR");
+            _logger.LogError(ex, $"{nameof(CreateVehicle)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while creating the vehicle." });
         }
     }
@@ -162,7 +162,7 @@ public sealed class VehiclesController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(UpdateVehicle)} - ERROR");
+            _logger.LogError(ex, $"{nameof(UpdateVehicle)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while updating the vehicle." });
         }
     }
@@ -193,7 +193,7 @@ public sealed class VehiclesController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(DeactivateVehicle)} - ERROR");
+            _logger.LogError(ex, $"{nameof(DeactivateVehicle)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while deactivating the vehicle." });
         }
     }

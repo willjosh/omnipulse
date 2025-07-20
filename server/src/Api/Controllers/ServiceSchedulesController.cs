@@ -60,7 +60,7 @@ public sealed class ServiceSchedulesController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(GetServiceSchedules)} - ERROR");
+            _logger.LogError(ex, $"{nameof(GetServiceSchedules)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while retrieving service schedules." });
         }
     }
@@ -93,7 +93,7 @@ public sealed class ServiceSchedulesController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(GetServiceSchedule)} - ERROR");
+            _logger.LogError(ex, $"{nameof(GetServiceSchedule)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while retrieving the service schedule." });
         }
     }
@@ -127,7 +127,7 @@ public sealed class ServiceSchedulesController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(CreateServiceSchedule)} - ERROR");
+            _logger.LogError(ex, $"{nameof(CreateServiceSchedule)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while creating the service schedule." });
         }
     }
@@ -165,7 +165,7 @@ public sealed class ServiceSchedulesController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(UpdateServiceSchedule)} - ERROR");
+            _logger.LogError(ex, $"{nameof(UpdateServiceSchedule)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while updating the service schedule." });
         }
     }
@@ -198,7 +198,7 @@ public sealed class ServiceSchedulesController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(DeleteServiceSchedule)} - ERROR");
+            _logger.LogError(ex, $"{nameof(DeleteServiceSchedule)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while deleting the service schedule." });
         }
     }

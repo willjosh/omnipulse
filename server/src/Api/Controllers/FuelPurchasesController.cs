@@ -57,7 +57,7 @@ public sealed class FuelPurchasesController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(CreateFuelPurchase)} - ERROR");
+            _logger.LogError(ex, $"{nameof(CreateFuelPurchase)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while creating the fuel purchase." });
         }
     }
