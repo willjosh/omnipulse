@@ -10,6 +10,8 @@ using Application.Features.Vehicles.Query.GetVehicleDetails;
 using Application.Models;
 using Application.Models.PaginationModels;
 
+using Domain.Entities;
+
 using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
@@ -20,7 +22,7 @@ using Microsoft.Extensions.Logging;
 namespace Api.Controllers;
 
 /// <summary>
-/// Controller for <see cref="Vehicle">
+/// Controller for <see cref="Vehicle"/>
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
