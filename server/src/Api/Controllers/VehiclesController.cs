@@ -175,7 +175,7 @@ public sealed class VehiclesController : ControllerBase
     /// <returns>The ID of the deactivated vehicle.</returns>
     /// <response code="200">Vehicle deactivated successfully. Returns the vehicle ID.</response>
     /// <response code="404">Vehicle not found.</response>
-    [HttpDelete("{id:int}")]
+    [HttpPatch("{id:int}")]
     [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<int>> DeactivateVehicle(
