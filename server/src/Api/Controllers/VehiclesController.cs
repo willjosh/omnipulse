@@ -11,7 +11,7 @@ using MediatR;
 
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers;
+namespace Api.Controllers;
 
 /// <summary>
 /// Controller for <see cref="Vehicle"/>
