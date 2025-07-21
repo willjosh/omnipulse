@@ -1,8 +1,17 @@
+using Application;
+
+using Infrastructure;
+
 using Microsoft.OpenApi.Models;
+
+using Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+builder.Services.AddApplicationServices();
+builder.Services.AddInfrastructureServices();
+builder.Services.AddPersistenceServer(builder.Configuration);
 
 // Add and configure Swagger middleware
 builder.Services.AddEndpointsApiExplorer();
