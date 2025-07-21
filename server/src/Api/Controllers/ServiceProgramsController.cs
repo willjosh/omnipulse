@@ -22,10 +22,10 @@ namespace Api.Controllers;
 /// <list type="bullet">
 /// <item><b>GET /api/serviceprograms/{id}</b> - <see cref="GetServiceProgram"/> - <see cref="GetServiceProgramQuery"/></item>
 /// <item><b>POST /api/serviceprograms</b> - <see cref="CreateServiceProgram"/> - <see cref="CreateServiceProgramCommand"/></item>
-/// <item><b>POST /api/serviceprograms/{id}/vehicles</b> - <see cref="AddVehicleToServiceProgram"/> - <see cref="AddVehicleToServiceProgramCommand"/></item>
-/// <item><b>DELETE /api/serviceprograms/{id}/vehicles/{vehicleId}</b> - <see cref="RemoveVehicleFromServiceProgram"/> - <see cref="RemoveVehicleFromServiceProgramCommand"/></item>
 /// <item><b>PUT /api/serviceprograms/{id}</b> - <see cref="UpdateServiceProgram"/> - <see cref="UpdateServiceProgramCommand"/></item>
 /// <item><b>DELETE /api/serviceprograms/{id}</b> - <see cref="DeleteServiceProgram"/> - <see cref="DeleteServiceProgramCommand"/></item>
+/// <item><b>POST /api/serviceprograms/{id}/vehicles</b> - <see cref="AddVehicleToServiceProgram"/> - <see cref="AddVehicleToServiceProgramCommand"/></item>
+/// <item><b>DELETE /api/serviceprograms/{id}/vehicles/{vehicleId}</b> - <see cref="RemoveVehicleFromServiceProgram"/> - <see cref="RemoveVehicleFromServiceProgramCommand"/></item>
 /// </list>
 /// </remarks>
 [ApiController]
@@ -111,46 +111,6 @@ public sealed class ServiceProgramsController : ControllerBase
     }
 
     /// <summary>
-    /// Adds a vehicle to a service program.
-    /// </summary>
-    /// <param name="id">The ID of the service program.</param>
-    /// <param name="command">The command containing the vehicle ID to add to the service program.</param>
-    /// <param name="cancellationToken">Cancellation token for the operation.</param>
-    /// <returns>A tuple containing the service program ID and vehicle ID.</returns>
-    /// <response code="200">Vehicle added to service program successfully. Returns the service program ID and vehicle ID.</response>
-    /// <response code="400">Request data is invalid or validation failed.</response>
-    /// <response code="404">Service program or vehicle not found.</response>
-    /// <response code="409">Vehicle is already assigned to this service program.</response>
-    /// <response code="500">Internal server error occurred.</response>
-    [HttpPost("{id:int}/vehicles")]
-    [ProducesResponseType(typeof((int ServiceProgramID, int VehicleID)), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<(int ServiceProgramID, int VehicleID)>> AddVehicleToServiceProgram(
-        int id,
-        [FromBody] AddVehicleToServiceProgramCommand command,
-        CancellationToken cancellationToken)
-    {
-        try
-        {
-            _logger.LogInformation($"{nameof(AddVehicleToServiceProgram)}() - Called");
-
-            if (id != command.ServiceProgramID) return ValidationProblem($"{nameof(AddVehicleToServiceProgram)} - Route ID and body ID mismatch.");
-
-            var result = await _mediator.Send(command with { ServiceProgramID = id }, cancellationToken);
-
-            return Ok(result);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"{nameof(AddVehicleToServiceProgram)}() - ERROR");
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while adding the vehicle to the service program." });
-        }
-    }
-
-    /// <summary>
     /// Updates an existing service program's information.
     /// </summary>
     /// <param name="id">The ID of the service program to update.</param>
@@ -220,6 +180,46 @@ public sealed class ServiceProgramsController : ControllerBase
         {
             _logger.LogError(ex, $"{nameof(DeleteServiceProgram)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while deleting the service program." });
+        }
+    }
+
+    /// <summary>
+    /// Adds a vehicle to a service program.
+    /// </summary>
+    /// <param name="id">The ID of the service program.</param>
+    /// <param name="command">The command containing the vehicle ID to add to the service program.</param>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>A tuple containing the service program ID and vehicle ID.</returns>
+    /// <response code="200">Vehicle added to service program successfully. Returns the service program ID and vehicle ID.</response>
+    /// <response code="400">Request data is invalid or validation failed.</response>
+    /// <response code="404">Service program or vehicle not found.</response>
+    /// <response code="409">Vehicle is already assigned to this service program.</response>
+    /// <response code="500">Internal server error occurred.</response>
+    [HttpPost("{id:int}/vehicles")]
+    [ProducesResponseType(typeof((int ServiceProgramID, int VehicleID)), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<(int ServiceProgramID, int VehicleID)>> AddVehicleToServiceProgram(
+        int id,
+        [FromBody] AddVehicleToServiceProgramCommand command,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            _logger.LogInformation($"{nameof(AddVehicleToServiceProgram)}() - Called");
+
+            if (id != command.ServiceProgramID) return ValidationProblem($"{nameof(AddVehicleToServiceProgram)} - Route ID and body ID mismatch.");
+
+            var result = await _mediator.Send(command with { ServiceProgramID = id }, cancellationToken);
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"{nameof(AddVehicleToServiceProgram)}() - ERROR");
+            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while adding the vehicle to the service program." });
         }
     }
 
