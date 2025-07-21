@@ -12,7 +12,9 @@ import { PagedResponse } from "@/app/_hooks/shared_types/pagedResponse";
 import { useDebounce } from "@/app/_hooks/shared_types/useDebounce";
 import { getServiceTaskCategoryLabel } from "@/app/_utils/serviceTaskEnumHelper";
 
-const convertServiceTaskData = (task: ServiceTask): ServiceTaskWithLabels => ({
+export const convertServiceTaskData = (
+  task: ServiceTask,
+): ServiceTaskWithLabels => ({
   ...task,
   Category: task.Category as number,
   CategoryLabel: getServiceTaskCategoryLabel(task.Category),
