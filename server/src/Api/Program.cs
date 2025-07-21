@@ -47,13 +47,29 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // Add CORS to allow frontend requests
-builder.Services.AddCors(
-    options => options.AddPolicy("AllowFrontend",
-        policy => policy.WithOrigins("http://localhost:3000")
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+        policy
+            .WithOrigins(
+                "https://localhost:3000", // Next.js - Default port
+                "http://localhost:3000",  // Next.js - Default port
+                "https://localhost:3001", // Next.js - Alternate port
+                "http://localhost:3001"   // Next.js - Alternate port
+            )
             .AllowAnyHeader()
             .AllowAnyMethod()
-    )
-);
+            .AllowCredentials() // Can include credentials like cookies, HTTP authentication, or Authorization headers with cross-origin requests
+    );
+
+    // Use only in development/testing
+    options.AddPolicy("AllowAll", policy =>
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+    );
+});
 
 var app = builder.Build();
 
@@ -65,6 +81,8 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Omnipulse API");
         c.RoutePrefix = "swagger";
     });
+
+    app.UseCors("AllowAll");
 }
 else
 {
