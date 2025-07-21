@@ -1,9 +1,12 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { useParams } from "next/navigation";
 import FormContainer from "@/app/_features/shared/form/FormContainer";
 import DetailFieldRow from "@/app/_features/shared/detail/DetailFieldRow";
-import { useServiceTask } from "@/app/_hooks/service-task/useServiceTask";
+import {
+  useServiceTask,
+  useDeactivateServiceTask,
+} from "@/app/_hooks/service-task/useServiceTask";
 import { getServiceTaskCategoryLabel } from "@/app/_utils/serviceTaskEnumHelper";
 import Loading from "@/app/_features/shared/feedback/Loading";
 import EmptyState from "@/app/_features/shared/feedback/EmptyState";
@@ -11,12 +14,18 @@ import ServiceTaskHeader from "@/app/_features/service-task/components/ServiceTa
 import PrimaryButton from "@/app/_features/shared/button/PrimaryButton";
 import EditIcon from "@/app/_features/shared/icons/Edit";
 import { useRouter } from "next/navigation";
+import { useNotification } from "@/app/_features/shared/feedback/NotificationProvider";
+import ArchiveIcon from "@/app/_features/shared/icons/Archive";
+import ConfirmModal from "@/app/_features/shared/modal/ConfirmModal";
 
 export default function ServiceTaskDetailPage() {
   const params = useParams();
   const id = params.id ? Number(params.id) : undefined;
   const { data: task, isPending, isError } = useServiceTask(id!);
   const router = useRouter();
+  const [isArchiveModalOpen, setArchiveModalOpen] = useState(false);
+  const deactivateServiceTask = useDeactivateServiceTask();
+  const notify = useNotification();
 
   if (isPending) {
     return <Loading />;
@@ -32,17 +41,44 @@ export default function ServiceTaskDetailPage() {
 
   const breadcrumbs = [{ label: "Service Tasks", href: "/service-tasks" }];
 
+  const handleArchive = async () => {
+    try {
+      await deactivateServiceTask.mutateAsync(id!);
+      notify("Service task archived successfully", "success");
+      router.push("/service-tasks");
+    } catch {
+      notify("Failed to archive service task", "error");
+    }
+  };
+
   return (
     <div className="min-h-screen mx-auto bg-gray-50">
       <ServiceTaskHeader
         title={task.Name}
         breadcrumbs={breadcrumbs}
         actions={
-          <PrimaryButton
-            onClick={() => router.push(`/service-tasks/${id}/edit`)}
-          >
-            <EditIcon /> Edit
-          </PrimaryButton>
+          <>
+            <PrimaryButton
+              onClick={() => router.push(`/service-tasks/${id}/edit`)}
+            >
+              <EditIcon /> Edit
+            </PrimaryButton>
+            <PrimaryButton
+              className="bg-red-600 hover:bg-red-700"
+              onClick={() => setArchiveModalOpen(true)}
+            >
+              <ArchiveIcon /> Archive
+            </PrimaryButton>
+            <ConfirmModal
+              isOpen={isArchiveModalOpen}
+              onClose={() => setArchiveModalOpen(false)}
+              onConfirm={handleArchive}
+              title="Archive Service Task"
+              message="Are you sure you want to archive this service task? This action can be undone by editing the task and reactivating it."
+              confirmText="Archive"
+              cancelText="Cancel"
+            />
+          </>
         }
       />
       <div className="m-4 px-6 pb-12">

@@ -16,6 +16,16 @@ namespace Api.Controllers;
 /// <summary>
 /// Controller for <see cref="Vehicle"/>
 /// </summary>
+/// <remarks>
+/// <b>API Endpoints</b>:
+/// <list type="bullet">
+/// <item><b>GET /api/vehicles</b> - <see cref="GetVehicles"/> - <see cref="GetAllVehicleQuery"/></item>
+/// <item><b>GET /api/vehicles/{id}</b> - <see cref="GetVehicle"/> - <see cref="GetVehicleDetailsQuery"/></item>
+/// <item><b>POST /api/vehicles</b> - <see cref="CreateVehicle"/> - <see cref="CreateVehicleCommand"/></item>
+/// <item><b>PUT /api/vehicles/{id}</b> - <see cref="UpdateVehicle"/> - <see cref="UpdateVehicleCommand"/></item>
+/// <item><b>PATCH /api/vehicles/{id}/deactivate</b> - <see cref="DeactivateVehicle"/> - <see cref="DeactivateVehicleCommand"/></item>
+/// </list>
+/// </remarks>
 [ApiController]
 [Route("api/[controller]")]
 [Consumes("application/json")]
@@ -59,7 +69,7 @@ public sealed class VehiclesController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(GetVehicles)} - ERROR");
+            _logger.LogError(ex, $"{nameof(GetVehicles)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while retrieving vehicles." });
         }
     }
@@ -90,7 +100,7 @@ public sealed class VehiclesController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(GetVehicle)} - ERROR");
+            _logger.LogError(ex, $"{nameof(GetVehicle)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while retrieving the vehicle." });
         }
     }
@@ -124,7 +134,7 @@ public sealed class VehiclesController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(CreateVehicle)} - ERROR");
+            _logger.LogError(ex, $"{nameof(CreateVehicle)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while creating the vehicle." });
         }
     }
@@ -162,7 +172,7 @@ public sealed class VehiclesController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(UpdateVehicle)} - ERROR");
+            _logger.LogError(ex, $"{nameof(UpdateVehicle)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while updating the vehicle." });
         }
     }
@@ -175,7 +185,7 @@ public sealed class VehiclesController : ControllerBase
     /// <returns>The ID of the deactivated vehicle.</returns>
     /// <response code="200">Vehicle deactivated successfully. Returns the vehicle ID.</response>
     /// <response code="404">Vehicle not found.</response>
-    [HttpPatch("{id:int}")]
+    [HttpPatch("{id:int}/deactivate")]
     [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<int>> DeactivateVehicle(
@@ -193,7 +203,7 @@ public sealed class VehiclesController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(DeactivateVehicle)} - ERROR");
+            _logger.LogError(ex, $"{nameof(DeactivateVehicle)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while deactivating the vehicle." });
         }
     }

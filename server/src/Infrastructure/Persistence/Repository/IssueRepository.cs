@@ -1,8 +1,4 @@
-using System.Linq;
-using System.Threading.Tasks;
-
 using Application.Contracts.Persistence;
-using Application.Models;
 using Application.Models.PaginationModels;
 
 using Domain.Entities;
