@@ -1,9 +1,6 @@
-using System;
-using System.Linq;
 using System.Linq.Expressions;
 
 using Application.Contracts.Persistence;
-using Application.Models;
 using Application.Models.PaginationModels;
 
 using Domain.Entities;

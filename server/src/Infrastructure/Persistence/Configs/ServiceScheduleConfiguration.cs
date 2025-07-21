@@ -49,10 +49,11 @@ public class ServiceScheduleConfiguration : IEntityTypeConfiguration<ServiceSche
             "FirstServiceMileage >= 0"));
 
         // Table Relationships
+        // ServiceSchedule N:1 ServiceProgram
         builder
             .HasOne(ss => ss.ServiceProgram)
             .WithMany(sp => sp.ServiceSchedules)
             .HasForeignKey(ss => ss.ServiceProgramID)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

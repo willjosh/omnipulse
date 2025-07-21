@@ -799,6 +799,38 @@ server.get("/inventoryItems", (req, res) => {
   });
 });
 
+// Deactivate (archive) an inventory item
+server.post("/inventoryItems/deactivate/:id", (req, res) => {
+  try {
+    const db = router.db;
+    const itemId = parseInt(req.params.id);
+
+    if (!itemId) {
+      return res.status(400).json({ error: "Invalid inventory item ID" });
+    }
+
+    const inventoryItem = db.get("inventoryItems").find({ id: itemId }).value();
+
+    if (!inventoryItem) {
+      return res.status(404).json({ error: "Inventory item not found" });
+    }
+
+    // Update the item to set IsActive to false
+    db.get("inventoryItems")
+      .find({ id: itemId })
+      .assign({ IsActive: false, updatedAt: new Date().toISOString() })
+      .write();
+
+    console.log(`Deactivated inventory item with ID: ${itemId}`);
+    res
+      .status(200)
+      .json({ message: "Inventory item deactivated successfully" });
+  } catch (error) {
+    console.error("Error deactivating inventory item:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // Get single inventory item
 server.get("/inventoryItems/:id", (req, res) => {
   const db = router.db;
@@ -811,6 +843,84 @@ server.get("/inventoryItems/:id", (req, res) => {
     res.json(item);
   } else {
     res.status(404).json({ error: "Inventory item not found" });
+  }
+});
+
+// Create a new inventory item
+server.post("/inventoryItems", (req, res) => {
+  try {
+    const db = router.db;
+    const inventoryItems = db.get("inventoryItems");
+    const newInventoryItem = req.body;
+
+    if (!newInventoryItem) {
+      return res.status(400).json({ error: "Request body is required" });
+    }
+
+    if (!newInventoryItem.ItemNumber || !newInventoryItem.ItemName) {
+      return res
+        .status(400)
+        .json({ error: "ItemNumber and ItemName are required" });
+    }
+
+    const allItems = inventoryItems.value();
+    const maxId =
+      allItems.length > 0
+        ? Math.max(...allItems.map(item => parseInt(item.id) || 0))
+        : 0;
+
+    newInventoryItem.id = maxId + 1;
+
+    inventoryItems.push(newInventoryItem).write();
+
+    res.status(201).json(newInventoryItem);
+  } catch (error) {
+    console.error("Error creating inventory item:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Update an inventory item
+server.put("/inventoryItems/:id", (req, res) => {
+  try {
+    const db = router.db;
+    const itemId = parseInt(req.params.id);
+    const updatedItem = req.body;
+
+    if (!itemId) {
+      return res.status(400).json({ error: "Invalid inventory item ID" });
+    }
+
+    if (!updatedItem.ItemNumber || !updatedItem.ItemName) {
+      return res
+        .status(400)
+        .json({ error: "ItemNumber and ItemName are required" });
+    }
+
+    const inventoryItem = db.get("inventoryItems").find({ id: itemId }).value();
+
+    if (!inventoryItem) {
+      return res.status(404).json({ error: "Inventory item not found" });
+    }
+
+    // Update the item
+    const updatedInventoryItem = {
+      ...inventoryItem,
+      ...updatedItem,
+      id: itemId, // Ensure ID remains the same
+      updatedAt: new Date().toISOString(),
+    };
+
+    db.get("inventoryItems")
+      .find({ id: itemId })
+      .assign(updatedInventoryItem)
+      .write();
+
+    console.log(`Updated inventory item with ID: ${itemId}`);
+    res.json(updatedInventoryItem);
+  } catch (error) {
+    console.error("Error updating inventory item:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
@@ -895,6 +1005,44 @@ server.get("/serviceTasks", (req, res) => {
   });
 });
 
+// Create a new service task
+server.post("/serviceTasks", (req, res) => {
+  const db = router.db;
+  const serviceTasks = db.get("serviceTasks");
+  const newTask = req.body;
+
+  // Generate new ID
+  const maxId = serviceTasks
+    .value()
+    .reduce((max, task) => Math.max(max, task.id || 0), 0);
+  newTask.id = maxId + 1;
+
+  // Set IsActive to true by default
+  if (typeof newTask.IsActive === "undefined") {
+    newTask.IsActive = true;
+  }
+
+  serviceTasks.push(newTask).write();
+
+  res.status(201).json(newTask);
+});
+
+// Update service task
+server.put("/serviceTasks/:id", (req, res) => {
+  const db = router.db;
+  const taskId = parseInt(req.params.id);
+  const updatedTask = req.body;
+
+  const task = db.get("serviceTasks").find({ id: taskId });
+
+  if (task.value()) {
+    task.assign(updatedTask).write();
+    res.json(task.value());
+  } else {
+    res.status(404).json({ error: "Service Task not found" });
+  }
+});
+
 // Get single service task
 server.get("/serviceTasks/:id", (req, res) => {
   const db = router.db;
@@ -907,6 +1055,155 @@ server.get("/serviceTasks/:id", (req, res) => {
     res.json(task);
   } else {
     res.status(404).json({ error: "Service Task not found" });
+  }
+});
+
+// Archive (deactivate) a service task
+server.post("/serviceTasks/deactivate/:id", (req, res) => {
+  const db = router.db;
+  const taskId = parseInt(req.params.id);
+  const task = db.get("serviceTasks").find({ id: taskId });
+
+  if (task.value()) {
+    task.assign({ IsActive: false }).write();
+    res.json(task.value());
+  } else {
+    res.status(404).json({ error: "Service task not found" });
+  }
+});
+
+// Custom route for serviceSchedules with pagination wrapper
+server.get("/serviceSchedules", (req, res) => {
+  const db = router.db;
+  const serviceSchedules = db.get("serviceSchedules").value();
+  const serviceTasks = db.get("serviceTasks").value(); // For expanding tasks
+
+  // Get query parameters
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const sortByParam = req.query.sortBy ? req.query.sortBy.toLowerCase() : "id";
+  const sortOrder = req.query.sortOrder || "asc";
+  const search = req.query.search || "";
+
+  // Filter by search if provided
+  let filteredSchedules = serviceSchedules;
+  if (search) {
+    const searchLower = search.toLowerCase();
+    filteredSchedules = filteredSchedules.filter(
+      schedule =>
+        schedule.Name && schedule.Name.toLowerCase().includes(searchLower),
+    );
+  }
+
+  // Filter by isActive if provided
+  if (typeof req.query.isActive !== "undefined") {
+    const isActive = req.query.isActive === "true";
+    filteredSchedules = filteredSchedules.filter(
+      schedule => schedule.IsActive === isActive,
+    );
+  }
+
+  // Map sortBy param to actual field name in db
+  const sortByMap = {
+    id: "id",
+    name: "Name",
+    serviceprogramid: "ServiceProgramID",
+    isactive: "IsActive",
+  };
+  const sortBy = sortByMap[sortByParam] || "id";
+
+  // Sort service schedules
+  filteredSchedules.sort((a, b) => {
+    let aValue = a[sortBy];
+    let bValue = b[sortBy];
+
+    if (aValue == null && bValue == null) return 0;
+    if (aValue == null) return sortOrder === "asc" ? 1 : -1;
+    if (bValue == null) return sortOrder === "asc" ? -1 : 1;
+
+    if (typeof aValue === "number" && typeof bValue === "number") {
+      return sortOrder === "asc" ? aValue - bValue : bValue - aValue;
+    }
+
+    if (typeof aValue === "boolean" && typeof bValue === "boolean") {
+      return sortOrder === "asc"
+        ? aValue === bValue
+          ? 0
+          : aValue
+            ? -1
+            : 1
+        : aValue === bValue
+          ? 0
+          : aValue
+            ? 1
+            : -1;
+    }
+
+    const aString = String(aValue).toLowerCase();
+    const bString = String(bValue).toLowerCase();
+
+    if (aString < bString) return sortOrder === "asc" ? -1 : 1;
+    if (aString > bString) return sortOrder === "asc" ? 1 : -1;
+    return 0;
+  });
+
+  // Expand ServiceTasks for each schedule
+  const expandedSchedules = filteredSchedules.map(schedule => {
+    const tasks = schedule.ServiceTasks.map(taskId =>
+      serviceTasks.find(t => t.id === taskId),
+    ).filter(Boolean); // Filter out any undefined tasks if an ID is invalid
+    return { ...schedule, ServiceTasks: tasks };
+  });
+
+  // Calculate pagination
+  const totalCount = expandedSchedules.length;
+  const totalPages = Math.ceil(totalCount / limit);
+  const startIndex = (page - 1) * limit;
+  const endIndex = startIndex + limit;
+  const paginatedSchedules = expandedSchedules.slice(startIndex, endIndex);
+
+  // Return response in your expected format
+  res.json({
+    Items: paginatedSchedules,
+    TotalCount: totalCount,
+    PageNumber: page,
+    PageSize: limit,
+    TotalPages: totalPages,
+    HasPreviousPage: page > 1,
+    HasNextPage: page < totalPages,
+  });
+});
+
+// Get single service schedule
+server.get("/serviceSchedules/:id", (req, res) => {
+  const db = router.db;
+  const scheduleId = parseInt(req.params.id);
+  const schedule = db.get("serviceSchedules").find({ id: scheduleId }).value();
+
+  if (schedule) {
+    const serviceTasks = db.get("serviceTasks").value();
+    const tasks = schedule.ServiceTasks.map(taskId =>
+      serviceTasks.find(t => t.id === taskId),
+    ).filter(Boolean);
+
+    const expandedSchedule = { ...schedule, ServiceTasks: tasks };
+    res.json(expandedSchedule);
+  } else {
+    res.status(404).json({ error: "Service Schedule not found" });
+  }
+});
+
+server.delete("/serviceSchedules/:id", (req, res) => {
+  const db = router.db;
+  const scheduleId = parseInt(req.params.id);
+  const schedules = db.get("serviceSchedules");
+  const schedule = schedules.find({ id: scheduleId });
+
+  if (schedule.value()) {
+    schedules.remove({ id: scheduleId }).write();
+    res.status(204).end();
+  } else {
+    res.status(404).json({ error: "Service Schedule not found" });
   }
 });
 
@@ -964,6 +1261,9 @@ server.listen(PORT, () => {
   );
   console.log(`GET /inventoryItems?search=oil - Search inventory items`);
   console.log(`GET /inventoryItems/:id - Get single inventory item`);
+  console.log(`POST /inventoryItems - Create new inventory item`);
+  console.log(`PUT /inventoryItems/:id - Update inventory item`);
+  console.log(`POST /inventoryItems/deactivate/:id - Archive inventory item`);
 
   // Service Tasks
   console.log(`GET /serviceTasks - Get paginated service tasks`);
@@ -972,6 +1272,17 @@ server.listen(PORT, () => {
   );
   console.log(`GET /serviceTasks?search=oil - Search service tasks`);
   console.log(`GET /serviceTasks/:id - Get single service task`);
+
+  // Service Schedules
+  console.log(`GET /serviceSchedules - Get paginated service schedules`);
+  console.log(
+    `GET /serviceSchedules?page=1&limit=5 - Get service schedules with pagination`,
+  );
+  console.log(
+    `GET /serviceSchedules?search=maintenance - Search service schedules`,
+  );
+  console.log(`GET /serviceSchedules/:id - Get single service schedule`);
+  console.log(`DELETE /serviceSchedules/:id - Delete service schedule`);
 });
 
 module.exports = server;

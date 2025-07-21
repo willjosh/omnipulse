@@ -1,7 +1,6 @@
 using Application.Features.ServiceTasks.Command.CreateServiceTask;
 using Application.Features.ServiceTasks.Command.UpdateServiceTask;
-using Application.Features.ServiceTasks.Query.GetAllServiceTask;
-using Application.Features.ServiceTasks.Query.GetServiceTask;
+using Application.Features.ServiceTasks.Query;
 
 using AutoMapper;
 
@@ -13,6 +12,7 @@ public class ServiceTaskMappingProfile : Profile
 {
     public ServiceTaskMappingProfile()
     {
+        // CreateServiceTask
         CreateMap<CreateServiceTaskCommand, ServiceTask>()
             .ForMember(dest => dest.ID, opt => opt.Ignore()) // Don't map ID - will be auto-generated
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore()) // Handled by BaseEntity
@@ -21,6 +21,7 @@ public class ServiceTaskMappingProfile : Profile
             .ForMember(dest => dest.MaintenanceHistories, opt => opt.Ignore()) // Navigation Collection
             .ForMember(dest => dest.WorkOrderLineItems, opt => opt.Ignore()); // Navigation Collection
 
+        // UpdateServiceTask
         CreateMap<UpdateServiceTaskCommand, ServiceTask>()
             .ForMember(dest => dest.ID, opt => opt.Ignore()) // Don't update ID
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore()) // Don't update CreatedAt
@@ -29,7 +30,7 @@ public class ServiceTaskMappingProfile : Profile
             .ForMember(dest => dest.MaintenanceHistories, opt => opt.Ignore()) // Navigation Collection
             .ForMember(dest => dest.WorkOrderLineItems, opt => opt.Ignore()); // Navigation Collection
 
-        CreateMap<ServiceTask, GetServiceTaskDTO>();
-        CreateMap<ServiceTask, GetAllServiceTaskDTO>();
+        // GetServiceTask & GetAllServiceTask
+        CreateMap<ServiceTask, ServiceTaskDTO>();
     }
 }

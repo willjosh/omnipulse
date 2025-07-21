@@ -1,5 +1,6 @@
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
+using Application.Features.ServiceTasks.Query;
 using Application.Features.ServiceTasks.Query.GetAllServiceTask;
 using Application.MappingProfiles;
 using Application.Models;
@@ -97,7 +98,7 @@ public class GetAllServiceTaskQueryHandlerTest
         Assert.NotNull(result);
         Assert.Equal(2, result.TotalCount);
         Assert.Equal(2, result.Items.Count);
-        Assert.All(result.Items, item => Assert.IsType<GetAllServiceTaskDTO>(item));
+        Assert.All(result.Items, item => Assert.IsType<ServiceTaskDTO>(item));
         Assert.Equal("Engine Oil Change", result.Items[0].Name);
         Assert.Equal("Brake Inspection", result.Items[1].Name);
         _mockServiceTaskRepository.Verify(r => r.GetAllServiceTasksPagedAsync(query.Parameters), Times.Once);

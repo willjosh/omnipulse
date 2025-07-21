@@ -1,7 +1,5 @@
-using System;
-
 using Application.Features.Issues.Query.GetAllIssue;
-using Application.Models;
+using Application.Models.PaginationModels;
 
 using Xunit;
 

@@ -60,7 +60,7 @@ const navItems: NavItem[] = [
     children: [
       { label: "Service History", path: "/service/history" },
       { label: "Work Orders", path: "/work-orders" },
-      { label: "Service Tasks", path: "/service/tasks" },
+      { label: "Service Tasks", path: "/service-tasks" },
       { label: "Service Program", path: "/service/program" },
     ],
   },

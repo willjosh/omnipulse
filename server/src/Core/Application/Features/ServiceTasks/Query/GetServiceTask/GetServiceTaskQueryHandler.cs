@@ -11,9 +11,9 @@ using MediatR;
 namespace Application.Features.ServiceTasks.Query.GetServiceTask;
 
 /// <summary>
-/// Handles <see cref="GetServiceTaskQuery"/> requests by retrieving the service task entity from the repository, mapping it to <see cref="GetServiceTaskDTO"/>, and returning it.
+/// Handles <see cref="GetServiceTaskQuery"/> requests by retrieving the service task entity from the repository, mapping it to <see cref="ServiceTaskDTO"/>, and returning it.
 /// </summary>
-public class GetServiceTaskQueryHandler : IRequestHandler<GetServiceTaskQuery, GetServiceTaskDTO>
+public class GetServiceTaskQueryHandler : IRequestHandler<GetServiceTaskQuery, ServiceTaskDTO>
 {
     private readonly IServiceTaskRepository _serviceTaskRepository;
     private readonly IAppLogger<GetServiceTaskQueryHandler> _logger;
@@ -26,7 +26,7 @@ public class GetServiceTaskQueryHandler : IRequestHandler<GetServiceTaskQuery, G
         _mapper = mapper;
     }
 
-    public async Task<GetServiceTaskDTO> Handle(GetServiceTaskQuery request, CancellationToken cancellationToken)
+    public async Task<ServiceTaskDTO> Handle(GetServiceTaskQuery request, CancellationToken cancellationToken)
     {
         _logger.LogInformation($"GetServiceTaskQuery for ServiceTaskID: {request.ServiceTaskID}");
 
@@ -40,7 +40,7 @@ public class GetServiceTaskQueryHandler : IRequestHandler<GetServiceTaskQuery, G
         }
 
         // Map entity to DTO
-        var dto = _mapper.Map<GetServiceTaskDTO>(serviceTask);
+        var dto = _mapper.Map<ServiceTaskDTO>(serviceTask);
 
         _logger.LogInformation($"Returning GetServiceTaskDTO for ServiceTaskID: {request.ServiceTaskID}");
         return dto;

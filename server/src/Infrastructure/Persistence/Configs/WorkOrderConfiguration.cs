@@ -35,12 +35,12 @@ public class WorkOrderConfiguration : IEntityTypeConfiguration<WorkOrder>
         builder.HasIndex(wo => new { wo.Status, wo.ScheduledStartDate });
 
         // Check Constraints
-        builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrder_EstimatedCost",
-            "EstimatedCost IS NULL OR EstimatedCost >= 0"));
-        builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrder_ActualCost",
-            "ActualCost IS NULL OR ActualCost >= 0"));
-        builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrder_ActualHours",
-            "ActualHours IS NULL OR ActualHours >= 0"));
+        // builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrder_EstimatedCost",
+        //     "EstimatedCost IS NULL OR EstimatedCost >= 0"));
+        // builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrder_ActualCost",
+        //     "ActualCost IS NULL OR ActualCost >= 0"));
+        // builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrder_ActualHours",
+        //     "ActualHours IS NULL OR ActualHours >= 0"));
         builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrder_StartOdometer",
             "StartOdometer >= 0"));
         builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrder_EndOdometer",

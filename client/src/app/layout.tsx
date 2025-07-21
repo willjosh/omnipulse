@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SideBar, NavBar } from "./_features/shared/layout";
 import Providers from "./_lib/react_query/providers";
+import { NotificationProvider } from "@/app/_features/shared/feedback/NotificationProvider";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 
@@ -25,13 +26,15 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white`}
       >
         <Providers>
-          <NavBar />
-          <div className="flex w-screen max-w-screen">
-            <SideBar />
-            <div className="flex-1 sm:w-[70%] md:w-[60%] lg:w-[50%]">
-              {children}
+          <NotificationProvider>
+            <NavBar />
+            <div className="flex w-screen max-w-screen">
+              <SideBar />
+              <div className="flex-1 sm:w-[70%] md:w-[60%] lg:w-[50%]">
+                {children}
+              </div>
             </div>
-          </div>
+          </NotificationProvider>
         </Providers>
       </body>
     </html>

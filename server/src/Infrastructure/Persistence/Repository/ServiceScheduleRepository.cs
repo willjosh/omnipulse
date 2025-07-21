@@ -1,5 +1,4 @@
 using Application.Contracts.Persistence;
-using Application.Models;
 using Application.Models.PaginationModels;
 
 using Domain.Entities;
@@ -14,13 +13,44 @@ public class ServiceScheduleRepository : GenericRepository<ServiceSchedule>, ISe
 {
     public ServiceScheduleRepository(OmnipulseDatabaseContext context) : base(context) { }
 
+    public async Task<List<ServiceSchedule>> GetAllByServiceProgramIDAsync(int serviceProgramID)
+    {
+        return await _dbSet
+            .Where(ss => ss.ServiceProgramID == serviceProgramID)
+            .ToListAsync();
+    }
+
+    public async Task<List<ServiceSchedule>> GetAllWithServiceTasksByServiceProgramIDAsync(int serviceProgramID)
+    {
+        return await _dbSet
+            .Include(ss => ss.XrefServiceScheduleServiceTasks)
+                .ThenInclude(xref => xref.ServiceTask)
+            .Where(ss => ss.ServiceProgramID == serviceProgramID)
+            .ToListAsync();
+    }
+
     public async Task<PagedResult<ServiceSchedule>> GetAllServiceSchedulesPagedAsync(PaginationParameters parameters)
+    {
+        return await BuildPagedServiceScheduleQuery(parameters);
+    }
+
+    public async Task<PagedResult<ServiceSchedule>> GetAllByServiceProgramIDPagedAsync(int serviceProgramId, PaginationParameters parameters)
+    {
+        return await BuildPagedServiceScheduleQuery(parameters, serviceProgramId);
+    }
+
+    private async Task<PagedResult<ServiceSchedule>> BuildPagedServiceScheduleQuery(PaginationParameters parameters, int? serviceProgramID = null)
     {
         var query = _dbSet
             .Include(ss => ss.ServiceProgram)
             .Include(ss => ss.XrefServiceScheduleServiceTasks)
                 .ThenInclude(xref => xref.ServiceTask)
             .AsQueryable();
+
+        if (serviceProgramID.HasValue)
+        {
+            query = query.Where(ss => ss.ServiceProgramID == serviceProgramID.Value);
+        }
 
         // Filtering (search)
         if (!string.IsNullOrWhiteSpace(parameters.Search))
