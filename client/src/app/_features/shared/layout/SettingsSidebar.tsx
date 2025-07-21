@@ -1,10 +1,14 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
-import { ChevronRight, ArrowLeft, Layers } from "lucide-react";
+import { ChevronRight, ArrowLeft, Layers, User } from "lucide-react";
 import { NavItem, NavSection } from "./types";
 
 const settingsSections: NavSection[] = [
+  {
+    title: "Account",
+    items: [{ label: "Profile", icon: User, path: "/settings/profile" }],
+  },
   {
     title: "Vehicles",
     items: [
