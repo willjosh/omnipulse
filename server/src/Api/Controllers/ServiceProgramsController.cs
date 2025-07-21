@@ -1,6 +1,7 @@
 using Application.Features.ServicePrograms.Command.AddVehicleToServiceProgram;
 using Application.Features.ServicePrograms.Command.CreateServiceProgram;
 using Application.Features.ServicePrograms.Command.DeleteServiceProgram;
+using Application.Features.ServicePrograms.Command.RemoveVehicleFromServiceProgram;
 using Application.Features.ServicePrograms.Command.UpdateServiceProgram;
 using Application.Features.ServicePrograms.Query;
 using Application.Features.ServicePrograms.Query.GetServiceProgram;
@@ -22,6 +23,7 @@ namespace Api.Controllers;
 /// <item><b>GET /api/serviceprograms/{id}</b> - <see cref="GetServiceProgram"/> - <see cref="GetServiceProgramQuery"/></item>
 /// <item><b>POST /api/serviceprograms</b> - <see cref="CreateServiceProgram"/> - <see cref="CreateServiceProgramCommand"/></item>
 /// <item><b>POST /api/serviceprograms/{id}/vehicles</b> - <see cref="AddVehicleToServiceProgram"/> - <see cref="AddVehicleToServiceProgramCommand"/></item>
+/// <item><b>DELETE /api/serviceprograms/{id}/vehicles/{vehicleId}</b> - <see cref="RemoveVehicleFromServiceProgram"/> - <see cref="RemoveVehicleFromServiceProgramCommand"/></item>
 /// <item><b>PUT /api/serviceprograms/{id}</b> - <see cref="UpdateServiceProgram"/> - <see cref="UpdateServiceProgramCommand"/></item>
 /// <item><b>DELETE /api/serviceprograms/{id}</b> - <see cref="DeleteServiceProgram"/> - <see cref="DeleteServiceProgramCommand"/></item>
 /// </list>
@@ -218,6 +220,43 @@ public sealed class ServiceProgramsController : ControllerBase
         {
             _logger.LogError(ex, $"{nameof(DeleteServiceProgram)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while deleting the service program." });
+        }
+    }
+
+    /// <summary>
+    /// Removes a vehicle from a service program.
+    /// </summary>
+    /// <param name="serviceProgramId">The ID of the service program.</param>
+    /// <param name="vehicleId">The ID of the vehicle to remove from the service program.</param>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>A tuple containing the service program ID and vehicle ID.</returns>
+    /// <response code="200">Vehicle removed from service program successfully. Returns the service program ID and vehicle ID.</response>
+    /// <response code="400">Request data is invalid or validation failed.</response>
+    /// <response code="404">Service program, vehicle, or assignment not found.</response>
+    /// <response code="500">Internal server error occurred.</response>
+    [HttpDelete("{serviceProgramId:int}/vehicles/{vehicleId:int}")]
+    [ProducesResponseType(typeof((int ServiceProgramID, int VehicleID)), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<(int ServiceProgramID, int VehicleID)>> RemoveVehicleFromServiceProgram(
+        int serviceProgramId,
+        int vehicleId,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            _logger.LogInformation($"{nameof(RemoveVehicleFromServiceProgram)}() - Called");
+
+            var command = new RemoveVehicleFromServiceProgramCommand(serviceProgramId, vehicleId);
+            var result = await _mediator.Send(command, cancellationToken);
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"{nameof(RemoveVehicleFromServiceProgram)}() - ERROR");
+            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while removing the vehicle from the service program." });
         }
     }
 }
