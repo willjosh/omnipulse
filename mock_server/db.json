@@ -889,6 +889,18 @@
       "IsActive": true
     }
   ],
+  "user": {
+    "id": "user-123",
+    "firstName": "Sara",
+    "lastName": "Ciskie",
+    "email": "sara.ciskie@ciskiecontracting.com",
+    "userName": "sara.ciskie",
+    "hireDate": "2020-03-15T00:00:00Z",
+    "isActive": true,
+    "createdAt": "2020-03-15T00:00:00Z",
+    "updatedAt": "2024-01-15T10:30:00Z",
+    "roles": ["Fleet Manager", "Administrator"]
+  },
   "serviceSchedules": [
     {
       "id": 1,
