@@ -1193,6 +1193,20 @@ server.get("/serviceSchedules/:id", (req, res) => {
   }
 });
 
+server.delete("/serviceSchedules/:id", (req, res) => {
+  const db = router.db;
+  const scheduleId = parseInt(req.params.id);
+  const schedules = db.get("serviceSchedules");
+  const schedule = schedules.find({ id: scheduleId });
+
+  if (schedule.value()) {
+    schedules.remove({ id: scheduleId }).write();
+    res.status(204).end();
+  } else {
+    res.status(404).json({ error: "Service Schedule not found" });
+  }
+});
+
 // Use default router for other routes
 server.use(router);
 
@@ -1268,6 +1282,7 @@ server.listen(PORT, () => {
     `GET /serviceSchedules?search=maintenance - Search service schedules`,
   );
   console.log(`GET /serviceSchedules/:id - Get single service schedule`);
+  console.log(`DELETE /serviceSchedules/:id - Delete service schedule`);
 });
 
 module.exports = server;
