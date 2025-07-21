@@ -20,10 +20,21 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 
-    // Include XML comments
-    var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-    c.IncludeXmlComments(xmlPath);
+    // Group by controller/tag
+    c.TagActionsBy(api => [api.GroupName ?? api.ActionDescriptor.RouteValues["controller"]]);
+
+    // Include XML documentation comments from all XML files (excluding test/coverage files)
+    var xmlFiles = Directory.GetFiles(AppContext.BaseDirectory, "*.xml")
+        .Where(file =>
+            !file.Contains("Test") &&
+            !file.Contains("coverage") &&
+            !file.Contains("TestResults"))
+        .ToList();
+
+    foreach (var xmlFile in xmlFiles)
+    {
+        c.IncludeXmlComments(xmlFile, includeControllerXmlComments: true);
+    }
 });
 
 // Add CORS to allow frontend requests
