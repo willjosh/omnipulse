@@ -1,7 +1,5 @@
-using System;
-
 using Application.Features.MaintenanceHistories.Query.GetAllMaintenanceHistories;
-using Application.Models;
+using Application.Models.PaginationModels;
 
 using Xunit;
 

@@ -1,7 +1,5 @@
-using System;
-
 using Application.Features.Users.Query.GetAllTechnician;
-using Application.Models;
+using Application.Models.PaginationModels;
 
 namespace Application.Test.Users.QueryTest.GetAllTechnician;
 
