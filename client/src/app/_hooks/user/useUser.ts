@@ -13,24 +13,44 @@ export const useUser = () => {
   const queryClient = useQueryClient();
 
   // Fetch current user profile
-  const { data: user, isLoading } = useQuery<UserProfile>({
+  const {
+    data: user,
+    isLoading,
+    error,
+  } = useQuery<UserProfile>({
     queryKey: ["user"],
     queryFn: async () => {
-      const response = await agent.get<User>("user");
-      return transformUserData(response.data);
+      try {
+        const response = await agent.get<User>("/user");
+        return transformUserData(response.data);
+      } catch (error) {
+        console.error("Failed to fetch user profile:", error);
+        throw error;
+      }
     },
+    staleTime: 2 * 60 * 1000,
+    retry: 3,
   });
 
   // Update user profile mutation
   const updateUserProfileMutation = useMutation({
     mutationFn: async (updateCommand: UpdateUserProfileCommand) => {
-      const response = await agent.put("user", updateCommand);
-      return response.data;
+      try {
+        const response = await agent.put<User>("/user", updateCommand);
+        return transformUserData(response.data);
+      } catch (error) {
+        console.error("Failed to update user profile:", error);
+        throw error;
+      }
     },
-    onSuccess: async () => {
+    onSuccess: async updatedUser => {
+      queryClient.setQueryData(["user"], updatedUser);
       await queryClient.invalidateQueries({ queryKey: ["user"] });
+    },
+    onError: error => {
+      console.error("Update user profile mutation failed:", error);
     },
   });
 
-  return { user, isLoading, updateUserProfileMutation };
+  return { user, isLoading, error, updateUserProfileMutation };
 };
