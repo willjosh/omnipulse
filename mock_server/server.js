@@ -1058,6 +1058,20 @@ server.get("/serviceTasks/:id", (req, res) => {
   }
 });
 
+// Archive (deactivate) a service task
+server.post("/serviceTasks/deactivate/:id", (req, res) => {
+  const db = router.db;
+  const taskId = parseInt(req.params.id);
+  const task = db.get("serviceTasks").find({ id: taskId });
+
+  if (task.value()) {
+    task.assign({ IsActive: false }).write();
+    res.json(task.value());
+  } else {
+    res.status(404).json({ error: "Service task not found" });
+  }
+});
+
 // Use default router for other routes
 server.use(router);
 
