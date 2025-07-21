@@ -16,7 +16,7 @@ builder.Services.AddSwaggerGen(c =>
         Contact = new OpenApiContact
         {
             Name = "OmniDevs",
-            Email = "Nicholassaw2004@gmail.com"
+            Email = builder.Configuration["Contact:Email"] ?? "Nicholassaw2004@gmail.com"
         }
     });
 
