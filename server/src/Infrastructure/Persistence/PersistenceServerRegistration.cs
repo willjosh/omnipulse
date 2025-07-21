@@ -14,6 +14,12 @@ namespace Persistence;
 
 public static class PersistenceServerRegistration
 {
+    /// <summary>
+    /// Adds Persistence services to the DI container.
+    /// </summary>
+    /// <param name="services">The service collection to register services with.</param>
+    /// <param name="config">The application configuration (used to load the connection string).</param>
+    /// <returns>The service collection with the Persistence services added.</returns>
     public static IServiceCollection AddPersistenceServer(this IServiceCollection services, IConfiguration config)
     {
         services.AddDbContext<OmnipulseDatabaseContext>(opt => opt.UseSqlServer(config.GetConnectionString("OmnipulseDatabaseConnection")));

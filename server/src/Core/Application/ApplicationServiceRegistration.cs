@@ -12,7 +12,7 @@ public static class ApplicationServiceRegistration
     /// Adds Application services to the DI container.
     /// </summary>
     /// <param name="services">The service collection to register services with.</param>
-    /// <returns>The service collection with the services added.</returns>
+    /// <returns>The service collection with the Application services added.</returns>
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
         // Register AutoMapper - all mapping profiles
