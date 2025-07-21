@@ -29,20 +29,20 @@ public static class PersistenceServerRegistration
         // Repository Dependency Injection Registration
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
         services.AddScoped<IFuelPurchaseRepository, FuelPurchasesRepository>();
-        // services.AddScoped<IInventoryItemLocationRepository, InventoryItemLocationRepository>(); // TODO: Implement repository
-        // services.AddScoped<IInventoryItemRepository, InventoryItemRepository>(); // TODO: Implement repository
+        services.AddScoped<IInventoryItemLocationRepository, InventoryItemLocationRepository>();
+        services.AddScoped<IInventoryItemRepository, InventoryItemRepository>();
         services.AddScoped<IIssueRepository, IssueRepository>();
         services.AddScoped<IMaintenanceHistoryRepository, MaintenanceHistoryRepository>();
         services.AddScoped<IServiceProgramRepository, ServiceProgramRepository>();
-        // services.AddScoped<IServiceReminderRepository, ServiceReminderRepository>(); // TODO: Implement repository
+        services.AddScoped<IServiceReminderRepository, ServiceReminderRepository>();
         services.AddScoped<IServiceScheduleRepository, ServiceScheduleRepository>();
         services.AddScoped<IServiceTaskRepository, ServiceTaskRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IVehicleGroupRepository, VehicleGroupRepository>();
         services.AddScoped<IVehicleRepository, VehicleRepository>();
-        // services.AddScoped<IWorkOrderIssueRepository, WorkOrderIssueRepository>(); // TODO: Implement repository
-        // services.AddScoped<IWorkOrderLineItemRepository, WorkOrderLineItemRepository>(); // TODO: Implement repository
-        // services.AddScoped<IWorkOrderRepository, WorkOrderRepository>(); // TODO: Implement repository
+        services.AddScoped<IWorkOrderIssueRepository, WorkOrderIssueRepository>();
+        services.AddScoped<IWorkOrderLineItemRepository, WorkOrderLineItemRepository>();
+        services.AddScoped<IWorkOrderRepository, WorkOrderRepository>();
         services.AddScoped<IXrefServiceProgramVehicleRepository, XrefServiceProgramVehicleRepository>();
         services.AddScoped<IXrefServiceScheduleServiceTaskRepository, XrefServiceScheduleServiceTaskRepository>();
 
