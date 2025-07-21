@@ -1,5 +1,3 @@
-using System;
-
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
@@ -22,7 +20,7 @@ public class OmnipulseDbContextFactory : IDesignTimeDbContextFactory<OmnipulseDa
     {
         var optionsBuilder = new DbContextOptionsBuilder<OmnipulseDatabaseContext>();
 
-        // TODO: add db url
+        // TODO: Add DB URL
         optionsBuilder.UseSqlServer("URL_HERE");
 
         return new OmnipulseDatabaseContext(optionsBuilder.Options);

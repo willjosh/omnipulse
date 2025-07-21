@@ -331,7 +331,7 @@ namespace Persistence.Migrations
 
                     b.HasIndex("InventoryItemLocationID");
 
-                    b.ToTable("Inventory");
+                    b.ToTable("Inventories");
                 });
 
             modelBuilder.Entity("Domain.Entities.InventoryItem", b =>
@@ -342,51 +342,99 @@ namespace Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
-                    b.Property<string>("Brand")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Category")
+                    b.Property<int?>("Category")
                         .HasColumnType("int");
-
-                    b.Property<string>("CompatibleVehicleTypes")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<string>("ItemName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
 
                     b.Property<string>("ItemNumber")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<string>("Manufacturer")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ManufacturerPartNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Supplier")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
-                    b.Property<decimal>("UnitPrice")
+                    b.Property<decimal?>("UnitCost")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("UnitCostMeasurementUnit")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UniversalProductCode")
+                        .HasMaxLength(12)
+                        .HasColumnType("nvarchar(12)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<double>("WeightKG")
+                    b.Property<double?>("WeightKG")
                         .HasColumnType("float");
 
                     b.HasKey("ID");
 
-                    b.ToTable("InventoryItem");
+                    b.HasIndex("Category")
+                        .HasDatabaseName("IX_InventoryItems_Category");
+
+                    b.HasIndex("IsActive")
+                        .HasDatabaseName("IX_InventoryItems_IsActive");
+
+                    b.HasIndex("ItemName")
+                        .HasDatabaseName("IX_InventoryItems_ItemName");
+
+                    b.HasIndex("ItemNumber")
+                        .IsUnique()
+                        .HasDatabaseName("IX_InventoryItems_ItemNumber_Unique");
+
+                    b.HasIndex("Manufacturer")
+                        .HasDatabaseName("IX_InventoryItems_Manufacturer");
+
+                    b.HasIndex("UniversalProductCode")
+                        .IsUnique()
+                        .HasDatabaseName("IX_InventoryItems_UniversalProductCode_Unique")
+                        .HasFilter("[UniversalProductCode] IS NOT NULL");
+
+                    b.HasIndex("IsActive", "Category")
+                        .HasDatabaseName("IX_InventoryItems_IsActive_Category");
+
+                    b.HasIndex("Manufacturer", "ManufacturerPartNumber")
+                        .IsUnique()
+                        .HasDatabaseName("IX_InventoryItems_Manufacturer_PartNumber_Unique")
+                        .HasFilter("[Manufacturer] IS NOT NULL AND [ManufacturerPartNumber] IS NOT NULL");
+
+                    b.ToTable("InventoryItems", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_InventoryItem_UPC_Length", "([UniversalProductCode] IS NULL OR LEN([UniversalProductCode]) = 12)");
+
+                            t.HasCheckConstraint("CK_InventoryItem_UnitCost_NonNegative", "([UnitCost] IS NULL OR [UnitCost] >= 0)");
+
+                            t.HasCheckConstraint("CK_InventoryItem_WeightKG_NonNegative", "([WeightKG] IS NULL OR [WeightKG] >= 0)");
+                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.InventoryItemLocation", b =>
@@ -425,7 +473,7 @@ namespace Persistence.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("InventoryItemLocation");
+                    b.ToTable("InventoryItemLocations");
                 });
 
             modelBuilder.Entity("Domain.Entities.InventoryTransaction", b =>
@@ -482,7 +530,7 @@ namespace Persistence.Migrations
 
                     b.HasIndex("WorkOrderID");
 
-                    b.ToTable("InventoryTransaction");
+                    b.ToTable("InventoryTransactions");
                 });
 
             modelBuilder.Entity("Domain.Entities.Invoice", b =>
@@ -570,12 +618,15 @@ namespace Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<DateTime?>("ReportedDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("ResolutionNotes")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<int?>("ResolvedBy")
-                        .HasColumnType("int");
+                    b.Property<string>("ResolvedByUserID")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime?>("ResolvedDate")
                         .HasColumnType("datetime2");
@@ -610,6 +661,8 @@ namespace Persistence.Migrations
 
                     b.HasIndex("ReportedByUserID");
 
+                    b.HasIndex("ResolvedByUserID");
+
                     b.HasIndex("Status");
 
                     b.HasIndex("VehicleID");
@@ -619,6 +672,43 @@ namespace Persistence.Migrations
                     b.ToTable("Issues", null, t =>
                         {
                             t.HasCheckConstraint("CK_Issue_ResolvedDate", "ResolvedDate IS NULL OR ResolvedDate >= CreatedAt");
+                        });
+                });
+
+            modelBuilder.Entity("Domain.Entities.IssueAssignment", b =>
+                {
+                    b.Property<int>("IssueID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("AssignedToUserID")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("AssignedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime?>("UnassignedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("IssueID", "AssignedToUserID");
+
+                    b.HasIndex("AssignedDate");
+
+                    b.HasIndex("AssignedToUserID");
+
+                    b.HasIndex("IsActive");
+
+                    b.HasIndex("IssueID");
+
+                    b.ToTable("IssueAssignments", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_IssueAssignment_UnassignedDate", "UnassignedDate IS NULL OR UnassignedDate >= AssignedDate");
                         });
                 });
 
@@ -778,6 +868,9 @@ namespace Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
@@ -785,17 +878,6 @@ namespace Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("OEMTag")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("PrimaryMeterType")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SecondaryMeterType")
-                        .HasColumnType("int");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -806,11 +888,6 @@ namespace Persistence.Migrations
 
                     b.HasIndex("Name")
                         .IsUnique();
-
-                    b.HasIndex("OEMTag")
-                        .IsUnique();
-
-                    b.HasIndex("OEMTag", "IsActive");
 
                     b.ToTable("ServicePrograms", (string)null);
                 });
@@ -915,26 +992,26 @@ namespace Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
-                    b.Property<int>("BufferDays")
-                        .HasColumnType("int");
-
-                    b.Property<int>("BufferMileage")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("IntervalDays")
+                    b.Property<int?>("FirstServiceMileage")
                         .HasColumnType("int");
 
-                    b.Property<int>("IntervalHours")
-                        .HasColumnType("int");
+                    b.Property<string>("FirstServiceTimeUnit")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("IntervalMileage")
+                    b.Property<int?>("FirstServiceTimeValue")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
+
+                    b.Property<int?>("MileageBuffer")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("MileageInterval")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -942,6 +1019,18 @@ namespace Persistence.Migrations
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<int>("ServiceProgramID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TimeBufferUnit")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("TimeBufferValue")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TimeIntervalUnit")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("TimeIntervalValue")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -964,68 +1053,17 @@ namespace Persistence.Migrations
 
                     b.ToTable("ServiceSchedules", null, t =>
                         {
-                            t.HasCheckConstraint("CK_ServiceSchedule_BufferDays", "BufferDays >= 0");
+                            t.HasCheckConstraint("CK_ServiceSchedule_FirstServiceMileage", "FirstServiceMileage >= 0");
 
-                            t.HasCheckConstraint("CK_ServiceSchedule_BufferMileage", "BufferMileage >= 0");
+                            t.HasCheckConstraint("CK_ServiceSchedule_FirstServiceTimeValue", "FirstServiceTimeValue >= 0");
 
-                            t.HasCheckConstraint("CK_ServiceSchedule_IntervalDays", "IntervalDays > 0");
+                            t.HasCheckConstraint("CK_ServiceSchedule_MileageBuffer", "MileageBuffer >= 0");
 
-                            t.HasCheckConstraint("CK_ServiceSchedule_IntervalHours", "IntervalHours >= 0");
+                            t.HasCheckConstraint("CK_ServiceSchedule_MileageInterval", "MileageInterval > 0");
 
-                            t.HasCheckConstraint("CK_ServiceSchedule_IntervalMileage", "IntervalMileage > 0");
-                        });
-                });
+                            t.HasCheckConstraint("CK_ServiceSchedule_TimeBufferValue", "TimeBufferValue >= 0");
 
-            modelBuilder.Entity("Domain.Entities.ServiceScheduleTask", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsMandatory")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("SequenceNumber")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ServiceScheduleID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ServiceTaskID")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ServiceTaskID1")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("IsMandatory");
-
-                    b.HasIndex("ServiceScheduleID");
-
-                    b.HasIndex("ServiceTaskID");
-
-                    b.HasIndex("ServiceTaskID1");
-
-                    b.HasIndex("ServiceScheduleID", "IsMandatory");
-
-                    b.HasIndex("ServiceScheduleID", "SequenceNumber")
-                        .IsUnique();
-
-                    b.HasIndex("ServiceScheduleID", "ServiceTaskID")
-                        .IsUnique();
-
-                    b.ToTable("ServiceScheduleTasks", null, t =>
-                        {
-                            t.HasCheckConstraint("CK_ServiceScheduleTask_SequenceNumber", "SequenceNumber > 0");
+                            t.HasCheckConstraint("CK_ServiceSchedule_TimeIntervalValue", "TimeIntervalValue > 0");
                         });
                 });
 
@@ -1255,8 +1293,8 @@ namespace Persistence.Migrations
                     b.Property<DateTime>("PurchaseDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<double>("PurchasePrice")
-                        .HasColumnType("float");
+                    b.Property<decimal>("PurchasePrice")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -1692,44 +1730,6 @@ namespace Persistence.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Domain.Entities.VehicleServiceProgram", b =>
-                {
-                    b.Property<int>("VehicleID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ServiceProgramID")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("AssignedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("VehicleID", "ServiceProgramID");
-
-                    b.HasIndex("AssignedDate");
-
-                    b.HasIndex("IsActive");
-
-                    b.HasIndex("IsActive", "AssignedDate");
-
-                    b.HasIndex("ServiceProgramID", "IsActive");
-
-                    b.HasIndex("VehicleID", "IsActive");
-
-                    b.ToTable("VehicleServicePrograms", null, t =>
-                        {
-                            t.HasCheckConstraint("CK_VehicleServiceProgram_AssignedDate", "AssignedDate >= '2000-01-01' AND AssignedDate <= GETDATE()");
-                        });
-                });
-
             modelBuilder.Entity("Domain.Entities.WorkOrder", b =>
                 {
                     b.Property<int>("ID")
@@ -1737,13 +1737,6 @@ namespace Persistence.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
-
-                    b.Property<decimal?>("ActualCost")
-                        .HasPrecision(10, 2)
-                        .HasColumnType("decimal(10,2)");
-
-                    b.Property<double?>("ActualHours")
-                        .HasColumnType("float");
 
                     b.Property<DateTime?>("ActualStartDate")
                         .HasColumnType("datetime2");
@@ -1762,23 +1755,13 @@ namespace Persistence.Migrations
                     b.Property<double?>("EndOdometer")
                         .HasColumnType("float");
 
-                    b.Property<decimal?>("EstimatedCost")
-                        .HasPrecision(10, 2)
-                        .HasColumnType("decimal(10,2)");
-
-                    b.Property<double?>("EstimatedHours")
-                        .HasColumnType("float");
-
                     b.Property<int>("PriorityLevel")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("ScheduledStartDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("ServiceReminderID")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ServiceReminderID1")
+                    b.Property<int?>("ServiceReminderID")
                         .HasColumnType("int");
 
                     b.Property<double>("StartOdometer")
@@ -1798,11 +1781,6 @@ namespace Persistence.Migrations
                     b.Property<int>("VehicleID")
                         .HasColumnType("int");
 
-                    b.Property<string>("WorkOrderNumber")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
                     b.Property<int>("WorkOrderType")
                         .HasColumnType("int");
 
@@ -1820,14 +1798,9 @@ namespace Persistence.Migrations
 
                     b.HasIndex("ServiceReminderID");
 
-                    b.HasIndex("ServiceReminderID1");
-
                     b.HasIndex("Status");
 
                     b.HasIndex("VehicleID");
-
-                    b.HasIndex("WorkOrderNumber")
-                        .IsUnique();
 
                     b.HasIndex("WorkOrderType");
 
@@ -1841,15 +1814,9 @@ namespace Persistence.Migrations
 
                     b.ToTable("WorkOrders", null, t =>
                         {
-                            t.HasCheckConstraint("CK_WorkOrder_ActualCost", "ActualCost IS NULL OR ActualCost >= 0");
-
-                            t.HasCheckConstraint("CK_WorkOrder_ActualHours", "ActualHours IS NULL OR ActualHours >= 0");
-
                             t.HasCheckConstraint("CK_WorkOrder_Dates", "ActualStartDate IS NULL OR ScheduledStartDate IS NULL OR ActualStartDate >= ScheduledStartDate");
 
                             t.HasCheckConstraint("CK_WorkOrder_EndOdometer", "EndOdometer IS NULL OR EndOdometer >= StartOdometer");
-
-                            t.HasCheckConstraint("CK_WorkOrder_EstimatedCost", "EstimatedCost IS NULL OR EstimatedCost >= 0");
 
                             t.HasCheckConstraint("CK_WorkOrder_StartOdometer", "StartOdometer >= 0");
                         });
@@ -1883,6 +1850,9 @@ namespace Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
+                    b.Property<string>("AssignedToUserID")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -1890,14 +1860,19 @@ namespace Persistence.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<int>("InventoryItemID")
+                    b.Property<decimal?>("HourlyRate")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<int?>("InventoryItemID")
                         .HasColumnType("int");
 
                     b.Property<int>("ItemType")
                         .HasColumnType("int");
 
                     b.Property<double?>("LaborHours")
-                        .HasColumnType("float");
+                        .HasPrecision(5, 2)
+                        .HasColumnType("float(5)");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -1906,11 +1881,10 @@ namespace Persistence.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("TotalCost")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("decimal(18,2)")
-                        .HasComputedColumnSql("Quantity * UnitCost");
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
 
-                    b.Property<decimal>("UnitCost")
+                    b.Property<decimal?>("UnitPrice")
                         .HasPrecision(10, 2)
                         .HasColumnType("decimal(10,2)");
 
@@ -1921,6 +1895,10 @@ namespace Persistence.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("ID");
+
+                    b.HasIndex("AssignedToUserID");
+
+                    b.HasIndex("CreatedAt");
 
                     b.HasIndex("InventoryItemID");
 
@@ -1934,12 +1912,64 @@ namespace Persistence.Migrations
 
                     b.ToTable("WorkOrderLineItems", null, t =>
                         {
-                            t.HasCheckConstraint("CK_WorkOrderLineItem_LaborHours", "LaborHours IS NULL OR LaborHours >= 0");
+                            t.HasCheckConstraint("CK_WorkOrderLineItem_HourlyRate", "HourlyRate IS NULL OR HourlyRate >= 0");
+
+                            t.HasCheckConstraint("CK_WorkOrderLineItem_LaborHours", "LaborHours IS NULL OR LaborHours > 0");
 
                             t.HasCheckConstraint("CK_WorkOrderLineItem_Quantity", "Quantity > 0");
 
-                            t.HasCheckConstraint("CK_WorkOrderLineItem_UnitCost", "UnitCost >= 0");
+                            t.HasCheckConstraint("CK_WorkOrderLineItem_TotalCost", "TotalCost >= 0");
+
+                            t.HasCheckConstraint("CK_WorkOrderLineItem_UnitPrice", "UnitPrice IS NULL OR UnitPrice >= 0");
                         });
+                });
+
+            modelBuilder.Entity("Domain.Entities.XrefServiceProgramVehicle", b =>
+                {
+                    b.Property<int>("ServiceProgramID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("VehicleID")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("AddedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("ServiceProgramID", "VehicleID");
+
+                    b.HasIndex("AddedAt");
+
+                    b.HasIndex("ServiceProgramID");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("VehicleID");
+
+                    b.ToTable("XrefServiceProgramVehicles", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.XrefServiceScheduleServiceTask", b =>
+                {
+                    b.Property<int>("ServiceScheduleID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ServiceTaskID")
+                        .HasColumnType("int");
+
+                    b.HasKey("ServiceScheduleID", "ServiceTaskID");
+
+                    b.HasIndex("ServiceScheduleID");
+
+                    b.HasIndex("ServiceTaskID");
+
+                    b.HasIndex("ServiceScheduleID", "ServiceTaskID")
+                        .IsUnique();
+
+                    b.ToTable("XrefServiceScheduleServiceTasks", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -2162,7 +2192,7 @@ namespace Persistence.Migrations
                     b.HasOne("Domain.Entities.InventoryItem", "InventoryItem")
                         .WithMany("Inventories")
                         .HasForeignKey("InventoryItemID")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.InventoryItemLocation", "InventoryItemLocation")
@@ -2220,11 +2250,16 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.Issue", b =>
                 {
-                    b.HasOne("Domain.Entities.User", "User")
+                    b.HasOne("Domain.Entities.User", "ReportedByUser")
                         .WithMany()
                         .HasForeignKey("ReportedByUserID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("Domain.Entities.User", "ResolvedByUser")
+                        .WithMany()
+                        .HasForeignKey("ResolvedByUserID")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Domain.Entities.Vehicle", "Vehicle")
                         .WithMany()
@@ -2236,9 +2271,30 @@ namespace Persistence.Migrations
                         .WithMany("Issues")
                         .HasForeignKey("VehicleID1");
 
-                    b.Navigation("User");
+                    b.Navigation("ReportedByUser");
+
+                    b.Navigation("ResolvedByUser");
 
                     b.Navigation("Vehicle");
+                });
+
+            modelBuilder.Entity("Domain.Entities.IssueAssignment", b =>
+                {
+                    b.HasOne("Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("AssignedToUserID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Issue", "Issue")
+                        .WithMany("IssueAssignments")
+                        .HasForeignKey("IssueID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Issue");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Domain.Entities.IssueAttachment", b =>
@@ -2325,33 +2381,10 @@ namespace Persistence.Migrations
                     b.HasOne("Domain.Entities.ServiceProgram", "ServiceProgram")
                         .WithMany("ServiceSchedules")
                         .HasForeignKey("ServiceProgramID")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("ServiceProgram");
-                });
-
-            modelBuilder.Entity("Domain.Entities.ServiceScheduleTask", b =>
-                {
-                    b.HasOne("Domain.Entities.ServiceSchedule", "ServiceSchedule")
-                        .WithMany("ServiceScheduleTasks")
-                        .HasForeignKey("ServiceScheduleID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.ServiceTask", "ServiceTask")
-                        .WithMany()
-                        .HasForeignKey("ServiceTaskID")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.ServiceTask", null)
-                        .WithMany("ServiceScheduleTasks")
-                        .HasForeignKey("ServiceTaskID1");
-
-                    b.Navigation("ServiceSchedule");
-
-                    b.Navigation("ServiceTask");
+                    b.Navigation("ServiceProgram");
                 });
 
             modelBuilder.Entity("Domain.Entities.Vehicle", b =>
@@ -2478,25 +2511,6 @@ namespace Persistence.Migrations
                     b.Navigation("Vehicle");
                 });
 
-            modelBuilder.Entity("Domain.Entities.VehicleServiceProgram", b =>
-                {
-                    b.HasOne("Domain.Entities.ServiceProgram", "ServiceProgram")
-                        .WithMany()
-                        .HasForeignKey("ServiceProgramID")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.Vehicle", "Vehicle")
-                        .WithMany("VehicleServicePrograms")
-                        .HasForeignKey("VehicleID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ServiceProgram");
-
-                    b.Navigation("Vehicle");
-                });
-
             modelBuilder.Entity("Domain.Entities.WorkOrder", b =>
                 {
                     b.HasOne("Domain.Entities.User", "User")
@@ -2505,23 +2519,15 @@ namespace Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.ServiceReminder", "ServiceReminder")
-                        .WithMany()
-                        .HasForeignKey("ServiceReminderID")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("Domain.Entities.ServiceReminder", null)
                         .WithMany("WorkOrders")
-                        .HasForeignKey("ServiceReminderID1");
+                        .HasForeignKey("ServiceReminderID");
 
                     b.HasOne("Domain.Entities.Vehicle", "Vehicle")
                         .WithMany()
                         .HasForeignKey("VehicleID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("ServiceReminder");
 
                     b.Navigation("User");
 
@@ -2549,11 +2555,15 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.WorkOrderLineItem", b =>
                 {
+                    b.HasOne("Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("AssignedToUserID")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Domain.Entities.InventoryItem", "InventoryItem")
                         .WithMany("WorkOrderLineItems")
                         .HasForeignKey("InventoryItemID")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Domain.Entities.ServiceTask", "ServiceTask")
                         .WithMany("WorkOrderLineItems")
@@ -2571,7 +2581,55 @@ namespace Persistence.Migrations
 
                     b.Navigation("ServiceTask");
 
+                    b.Navigation("User");
+
                     b.Navigation("WorkOrder");
+                });
+
+            modelBuilder.Entity("Domain.Entities.XrefServiceProgramVehicle", b =>
+                {
+                    b.HasOne("Domain.Entities.ServiceProgram", "ServiceProgram")
+                        .WithMany("XrefServiceProgramVehicles")
+                        .HasForeignKey("ServiceProgramID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Vehicle", "Vehicle")
+                        .WithMany("XrefServiceProgramVehicles")
+                        .HasForeignKey("VehicleID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ServiceProgram");
+
+                    b.Navigation("User");
+
+                    b.Navigation("Vehicle");
+                });
+
+            modelBuilder.Entity("Domain.Entities.XrefServiceScheduleServiceTask", b =>
+                {
+                    b.HasOne("Domain.Entities.ServiceSchedule", "ServiceSchedule")
+                        .WithMany("XrefServiceScheduleServiceTasks")
+                        .HasForeignKey("ServiceScheduleID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.ServiceTask", "ServiceTask")
+                        .WithMany("XrefServiceScheduleServiceTasks")
+                        .HasForeignKey("ServiceTaskID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ServiceSchedule");
+
+                    b.Navigation("ServiceTask");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -2649,6 +2707,8 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.Issue", b =>
                 {
+                    b.Navigation("IssueAssignments");
+
                     b.Navigation("IssueAttachments");
                 });
 
@@ -2660,6 +2720,8 @@ namespace Persistence.Migrations
             modelBuilder.Entity("Domain.Entities.ServiceProgram", b =>
                 {
                     b.Navigation("ServiceSchedules");
+
+                    b.Navigation("XrefServiceProgramVehicles");
                 });
 
             modelBuilder.Entity("Domain.Entities.ServiceReminder", b =>
@@ -2669,16 +2731,16 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.ServiceSchedule", b =>
                 {
-                    b.Navigation("ServiceScheduleTasks");
+                    b.Navigation("XrefServiceScheduleServiceTasks");
                 });
 
             modelBuilder.Entity("Domain.Entities.ServiceTask", b =>
                 {
                     b.Navigation("MaintenanceHistories");
 
-                    b.Navigation("ServiceScheduleTasks");
-
                     b.Navigation("WorkOrderLineItems");
+
+                    b.Navigation("XrefServiceScheduleServiceTasks");
                 });
 
             modelBuilder.Entity("Domain.Entities.User", b =>
@@ -2710,7 +2772,7 @@ namespace Persistence.Migrations
 
                     b.Navigation("VehicleInspections");
 
-                    b.Navigation("VehicleServicePrograms");
+                    b.Navigation("XrefServiceProgramVehicles");
                 });
 
             modelBuilder.Entity("Domain.Entities.WorkOrder", b =>
