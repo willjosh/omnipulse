@@ -1,6 +1,4 @@
-﻿using System;
-
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -46,31 +44,7 @@ namespace Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "InventoryItem",
-                columns: table => new
-                {
-                    ID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ItemNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ItemName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Category = table.Column<int>(type: "int", nullable: false),
-                    Brand = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Supplier = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    UnitPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    WeightKG = table.Column<double>(type: "float", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    CompatibleVehicleTypes = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_InventoryItem", x => x.ID);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "InventoryItemLocation",
+                name: "InventoryItemLocations",
                 columns: table => new
                 {
                     ID = table.Column<int>(type: "int", nullable: false)
@@ -86,7 +60,36 @@ namespace Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_InventoryItemLocation", x => x.ID);
+                    table.PrimaryKey("PK_InventoryItemLocations", x => x.ID);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "InventoryItems",
+                columns: table => new
+                {
+                    ID = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ItemNumber = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false),
+                    ItemName = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    Category = table.Column<int>(type: "int", nullable: true),
+                    Manufacturer = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    ManufacturerPartNumber = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    UniversalProductCode = table.Column<string>(type: "nvarchar(12)", maxLength: 12, nullable: true),
+                    UnitCost = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
+                    UnitCostMeasurementUnit = table.Column<int>(type: "int", nullable: true),
+                    Supplier = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    WeightKG = table.Column<double>(type: "float", nullable: true),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_InventoryItems", x => x.ID);
+                    table.CheckConstraint("CK_InventoryItem_UnitCost_NonNegative", "([UnitCost] IS NULL OR [UnitCost] >= 0)");
+                    table.CheckConstraint("CK_InventoryItem_UPC_Length", "([UniversalProductCode] IS NULL OR LEN([UniversalProductCode]) = 12)");
+                    table.CheckConstraint("CK_InventoryItem_WeightKG_NonNegative", "([WeightKG] IS NULL OR [WeightKG] >= 0)");
                 });
 
             migrationBuilder.CreateTable(
@@ -96,9 +99,7 @@ namespace Persistence.Migrations
                     ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    OEMTag = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    PrimaryMeterType = table.Column<int>(type: "int", nullable: false),
-                    SecondaryMeterType = table.Column<int>(type: "int", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -228,7 +229,7 @@ namespace Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Inventory",
+                name: "Inventories",
                 columns: table => new
                 {
                     ID = table.Column<int>(type: "int", nullable: false)
@@ -246,19 +247,19 @@ namespace Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Inventory", x => x.ID);
+                    table.PrimaryKey("PK_Inventories", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_Inventory_InventoryItemLocation_InventoryItemLocationID",
+                        name: "FK_Inventories_InventoryItemLocations_InventoryItemLocationID",
                         column: x => x.InventoryItemLocationID,
-                        principalTable: "InventoryItemLocation",
+                        principalTable: "InventoryItemLocations",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Inventory_InventoryItem_InventoryItemID",
+                        name: "FK_Inventories_InventoryItems_InventoryItemID",
                         column: x => x.InventoryItemID,
-                        principalTable: "InventoryItem",
+                        principalTable: "InventoryItems",
                         principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -269,11 +270,15 @@ namespace Persistence.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ServiceProgramID = table.Column<int>(type: "int", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    IntervalMileage = table.Column<int>(type: "int", nullable: false),
-                    IntervalDays = table.Column<int>(type: "int", nullable: false),
-                    IntervalHours = table.Column<int>(type: "int", nullable: false),
-                    BufferMileage = table.Column<int>(type: "int", nullable: false),
-                    BufferDays = table.Column<int>(type: "int", nullable: false),
+                    TimeIntervalValue = table.Column<int>(type: "int", nullable: true),
+                    TimeIntervalUnit = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TimeBufferValue = table.Column<int>(type: "int", nullable: true),
+                    TimeBufferUnit = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    MileageInterval = table.Column<int>(type: "int", nullable: true),
+                    MileageBuffer = table.Column<int>(type: "int", nullable: true),
+                    FirstServiceTimeValue = table.Column<int>(type: "int", nullable: true),
+                    FirstServiceTimeUnit = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FirstServiceMileage = table.Column<int>(type: "int", nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -281,17 +286,18 @@ namespace Persistence.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ServiceSchedules", x => x.ID);
-                    table.CheckConstraint("CK_ServiceSchedule_BufferDays", "BufferDays >= 0");
-                    table.CheckConstraint("CK_ServiceSchedule_BufferMileage", "BufferMileage >= 0");
-                    table.CheckConstraint("CK_ServiceSchedule_IntervalDays", "IntervalDays > 0");
-                    table.CheckConstraint("CK_ServiceSchedule_IntervalHours", "IntervalHours >= 0");
-                    table.CheckConstraint("CK_ServiceSchedule_IntervalMileage", "IntervalMileage > 0");
+                    table.CheckConstraint("CK_ServiceSchedule_FirstServiceMileage", "FirstServiceMileage >= 0");
+                    table.CheckConstraint("CK_ServiceSchedule_FirstServiceTimeValue", "FirstServiceTimeValue >= 0");
+                    table.CheckConstraint("CK_ServiceSchedule_MileageBuffer", "MileageBuffer >= 0");
+                    table.CheckConstraint("CK_ServiceSchedule_MileageInterval", "MileageInterval > 0");
+                    table.CheckConstraint("CK_ServiceSchedule_TimeBufferValue", "TimeBufferValue >= 0");
+                    table.CheckConstraint("CK_ServiceSchedule_TimeIntervalValue", "TimeIntervalValue > 0");
                     table.ForeignKey(
                         name: "FK_ServiceSchedules_ServicePrograms_ServiceProgramID",
                         column: x => x.ServiceProgramID,
                         principalTable: "ServicePrograms",
                         principalColumn: "ID",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -401,7 +407,7 @@ namespace Persistence.Migrations
                     FuelCapacity = table.Column<double>(type: "float", nullable: false),
                     FuelType = table.Column<int>(type: "int", nullable: false),
                     PurchaseDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    PurchasePrice = table.Column<double>(type: "float", nullable: false),
+                    PurchasePrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     Location = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -430,40 +436,27 @@ namespace Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ServiceScheduleTasks",
+                name: "XrefServiceScheduleServiceTasks",
                 columns: table => new
                 {
-                    ID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
                     ServiceScheduleID = table.Column<int>(type: "int", nullable: false),
-                    ServiceTaskID = table.Column<int>(type: "int", nullable: false),
-                    IsMandatory = table.Column<bool>(type: "bit", nullable: false),
-                    SequenceNumber = table.Column<int>(type: "int", nullable: false),
-                    ServiceTaskID1 = table.Column<int>(type: "int", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    ServiceTaskID = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ServiceScheduleTasks", x => x.ID);
-                    table.CheckConstraint("CK_ServiceScheduleTask_SequenceNumber", "SequenceNumber > 0");
+                    table.PrimaryKey("PK_XrefServiceScheduleServiceTasks", x => new { x.ServiceScheduleID, x.ServiceTaskID });
                     table.ForeignKey(
-                        name: "FK_ServiceScheduleTasks_ServiceSchedules_ServiceScheduleID",
+                        name: "FK_XrefServiceScheduleServiceTasks_ServiceSchedules_ServiceScheduleID",
                         column: x => x.ServiceScheduleID,
                         principalTable: "ServiceSchedules",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ServiceScheduleTasks_ServiceTasks_ServiceTaskID",
+                        name: "FK_XrefServiceScheduleServiceTasks_ServiceTasks_ServiceTaskID",
                         column: x => x.ServiceTaskID,
                         principalTable: "ServiceTasks",
                         principalColumn: "ID",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_ServiceScheduleTasks_ServiceTasks_ServiceTaskID1",
-                        column: x => x.ServiceTaskID1,
-                        principalTable: "ServiceTasks",
-                        principalColumn: "ID");
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -516,13 +509,14 @@ namespace Persistence.Migrations
                     VehicleID = table.Column<int>(type: "int", nullable: false),
                     IssueNumber = table.Column<int>(type: "int", nullable: false),
                     ReportedByUserID = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ReportedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     Category = table.Column<int>(type: "int", nullable: false),
                     PriorityLevel = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     ResolvedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ResolvedBy = table.Column<int>(type: "int", nullable: true),
+                    ResolvedByUserID = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     ResolutionNotes = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     VehicleID1 = table.Column<int>(type: "int", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -535,6 +529,12 @@ namespace Persistence.Migrations
                     table.ForeignKey(
                         name: "FK_Issues_Users_ReportedByUserID",
                         column: x => x.ReportedByUserID,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Issues_Users_ResolvedByUserID",
+                        column: x => x.ResolvedByUserID,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -791,32 +791,64 @@ namespace Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "VehicleServicePrograms",
+                name: "XrefServiceProgramVehicles",
                 columns: table => new
                 {
-                    VehicleID = table.Column<int>(type: "int", nullable: false),
                     ServiceProgramID = table.Column<int>(type: "int", nullable: false),
-                    AssignedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    VehicleID = table.Column<int>(type: "int", nullable: false),
+                    AddedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_VehicleServicePrograms", x => new { x.VehicleID, x.ServiceProgramID });
-                    table.CheckConstraint("CK_VehicleServiceProgram_AssignedDate", "AssignedDate >= '2000-01-01' AND AssignedDate <= GETDATE()");
+                    table.PrimaryKey("PK_XrefServiceProgramVehicles", x => new { x.ServiceProgramID, x.VehicleID });
                     table.ForeignKey(
-                        name: "FK_VehicleServicePrograms_ServicePrograms_ServiceProgramID",
+                        name: "FK_XrefServiceProgramVehicles_ServicePrograms_ServiceProgramID",
                         column: x => x.ServiceProgramID,
                         principalTable: "ServicePrograms",
                         principalColumn: "ID",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_VehicleServicePrograms_Vehicles_VehicleID",
+                        name: "FK_XrefServiceProgramVehicles_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_XrefServiceProgramVehicles_Vehicles_VehicleID",
                         column: x => x.VehicleID,
                         principalTable: "Vehicles",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "IssueAssignments",
+                columns: table => new
+                {
+                    IssueID = table.Column<int>(type: "int", nullable: false),
+                    AssignedToUserID = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    AssignedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UnassignedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    Notes = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_IssueAssignments", x => new { x.IssueID, x.AssignedToUserID });
+                    table.CheckConstraint("CK_IssueAssignment_UnassignedDate", "UnassignedDate IS NULL OR UnassignedDate >= AssignedDate");
+                    table.ForeignKey(
+                        name: "FK_IssueAssignments_Issues_IssueID",
+                        column: x => x.IssueID,
+                        principalTable: "Issues",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_IssueAssignments_Users_AssignedToUserID",
+                        column: x => x.AssignedToUserID,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -865,45 +897,30 @@ namespace Persistence.Migrations
                 {
                     ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    WorkOrderNumber = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     VehicleID = table.Column<int>(type: "int", nullable: false),
-                    ServiceReminderID = table.Column<int>(type: "int", nullable: false),
                     AssignedToUserID = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: true),
                     WorkOrderType = table.Column<int>(type: "int", nullable: false),
                     PriorityLevel = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
-                    EstimatedCost = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: true),
-                    ActualCost = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: true),
-                    EstimatedHours = table.Column<double>(type: "float", nullable: true),
-                    ActualHours = table.Column<double>(type: "float", nullable: true),
                     ScheduledStartDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ActualStartDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     StartOdometer = table.Column<double>(type: "float", nullable: false),
                     EndOdometer = table.Column<double>(type: "float", nullable: true),
-                    ServiceReminderID1 = table.Column<int>(type: "int", nullable: true),
+                    ServiceReminderID = table.Column<int>(type: "int", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_WorkOrders", x => x.ID);
-                    table.CheckConstraint("CK_WorkOrder_ActualCost", "ActualCost IS NULL OR ActualCost >= 0");
-                    table.CheckConstraint("CK_WorkOrder_ActualHours", "ActualHours IS NULL OR ActualHours >= 0");
                     table.CheckConstraint("CK_WorkOrder_Dates", "ActualStartDate IS NULL OR ScheduledStartDate IS NULL OR ActualStartDate >= ScheduledStartDate");
                     table.CheckConstraint("CK_WorkOrder_EndOdometer", "EndOdometer IS NULL OR EndOdometer >= StartOdometer");
-                    table.CheckConstraint("CK_WorkOrder_EstimatedCost", "EstimatedCost IS NULL OR EstimatedCost >= 0");
                     table.CheckConstraint("CK_WorkOrder_StartOdometer", "StartOdometer >= 0");
                     table.ForeignKey(
                         name: "FK_WorkOrders_ServiceReminders_ServiceReminderID",
                         column: x => x.ServiceReminderID,
-                        principalTable: "ServiceReminders",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_WorkOrders_ServiceReminders_ServiceReminderID1",
-                        column: x => x.ServiceReminderID1,
                         principalTable: "ServiceReminders",
                         principalColumn: "ID");
                     table.ForeignKey(
@@ -1107,27 +1124,31 @@ namespace Persistence.Migrations
                     ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     WorkOrderID = table.Column<int>(type: "int", nullable: false),
-                    InventoryItemID = table.Column<int>(type: "int", nullable: false),
                     ServiceTaskID = table.Column<int>(type: "int", nullable: false),
                     ItemType = table.Column<int>(type: "int", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     Quantity = table.Column<int>(type: "int", nullable: false),
-                    UnitCost = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: false),
-                    TotalCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false, computedColumnSql: "Quantity * UnitCost"),
-                    LaborHours = table.Column<double>(type: "float", nullable: true),
+                    TotalCost = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: false),
+                    InventoryItemID = table.Column<int>(type: "int", nullable: true),
+                    AssignedToUserID = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    LaborHours = table.Column<double>(type: "float(5)", precision: 5, scale: 2, nullable: true),
+                    UnitPrice = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: true),
+                    HourlyRate = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_WorkOrderLineItems", x => x.ID);
-                    table.CheckConstraint("CK_WorkOrderLineItem_LaborHours", "LaborHours IS NULL OR LaborHours >= 0");
+                    table.CheckConstraint("CK_WorkOrderLineItem_HourlyRate", "HourlyRate IS NULL OR HourlyRate >= 0");
+                    table.CheckConstraint("CK_WorkOrderLineItem_LaborHours", "LaborHours IS NULL OR LaborHours > 0");
                     table.CheckConstraint("CK_WorkOrderLineItem_Quantity", "Quantity > 0");
-                    table.CheckConstraint("CK_WorkOrderLineItem_UnitCost", "UnitCost >= 0");
+                    table.CheckConstraint("CK_WorkOrderLineItem_TotalCost", "TotalCost >= 0");
+                    table.CheckConstraint("CK_WorkOrderLineItem_UnitPrice", "UnitPrice IS NULL OR UnitPrice >= 0");
                     table.ForeignKey(
-                        name: "FK_WorkOrderLineItems_InventoryItem_InventoryItemID",
+                        name: "FK_WorkOrderLineItems_InventoryItems_InventoryItemID",
                         column: x => x.InventoryItemID,
-                        principalTable: "InventoryItem",
+                        principalTable: "InventoryItems",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
@@ -1135,6 +1156,12 @@ namespace Persistence.Migrations
                         column: x => x.ServiceTaskID,
                         principalTable: "ServiceTasks",
                         principalColumn: "ID",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_WorkOrderLineItems_Users_AssignedToUserID",
+                        column: x => x.AssignedToUserID,
+                        principalTable: "Users",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_WorkOrderLineItems_WorkOrders_WorkOrderID",
@@ -1145,7 +1172,7 @@ namespace Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "InventoryTransaction",
+                name: "InventoryTransactions",
                 columns: table => new
                 {
                     ID = table.Column<int>(type: "int", nullable: false)
@@ -1165,21 +1192,21 @@ namespace Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_InventoryTransaction", x => x.ID);
+                    table.PrimaryKey("PK_InventoryTransactions", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_InventoryTransaction_Inventory_InventoryID",
+                        name: "FK_InventoryTransactions_Inventories_InventoryID",
                         column: x => x.InventoryID,
-                        principalTable: "Inventory",
+                        principalTable: "Inventories",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_InventoryTransaction_MaintenanceHistories_MaintenanceHistoryID",
+                        name: "FK_InventoryTransactions_MaintenanceHistories_MaintenanceHistoryID",
                         column: x => x.MaintenanceHistoryID,
                         principalTable: "MaintenanceHistories",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_InventoryTransaction_WorkOrders_WorkOrderID",
+                        name: "FK_InventoryTransactions_WorkOrders_WorkOrderID",
                         column: x => x.WorkOrderID,
                         principalTable: "WorkOrders",
                         principalColumn: "ID");
@@ -1330,28 +1357,73 @@ namespace Persistence.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Inventory_InventoryItemID",
-                table: "Inventory",
+                name: "IX_Inventories_InventoryItemID",
+                table: "Inventories",
                 column: "InventoryItemID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Inventory_InventoryItemLocationID",
-                table: "Inventory",
+                name: "IX_Inventories_InventoryItemLocationID",
+                table: "Inventories",
                 column: "InventoryItemLocationID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_InventoryTransaction_InventoryID",
-                table: "InventoryTransaction",
+                name: "IX_InventoryItems_Category",
+                table: "InventoryItems",
+                column: "Category");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_InventoryItems_IsActive",
+                table: "InventoryItems",
+                column: "IsActive");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_InventoryItems_IsActive_Category",
+                table: "InventoryItems",
+                columns: new[] { "IsActive", "Category" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_InventoryItems_ItemName",
+                table: "InventoryItems",
+                column: "ItemName");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_InventoryItems_ItemNumber_Unique",
+                table: "InventoryItems",
+                column: "ItemNumber",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_InventoryItems_Manufacturer",
+                table: "InventoryItems",
+                column: "Manufacturer");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_InventoryItems_Manufacturer_PartNumber_Unique",
+                table: "InventoryItems",
+                columns: new[] { "Manufacturer", "ManufacturerPartNumber" },
+                unique: true,
+                filter: "[Manufacturer] IS NOT NULL AND [ManufacturerPartNumber] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_InventoryItems_UniversalProductCode_Unique",
+                table: "InventoryItems",
+                column: "UniversalProductCode",
+                unique: true,
+                filter: "[UniversalProductCode] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_InventoryTransactions_InventoryID",
+                table: "InventoryTransactions",
                 column: "InventoryID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_InventoryTransaction_MaintenanceHistoryID",
-                table: "InventoryTransaction",
+                name: "IX_InventoryTransactions_MaintenanceHistoryID",
+                table: "InventoryTransactions",
                 column: "MaintenanceHistoryID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_InventoryTransaction_WorkOrderID",
-                table: "InventoryTransaction",
+                name: "IX_InventoryTransactions_WorkOrderID",
+                table: "InventoryTransactions",
                 column: "WorkOrderID");
 
             migrationBuilder.CreateIndex(
@@ -1379,6 +1451,26 @@ namespace Persistence.Migrations
                 name: "IX_Invoices_Status",
                 table: "Invoices",
                 column: "Status");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_IssueAssignments_AssignedDate",
+                table: "IssueAssignments",
+                column: "AssignedDate");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_IssueAssignments_AssignedToUserID",
+                table: "IssueAssignments",
+                column: "AssignedToUserID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_IssueAssignments_IsActive",
+                table: "IssueAssignments",
+                column: "IsActive");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_IssueAssignments_IssueID",
+                table: "IssueAssignments",
+                column: "IssueID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_IssueAttachments_CreatedAt",
@@ -1430,6 +1522,11 @@ namespace Persistence.Migrations
                 name: "IX_Issues_ReportedByUserID",
                 table: "Issues",
                 column: "ReportedByUserID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Issues_ResolvedByUserID",
+                table: "Issues",
+                column: "ResolvedByUserID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Issues_Status",
@@ -1496,17 +1593,6 @@ namespace Persistence.Migrations
                 table: "ServicePrograms",
                 column: "Name",
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ServicePrograms_OEMTag",
-                table: "ServicePrograms",
-                column: "OEMTag",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ServicePrograms_OEMTag_IsActive",
-                table: "ServicePrograms",
-                columns: new[] { "OEMTag", "IsActive" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_ServiceReminders_DueDate",
@@ -1588,43 +1674,6 @@ namespace Persistence.Migrations
                 table: "ServiceSchedules",
                 columns: new[] { "ServiceProgramID", "Name" },
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ServiceScheduleTasks_IsMandatory",
-                table: "ServiceScheduleTasks",
-                column: "IsMandatory");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ServiceScheduleTasks_ServiceScheduleID",
-                table: "ServiceScheduleTasks",
-                column: "ServiceScheduleID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ServiceScheduleTasks_ServiceScheduleID_IsMandatory",
-                table: "ServiceScheduleTasks",
-                columns: new[] { "ServiceScheduleID", "IsMandatory" });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ServiceScheduleTasks_ServiceScheduleID_SequenceNumber",
-                table: "ServiceScheduleTasks",
-                columns: new[] { "ServiceScheduleID", "SequenceNumber" },
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ServiceScheduleTasks_ServiceScheduleID_ServiceTaskID",
-                table: "ServiceScheduleTasks",
-                columns: new[] { "ServiceScheduleID", "ServiceTaskID" },
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ServiceScheduleTasks_ServiceTaskID",
-                table: "ServiceScheduleTasks",
-                column: "ServiceTaskID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ServiceScheduleTasks_ServiceTaskID1",
-                table: "ServiceScheduleTasks",
-                column: "ServiceTaskID1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ServiceTasks_Category",
@@ -1923,31 +1972,6 @@ namespace Persistence.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_VehicleServicePrograms_AssignedDate",
-                table: "VehicleServicePrograms",
-                column: "AssignedDate");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_VehicleServicePrograms_IsActive",
-                table: "VehicleServicePrograms",
-                column: "IsActive");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_VehicleServicePrograms_IsActive_AssignedDate",
-                table: "VehicleServicePrograms",
-                columns: new[] { "IsActive", "AssignedDate" });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_VehicleServicePrograms_ServiceProgramID_IsActive",
-                table: "VehicleServicePrograms",
-                columns: new[] { "ServiceProgramID", "IsActive" });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_VehicleServicePrograms_VehicleID_IsActive",
-                table: "VehicleServicePrograms",
-                columns: new[] { "VehicleID", "IsActive" });
-
-            migrationBuilder.CreateIndex(
                 name: "IX_WorkOrderIssues_IssueID",
                 table: "WorkOrderIssues",
                 column: "IssueID");
@@ -1956,6 +1980,16 @@ namespace Persistence.Migrations
                 name: "IX_WorkOrderIssues_WorkOrderID",
                 table: "WorkOrderIssues",
                 column: "WorkOrderID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WorkOrderLineItems_AssignedToUserID",
+                table: "WorkOrderLineItems",
+                column: "AssignedToUserID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WorkOrderLineItems_CreatedAt",
+                table: "WorkOrderLineItems",
+                column: "CreatedAt");
 
             migrationBuilder.CreateIndex(
                 name: "IX_WorkOrderLineItems_InventoryItemID",
@@ -2018,11 +2052,6 @@ namespace Persistence.Migrations
                 column: "ServiceReminderID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_WorkOrders_ServiceReminderID1",
-                table: "WorkOrders",
-                column: "ServiceReminderID1");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_WorkOrders_Status",
                 table: "WorkOrders",
                 column: "Status");
@@ -2048,15 +2077,45 @@ namespace Persistence.Migrations
                 columns: new[] { "VehicleID", "Status" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_WorkOrders_WorkOrderNumber",
-                table: "WorkOrders",
-                column: "WorkOrderNumber",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
                 name: "IX_WorkOrders_WorkOrderType",
                 table: "WorkOrders",
                 column: "WorkOrderType");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_XrefServiceProgramVehicles_AddedAt",
+                table: "XrefServiceProgramVehicles",
+                column: "AddedAt");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_XrefServiceProgramVehicles_ServiceProgramID",
+                table: "XrefServiceProgramVehicles",
+                column: "ServiceProgramID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_XrefServiceProgramVehicles_UserId",
+                table: "XrefServiceProgramVehicles",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_XrefServiceProgramVehicles_VehicleID",
+                table: "XrefServiceProgramVehicles",
+                column: "VehicleID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_XrefServiceScheduleServiceTasks_ServiceScheduleID",
+                table: "XrefServiceScheduleServiceTasks",
+                column: "ServiceScheduleID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_XrefServiceScheduleServiceTasks_ServiceScheduleID_ServiceTaskID",
+                table: "XrefServiceScheduleServiceTasks",
+                columns: new[] { "ServiceScheduleID", "ServiceTaskID" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_XrefServiceScheduleServiceTasks_ServiceTaskID",
+                table: "XrefServiceScheduleServiceTasks",
+                column: "ServiceTaskID");
         }
 
         /// <inheritdoc />
@@ -2087,16 +2146,16 @@ namespace Persistence.Migrations
                 name: "InspectionChecklistResponses");
 
             migrationBuilder.DropTable(
-                name: "InventoryTransaction");
+                name: "InventoryTransactions");
 
             migrationBuilder.DropTable(
                 name: "Invoices");
 
             migrationBuilder.DropTable(
-                name: "IssueAttachments");
+                name: "IssueAssignments");
 
             migrationBuilder.DropTable(
-                name: "ServiceScheduleTasks");
+                name: "IssueAttachments");
 
             migrationBuilder.DropTable(
                 name: "VehicleAlerts");
@@ -2111,13 +2170,16 @@ namespace Persistence.Migrations
                 name: "VehicleImages");
 
             migrationBuilder.DropTable(
-                name: "VehicleServicePrograms");
-
-            migrationBuilder.DropTable(
                 name: "WorkOrderIssues");
 
             migrationBuilder.DropTable(
                 name: "WorkOrderLineItems");
+
+            migrationBuilder.DropTable(
+                name: "XrefServiceProgramVehicles");
+
+            migrationBuilder.DropTable(
+                name: "XrefServiceScheduleServiceTasks");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
@@ -2129,7 +2191,7 @@ namespace Persistence.Migrations
                 name: "VehicleInspections");
 
             migrationBuilder.DropTable(
-                name: "Inventory");
+                name: "Inventories");
 
             migrationBuilder.DropTable(
                 name: "MaintenanceHistories");
@@ -2141,10 +2203,10 @@ namespace Persistence.Migrations
                 name: "InspectionTypes");
 
             migrationBuilder.DropTable(
-                name: "InventoryItemLocation");
+                name: "InventoryItemLocations");
 
             migrationBuilder.DropTable(
-                name: "InventoryItem");
+                name: "InventoryItems");
 
             migrationBuilder.DropTable(
                 name: "ServiceTasks");
