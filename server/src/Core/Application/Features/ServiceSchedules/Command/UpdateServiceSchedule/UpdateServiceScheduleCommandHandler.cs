@@ -18,6 +18,7 @@ public sealed class UpdateServiceScheduleCommandHandler : IRequestHandler<Update
 {
     private readonly IServiceScheduleRepository _serviceScheduleRepository;
     private readonly IServiceProgramRepository _serviceProgramRepository;
+    private readonly IXrefServiceScheduleServiceTaskRepository _xrefServiceScheduleServiceTaskRepository;
     private readonly IValidator<UpdateServiceScheduleCommand> _validator;
     private readonly IAppLogger<UpdateServiceScheduleCommandHandler> _logger;
     private readonly IMapper _mapper;
@@ -25,12 +26,14 @@ public sealed class UpdateServiceScheduleCommandHandler : IRequestHandler<Update
     public UpdateServiceScheduleCommandHandler(
         IServiceScheduleRepository serviceScheduleRepository,
         IServiceProgramRepository serviceProgramRepository,
+        IXrefServiceScheduleServiceTaskRepository xrefServiceScheduleServiceTaskRepository,
         IValidator<UpdateServiceScheduleCommand> validator,
         IAppLogger<UpdateServiceScheduleCommandHandler> logger,
         IMapper mapper)
     {
         _serviceScheduleRepository = serviceScheduleRepository;
         _serviceProgramRepository = serviceProgramRepository;
+        _xrefServiceScheduleServiceTaskRepository = xrefServiceScheduleServiceTaskRepository;
         _validator = validator;
         _logger = logger;
         _mapper = mapper;
@@ -67,11 +70,26 @@ public sealed class UpdateServiceScheduleCommandHandler : IRequestHandler<Update
         // Map request to existing entity (updates properties)
         _mapper.Map(request, existingSchedule);
 
+        // Remove all existing xrefs for this schedule
+        await _xrefServiceScheduleServiceTaskRepository.RemoveAllForScheduleAsync(existingSchedule.ID);
+
+        // Add new xrefs for the provided ServiceTaskIDs
+        var newXrefs = request.ServiceTaskIDs
+            .Select(serviceTaskID => new XrefServiceScheduleServiceTask
+            {
+                ServiceScheduleID = existingSchedule.ID,
+                ServiceTaskID = serviceTaskID,
+                ServiceSchedule = null!, // Navigation Property
+                ServiceTask = null!, // Navigation Property
+            })
+            .ToList();
+        await _xrefServiceScheduleServiceTaskRepository.AddRangeAsync(newXrefs);
+
         // Update entity
         _serviceScheduleRepository.Update(existingSchedule);
         await _serviceScheduleRepository.SaveChangesAsync();
 
-        _logger.LogInformation($"Successfully updated service schedule with ID: {existingSchedule.ID}");
+        _logger.LogInformation($"Service schedule '{existingSchedule.Name}' updated successfully with ID: {existingSchedule.ID}");
         return existingSchedule.ID;
     }
 }

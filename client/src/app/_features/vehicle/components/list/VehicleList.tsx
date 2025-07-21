@@ -1,18 +1,16 @@
 "use client";
 import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import DataTable from "@/app/_features/shared/DataTable";
-import OptionButton from "@/app/_features/shared/button/OptionButton";
-import PrimaryButton from "@/app/_features/shared/button/PrimaryButton";
+import { DataTable, PaginationControls } from "@/app/_features/shared/table";
+import { OptionButton, PrimaryButton } from "@/app/_features/shared/button";
+import { TabNavigation } from "@/app/_features/shared/tabs";
+import { ConfirmModal } from "@/app/_features/shared/modal";
+import { FilterBar } from "@/app/_features/shared/filter";
+import { Archive, Edit, Details } from "@/app/_features/shared/icons";
 import { vehicleTableColumns } from "./VehicleTableColumns";
 import { useVehicles } from "@/app/_hooks/vehicle/useVehicles";
 import { Vehicle, VehicleWithLabels } from "@/app/_hooks/vehicle/vehicleType";
-import TabNavigation from "@/app/_features/shared/TabNavigation";
 import { vehicleFilterConfig, vehicleTabConfig } from "./VehicleListFilters";
-import PaginationControls from "@/app/_features/shared/PaginationControls";
-import ConfirmModal from "@/app/_features/shared/ConfirmModal";
-import FilterBar from "@/app/_features/shared/FilterBar";
-import { Archive, Edit, Details } from "@/app/_features/shared/icons";
 import {
   VehicleActionType,
   VEHICLE_ACTION_CONFIG,
@@ -150,7 +148,7 @@ const VehicleList: React.FC = () => {
   );
 
   return (
-    <div className="px-6 w-[1260px] min-h-screen mx-auto">
+    <div className="p-6 w-[1260px] min-h-screen mx-auto">
       <div className="flex items-center justify-between mb-2">
         <h1 className="text-2xl font-semibold text-gray-900">Vehicles</h1>
         <div className="flex items-center gap-3">
@@ -193,6 +191,7 @@ const VehicleList: React.FC = () => {
         onRowClick={handleRowClick}
         actions={vehicleActions}
         showActions={true}
+        fixedLayout={false}
         loading={isLoadingVehicles}
         getItemId={vehicle => vehicle.id.toString()}
         emptyState={emptyState}

@@ -105,7 +105,7 @@ public class GetAllMaintenanceHistoriesQueryHandlerTest
             VehicleImages = [],
             VehicleAssignments = [],
             VehicleDocuments = [],
-            VehicleServicePrograms = [],
+            XrefServiceProgramVehicles = [],
             ServiceReminders = [],
             Issues = [],
             VehicleInspections = []
@@ -146,7 +146,7 @@ public class GetAllMaintenanceHistoriesQueryHandlerTest
             UpdatedAt = DateTime.UtcNow,
             MaintenanceHistories = [],
             WorkOrderLineItems = [],
-            ServiceScheduleTasks = []
+            XrefServiceScheduleServiceTasks = []
         };
         var user = new Domain.Entities.User
         {

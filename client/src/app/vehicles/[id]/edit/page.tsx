@@ -2,7 +2,7 @@
 import { useParams, useRouter } from "next/navigation";
 import VehicleFormContainer from "@/app/_features/vehicle/components/forms/VehicleFormContainer";
 import { useVehicles } from "@/app/_hooks/vehicle/useVehicles";
-import Loading from "@/app/_features/shared/Loading";
+import { Loading } from "@/app/_features/shared/feedback";
 
 const EditVehiclePage = () => {
   const params = useParams();

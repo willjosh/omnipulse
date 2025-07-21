@@ -18,6 +18,7 @@ public sealed class CreateServiceScheduleCommandHandler : IRequestHandler<Create
 {
     private readonly IServiceScheduleRepository _serviceScheduleRepository;
     private readonly IServiceProgramRepository _serviceProgramRepository;
+    private readonly IXrefServiceScheduleServiceTaskRepository _xrefServiceScheduleServiceTaskRepository;
     private readonly IValidator<CreateServiceScheduleCommand> _validator;
     private readonly IAppLogger<CreateServiceScheduleCommandHandler> _logger;
     private readonly IMapper _mapper;
@@ -25,12 +26,14 @@ public sealed class CreateServiceScheduleCommandHandler : IRequestHandler<Create
     public CreateServiceScheduleCommandHandler(
         IServiceScheduleRepository serviceScheduleRepository,
         IServiceProgramRepository serviceProgramRepository,
+        IXrefServiceScheduleServiceTaskRepository xrefServiceScheduleServiceTaskRepository,
         IValidator<CreateServiceScheduleCommand> validator,
         IAppLogger<CreateServiceScheduleCommandHandler> logger,
         IMapper mapper)
     {
         _serviceScheduleRepository = serviceScheduleRepository;
         _serviceProgramRepository = serviceProgramRepository;
+        _xrefServiceScheduleServiceTaskRepository = xrefServiceScheduleServiceTaskRepository;
         _validator = validator;
         _logger = logger;
         _mapper = mapper;
@@ -60,6 +63,19 @@ public sealed class CreateServiceScheduleCommandHandler : IRequestHandler<Create
 
         // Add new service schedule
         var newServiceSchedule = await _serviceScheduleRepository.AddAsync(serviceSchedule);
+
+        // Add XrefServiceScheduleServiceTask for each ServiceTaskID
+        var xrefServiceScheduleServiceTasks = request.ServiceTaskIDs
+            .Select(serviceTaskID => new XrefServiceScheduleServiceTask
+            {
+                ServiceScheduleID = newServiceSchedule.ID,
+                ServiceTaskID = serviceTaskID,
+                ServiceSchedule = null!, // Navigation Property
+                ServiceTask = null!, // Navigation Property
+            })
+            .ToList();
+
+        await _xrefServiceScheduleServiceTaskRepository.AddRangeAsync(xrefServiceScheduleServiceTasks);
         await _serviceScheduleRepository.SaveChangesAsync();
 
         _logger.LogInformation($"Service schedule '{newServiceSchedule.Name}' created successfully with ID: {newServiceSchedule.ID}");

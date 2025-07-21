@@ -7,6 +7,9 @@ const middlewares = jsonServer.defaults();
 // Add custom middleware for pagination wrapper
 server.use(middlewares);
 
+// Ensure body parsing for custom routes
+server.use(jsonServer.bodyParser);
+
 // Custom route for vehicles with pagination wrapper
 server.get("/vehicles", (req, res) => {
   const db = router.db;
@@ -140,6 +143,265 @@ server.post("/vehicles/deactivate/:id", (req, res) => {
     });
   } else {
     res.status(404).json({ error: "Vehicle not found" });
+  }
+});
+
+// Custom route for issues with pagination wrapper
+server.get("/issues", (req, res) => {
+  const db = router.db;
+  const issues = db.get("issues").value();
+
+  // Get query parameters
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const sortBy = req.query.sortBy || "id";
+  const sortOrder = req.query.sortOrder || "asc";
+  const search = req.query.search || "";
+
+  // Filter by search if provided
+  let filteredIssues = issues;
+  if (search) {
+    const searchLower = search.toLowerCase();
+    filteredIssues = issues.filter(
+      issue =>
+        (issue.Title &&
+          String(issue.Title).toLowerCase().includes(searchLower)) ||
+        (issue.Description &&
+          String(issue.Description).toLowerCase().includes(searchLower)) ||
+        (issue.Status &&
+          String(issue.Status).toLowerCase().includes(searchLower)) ||
+        (issue.Reporter &&
+          String(issue.Reporter).toLowerCase().includes(searchLower)) ||
+        (issue.AssignedTechnicianName &&
+          String(issue.AssignedTechnicianName)
+            .toLowerCase()
+            .includes(searchLower)) ||
+        (issue.VehicleName &&
+          String(issue.VehicleName).toLowerCase().includes(searchLower)),
+    );
+  }
+
+  // Sort issues
+  filteredIssues.sort((a, b) => {
+    let aValue = a[sortBy];
+    let bValue = b[sortBy];
+
+    if (aValue == null && bValue == null) return 0;
+    if (aValue == null) return sortOrder === "asc" ? 1 : -1;
+    if (bValue == null) return sortOrder === "asc" ? -1 : 1;
+
+    if (typeof aValue === "number" && typeof bValue === "number") {
+      return sortOrder === "asc" ? aValue - bValue : bValue - aValue;
+    }
+
+    const aString = String(aValue).toLowerCase();
+    const bString = String(bValue).toLowerCase();
+
+    if (aString < bString) return sortOrder === "asc" ? -1 : 1;
+    if (aString > bString) return sortOrder === "asc" ? 1 : -1;
+    return 0;
+  });
+
+  // Calculate pagination
+  const totalCount = filteredIssues.length;
+  const totalPages = Math.ceil(totalCount / limit);
+  const startIndex = (page - 1) * limit;
+  const endIndex = startIndex + limit;
+  const paginatedIssues = filteredIssues.slice(startIndex, endIndex);
+
+  // Return response in your expected format
+  res.json({
+    Items: paginatedIssues,
+    TotalCount: totalCount,
+    PageNumber: page,
+    PageSize: limit,
+    TotalPages: totalPages,
+    HasPreviousPage: page > 1,
+    HasNextPage: page < totalPages,
+  });
+});
+
+// Update issue
+server.put("/issues/:id", (req, res) => {
+  const db = router.db;
+  const issueId = parseInt(req.params.id);
+  const updatedIssue = req.body;
+
+  const issue = db.get("issues").find({ id: issueId });
+
+  if (issue.value()) {
+    // Map VehicleID to VehicleName
+    const vehicles = db.get("vehicles").value();
+    const vehicle = vehicles.find(v => v.id === updatedIssue.VehicleID);
+    updatedIssue.VehicleName = vehicle
+      ? vehicle.Name || vehicle.VehicleName
+      : "";
+
+    // Map ReportedByUserID to ReportedByUserName
+    const users = db.get("technicians").value();
+    const reportedByUser = users.find(
+      u => u.id === updatedIssue.ReportedByUserID,
+    );
+    updatedIssue.ReportedByUserName = reportedByUser
+      ? `${reportedByUser.FirstName} ${reportedByUser.LastName}`
+      : "";
+
+    // Map ResolvedByUserID to ResolvedByUserName (if not null)
+    if (updatedIssue.ResolvedByUserID) {
+      const resolvedByUser = users.find(
+        u => u.id === updatedIssue.ResolvedByUserID,
+      );
+      updatedIssue.ResolvedByUserName = resolvedByUser
+        ? `${resolvedByUser.FirstName} ${resolvedByUser.LastName}`
+        : "";
+    } else {
+      updatedIssue.ResolvedByUserName = null;
+    }
+
+    issue.assign(updatedIssue).write();
+    res.json(issue.value());
+  } else {
+    res.status(404).json({ error: "Issue not found" });
+  }
+});
+
+server.delete("/issues/:id", (req, res) => {
+  const db = router.db;
+  const issueId = parseInt(req.params.id);
+  const issues = db.get("issues");
+  const issue = issues.find({ id: issueId });
+  if (issue.value()) {
+    issues.remove({ id: issueId }).write();
+    res.status(204).end();
+  } else {
+    res.status(404).json({ error: "Issue not found" });
+  }
+});
+
+server.post("/issues", (req, res) => {
+  const db = router.db;
+  const issues = db.get("issues");
+  const vehicles = db.get("vehicles").value();
+  const users = db.get("technicians").value();
+
+  // Find next id and IssueNumber
+  const allIssues = issues.value();
+  const nextId = allIssues.length
+    ? Math.max(...allIssues.map(i => i.id)) + 1
+    : 1;
+  const nextIssueNumber = allIssues.length
+    ? Math.max(...allIssues.map(i => i.IssueNumber)) + 1
+    : 1001;
+
+  // Look up vehicle name
+  const vehicle = vehicles.find(v => v.id === req.body.VehicleID);
+  const vehicleName = vehicle ? vehicle.Name || vehicle.VehicleName : "";
+
+  // Look up user name
+  const user = users.find(u => u.id === req.body.ReportedByUserID);
+  const reportedByUserName = user ? `${user.FirstName} ${user.LastName}` : "";
+
+  // Compose new issue
+  const newIssue = {
+    id: nextId,
+    IssueNumber: nextIssueNumber,
+    VehicleID: req.body.VehicleID,
+    VehicleName: vehicleName,
+    Title: req.body.Title,
+    Description: req.body.Description,
+    Category: req.body.Category,
+    PriorityLevel: req.body.PriorityLevel,
+    Status: req.body.Status,
+    ReportedByUserID: req.body.ReportedByUserID,
+    ReportedByUserName: reportedByUserName,
+    ReportedDate: req.body.ReportedDate,
+    ResolvedDate: null,
+    ResolvedByUserID: null,
+    ResolvedByUserName: null,
+    ResolutionNotes: null,
+  };
+
+  issues.push(newIssue).write();
+  res.status(201).json(newIssue);
+});
+
+// Get single issue
+server.get("/issues/:id", (req, res) => {
+  const db = router.db;
+  const issue = db
+    .get("issues")
+    .find({ id: parseInt(req.params.id) })
+    .value();
+
+  if (issue) {
+    res.json(issue);
+  } else {
+    res.status(404).json({ error: "Issue not found" });
+  }
+});
+
+// Create a new vehicle group
+server.post("/vehicleGroups", (req, res) => {
+  try {
+    const db = router.db;
+    const vehicleGroups = db.get("vehicleGroups");
+    const newVehicleGroup = req.body;
+
+    if (!newVehicleGroup) {
+      return res.status(400).json({ error: "Request body is required" });
+    }
+
+    const allGroups = vehicleGroups.value();
+    const maxId =
+      allGroups.length > 0
+        ? Math.max(...allGroups.map(group => parseInt(group.id) || 0))
+        : 0;
+
+    newVehicleGroup.id = maxId + 1;
+
+    vehicleGroups.push(newVehicleGroup).write();
+
+    res.status(201).json(newVehicleGroup);
+  } catch (error) {
+    console.error("Error creating vehicle group:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Update vehicle group
+server.put("/vehicleGroups/:id", (req, res) => {
+  try {
+    const db = router.db;
+    const vehicleGroups = db.get("vehicleGroups");
+    const id = parseInt(req.params.id);
+    const updatedData = req.body;
+
+    if (!updatedData) {
+      return res.status(400).json({ error: "Request body is required" });
+    }
+
+    // Find the vehicle group
+    const groupIndex = vehicleGroups
+      .value()
+      .findIndex(group => group.id === id);
+
+    if (groupIndex === -1) {
+      return res.status(404).json({ error: "Vehicle group not found" });
+    }
+
+    // Update the vehicle group
+    const updatedGroup = {
+      ...vehicleGroups.value()[groupIndex],
+      ...updatedData,
+      id,
+    };
+    vehicleGroups.value()[groupIndex] = updatedGroup;
+    vehicleGroups.write();
+
+    res.json(updatedGroup);
+  } catch (error) {
+    console.error("Error updating vehicle group:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
@@ -342,6 +604,91 @@ server.get("/technicians/:id", (req, res) => {
   }
 });
 
+// Create a new technician
+server.post("/technicians", (req, res) => {
+  const db = router.db;
+  const technicians = db.get("technicians");
+  const newTechnician = req.body;
+
+  const generateUUID = () => {
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+      /[xy]/g,
+      function (c) {
+        const r = (Math.random() * 16) | 0;
+        const v = c === "x" ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+      },
+    );
+  };
+
+  newTechnician.id = generateUUID();
+
+  if (newTechnician.HireDate && !newTechnician.HireDate.includes("T")) {
+    newTechnician.HireDate = new Date(newTechnician.HireDate).toISOString();
+  }
+
+  if (
+    !newTechnician.FirstName ||
+    !newTechnician.LastName ||
+    !newTechnician.Email
+  ) {
+    return res
+      .status(400)
+      .json({ error: "FirstName, LastName, and Email are required." });
+  }
+
+  technicians.push(newTechnician).write();
+
+  res.status(201).json(newTechnician);
+});
+
+// Update technician
+server.put("/technicians/:id", (req, res) => {
+  const db = router.db;
+  const technicianId = req.params.id;
+  const updatedData = req.body;
+
+  const technician = db.get("technicians").find({ id: technicianId });
+
+  if (technician.value()) {
+    if (updatedData.HireDate && !updatedData.HireDate.includes("T")) {
+      updatedData.HireDate = new Date(updatedData.HireDate).toISOString();
+    }
+
+    const cleanedData = Object.fromEntries(
+      Object.entries(updatedData).filter(([_, value]) => value != null),
+    );
+
+    technician.assign(cleanedData).write();
+    res.json({
+      message: "Technician updated successfully",
+      technician: technician.value(),
+    });
+  } else {
+    res.status(404).json({ error: "Technician not found" });
+  }
+});
+
+server.post("/technicians/status/:id", (req, res) => {
+  const db = router.db;
+  const technicianId = req.params.id;
+
+  const technician = db.get("technicians").find({ id: technicianId });
+
+  if (technician.value()) {
+    const currentStatus = technician.value().IsActive;
+    const newStatus = !currentStatus;
+
+    technician.assign({ IsActive: newStatus }).write();
+    res.json({
+      message: `Technician ${newStatus ? "activated" : "deactivated"} successfully`,
+      technician: technician.value(),
+    });
+  } else {
+    res.status(404).json({ error: "Technician not found" });
+  }
+});
+
 // Custom route for inventoryItems with pagination wrapper
 server.get("/inventoryItems", (req, res) => {
   const db = router.db;
@@ -452,6 +799,38 @@ server.get("/inventoryItems", (req, res) => {
   });
 });
 
+// Deactivate (archive) an inventory item
+server.post("/inventoryItems/deactivate/:id", (req, res) => {
+  try {
+    const db = router.db;
+    const itemId = parseInt(req.params.id);
+
+    if (!itemId) {
+      return res.status(400).json({ error: "Invalid inventory item ID" });
+    }
+
+    const inventoryItem = db.get("inventoryItems").find({ id: itemId }).value();
+
+    if (!inventoryItem) {
+      return res.status(404).json({ error: "Inventory item not found" });
+    }
+
+    // Update the item to set IsActive to false
+    db.get("inventoryItems")
+      .find({ id: itemId })
+      .assign({ IsActive: false, updatedAt: new Date().toISOString() })
+      .write();
+
+    console.log(`Deactivated inventory item with ID: ${itemId}`);
+    res
+      .status(200)
+      .json({ message: "Inventory item deactivated successfully" });
+  } catch (error) {
+    console.error("Error deactivating inventory item:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // Get single inventory item
 server.get("/inventoryItems/:id", (req, res) => {
   const db = router.db;
@@ -464,6 +843,84 @@ server.get("/inventoryItems/:id", (req, res) => {
     res.json(item);
   } else {
     res.status(404).json({ error: "Inventory item not found" });
+  }
+});
+
+// Create a new inventory item
+server.post("/inventoryItems", (req, res) => {
+  try {
+    const db = router.db;
+    const inventoryItems = db.get("inventoryItems");
+    const newInventoryItem = req.body;
+
+    if (!newInventoryItem) {
+      return res.status(400).json({ error: "Request body is required" });
+    }
+
+    if (!newInventoryItem.ItemNumber || !newInventoryItem.ItemName) {
+      return res
+        .status(400)
+        .json({ error: "ItemNumber and ItemName are required" });
+    }
+
+    const allItems = inventoryItems.value();
+    const maxId =
+      allItems.length > 0
+        ? Math.max(...allItems.map(item => parseInt(item.id) || 0))
+        : 0;
+
+    newInventoryItem.id = maxId + 1;
+
+    inventoryItems.push(newInventoryItem).write();
+
+    res.status(201).json(newInventoryItem);
+  } catch (error) {
+    console.error("Error creating inventory item:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Update an inventory item
+server.put("/inventoryItems/:id", (req, res) => {
+  try {
+    const db = router.db;
+    const itemId = parseInt(req.params.id);
+    const updatedItem = req.body;
+
+    if (!itemId) {
+      return res.status(400).json({ error: "Invalid inventory item ID" });
+    }
+
+    if (!updatedItem.ItemNumber || !updatedItem.ItemName) {
+      return res
+        .status(400)
+        .json({ error: "ItemNumber and ItemName are required" });
+    }
+
+    const inventoryItem = db.get("inventoryItems").find({ id: itemId }).value();
+
+    if (!inventoryItem) {
+      return res.status(404).json({ error: "Inventory item not found" });
+    }
+
+    // Update the item
+    const updatedInventoryItem = {
+      ...inventoryItem,
+      ...updatedItem,
+      id: itemId, // Ensure ID remains the same
+      updatedAt: new Date().toISOString(),
+    };
+
+    db.get("inventoryItems")
+      .find({ id: itemId })
+      .assign(updatedInventoryItem)
+      .write();
+
+    console.log(`Updated inventory item with ID: ${itemId}`);
+    res.json(updatedInventoryItem);
+  } catch (error) {
+    console.error("Error updating inventory item:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
@@ -548,6 +1005,44 @@ server.get("/serviceTasks", (req, res) => {
   });
 });
 
+// Create a new service task
+server.post("/serviceTasks", (req, res) => {
+  const db = router.db;
+  const serviceTasks = db.get("serviceTasks");
+  const newTask = req.body;
+
+  // Generate new ID
+  const maxId = serviceTasks
+    .value()
+    .reduce((max, task) => Math.max(max, task.id || 0), 0);
+  newTask.id = maxId + 1;
+
+  // Set IsActive to true by default
+  if (typeof newTask.IsActive === "undefined") {
+    newTask.IsActive = true;
+  }
+
+  serviceTasks.push(newTask).write();
+
+  res.status(201).json(newTask);
+});
+
+// Update service task
+server.put("/serviceTasks/:id", (req, res) => {
+  const db = router.db;
+  const taskId = parseInt(req.params.id);
+  const updatedTask = req.body;
+
+  const task = db.get("serviceTasks").find({ id: taskId });
+
+  if (task.value()) {
+    task.assign(updatedTask).write();
+    res.json(task.value());
+  } else {
+    res.status(404).json({ error: "Service Task not found" });
+  }
+});
+
 // Get single service task
 server.get("/serviceTasks/:id", (req, res) => {
   const db = router.db;
@@ -584,6 +1079,9 @@ server.listen(PORT, () => {
   console.log(`GET /issues?page=1&limit=5 - Get issues with pagination`);
   console.log(`GET /issues?search=issue - Search issues`);
   console.log(`GET /issues/:id - Get single issue`);
+  console.log(`PUT /issues/:id - Update issue`);
+  console.log(`POST /issues - Create new issue`);
+  console.log(`DELETE /issues/:id - Delete issue`);
 
   // Vehicle Groups
   console.log(`GET /vehicleGroups - Get paginated vehicle groups`);
@@ -603,6 +1101,9 @@ server.listen(PORT, () => {
     `GET /technicians?sortBy=firstname - Sort technicians by firstname`,
   );
   console.log(`GET /technicians/:id - Get single technician`);
+  console.log(`POST /technicians - Create new technician`);
+  console.log(`PUT /technicians/:id - Update technician`);
+  console.log(`POST /technicians/status/:id - Toggle technician status`);
 
   // Inventory Items
   console.log(`GET /inventoryItems - Get paginated inventory items`);
@@ -611,6 +1112,9 @@ server.listen(PORT, () => {
   );
   console.log(`GET /inventoryItems?search=oil - Search inventory items`);
   console.log(`GET /inventoryItems/:id - Get single inventory item`);
+  console.log(`POST /inventoryItems - Create new inventory item`);
+  console.log(`PUT /inventoryItems/:id - Update inventory item`);
+  console.log(`POST /inventoryItems/deactivate/:id - Archive inventory item`);
 
   // Service Tasks
   console.log(`GET /serviceTasks - Get paginated service tasks`);
