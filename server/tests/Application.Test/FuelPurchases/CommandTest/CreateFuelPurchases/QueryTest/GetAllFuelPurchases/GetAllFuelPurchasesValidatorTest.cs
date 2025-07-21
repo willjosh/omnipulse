@@ -1,8 +1,5 @@
-using System;
-
 using Application.Features.FuelPurchases.Query.GetAllFuelPurchases;
-using Application.Features.Shared;
-using Application.Models;
+using Application.Models.PaginationModels;
 
 using Xunit;
 
