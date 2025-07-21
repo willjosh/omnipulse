@@ -16,6 +16,16 @@ namespace Api.Controllers;
 /// <summary>
 /// Controller for <see cref="Issue"/>
 /// </summary>
+/// <remarks>
+/// <b>API Endpoints</b>:
+/// <list type="bullet">
+/// <item><b>GET /api/issues</b> - <see cref="GetIssues"/> - <see cref="GetAllIssueQuery"/></item>
+/// <item><b>GET /api/issues/{id}</b> - <see cref="GetIssue"/> - <see cref="GetIssueDetailsQuery"/></item>
+/// <item><b>POST /api/issues</b> - <see cref="CreateIssue"/> - <see cref="CreateIssueCommand"/></item>
+/// <item><b>PUT /api/issues/{id}</b> - <see cref="UpdateIssue"/> - <see cref="UpdateIssueCommand"/></item>
+/// <item><b>DELETE /api/issues/{id}</b> - <see cref="DeleteIssue"/> - <see cref="DeleteIssueCommand"/></item>
+/// </list>
+/// </remarks>
 [ApiController]
 [Route("api/[controller]")]
 [Consumes("application/json")]
@@ -59,7 +69,7 @@ public sealed class IssuesController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(GetIssues)} - ERROR");
+            _logger.LogError(ex, $"{nameof(GetIssues)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while retrieving issues." });
         }
     }
@@ -92,7 +102,7 @@ public sealed class IssuesController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(GetIssue)} - ERROR");
+            _logger.LogError(ex, $"{nameof(GetIssue)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while retrieving the issue." });
         }
     }
@@ -126,7 +136,7 @@ public sealed class IssuesController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(CreateIssue)} - ERROR");
+            _logger.LogError(ex, $"{nameof(CreateIssue)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while creating the issue." });
         }
     }
@@ -164,7 +174,7 @@ public sealed class IssuesController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(UpdateIssue)} - ERROR");
+            _logger.LogError(ex, $"{nameof(UpdateIssue)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while updating the issue." });
         }
     }
@@ -197,8 +207,8 @@ public sealed class IssuesController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(DeleteIssue)} - ERROR");
+            _logger.LogError(ex, $"{nameof(DeleteIssue)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while deleting the issue." });
         }
     }
-} 
+}
