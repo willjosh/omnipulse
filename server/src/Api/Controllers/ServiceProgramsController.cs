@@ -4,6 +4,7 @@ using Application.Features.ServicePrograms.Command.DeleteServiceProgram;
 using Application.Features.ServicePrograms.Command.RemoveVehicleFromServiceProgram;
 using Application.Features.ServicePrograms.Command.UpdateServiceProgram;
 using Application.Features.ServicePrograms.Query;
+using Application.Features.ServicePrograms.Query.GetAllServiceProgram;
 using Application.Features.ServicePrograms.Query.GetAllServiceProgramVehicle;
 using Application.Features.ServicePrograms.Query.GetServiceProgram;
 using Application.Models.PaginationModels;
@@ -22,6 +23,7 @@ namespace Api.Controllers;
 /// <remarks>
 /// <b>API Endpoints</b>:
 /// <list type="bullet">
+/// <item><b>GET /api/serviceprograms</b> - <see cref="GetServicePrograms"/> - <see cref="GetAllServiceProgramQuery"/></item>
 /// <item><b>GET /api/serviceprograms/{id}</b> - <see cref="GetServiceProgram"/> - <see cref="GetServiceProgramQuery"/></item>
 /// <item><b>POST /api/serviceprograms</b> - <see cref="CreateServiceProgram"/> - <see cref="CreateServiceProgramCommand"/></item>
 /// <item><b>PUT /api/serviceprograms/{id}</b> - <see cref="UpdateServiceProgram"/> - <see cref="UpdateServiceProgramCommand"/></item>
@@ -44,6 +46,39 @@ public sealed class ServiceProgramsController : ControllerBase
     {
         _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    }
+
+    /// <summary>
+    /// Retrieves a paginated list of all service programs.
+    /// </summary>
+    /// <param name="parameters">Pagination parameters.</param>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>A paginated result containing service programs.</returns>
+    /// <response code="200">Returns the paginated list of service programs.</response>
+    /// <response code="400">Pagination parameters are invalid.</response>
+    /// <response code="500">Internal server error occurred.</response>
+    [HttpGet]
+    [ProducesResponseType(typeof(PagedResult<GetAllServiceProgramDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<PagedResult<GetAllServiceProgramDTO>>> GetServicePrograms(
+        [FromQuery] PaginationParameters parameters,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            _logger.LogInformation($"{nameof(GetServicePrograms)}() - Called");
+
+            var query = new GetAllServiceProgramQuery(parameters);
+            var result = await _mediator.Send(query, cancellationToken);
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"{nameof(GetServicePrograms)}() - ERROR");
+            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while retrieving service programs." });
+        }
     }
 
     /// <summary>
