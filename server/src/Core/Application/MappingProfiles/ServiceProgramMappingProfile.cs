@@ -35,7 +35,7 @@ public class ServiceProgramMappingProfile : Profile
             .ForMember(dest => dest.AssignedVehicleIDs, opt => opt.Ignore()); // Handled in query handlers
 
         // GetAllServiceProgram
-        CreateMap<ServiceProgram, GetAllServiceProgramDTO>()
+        CreateMap<ServiceProgram, GetAllServiceProgramDTO>(MemberList.Destination)
             .ForMember(dest => dest.ServiceScheduleCount, opt => opt.MapFrom(src => src.ServiceSchedules.Count))
             .ForMember(dest => dest.AssignedVehicleCount, opt => opt.MapFrom(src => src.XrefServiceProgramVehicles.Count));
     }
