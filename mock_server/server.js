@@ -1337,6 +1337,56 @@ server.get("/serviceSchedules", (req, res) => {
   });
 });
 
+// Create a new service schedule
+server.post("/serviceSchedules", (req, res) => {
+  const db = router.db;
+  const serviceSchedules = db.get("serviceSchedules");
+  const newSchedule = req.body;
+
+  // Generate new ID
+  const maxId = serviceSchedules
+    .value()
+    .reduce((max, schedule) => Math.max(max, schedule.id || 0), 0);
+  newSchedule.id = maxId + 1;
+
+  // Ensure all expected fields are present and set to null if undefined
+  const expectedFields = [
+    "ServiceTasks",
+    "ServiceProgramID",
+    "Name",
+    "TimeIntervalValue",
+    "TimeIntervalUnit",
+    "TimeBufferValue",
+    "TimeBufferUnit",
+    "MileageInterval",
+    "MileageBuffer",
+    "FirstServiceTimeValue",
+    "FirstServiceTimeUnit",
+    "FirstServiceMileage",
+    "IsActive",
+  ];
+  expectedFields.forEach(field => {
+    if (typeof newSchedule[field] === "undefined") {
+      newSchedule[field] = null;
+    }
+  });
+
+  // Default values for missing fields
+  if (!Array.isArray(newSchedule.ServiceTasks)) {
+    newSchedule.ServiceTasks = [];
+  }
+
+  // Convert ServiceTaskIDs to ServiceTasks (array of ids)
+  if (Array.isArray(newSchedule.ServiceTaskIDs)) {
+    newSchedule.ServiceTasks = newSchedule.ServiceTaskIDs;
+    delete newSchedule.ServiceTaskIDs;
+  }
+
+  serviceSchedules.push(newSchedule).write();
+
+  res.status(201).json(newSchedule);
+});
+
 // Get single service schedule
 server.get("/serviceSchedules/:id", (req, res) => {
   const db = router.db;
