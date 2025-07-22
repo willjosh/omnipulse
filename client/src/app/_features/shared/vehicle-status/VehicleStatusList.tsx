@@ -7,9 +7,12 @@ import { Settings } from "lucide-react";
 import { Loading } from "@/app/_features/shared/feedback";
 import { DataTable } from "@/app/_features/shared/table";
 import { vehicleStatusTableColumns } from "@/app/_features/vehicle-status/VehicleStatusTableColumns";
+import { PrimaryButton } from "@/app/_features/shared/button";
+import VehicleStatusModal from "./VehicleStatusModal";
 
 export const VehicleStatusList: React.FC = () => {
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { vehicleStatuses, isLoading } = useVehicleStatuses();
 
@@ -45,6 +48,10 @@ export const VehicleStatusList: React.FC = () => {
           <Settings className="w-8 h-8 text-[var(--primary-color)]" />
           <h1 className="text-2xl font-bold text-gray-900">Vehicle Status</h1>
         </div>
+        <PrimaryButton onClick={() => setIsModalOpen(true)}>
+          <span>+</span>
+          Create Status
+        </PrimaryButton>
       </div>
 
       <DataTable<VehicleStatus>
@@ -65,6 +72,12 @@ export const VehicleStatusList: React.FC = () => {
             <p className="text-gray-500">No vehicle statuses found</p>
           </div>
         }
+      />
+
+      {/* Vehicle Status Modal */}
+      <VehicleStatusModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
       />
     </div>
   );
