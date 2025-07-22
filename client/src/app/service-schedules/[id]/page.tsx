@@ -9,6 +9,10 @@ import EmptyState from "@/app/_features/shared/feedback/EmptyState";
 import ServiceScheduleHeader from "@/app/_features/service-schedule/components/ServiceScheduleHeader";
 import PrimaryButton from "@/app/_features/shared/button/PrimaryButton";
 import EditIcon from "@/app/_features/shared/icons/Edit";
+import ArchiveIcon from "@/app/_features/shared/icons/Archive";
+import ConfirmModal from "@/app/_features/shared/modal/ConfirmModal";
+import { useDeleteServiceSchedule } from "@/app/_hooks/service-schedule/useServiceSchedule";
+import { useNotification } from "@/app/_features/shared/feedback/NotificationProvider";
 import { BreadcrumbItem } from "@/app/_features/shared/layout/Breadcrumbs";
 
 export default function ServiceScheduleDetailPage() {
@@ -16,6 +20,10 @@ export default function ServiceScheduleDetailPage() {
   const id = params.id ? Number(params.id) : undefined;
   const { data: schedule, isPending, isError } = useServiceSchedule(id!);
   const router = useRouter();
+  const { mutate: deleteServiceSchedule, isPending: isDeleting } =
+    useDeleteServiceSchedule();
+  const notify = useNotification();
+  const [isDeleteModalOpen, setDeleteModalOpen] = React.useState(false);
 
   if (isPending) {
     return <Loading />;
@@ -33,6 +41,18 @@ export default function ServiceScheduleDetailPage() {
     { label: "Service Schedules", href: "/service-schedules" },
   ];
 
+  const handleDelete = async () => {
+    deleteServiceSchedule(id!, {
+      onSuccess: () => {
+        notify("Service schedule deleted successfully", "success");
+        router.push("/service-schedules");
+      },
+      onError: () => {
+        notify("Failed to delete service schedule", "error");
+      },
+    });
+  };
+
   return (
     <div className="min-h-screen mx-auto bg-gray-50">
       <ServiceScheduleHeader
@@ -45,6 +65,22 @@ export default function ServiceScheduleDetailPage() {
             >
               <EditIcon /> Edit
             </PrimaryButton>
+            <PrimaryButton
+              className="bg-red-600 hover:bg-red-700 ml-2"
+              onClick={() => setDeleteModalOpen(true)}
+              disabled={isDeleting}
+            >
+              <ArchiveIcon /> Delete
+            </PrimaryButton>
+            <ConfirmModal
+              isOpen={isDeleteModalOpen}
+              onClose={() => setDeleteModalOpen(false)}
+              onConfirm={handleDelete}
+              title="Delete Service Schedule"
+              message="Are you sure you want to delete this service schedule? This action cannot be undone."
+              confirmText="Delete"
+              cancelText="Cancel"
+            />
           </>
         }
       />
