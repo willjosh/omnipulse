@@ -1058,6 +1058,57 @@ server.get("/serviceTasks/:id", (req, res) => {
   }
 });
 
+// Get user profile
+server.get("/user", (req, res) => {
+  try {
+    const db = router.db;
+    const user = db.get("user").value();
+
+    if (user) {
+      res.json(user);
+    } else {
+      res.status(404).json({ error: "User profile not found" });
+    }
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Update user profile
+server.put("/user", (req, res) => {
+  try {
+    const db = router.db;
+    const updatedUserData = req.body;
+
+    if (!updatedUserData) {
+      return res.status(400).json({ error: "Request body is required" });
+    }
+
+    const currentUser = db.get("user").value();
+
+    if (!currentUser) {
+      return res.status(404).json({ error: "User profile not found" });
+    }
+
+    const updatedUser = {
+      ...currentUser,
+      ...updatedUserData,
+      id: currentUser.id,
+      createdAt: currentUser.createdAt,
+      updatedAt: new Date().toISOString(),
+    };
+
+    db.set("user", updatedUser).write();
+
+    console.log("User profile updated successfully");
+    res.json(updatedUser);
+  } catch (error) {
+    console.error("Error updating user profile:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // Archive (deactivate) a service task
 server.post("/serviceTasks/deactivate/:id", (req, res) => {
   const db = router.db;
@@ -1273,6 +1324,9 @@ server.listen(PORT, () => {
   console.log(`GET /serviceTasks?search=oil - Search service tasks`);
   console.log(`GET /serviceTasks/:id - Get single service task`);
 
+  // User Profile
+  console.log(`GET /user - Get user profile`);
+  console.log(`PUT /user - Update user profile`);
   // Service Schedules
   console.log(`GET /serviceSchedules - Get paginated service schedules`);
   console.log(
