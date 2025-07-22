@@ -60,19 +60,32 @@ public class InventoryItemRepository : GenericRepository<InventoryItem>, IInvent
         };
     }
 
-    public Task<bool> IsItemNumberUniqueAsync(string itemNumber)
+    public async Task<bool> IsItemNumberUniqueAsync(string itemNumber)
     {
-        throw new NotImplementedException();
+        if (string.IsNullOrWhiteSpace(itemNumber))
+            return false;
+        return !await _dbSet.AnyAsync(i => i.ItemNumber.ToLower() == itemNumber.ToLower());
     }
 
-    public Task<bool> IsManufacturerPartNumberUniqueAsync(string? manufacturer, string? manufacturerPartNumber)
+    public async Task<bool> IsManufacturerPartNumberUniqueAsync(string? manufacturer, string? manufacturerPartNumber)
     {
-        throw new NotImplementedException();
+        if (string.IsNullOrWhiteSpace(manufacturer) || string.IsNullOrWhiteSpace(manufacturerPartNumber))
+            return false;
+        return !await _dbSet.AnyAsync(i =>
+            i.Manufacturer != null && i.ManufacturerPartNumber != null &&
+            i.Manufacturer.ToLower() == manufacturer.ToLower() &&
+            i.ManufacturerPartNumber.ToLower() == manufacturerPartNumber.ToLower()
+        );
     }
 
-    public Task<bool> IsUniversalProductCodeUniqueAsync(string? universalProductCode)
+    public async Task<bool> IsUniversalProductCodeUniqueAsync(string? universalProductCode)
     {
-        throw new NotImplementedException();
+        if (string.IsNullOrWhiteSpace(universalProductCode))
+            return false;
+        return !await _dbSet.AnyAsync(i =>
+            i.UniversalProductCode != null &&
+            i.UniversalProductCode.ToLower() == universalProductCode.ToLower()
+        );
     }
 
     private IQueryable<InventoryItem> ApplySorting(IQueryable<InventoryItem> query, string? sortBy, bool sortDescending)
