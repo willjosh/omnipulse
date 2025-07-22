@@ -4,12 +4,13 @@ import React, { useState, useMemo } from "react";
 import { useVehicleStatuses } from "@/app/_hooks/vehicle-status/useVehicleStatus";
 import { VehicleStatus } from "@/app/_hooks/vehicle-status/vehicleStatusTypes";
 import { Settings } from "lucide-react";
-import { Edit } from "@/app/_features/shared/icons";
+import { Edit, Archive } from "@/app/_features/shared/icons";
 import { Loading } from "@/app/_features/shared/feedback";
 import { DataTable } from "@/app/_features/shared/table";
 import { vehicleStatusTableColumns } from "@/app/_features/vehicle-status/VehicleStatusTableColumns";
 import { PrimaryButton } from "@/app/_features/shared/button";
 import VehicleStatusModal from "./VehicleStatusModal";
+import { ConfirmModal } from "@/app/_features/shared/modal";
 
 export const VehicleStatusList: React.FC = () => {
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
@@ -18,12 +19,17 @@ export const VehicleStatusList: React.FC = () => {
   const [editingStatus, setEditingStatus] = useState<
     VehicleStatus | undefined
   >();
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    vehicleStatus?: VehicleStatus;
+  }>({ isOpen: false });
 
   const {
     vehicleStatuses,
     isLoading,
     createVehicleStatusMutation,
     updateVehicleStatusMutation,
+    deleteVehicleStatusMutation,
   } = useVehicleStatuses();
 
   const handleSelectAll = () => {
@@ -72,6 +78,19 @@ export const VehicleStatusList: React.FC = () => {
     }
   };
 
+  const handleDeleteVehicleStatus = async () => {
+    if (!confirmModal.vehicleStatus) return;
+
+    try {
+      await deleteVehicleStatusMutation.mutateAsync(
+        confirmModal.vehicleStatus.id,
+      );
+      setConfirmModal({ isOpen: false });
+    } catch (error) {
+      console.error("Error deleting vehicle status:", error);
+    }
+  };
+
   const isSubmitting =
     createVehicleStatusMutation.isPending ||
     updateVehicleStatusMutation.isPending;
@@ -85,6 +104,15 @@ export const VehicleStatusList: React.FC = () => {
         icon: <Edit />,
         onClick: (vehicleStatus: VehicleStatus) => {
           handleEditStatus(vehicleStatus);
+        },
+      },
+      {
+        key: "ARCHIVE",
+        label: "Archive",
+        variant: "danger" as const,
+        icon: <Archive />,
+        onClick: (vehicleStatus: VehicleStatus) => {
+          setConfirmModal({ isOpen: true, vehicleStatus });
         },
       },
     ],
@@ -137,6 +165,17 @@ export const VehicleStatusList: React.FC = () => {
         onClose={handleCloseModal}
         onSubmit={handleSubmit}
         isLoading={isSubmitting}
+      />
+
+      {/* Archive Confirmation Modal */}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ isOpen: false })}
+        onConfirm={handleDeleteVehicleStatus}
+        title="Archive Vehicle Status"
+        message={`Are you sure you want to archive "${confirmModal.vehicleStatus?.name}"? This action cannot be undone.`}
+        confirmText="Archive"
+        cancelText="Cancel"
       />
     </div>
   );
