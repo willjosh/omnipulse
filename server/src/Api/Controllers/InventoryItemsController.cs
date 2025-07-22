@@ -1,7 +1,9 @@
 using Application.Features.InventoryItems.Command.CreateInventoryItem;
 using Application.Features.InventoryItems.Command.DeleteInventoryItem;
 using Application.Features.InventoryItems.Command.UpdateInventoryItem;
+using Application.Features.InventoryItems.Query.GetAllInventoryItem;
 using Application.Features.InventoryItems.Query.GetInventoryItem;
+using Application.Models.PaginationModels;
 
 using Domain.Entities;
 
@@ -68,6 +70,39 @@ public sealed class InventoryItemsController : ControllerBase
         {
             _logger.LogError(ex, $"{nameof(GetInventoryItem)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while retrieving the inventory item." });
+        }
+    }
+
+    /// <summary>
+    /// Retrieves a paginated list of all inventory items.
+    /// </summary>
+    /// <param name="parameters">Pagination parameters.</param>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>A paginated result containing inventory items.</returns>
+    /// <response code="200">Returns the paginated list of inventory items.</response>
+    /// <response code="400">Pagination parameters are invalid.</response>
+    /// <response code="500">Internal server error occurred.</response>
+    [HttpGet]
+    [ProducesResponseType(typeof(PagedResult<GetAllInventoryItemDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<PagedResult<GetAllInventoryItemDTO>>> GetInventoryItems(
+        [FromQuery] PaginationParameters parameters,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            _logger.LogInformation($"{nameof(GetInventoryItems)}() - Called");
+
+            var query = new GetAllInventoryItemQuery(parameters);
+            var result = await _mediator.Send(query, cancellationToken);
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"{nameof(GetInventoryItems)}() - ERROR");
+            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while retrieving inventory items." });
         }
     }
 
