@@ -3,18 +3,18 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0
 WORKDIR /server
 
 # Copy csproj files
-COPY Directory.Build.props ./
-COPY src/Api/Api.csproj ./src/Api/
-COPY src/Core/Application/Application.csproj ./src/Core/Application/
-COPY src/Core/Domain/Domain.csproj ./src/Core/Domain/
-COPY src/Infrastructure/Infrastructure/Infrastructure.csproj ./src/Infrastructure/Infrastructure/
-COPY src/Infrastructure/Persistence/Persistence.csproj ./src/Infrastructure/Persistence/
+COPY server/Directory.Build.props ./
+COPY server/src/Api/Api.csproj ./src/Api/
+COPY server/src/Core/Application/Application.csproj ./src/Core/Application/
+COPY server/src/Core/Domain/Domain.csproj ./src/Core/Domain/
+COPY server/src/Infrastructure/Infrastructure/Infrastructure.csproj ./src/Infrastructure/Infrastructure/
+COPY server/src/Infrastructure/Persistence/Persistence.csproj ./src/Infrastructure/Persistence/
 
 # Restore all dependencies including transitive dependencies
 RUN dotnet restore src/Api/Api.csproj
 
 # Copy source code
-COPY . .
+COPY server/ .
 
 WORKDIR /server/src/Api
 
