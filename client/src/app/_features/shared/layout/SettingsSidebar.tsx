@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
-import { ChevronRight, ArrowLeft, Layers, User } from "lucide-react";
+import { ChevronRight, ArrowLeft, Layers, User, Settings } from "lucide-react";
 import { NavItem, NavSection } from "./types";
 
 const settingsSections: NavSection[] = [
@@ -16,6 +16,11 @@ const settingsSections: NavSection[] = [
         label: "Vehicle Groups",
         icon: Layers,
         path: "/settings/vehicle-groups",
+      },
+      {
+        label: "Vehicle Status",
+        icon: Settings,
+        path: "/settings/vehicle-status",
       },
     ],
   },

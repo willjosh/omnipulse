@@ -492,6 +492,118 @@ server.get("/vehicleGroups/:id", (req, res) => {
   }
 });
 
+// Custom route for vehicleStatuses with pagination wrapper
+server.get("/vehicleStatuses", (req, res) => {
+  const db = router.db;
+  const vehicleStatuses = db.get("vehicleStatuses").value();
+  const vehicles = db.get("vehicles").value();
+
+  // Count vehicles for each status
+  const statusCounts = {};
+  vehicles.forEach(vehicle => {
+    const statusId = vehicle.Status;
+    statusCounts[statusId] = (statusCounts[statusId] || 0) + 1;
+  });
+
+  // Add vehicle counts to statuses
+  const statusesWithCounts = vehicleStatuses.map(status => ({
+    ...status,
+    vehicleCount: statusCounts[status.id] || 0,
+  }));
+
+  // Get query parameters
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const sortBy = req.query.sortBy || "id";
+  const sortOrder = req.query.sortOrder || "asc";
+  const search = req.query.search || "";
+
+  // Filter by search if provided
+  let filteredStatuses = statusesWithCounts;
+  if (search) {
+    const searchLower = search.toLowerCase();
+    filteredStatuses = statusesWithCounts.filter(status =>
+      status.name.toLowerCase().includes(searchLower),
+    );
+  }
+
+  // Filter by isActive if provided
+  if (typeof req.query.isActive !== "undefined") {
+    const isActive = req.query.isActive === "true";
+    filteredStatuses = filteredStatuses.filter(
+      status => status.isActive === isActive,
+    );
+  }
+
+  // Sort vehicle statuses
+  filteredStatuses.sort((a, b) => {
+    let aValue = a[sortBy];
+    let bValue = b[sortBy];
+
+    if (aValue == null && bValue == null) return 0;
+    if (aValue == null) return sortOrder === "asc" ? 1 : -1;
+    if (bValue == null) return sortOrder === "asc" ? -1 : 1;
+
+    if (typeof aValue === "number" && typeof bValue === "number") {
+      return sortOrder === "asc" ? aValue - bValue : bValue - aValue;
+    }
+
+    if (typeof aValue === "boolean" && typeof bValue === "boolean") {
+      return sortOrder === "asc"
+        ? aValue === bValue
+          ? 0
+          : aValue
+            ? -1
+            : 1
+        : aValue === bValue
+          ? 0
+          : aValue
+            ? 1
+            : -1;
+    }
+
+    const aString = String(aValue).toLowerCase();
+    const bString = String(bValue).toLowerCase();
+
+    if (aString < bString) return sortOrder === "asc" ? -1 : 1;
+    if (aString > bString) return sortOrder === "asc" ? 1 : -1;
+    return 0;
+  });
+
+  // Calculate pagination
+  const totalCount = filteredStatuses.length;
+  const totalPages = Math.ceil(totalCount / limit);
+  const startIndex = (page - 1) * limit;
+  const endIndex = startIndex + limit;
+  const paginatedStatuses = filteredStatuses.slice(startIndex, endIndex);
+
+  // Return response in expected format
+  res.json({
+    Items: paginatedStatuses,
+    TotalCount: totalCount,
+    PageNumber: page,
+    PageSize: limit,
+    TotalPages: totalPages,
+    HasPreviousPage: page > 1,
+    HasNextPage: page < totalPages,
+  });
+});
+
+// Get single vehicle status
+server.get("/vehicleStatuses/:id", (req, res) => {
+  const db = router.db;
+  const status = db
+    .get("vehicleStatuses")
+    .find({ id: parseInt(req.params.id) })
+    .value();
+
+  if (status) {
+    res.json(status);
+  } else {
+    res.status(404).json({ error: "Vehicle status not found" });
+  }
+});
+
 // Custom route for technicians with pagination wrapper
 server.get("/technicians", (req, res) => {
   const db = router.db;
@@ -1290,6 +1402,14 @@ server.listen(PORT, () => {
   );
   console.log(`GET /vehicleGroups?search=group - Search vehicle groups`);
   console.log(`GET /vehicleGroups/:id - Get single vehicle group`);
+
+  // Vehicle Statuses
+  console.log(`GET /vehicleStatuses - Get paginated vehicle statuses`);
+  console.log(
+    `GET /vehicleStatuses?page=1&limit=5 - Get vehicle statuses with pagination`,
+  );
+  console.log(`GET /vehicleStatuses?search=active - Search vehicle statuses`);
+  console.log(`GET /vehicleStatuses/:id - Get single vehicle status`);
 
   // Technicians
   console.log(`GET /technicians - Get paginated technicians`);
