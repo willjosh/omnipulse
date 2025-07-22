@@ -19,7 +19,6 @@ COPY . .
 WORKDIR /server/src/Api
 
 EXPOSE 8080
-EXPOSE 8081
 
 # Start development server with hot reload
 CMD ["dotnet", "watch", "run", "--urls", "http://0.0.0.0:8080"]

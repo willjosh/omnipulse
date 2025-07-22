@@ -6,7 +6,6 @@ npm-debug.log*
 .next
 out
 dist
-build
 
 # Environment files
 .env
@@ -73,7 +72,6 @@ temp/
 bin/
 obj/
 *.user
-*.suo
 *.cache
 *.docstates
 [Dd]ebug/
