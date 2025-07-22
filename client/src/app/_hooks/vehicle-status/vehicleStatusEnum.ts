@@ -3,26 +3,20 @@ export { VehicleStatusEnum } from "../vehicle/vehicleEnum";
 
 export const VehicleStatusDisplayMap: Record<
   number,
-  { name: string; label: string; color: string; isDefault: boolean }
+  { name: string; color: string }
 > = {
-  [1]: { name: "Active", label: "Active", color: "green", isDefault: true },
-  [2]: { name: "In Shop", label: "In Shop", color: "orange", isDefault: false },
-  [3]: {
-    name: "Out of Service",
-    label: "Out of Service",
-    color: "red",
-    isDefault: false,
-  },
-  [4]: { name: "Inactive", label: "Inactive", color: "blue", isDefault: false },
+  [1]: { name: "Active", color: "green" },
+  [2]: { name: "In Shop", color: "orange" },
+  [3]: { name: "Out of Service", color: "red" },
+  [4]: { name: "Inactive", color: "blue" },
+  [5]: { name: "Under Maintenance", color: "purple" },
 };
 
 export const getStatusDisplayInfo = (statusId: number) => {
   return (
     VehicleStatusDisplayMap[statusId] || {
       name: `Status ${statusId}`,
-      label: `Status ${statusId}`,
       color: "gray",
-      isDefault: false,
     }
   );
 };
