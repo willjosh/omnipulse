@@ -1,13 +1,22 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useVehicleStatuses } from "@/app/_hooks/vehicle-status/useVehicleStatus";
-import { CreateVehicleStatusCommand } from "@/app/_hooks/vehicle-status/vehicleStatusTypes";
+import {
+  CreateVehicleStatusCommand,
+  UpdateVehicleStatusCommand,
+  VehicleStatus,
+} from "@/app/_hooks/vehicle-status/vehicleStatusTypes";
 import { PrimaryButton, SecondaryButton } from "@/app/_features/shared/button";
 
 interface VehicleStatusModalProps {
   isOpen: boolean;
+  mode: "create" | "edit";
+  vehicleStatus?: VehicleStatus;
   onClose: () => void;
+  onSubmit: (
+    data: CreateVehicleStatusCommand | UpdateVehicleStatusCommand,
+  ) => Promise<void>;
+  isLoading?: boolean;
 }
 
 interface FormData {
@@ -79,19 +88,25 @@ const PREDEFINED_COLORS = [
 
 const VehicleStatusModal: React.FC<VehicleStatusModalProps> = ({
   isOpen,
+  mode,
+  vehicleStatus,
   onClose,
+  onSubmit,
+  isLoading = false,
 }) => {
   const [formData, setFormData] = useState<FormData>({ name: "", color: "" });
   const [errors, setErrors] = useState<FormErrors>({});
   const [showValidation, setShowValidation] = useState(false);
 
-  const { createVehicleStatusMutation } = useVehicleStatuses();
-
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
-      // Reset form when modal opens
-      setFormData({ name: "", color: "" });
+      // Initialize form based on mode
+      if (mode === "edit" && vehicleStatus) {
+        setFormData({ name: vehicleStatus.name, color: vehicleStatus.color });
+      } else if (mode === "create") {
+        setFormData({ name: "", color: "" });
+      }
       setErrors({});
       setShowValidation(false);
     } else {
@@ -101,7 +116,7 @@ const VehicleStatusModal: React.FC<VehicleStatusModalProps> = ({
     return () => {
       document.body.style.overflow = "unset";
     };
-  }, [isOpen]);
+  }, [isOpen, mode, vehicleStatus]);
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -129,16 +144,27 @@ const VehicleStatusModal: React.FC<VehicleStatusModalProps> = ({
     }
 
     try {
-      const command: CreateVehicleStatusCommand = {
-        name: formData.name.trim(),
-        color: formData.color,
-      };
-
-      await createVehicleStatusMutation.mutateAsync(command);
+      if (mode === "create") {
+        const command: CreateVehicleStatusCommand = {
+          name: formData.name.trim(),
+          color: formData.color,
+        };
+        await onSubmit(command);
+      } else if (mode === "edit" && vehicleStatus) {
+        const command: UpdateVehicleStatusCommand = {
+          id: vehicleStatus.id,
+          name: formData.name.trim(),
+          color: formData.color,
+        };
+        await onSubmit(command);
+      }
       onClose();
     } catch (error) {
-      console.error("Error creating vehicle status:", error);
-      setErrors({ name: "Failed to create vehicle status. Please try again." });
+      console.error("Error saving vehicle status:", error);
+      const action = mode === "create" ? "create" : "update";
+      setErrors({
+        name: `Failed to ${action} vehicle status. Please try again.`,
+      });
     }
   };
 
@@ -161,7 +187,9 @@ const VehicleStatusModal: React.FC<VehicleStatusModalProps> = ({
       <div className="fixed inset-0 backdrop-brightness-50" onClick={onClose} />
       <div className="relative bg-white rounded-lg p-6 max-w-md mx-4 shadow-xl border border-gray-200 w-full">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          Create New Vehicle Status
+          {mode === "create"
+            ? "Create New Vehicle Status"
+            : "Edit Vehicle Status"}
         </h3>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -241,17 +269,18 @@ const VehicleStatusModal: React.FC<VehicleStatusModalProps> = ({
             <SecondaryButton
               type="button"
               onClick={onClose}
-              disabled={createVehicleStatusMutation.isPending}
+              disabled={isLoading}
             >
               Cancel
             </SecondaryButton>
-            <PrimaryButton
-              type="submit"
-              disabled={createVehicleStatusMutation.isPending}
-            >
-              {createVehicleStatusMutation.isPending
-                ? "Creating..."
-                : "Create Status"}
+            <PrimaryButton type="submit" disabled={isLoading}>
+              {isLoading
+                ? mode === "create"
+                  ? "Creating..."
+                  : "Updating..."
+                : mode === "create"
+                  ? "Create Status"
+                  : "Update Status"}
             </PrimaryButton>
           </div>
         </form>
