@@ -1387,6 +1387,59 @@ server.post("/serviceSchedules", (req, res) => {
   res.status(201).json(newSchedule);
 });
 
+// Update a service schedule
+server.put("/serviceSchedules/:id", (req, res) => {
+  const db = router.db;
+  const scheduleId = parseInt(req.params.id);
+  const schedules = db.get("serviceSchedules");
+  const schedule = schedules.find({ id: scheduleId });
+
+  if (!schedule.value()) {
+    return res.status(404).json({ error: "Service Schedule not found" });
+  }
+
+  const updatedFields = req.body;
+
+  // Convert ServiceTaskIDs to ServiceTasks (array of ids)
+  if (Array.isArray(updatedFields.ServiceTaskIDs)) {
+    updatedFields.ServiceTasks = updatedFields.ServiceTaskIDs;
+    delete updatedFields.ServiceTaskIDs;
+  }
+
+  // Only update expected fields
+  const expectedFields = [
+    "ServiceTasks",
+    "ServiceProgramID",
+    "Name",
+    "TimeIntervalValue",
+    "TimeIntervalUnit",
+    "TimeBufferValue",
+    "TimeBufferUnit",
+    "MileageInterval",
+    "MileageBuffer",
+    "FirstServiceTimeValue",
+    "FirstServiceTimeUnit",
+    "FirstServiceMileage",
+    "IsActive",
+  ];
+  expectedFields.forEach(field => {
+    if (typeof updatedFields[field] === "undefined") {
+      updatedFields[field] = null;
+    }
+  });
+
+  schedule.assign(updatedFields).write();
+
+  // Expand ServiceTasks for response
+  const serviceTasks = db.get("serviceTasks").value();
+  const expandedTasks = (updatedFields.ServiceTasks || [])
+    .map(taskId => serviceTasks.find(t => t.id === taskId))
+    .filter(Boolean);
+
+  const updatedSchedule = { ...schedule.value(), ServiceTasks: expandedTasks };
+  res.json(updatedSchedule);
+});
+
 // Get single service schedule
 server.get("/serviceSchedules/:id", (req, res) => {
   const db = router.db;
