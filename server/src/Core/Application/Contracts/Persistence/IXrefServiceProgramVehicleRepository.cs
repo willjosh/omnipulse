@@ -1,3 +1,7 @@
+using Application.Features.ServicePrograms.Query.GetAllServiceProgramVehicle;
+using Application.Models;
+using Application.Models.PaginationModels;
+
 using Domain.Entities;
 
 namespace Application.Contracts.Persistence;
@@ -10,6 +14,22 @@ public interface IXrefServiceProgramVehicleRepository
     /// <param name="serviceProgramID">The ID of the Service Program.</param>
     /// <returns>A list of xref records associated with the specified Service Program.</returns>
     Task<List<XrefServiceProgramVehicle>> GetByServiceProgramIDAsync(int serviceProgramID);
+
+    /// <summary>
+    /// Gets paged xref records for a given <see cref="ServiceProgram"/>.
+    /// </summary>
+    /// <param name="serviceProgramID">The ID of the Service Program.</param>
+    /// <param name="parameters">Pagination parameters.</param>
+    /// <returns>A paged result of ServiceProgram-Vehicle xref records associated with the specified Service Program.</returns>
+    Task<PagedResult<XrefServiceProgramVehicle>> GetAllByServiceProgramIDPagedAsync(int serviceProgramID, PaginationParameters parameters);
+
+    /// <summary>
+    /// Gets paged vehicles for a given <see cref="ServiceProgram"/>.
+    /// </summary>
+    /// <param name="serviceProgramID">The ID of the Service Program.</param>
+    /// <param name="parameters">Pagination parameters.</param>
+    /// <returns>A paged result of vehicles associated with the specified Service Program.</returns>
+    Task<PagedResult<Vehicle>> GetAllServiceProgramVehiclesPagedAsync(int serviceProgramID, PaginationParameters parameters);
 
     /// <summary>
     /// Gets all xref records for a given <see cref="Vehicle"/>.

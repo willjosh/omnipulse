@@ -889,6 +889,18 @@
       "IsActive": true
     }
   ],
+  "user": {
+    "id": "user-123",
+    "firstName": "Sara",
+    "lastName": "Ciskie",
+    "email": "sara.ciskie@ciskiecontracting.com",
+    "userName": "sara.ciskie",
+    "hireDate": "2020-03-15T00:00:00Z",
+    "isActive": true,
+    "createdAt": "2020-03-15T00:00:00Z",
+    "updatedAt": "2024-01-15T10:30:00Z",
+    "roles": ["Fleet Manager", "Administrator"]
+  },
   "serviceSchedules": [
     {
       "id": 1,
@@ -1049,6 +1061,43 @@
       "FirstServiceTimeUnit": 2,
       "FirstServiceMileage": null,
       "IsActive": false
+    }
+  ],
+  "vehicleStatuses": [
+    {
+      "id": 1,
+      "name": "Active",
+      "color": "green",
+      "isActive": true,
+      "vehicleCount": 0
+    },
+    {
+      "id": 2,
+      "name": "In Shop",
+      "color": "orange",
+      "isActive": true,
+      "vehicleCount": 0
+    },
+    {
+      "id": 3,
+      "name": "Out of Service",
+      "color": "red",
+      "isActive": true,
+      "vehicleCount": 0
+    },
+    {
+      "id": 4,
+      "name": "Inactive",
+      "color": "blue",
+      "isActive": true,
+      "vehicleCount": 0
+    },
+    {
+      "id": 5,
+      "name": "Under Maintenance",
+      "color": "purple",
+      "isActive": true,
+      "vehicleCount": 0
     }
   ]
 }

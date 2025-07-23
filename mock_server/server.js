@@ -492,6 +492,118 @@ server.get("/vehicleGroups/:id", (req, res) => {
   }
 });
 
+// Custom route for vehicleStatuses with pagination wrapper
+server.get("/vehicleStatuses", (req, res) => {
+  const db = router.db;
+  const vehicleStatuses = db.get("vehicleStatuses").value();
+  const vehicles = db.get("vehicles").value();
+
+  // Count vehicles for each status
+  const statusCounts = {};
+  vehicles.forEach(vehicle => {
+    const statusId = vehicle.Status;
+    statusCounts[statusId] = (statusCounts[statusId] || 0) + 1;
+  });
+
+  // Add vehicle counts to statuses
+  const statusesWithCounts = vehicleStatuses.map(status => ({
+    ...status,
+    vehicleCount: statusCounts[status.id] || 0,
+  }));
+
+  // Get query parameters
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const sortBy = req.query.sortBy || "id";
+  const sortOrder = req.query.sortOrder || "asc";
+  const search = req.query.search || "";
+
+  // Filter by search if provided
+  let filteredStatuses = statusesWithCounts;
+  if (search) {
+    const searchLower = search.toLowerCase();
+    filteredStatuses = statusesWithCounts.filter(status =>
+      status.name.toLowerCase().includes(searchLower),
+    );
+  }
+
+  // Filter by isActive if provided
+  if (typeof req.query.isActive !== "undefined") {
+    const isActive = req.query.isActive === "true";
+    filteredStatuses = filteredStatuses.filter(
+      status => status.isActive === isActive,
+    );
+  }
+
+  // Sort vehicle statuses
+  filteredStatuses.sort((a, b) => {
+    let aValue = a[sortBy];
+    let bValue = b[sortBy];
+
+    if (aValue == null && bValue == null) return 0;
+    if (aValue == null) return sortOrder === "asc" ? 1 : -1;
+    if (bValue == null) return sortOrder === "asc" ? -1 : 1;
+
+    if (typeof aValue === "number" && typeof bValue === "number") {
+      return sortOrder === "asc" ? aValue - bValue : bValue - aValue;
+    }
+
+    if (typeof aValue === "boolean" && typeof bValue === "boolean") {
+      return sortOrder === "asc"
+        ? aValue === bValue
+          ? 0
+          : aValue
+            ? -1
+            : 1
+        : aValue === bValue
+          ? 0
+          : aValue
+            ? 1
+            : -1;
+    }
+
+    const aString = String(aValue).toLowerCase();
+    const bString = String(bValue).toLowerCase();
+
+    if (aString < bString) return sortOrder === "asc" ? -1 : 1;
+    if (aString > bString) return sortOrder === "asc" ? 1 : -1;
+    return 0;
+  });
+
+  // Calculate pagination
+  const totalCount = filteredStatuses.length;
+  const totalPages = Math.ceil(totalCount / limit);
+  const startIndex = (page - 1) * limit;
+  const endIndex = startIndex + limit;
+  const paginatedStatuses = filteredStatuses.slice(startIndex, endIndex);
+
+  // Return response in expected format
+  res.json({
+    Items: paginatedStatuses,
+    TotalCount: totalCount,
+    PageNumber: page,
+    PageSize: limit,
+    TotalPages: totalPages,
+    HasPreviousPage: page > 1,
+    HasNextPage: page < totalPages,
+  });
+});
+
+// Get single vehicle status
+server.get("/vehicleStatuses/:id", (req, res) => {
+  const db = router.db;
+  const status = db
+    .get("vehicleStatuses")
+    .find({ id: parseInt(req.params.id) })
+    .value();
+
+  if (status) {
+    res.json(status);
+  } else {
+    res.status(404).json({ error: "Vehicle status not found" });
+  }
+});
+
 // Custom route for technicians with pagination wrapper
 server.get("/technicians", (req, res) => {
   const db = router.db;
@@ -1058,6 +1170,57 @@ server.get("/serviceTasks/:id", (req, res) => {
   }
 });
 
+// Get user profile
+server.get("/user", (req, res) => {
+  try {
+    const db = router.db;
+    const user = db.get("user").value();
+
+    if (user) {
+      res.json(user);
+    } else {
+      res.status(404).json({ error: "User profile not found" });
+    }
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Update user profile
+server.put("/user", (req, res) => {
+  try {
+    const db = router.db;
+    const updatedUserData = req.body;
+
+    if (!updatedUserData) {
+      return res.status(400).json({ error: "Request body is required" });
+    }
+
+    const currentUser = db.get("user").value();
+
+    if (!currentUser) {
+      return res.status(404).json({ error: "User profile not found" });
+    }
+
+    const updatedUser = {
+      ...currentUser,
+      ...updatedUserData,
+      id: currentUser.id,
+      createdAt: currentUser.createdAt,
+      updatedAt: new Date().toISOString(),
+    };
+
+    db.set("user", updatedUser).write();
+
+    console.log("User profile updated successfully");
+    res.json(updatedUser);
+  } catch (error) {
+    console.error("Error updating user profile:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // Archive (deactivate) a service task
 server.post("/serviceTasks/deactivate/:id", (req, res) => {
   const db = router.db;
@@ -1174,6 +1337,109 @@ server.get("/serviceSchedules", (req, res) => {
   });
 });
 
+// Create a new service schedule
+server.post("/serviceSchedules", (req, res) => {
+  const db = router.db;
+  const serviceSchedules = db.get("serviceSchedules");
+  const newSchedule = req.body;
+
+  // Generate new ID
+  const maxId = serviceSchedules
+    .value()
+    .reduce((max, schedule) => Math.max(max, schedule.id || 0), 0);
+  newSchedule.id = maxId + 1;
+
+  // Ensure all expected fields are present and set to null if undefined
+  const expectedFields = [
+    "ServiceTasks",
+    "ServiceProgramID",
+    "Name",
+    "TimeIntervalValue",
+    "TimeIntervalUnit",
+    "TimeBufferValue",
+    "TimeBufferUnit",
+    "MileageInterval",
+    "MileageBuffer",
+    "FirstServiceTimeValue",
+    "FirstServiceTimeUnit",
+    "FirstServiceMileage",
+    "IsActive",
+  ];
+  expectedFields.forEach(field => {
+    if (typeof newSchedule[field] === "undefined") {
+      newSchedule[field] = null;
+    }
+  });
+
+  // Default values for missing fields
+  if (!Array.isArray(newSchedule.ServiceTasks)) {
+    newSchedule.ServiceTasks = [];
+  }
+
+  // Convert ServiceTaskIDs to ServiceTasks (array of ids)
+  if (Array.isArray(newSchedule.ServiceTaskIDs)) {
+    newSchedule.ServiceTasks = newSchedule.ServiceTaskIDs;
+    delete newSchedule.ServiceTaskIDs;
+  }
+
+  serviceSchedules.push(newSchedule).write();
+
+  res.status(201).json(newSchedule);
+});
+
+// Update a service schedule
+server.put("/serviceSchedules/:id", (req, res) => {
+  const db = router.db;
+  const scheduleId = parseInt(req.params.id);
+  const schedules = db.get("serviceSchedules");
+  const schedule = schedules.find({ id: scheduleId });
+
+  if (!schedule.value()) {
+    return res.status(404).json({ error: "Service Schedule not found" });
+  }
+
+  const updatedFields = req.body;
+
+  // Convert ServiceTaskIDs to ServiceTasks (array of ids)
+  if (Array.isArray(updatedFields.ServiceTaskIDs)) {
+    updatedFields.ServiceTasks = updatedFields.ServiceTaskIDs;
+    delete updatedFields.ServiceTaskIDs;
+  }
+
+  // Only update expected fields
+  const expectedFields = [
+    "ServiceTasks",
+    "ServiceProgramID",
+    "Name",
+    "TimeIntervalValue",
+    "TimeIntervalUnit",
+    "TimeBufferValue",
+    "TimeBufferUnit",
+    "MileageInterval",
+    "MileageBuffer",
+    "FirstServiceTimeValue",
+    "FirstServiceTimeUnit",
+    "FirstServiceMileage",
+    "IsActive",
+  ];
+  expectedFields.forEach(field => {
+    if (typeof updatedFields[field] === "undefined") {
+      updatedFields[field] = null;
+    }
+  });
+
+  schedule.assign(updatedFields).write();
+
+  // Expand ServiceTasks for response
+  const serviceTasks = db.get("serviceTasks").value();
+  const expandedTasks = (updatedFields.ServiceTasks || [])
+    .map(taskId => serviceTasks.find(t => t.id === taskId))
+    .filter(Boolean);
+
+  const updatedSchedule = { ...schedule.value(), ServiceTasks: expandedTasks };
+  res.json(updatedSchedule);
+});
+
 // Get single service schedule
 server.get("/serviceSchedules/:id", (req, res) => {
   const db = router.db;
@@ -1240,6 +1506,14 @@ server.listen(PORT, () => {
   console.log(`GET /vehicleGroups?search=group - Search vehicle groups`);
   console.log(`GET /vehicleGroups/:id - Get single vehicle group`);
 
+  // Vehicle Statuses
+  console.log(`GET /vehicleStatuses - Get paginated vehicle statuses`);
+  console.log(
+    `GET /vehicleStatuses?page=1&limit=5 - Get vehicle statuses with pagination`,
+  );
+  console.log(`GET /vehicleStatuses?search=active - Search vehicle statuses`);
+  console.log(`GET /vehicleStatuses/:id - Get single vehicle status`);
+
   // Technicians
   console.log(`GET /technicians - Get paginated technicians`);
   console.log(
@@ -1273,6 +1547,9 @@ server.listen(PORT, () => {
   console.log(`GET /serviceTasks?search=oil - Search service tasks`);
   console.log(`GET /serviceTasks/:id - Get single service task`);
 
+  // User Profile
+  console.log(`GET /user - Get user profile`);
+  console.log(`PUT /user - Update user profile`);
   // Service Schedules
   console.log(`GET /serviceSchedules - Get paginated service schedules`);
   console.log(
