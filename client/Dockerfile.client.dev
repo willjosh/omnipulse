@@ -1,0 +1,17 @@
+FROM node:20-alpine
+
+# https://github.com/nodejs/docker-node#nodealpine
+RUN apk add --no-cache libc6-compat
+
+WORKDIR /client
+
+# Copy package files
+COPY client/package*.json ./
+
+RUN npm install
+
+COPY client/ .
+
+EXPOSE 3000
+
+CMD ["npm", "run", "dev"]
