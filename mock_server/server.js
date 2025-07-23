@@ -1473,6 +1473,83 @@ server.delete("/serviceSchedules/:id", (req, res) => {
   }
 });
 
+// Custom route for servicePrograms with pagination wrapper
+server.get("/servicePrograms", (req, res) => {
+  const db = router.db;
+  const servicePrograms = db.get("servicePrograms").value();
+
+  // Get query parameters
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const sortBy = req.query.sortBy || "id";
+  const sortOrder = req.query.sortOrder || "asc";
+  const search = req.query.search || "";
+
+  // Filter by search if provided
+  let filteredPrograms = servicePrograms;
+  if (search) {
+    const searchLower = search.toLowerCase();
+    filteredPrograms = servicePrograms.filter(
+      program =>
+        (program.Name && program.Name.toLowerCase().includes(searchLower)) ||
+        (program.Description &&
+          program.Description.toLowerCase().includes(searchLower)),
+    );
+  }
+
+  // Sort service programs
+  filteredPrograms.sort((a, b) => {
+    let aValue = a[sortBy];
+    let bValue = b[sortBy];
+
+    if (aValue == null && bValue == null) return 0;
+    if (aValue == null) return sortOrder === "asc" ? 1 : -1;
+    if (bValue == null) return sortOrder === "asc" ? -1 : 1;
+
+    if (typeof aValue === "number" && typeof bValue === "number") {
+      return sortOrder === "asc" ? aValue - bValue : bValue - aValue;
+    }
+
+    const aString = String(aValue).toLowerCase();
+    const bString = String(bValue).toLowerCase();
+
+    if (aString < bString) return sortOrder === "asc" ? -1 : 1;
+    if (aString > bString) return sortOrder === "asc" ? 1 : -1;
+    return 0;
+  });
+
+  // Calculate pagination
+  const totalCount = filteredPrograms.length;
+  const totalPages = Math.ceil(totalCount / limit);
+  const startIndex = (page - 1) * limit;
+  const endIndex = startIndex + limit;
+  const paginatedPrograms = filteredPrograms.slice(startIndex, endIndex);
+
+  // Return response in expected format
+  res.json({
+    Items: paginatedPrograms,
+    TotalCount: totalCount,
+    PageNumber: page,
+    PageSize: limit,
+    TotalPages: totalPages,
+    HasPreviousPage: page > 1,
+    HasNextPage: page < totalPages,
+  });
+});
+
+// Get single service program by id
+server.get("/servicePrograms/:id", (req, res) => {
+  const db = router.db;
+  const id = parseInt(req.params.id);
+  const program = db.get("servicePrograms").find({ id }).value();
+
+  if (program) {
+    res.json(program);
+  } else {
+    res.status(404).json({ error: "Service Program not found" });
+  }
+});
+
 // Use default router for other routes
 server.use(router);
 
