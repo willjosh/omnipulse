@@ -85,6 +85,11 @@ if (app.Environment.IsDevelopment())
     });
 
     app.UseCors("AllowAll");
+
+    // Automatically apply migrations. Create the database if it does not exist
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<OmnipulseDatabaseContext>();
+    db.Database.Migrate();
 }
 else
 {
@@ -100,12 +105,5 @@ app.UseCors("AllowFrontend");
 app.UseAuthorization();
 
 app.MapControllers();
-
-// Automatically apply migrations. Create the database if it does not exist
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<OmnipulseDatabaseContext>();
-    db.Database.Migrate();
-}
 
 app.Run();

@@ -28,7 +28,8 @@ services:
     volumes:
       - ./server:/server
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - omnipulse-network
 
