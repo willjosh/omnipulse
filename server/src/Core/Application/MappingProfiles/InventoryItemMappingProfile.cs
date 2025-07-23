@@ -1,7 +1,6 @@
-using System;
-
 using Application.Features.InventoryItems.Command.CreateInventoryItem;
 using Application.Features.InventoryItems.Command.UpdateInventoryItem;
+using Application.Features.InventoryItems.Query.GetAllInventoryItem;
 using Application.Features.InventoryItems.Query.GetInventoryItem;
 
 using AutoMapper;
@@ -31,11 +30,17 @@ public class InventoryItemMappingProfile : Profile
             .ForMember(dest => dest.WorkOrderLineItems, opt => opt.Ignore()); // Navigation collection
 
         // GetInventoryItem
-        CreateMap<InventoryItem, GetInventoryItemDTO>()
+        CreateMap<InventoryItem, GetInventoryItemDTO>(MemberList.Destination)
             .ForSourceMember(src => src.Inventories, opt => opt.DoNotValidate()) // Navigation Property - not included in DTO
             .ForSourceMember(src => src.WorkOrderLineItems, opt => opt.DoNotValidate()) // Navigation Property - not included in DTO
             .ForSourceMember(src => src.CreatedAt, opt => opt.DoNotValidate()) // not needed in DTO
-            .ForSourceMember(src => src.UpdatedAt, opt => opt.DoNotValidate()) // not needed in DTO
-            .ValidateMemberList(MemberList.Destination);
+            .ForSourceMember(src => src.UpdatedAt, opt => opt.DoNotValidate()); // not needed in DTO
+
+        // GetAllInventoryItem
+        CreateMap<InventoryItem, GetAllInventoryItemDTO>(MemberList.Destination)
+            .ForSourceMember(src => src.Inventories, opt => opt.DoNotValidate()) // Navigation Property - not included in DTO
+            .ForSourceMember(src => src.WorkOrderLineItems, opt => opt.DoNotValidate()) // Navigation Property - not included in DTO
+            .ForSourceMember(src => src.CreatedAt, opt => opt.DoNotValidate()) // not needed in DTO
+            .ForSourceMember(src => src.UpdatedAt, opt => opt.DoNotValidate()); // not needed in DTO
     }
 }

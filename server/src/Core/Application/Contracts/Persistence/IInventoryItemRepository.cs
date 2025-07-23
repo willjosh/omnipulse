@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
+using Application.Models;
+using Application.Models.PaginationModels;
+
 using Domain.Entities;
 using Domain.Entities.Enums;
 
@@ -13,4 +16,7 @@ public interface IInventoryItemRepository : IGenericRepository<InventoryItem>
     Task<bool> IsItemNumberUniqueAsync(string itemNumber);
     Task<bool> IsUniversalProductCodeUniqueAsync(string? universalProductCode);
     Task<bool> IsManufacturerPartNumberUniqueAsync(string? manufacturer, string? manufacturerPartNumber); // MPNs are unique within a manufacturer
+
+    // Paged Results
+    Task<PagedResult<InventoryItem>> GetAllInventoryItemsPagedAsync(PaginationParameters parameters);
 }
