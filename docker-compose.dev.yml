@@ -44,7 +44,7 @@ services:
     ports:
       - "1433:1433"
     volumes:
-      - omnipulse_sql_data:/var/opt/mssql/data
+      - omnipulse_sql_data:/var/opt/mssql/data # https://stackoverflow.com/questions/65307784/mssql-container-fails-to-start-when-mapping-volumes-after-upgrading-to-wsl2
     healthcheck:
       test:
         [
