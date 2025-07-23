@@ -19,6 +19,7 @@ namespace Api.Controllers;
 /// <remarks>
 /// <b>API Endpoints</b>:
 /// <list type="bullet">
+/// <item><b>GET /api/inventoryitems</b> - <see cref="GetInventoryItems"/> - <see cref="GetAllInventoryItemQuery"/></item>
 /// <item><b>GET /api/inventoryitems/{id}</b> - <see cref="GetInventoryItem"/> - <see cref="GetInventoryItemQuery"/></item>
 /// <item><b>POST /api/inventoryitems</b> - <see cref="CreateInventoryItem"/> - <see cref="CreateInventoryItemCommand"/></item>
 /// <item><b>PUT /api/inventoryitems/{id}</b> - <see cref="UpdateInventoryItem"/> - <see cref="UpdateInventoryItemCommand"/></item>
@@ -38,39 +39,6 @@ public sealed class InventoryItemsController : ControllerBase
     {
         _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
-
-    /// <summary>
-    /// Retrieves detailed information about a specific inventory item.
-    /// </summary>
-    /// <param name="id">The ID of the inventory item to retrieve.</param>
-    /// <param name="cancellationToken">Cancellation token for the operation.</param>
-    /// <returns>Detailed inventory item information.</returns>
-    /// <response code="200">Returns the inventory item details.</response>
-    /// <response code="404">Inventory item not found.</response>
-    /// <response code="500">Internal server error occurred.</response>
-    [HttpGet("{id:int}")]
-    [ProducesResponseType(typeof(GetInventoryItemDTO), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<GetInventoryItemDTO>> GetInventoryItem(
-        int id,
-        CancellationToken cancellationToken)
-    {
-        try
-        {
-            _logger.LogInformation($"{nameof(GetInventoryItem)}() - Called");
-
-            var query = new GetInventoryItemQuery(id);
-            var result = await _mediator.Send(query, cancellationToken);
-
-            return Ok(result);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"{nameof(GetInventoryItem)}() - ERROR");
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while retrieving the inventory item." });
-        }
     }
 
     /// <summary>
@@ -103,6 +71,39 @@ public sealed class InventoryItemsController : ControllerBase
         {
             _logger.LogError(ex, $"{nameof(GetInventoryItems)}() - ERROR");
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while retrieving inventory items." });
+        }
+    }
+
+    /// <summary>
+    /// Retrieves detailed information about a specific inventory item.
+    /// </summary>
+    /// <param name="id">The ID of the inventory item to retrieve.</param>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>Detailed inventory item information.</returns>
+    /// <response code="200">Returns the inventory item details.</response>
+    /// <response code="404">Inventory item not found.</response>
+    /// <response code="500">Internal server error occurred.</response>
+    [HttpGet("{id:int}")]
+    [ProducesResponseType(typeof(GetInventoryItemDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<GetInventoryItemDTO>> GetInventoryItem(
+        int id,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            _logger.LogInformation($"{nameof(GetInventoryItem)}() - Called");
+
+            var query = new GetInventoryItemQuery(id);
+            var result = await _mediator.Send(query, cancellationToken);
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"{nameof(GetInventoryItem)}() - ERROR");
+            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while retrieving the inventory item." });
         }
     }
 

@@ -1,7 +1,4 @@
-using System;
-
 using Application.Contracts.Persistence;
-using Application.Models;
 using Application.Models.PaginationModels;
 
 using Domain.Entities;
@@ -27,15 +24,15 @@ public class InventoryItemRepository : GenericRepository<InventoryItem>, IInvent
 
             // Look for matches
             query = query.Where(i =>
-                i.ItemNumber.ToLowerInvariant().Contains(search) ||
-                i.ItemName.ToLowerInvariant().Contains(search) ||
-                i.Description.ToLowerInvariant().Contains(search) ||
-                i.Category.ToString().ToLowerInvariant().Contains(search) ||
-                i.Manufacturer.ToLowerInvariant().Contains(search) ||
-                i.ManufacturerPartNumber.ToLowerInvariant().Contains(search) ||
-                i.UniversalProductCode.ToLowerInvariant().Contains(search) ||
-                i.Supplier.ToLowerInvariant().Contains(search) ||
-                i.WeightKG.ToString().ToLowerInvariant().Contains(search)
+                (!string.IsNullOrEmpty(i.ItemNumber) && i.ItemNumber.ToLowerInvariant().Contains(search)) ||
+                (!string.IsNullOrEmpty(i.ItemName) && i.ItemName.ToLowerInvariant().Contains(search)) ||
+                (i.Description != null && i.Description.ToLowerInvariant().Contains(search)) ||
+                (i.Category.HasValue && i.Category.Value.ToString().ToLowerInvariant().Contains(search)) ||
+                (i.Manufacturer != null && i.Manufacturer.ToLowerInvariant().Contains(search)) ||
+                (i.ManufacturerPartNumber != null && i.ManufacturerPartNumber.ToLowerInvariant().Contains(search)) ||
+                (i.UniversalProductCode != null && i.UniversalProductCode.ToLowerInvariant().Contains(search)) ||
+                (i.Supplier != null && i.Supplier.ToLowerInvariant().Contains(search)) ||
+                (i.WeightKG.HasValue && i.WeightKG.Value.ToString().ToLowerInvariant().Contains(search))
             );
         }
 

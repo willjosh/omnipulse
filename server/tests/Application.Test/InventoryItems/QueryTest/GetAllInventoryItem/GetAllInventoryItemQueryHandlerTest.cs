@@ -1,10 +1,8 @@
-using System;
-
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
+using Application.Exceptions;
 using Application.Features.InventoryItems.Query.GetAllInventoryItem;
 using Application.MappingProfiles;
-using Application.Models;
 using Application.Models.PaginationModels;
 
 using AutoMapper;
@@ -15,8 +13,6 @@ using Domain.Entities.Enums;
 using FluentValidation;
 
 using Moq;
-
-using Xunit;
 
 namespace Application.Test.InventoryItems.QueryTest.GetAllInventoryItem;
 
@@ -271,7 +267,7 @@ public class GetAllInventoryItemQueryHandlerTest
         var query = new GetAllInventoryItemQuery(parameters);
         SetupInvalidValidation(query, "Parameters.PageNumber", "Page number must be greater than 0");
         // When & Then
-        await Assert.ThrowsAsync<Application.Exceptions.BadRequestException>(
+        await Assert.ThrowsAsync<BadRequestException>(
             () => _getAllInventoryItemQueryHandler.Handle(query, CancellationToken.None)
         );
         _mockValidator.Verify(v => v.Validate(query), Times.Once);
