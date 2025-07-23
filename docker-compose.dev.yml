@@ -46,10 +46,10 @@ services:
     volumes:
       - omnipulse_sql_data:/var/opt/mssql/data # https://stackoverflow.com/questions/65307784/mssql-container-fails-to-start-when-mapping-volumes-after-upgrading-to-wsl2
     healthcheck:
-      test:
-        [
+      test: [
           "CMD",
-          "/opt/mssql-tools/bin/sqlcmd",
+          "/opt/mssql-tools18/bin/sqlcmd", # https://github.com/microsoft/mssql-docker/issues/892
+          "-C", # https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-utility#-c
           "-S",
           "localhost",
           "-U",
