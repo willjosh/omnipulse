@@ -34,8 +34,9 @@ services:
 
   # Database - MS SQL Server - https://learn.microsoft.com/en-us/sql/linux/quickstart-install-connect-docker
   db:
-    image: mcr.microsoft.com/mssql/server:2025-latest
-    platform: linux/amd64 # https://stackoverflow.com/questions/66662820/m1-docker-preview-and-keycloak-images-platform-linux-amd64-does-not-match-th
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    platform: linux/amd64 # https://devblogs.microsoft.com/azure-sql/development-with-sql-in-containers-on-macos/#:~:text=warning%20about%20the%20image%20architecture, https://stackoverflow.com/questions/66662820/m1-docker-preview-and-keycloak-images-platform-linux-amd64-does-not-match-th
+    user: root
     environment: # https://learn.microsoft.com/en-us/sql/linux/sql-server-linux-configure-environment-variables#environment-variables
       - ACCEPT_EULA=Y
       - MSSQL_SA_PASSWORD=${SA_PASSWORD}
@@ -43,7 +44,27 @@ services:
     ports:
       - "1433:1433"
     volumes:
-      - omnipulse_sql_data:/var/opt/mssql
+      - omnipulse_sql_data:/var/opt/mssql/data
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "/opt/mssql-tools/bin/sqlcmd",
+          "-S",
+          "localhost",
+          "-U",
+          "sa",
+          "-P",
+          "${SA_PASSWORD}",
+          "-Q",
+          "SELECT 1",
+          "||",
+          "exit 1",
+        ]
+      interval: 30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
     networks:
       - omnipulse-network
 
