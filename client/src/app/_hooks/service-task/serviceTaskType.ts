@@ -2,43 +2,43 @@ import { ServiceTaskCategoryEnum } from "./serviceTaskEnum";
 
 export interface ServiceTask {
   id: number;
-  Name: string;
-  Description?: string | null;
-  EstimatedLabourHours: number;
-  EstimatedCost: number;
-  Category: ServiceTaskCategoryEnum;
-  IsActive: boolean;
+  name: string;
+  description?: string | null;
+  estimatedLabourHours: number;
+  estimatedCost: number;
+  category: ServiceTaskCategoryEnum;
+  isActive: boolean;
 }
 
 export interface ServiceTaskWithLabels extends Omit<ServiceTask, "Category"> {
-  Category: number;
-  CategoryLabel: string;
-  CategoryEnum: ServiceTaskCategoryEnum;
+  category: number;
+  categoryLabel: string;
+  categoryEnum: ServiceTaskCategoryEnum;
 }
 
 export interface CreateServiceTaskCommand {
-  Name: string;
-  Description?: string | null;
-  EstimatedLabourHours: number;
-  EstimatedCost: number;
-  Category: ServiceTaskCategoryEnum;
-  IsActive: boolean;
+  name: string;
+  description?: string | null;
+  estimatedLabourHours: number;
+  estimatedCost: number;
+  category: ServiceTaskCategoryEnum;
+  isActive: boolean;
 }
 
 export interface UpdateServiceTaskCommand {
-  id: number;
-  Name: string;
-  Description?: string | null;
-  EstimatedLabourHours: number;
-  EstimatedCost: number;
-  Category: ServiceTaskCategoryEnum;
-  IsActive: boolean;
+  ServiceTaskID: number;
+  name: string;
+  description?: string | null;
+  estimatedLabourHours: number;
+  estimatedCost: number;
+  category: ServiceTaskCategoryEnum;
+  isActive: boolean;
 }
 
 export interface ServiceTaskFilter {
-  page?: number;
-  pageSize?: number;
-  sortBy?: string;
-  sortOrder?: "asc" | "desc";
-  search?: string;
+  PageNumber?: number;
+  PageSize?: number;
+  SortBy?: string;
+  SortDescending?: boolean;
+  Search?: string;
 }
