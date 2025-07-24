@@ -22,11 +22,19 @@ public static class PersistenceServerRegistration
     /// <returns>The service collection with the Persistence services added.</returns>
     public static IServiceCollection AddPersistenceServer(this IServiceCollection services, IConfiguration config)
     {
-        services.AddDbContext<OmnipulseDatabaseContext>(opt =>
-            opt.UseSqlServer(
+        services.AddDbContext<OmnipulseDatabaseContext>(opt => opt
+            .UseSqlServer(
                 config.GetConnectionString("OmnipulseDatabaseConnection"),
                 sql => sql.EnableRetryOnFailure()
             )
+            .UseSeeding((context, _) =>
+            {
+
+            })
+            .UseAsyncSeeding(async (context, _, cancellationToken) =>
+            {
+
+            })
         );
 
         services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<OmnipulseDatabaseContext>().AddDefaultTokenProviders();
