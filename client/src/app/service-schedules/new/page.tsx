@@ -5,28 +5,29 @@ import ServiceScheduleHeader from "@/app/_features/service-schedule/components/S
 import ServiceScheduleDetailsForm, {
   ServiceScheduleDetailsFormValues,
 } from "@/app/_features/service-schedule/components/ServiceScheduleDetailsForm";
-import { useServiceTasks } from "@/app/_hooks/service-task/useServiceTask";
+import { useServiceTasks } from "@/app/_hooks/service-task/useServiceTasks";
 import { useVehicles } from "@/app/_hooks/vehicle/useVehicles";
-import { useCreateServiceSchedule } from "@/app/_hooks/service-schedule/useServiceSchedule";
+import { useCreateServiceSchedule } from "@/app/_hooks/service-schedule/useServiceSchedules";
+import { useServicePrograms } from "@/app/_hooks/service-program/useServicePrograms";
 import { BreadcrumbItem } from "@/app/_features/shared/layout/Breadcrumbs";
 import Loading from "@/app/_features/shared/feedback/Loading";
 import PrimaryButton from "@/app/_features/shared/button/PrimaryButton";
 import SecondaryButton from "@/app/_features/shared/button/SecondaryButton";
 
 const initialForm: ServiceScheduleDetailsFormValues = {
-  Name: "",
-  TimeIntervalValue: "",
-  TimeIntervalUnit: "",
-  MileageInterval: "",
-  TimeBufferValue: "",
-  TimeBufferUnit: "",
-  MileageBuffer: "",
-  FirstServiceTimeValue: "",
-  FirstServiceTimeUnit: "",
-  FirstServiceMileage: "",
-  ServiceTaskIDs: [],
-  IsActive: true,
-  ServiceProgramID: "",
+  name: "",
+  timeIntervalValue: "",
+  timeIntervalUnit: "",
+  mileageInterval: "",
+  timeBufferValue: "",
+  timeBufferUnit: "",
+  mileageBuffer: "",
+  firstServiceTimeValue: "",
+  firstServiceTimeUnit: "",
+  firstServiceMileage: "",
+  serviceTaskIDs: [],
+  isActive: true,
+  serviceProgramID: "",
 };
 
 export default function CreateServiceSchedulePage() {
@@ -36,10 +37,14 @@ export default function CreateServiceSchedulePage() {
   const [errors, setErrors] = useState<
     Partial<Record<keyof ServiceScheduleDetailsFormValues, string>>
   >({});
+  const [formError, setFormError] = useState<string | null>(null);
   const { serviceTasks, isPending: isLoadingTasks } = useServiceTasks({
-    pageSize: 100,
+    PageSize: 100,
   });
-  const { vehicles, isLoadingVehicles } = useVehicles({ pageSize: 100 });
+  const { vehicles, isLoadingVehicles } = useVehicles({ PageSize: 100 });
+  const { servicePrograms, isPending: isLoadingPrograms } = useServicePrograms({
+    PageSize: 100,
+  });
   const { mutate: createServiceSchedule, isPending: isCreating } =
     useCreateServiceSchedule();
 
@@ -57,56 +62,24 @@ export default function CreateServiceSchedulePage() {
 
   const validate = () => {
     const newErrors: typeof errors = {};
-    if (!form.Name.trim()) newErrors.Name = "Name is required.";
-    if (!form.ServiceTaskIDs.length)
-      newErrors.ServiceTaskIDs = "At least one service task is required.";
-    if (!form.ServiceProgramID)
-      newErrors.ServiceProgramID = "Service Program is required.";
+    setFormError(null);
+    if (!form.name.trim()) newErrors.name = "Name is required.";
+    if (!form.serviceTaskIDs.length)
+      newErrors.serviceTaskIDs = "At least one service task is required.";
+    if (!form.serviceProgramID)
+      newErrors.serviceProgramID = "Service Program is required.";
+    // Recurrence validation
+    const hasTimeRecurrence = form.timeIntervalValue && form.timeIntervalUnit;
+    const hasMileageRecurrence = form.mileageInterval;
+    if (!hasTimeRecurrence && !hasMileageRecurrence) {
+      setFormError(
+        "At least one recurrence option must be provided: time-based (Time Interval & Unit) or mileage-based (Mileage Interval).",
+      );
+    }
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = () => {
-    if (!validate()) return;
-    createServiceSchedule(
-      {
-        ServiceProgramID: 1, // TODO: Replace with actual program selection
-        Name: form.Name,
-        ServiceTaskIDs: form.ServiceTaskIDs,
-        TimeIntervalValue: form.TimeIntervalValue
-          ? Number(form.TimeIntervalValue)
-          : undefined,
-        TimeIntervalUnit: form.TimeIntervalUnit
-          ? Number(form.TimeIntervalUnit)
-          : undefined,
-        TimeBufferValue: form.TimeBufferValue
-          ? Number(form.TimeBufferValue)
-          : undefined,
-        TimeBufferUnit: form.TimeBufferUnit
-          ? Number(form.TimeBufferUnit)
-          : undefined,
-        MileageInterval: form.MileageInterval
-          ? Number(form.MileageInterval)
-          : undefined,
-        MileageBuffer: form.MileageBuffer
-          ? Number(form.MileageBuffer)
-          : undefined,
-        FirstServiceTimeValue: form.FirstServiceTimeValue
-          ? Number(form.FirstServiceTimeValue)
-          : undefined,
-        FirstServiceTimeUnit: form.FirstServiceTimeUnit
-          ? Number(form.FirstServiceTimeUnit)
-          : undefined,
-        FirstServiceMileage: form.FirstServiceMileage
-          ? Number(form.FirstServiceMileage)
-          : undefined,
-        IsActive: form.IsActive,
-      },
-      {
-        onSuccess: () => {
-          router.push("/service-schedules");
-        },
-      },
+    return (
+      Object.keys(newErrors).length === 0 &&
+      (hasTimeRecurrence || hasMileageRecurrence)
     );
   };
 
@@ -116,50 +89,38 @@ export default function CreateServiceSchedulePage() {
 
   const handleSaveAndAddAnother = () => {
     if (!validate()) return;
-    createServiceSchedule(
-      {
-        ServiceProgramID: 1, // TODO: Replace with actual program selection
-        Name: form.Name,
-        ServiceTaskIDs: form.ServiceTaskIDs,
-        TimeIntervalValue: form.TimeIntervalValue
-          ? Number(form.TimeIntervalValue)
-          : undefined,
-        TimeIntervalUnit: form.TimeIntervalUnit
-          ? Number(form.TimeIntervalUnit)
-          : undefined,
-        TimeBufferValue: form.TimeBufferValue
-          ? Number(form.TimeBufferValue)
-          : undefined,
-        TimeBufferUnit: form.TimeBufferUnit
-          ? Number(form.TimeBufferUnit)
-          : undefined,
-        MileageInterval: form.MileageInterval
-          ? Number(form.MileageInterval)
-          : undefined,
-        MileageBuffer: form.MileageBuffer
-          ? Number(form.MileageBuffer)
-          : undefined,
-        FirstServiceTimeValue: form.FirstServiceTimeValue
-          ? Number(form.FirstServiceTimeValue)
-          : undefined,
-        FirstServiceTimeUnit: form.FirstServiceTimeUnit
-          ? Number(form.FirstServiceTimeUnit)
-          : undefined,
-        FirstServiceMileage: form.FirstServiceMileage
-          ? Number(form.FirstServiceMileage)
-          : undefined,
-        IsActive: form.IsActive,
+    const payload: any = {
+      serviceProgramID: Number(form.serviceProgramID),
+      name: form.name,
+      serviceTaskIDs: form.serviceTaskIDs.map((id: any) => Number(id)),
+      isActive: form.isActive,
+    };
+    if (form.timeIntervalValue)
+      payload.timeIntervalValue = Number(form.timeIntervalValue);
+    if (form.timeIntervalUnit)
+      payload.timeIntervalUnit = Number(form.timeIntervalUnit);
+    if (form.timeBufferValue)
+      payload.timeBufferValue = Number(form.timeBufferValue);
+    if (form.timeBufferUnit)
+      payload.timeBufferUnit = Number(form.timeBufferUnit);
+    if (form.mileageInterval)
+      payload.mileageInterval = Number(form.mileageInterval);
+    if (form.mileageBuffer) payload.mileageBuffer = Number(form.mileageBuffer);
+    if (form.firstServiceTimeValue)
+      payload.firstServiceTimeValue = Number(form.firstServiceTimeValue);
+    if (form.firstServiceTimeUnit)
+      payload.firstServiceTimeUnit = Number(form.firstServiceTimeUnit);
+    if (form.firstServiceMileage)
+      payload.firstServiceMileage = Number(form.firstServiceMileage);
+    createServiceSchedule(payload, {
+      onSuccess: () => {
+        setForm(initialForm);
+        setErrors({});
       },
-      {
-        onSuccess: () => {
-          setForm(initialForm);
-          setErrors({});
-        },
-      },
-    );
+    });
   };
 
-  if (isLoadingTasks || isLoadingVehicles) {
+  if (isLoadingTasks || isLoadingVehicles || isLoadingPrograms) {
     return <Loading />;
   }
 
@@ -173,19 +134,28 @@ export default function CreateServiceSchedulePage() {
             <SecondaryButton onClick={handleCancel} disabled={isCreating}>
               Cancel
             </SecondaryButton>
-            <PrimaryButton onClick={handleSubmit} disabled={isCreating}>
+            <PrimaryButton
+              onClick={handleSaveAndAddAnother}
+              disabled={isCreating}
+            >
               {isCreating ? "Saving..." : "Save"}
             </PrimaryButton>
           </>
         }
       />
       <div className="px-6 pb-12 mt-4 max-w-2xl mx-auto">
+        {formError && (
+          <div className="mb-4 text-red-600 text-sm font-medium">
+            {formError}
+          </div>
+        )}
         <ServiceScheduleDetailsForm
           value={form}
           errors={errors}
           onChange={handleChange}
           availableServiceTasks={serviceTasks}
           availableVehicles={vehicles}
+          availableServicePrograms={servicePrograms}
           disabled={isCreating}
         />
       </div>
@@ -203,7 +173,10 @@ export default function CreateServiceSchedulePage() {
             >
               {isCreating ? "Saving..." : "Save & Add Another"}
             </SecondaryButton>
-            <PrimaryButton onClick={handleSubmit} disabled={isCreating}>
+            <PrimaryButton
+              onClick={handleSaveAndAddAnother}
+              disabled={isCreating}
+            >
               {isCreating ? "Saving..." : "Save"}
             </PrimaryButton>
           </div>

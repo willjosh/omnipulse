@@ -9,9 +9,10 @@ import { PrimaryButton, SecondaryButton } from "@/app/_features/shared/button";
 import {
   useServiceSchedule,
   useUpdateServiceSchedule,
-} from "@/app/_hooks/service-schedule/useServiceSchedule";
-import { useServiceTasks } from "@/app/_hooks/service-task/useServiceTask";
+} from "@/app/_hooks/service-schedule/useServiceSchedules";
+import { useServiceTasks } from "@/app/_hooks/service-task/useServiceTasks";
 import { useVehicles } from "@/app/_hooks/vehicle/useVehicles";
+import { useServicePrograms } from "@/app/_hooks/service-program/useServicePrograms";
 import { BreadcrumbItem } from "@/app/_features/shared/layout/Breadcrumbs";
 import { useNotification } from "@/app/_features/shared/feedback/NotificationProvider";
 
@@ -23,9 +24,12 @@ export default function EditServiceSchedulePage() {
   const { mutate: updateServiceSchedule, isPending: isUpdating } =
     useUpdateServiceSchedule();
   const { serviceTasks, isPending: isLoadingTasks } = useServiceTasks({
-    pageSize: 100,
+    PageSize: 100,
   });
-  const { vehicles, isLoadingVehicles } = useVehicles({ pageSize: 100 });
+  const { vehicles, isLoadingVehicles } = useVehicles({ PageSize: 100 });
+  const { servicePrograms, isPending: isLoadingPrograms } = useServicePrograms({
+    PageSize: 100,
+  });
   const notify = useNotification();
 
   const [form, setForm] = useState<ServiceScheduleDetailsFormValues | null>(
@@ -38,35 +42,35 @@ export default function EditServiceSchedulePage() {
   useEffect(() => {
     if (schedule) {
       setForm({
-        Name: schedule.Name,
-        TimeIntervalValue: schedule.TimeIntervalValue?.toString() || "",
-        TimeIntervalUnit: schedule.TimeIntervalUnit || "",
-        MileageInterval: schedule.MileageInterval?.toString() || "",
-        TimeBufferValue: schedule.TimeBufferValue?.toString() || "",
-        TimeBufferUnit: schedule.TimeBufferUnit || "",
-        MileageBuffer: schedule.MileageBuffer?.toString() || "",
-        FirstServiceTimeValue: schedule.FirstServiceTimeValue?.toString() || "",
-        FirstServiceTimeUnit: schedule.FirstServiceTimeUnit || "",
-        FirstServiceMileage: schedule.FirstServiceMileage?.toString() || "",
-        ServiceTaskIDs: schedule.ServiceTasks.map(task => task.id),
-        IsActive: schedule.IsActive,
-        ServiceProgramID: schedule.ServiceProgramID,
+        name: schedule.name,
+        timeIntervalValue: schedule.timeIntervalValue?.toString() || "",
+        timeIntervalUnit: schedule.timeIntervalUnit || "",
+        mileageInterval: schedule.mileageInterval?.toString() || "",
+        timeBufferValue: schedule.timeBufferValue?.toString() || "",
+        timeBufferUnit: schedule.timeBufferUnit || "",
+        mileageBuffer: schedule.mileageBuffer?.toString() || "",
+        firstServiceTimeValue: schedule.firstServiceTimeValue?.toString() || "",
+        firstServiceTimeUnit: schedule.firstServiceTimeUnit || "",
+        firstServiceMileage: schedule.firstServiceMileage?.toString() || "",
+        serviceTaskIDs: schedule.serviceTasks.map(task => task.id),
+        isActive: schedule.isActive,
+        serviceProgramID: schedule.serviceProgramID,
       });
     }
   }, [schedule]);
 
   const breadcrumbs: BreadcrumbItem[] = [
     { label: "Service Schedules", href: "/service-schedules" },
-    { label: schedule?.Name || "...", href: `/service-schedules/${id}` },
+    { label: schedule?.name || "...", href: `/service-schedules/${id}` },
   ];
 
   const validate = () => {
     const newErrors: typeof errors = {};
-    if (!form?.Name?.trim()) newErrors.Name = "Name is required.";
-    if (!form?.ServiceTaskIDs.length)
-      newErrors.ServiceTaskIDs = "At least one service task is required.";
-    if (!form?.ServiceProgramID)
-      newErrors.ServiceProgramID = "Service Program is required.";
+    if (!form?.name?.trim()) newErrors.name = "Name is required.";
+    if (!form?.serviceTaskIDs.length)
+      newErrors.serviceTaskIDs = "At least one service task is required.";
+    if (!form?.serviceProgramID)
+      newErrors.serviceProgramID = "Service Program is required.";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -87,38 +91,38 @@ export default function EditServiceSchedulePage() {
     if (!validate() || !form) return;
     updateServiceSchedule(
       {
-        ServiceScheduleID: id!,
-        ServiceProgramID: Number(form.ServiceProgramID),
-        Name: form.Name,
-        ServiceTaskIDs: form.ServiceTaskIDs,
-        TimeIntervalValue: form.TimeIntervalValue
-          ? Number(form.TimeIntervalValue)
+        serviceScheduleID: id!,
+        serviceProgramID: Number(form.serviceProgramID),
+        name: form.name,
+        serviceTaskIDs: form.serviceTaskIDs,
+        timeIntervalValue: form.timeIntervalValue
+          ? Number(form.timeIntervalValue)
           : undefined,
-        TimeIntervalUnit: form.TimeIntervalUnit
-          ? Number(form.TimeIntervalUnit)
+        timeIntervalUnit: form.timeIntervalUnit
+          ? Number(form.timeIntervalUnit)
           : undefined,
-        TimeBufferValue: form.TimeBufferValue
-          ? Number(form.TimeBufferValue)
+        timeBufferValue: form.timeBufferValue
+          ? Number(form.timeBufferValue)
           : undefined,
-        TimeBufferUnit: form.TimeBufferUnit
-          ? Number(form.TimeBufferUnit)
+        timeBufferUnit: form.timeBufferUnit
+          ? Number(form.timeBufferUnit)
           : undefined,
-        MileageInterval: form.MileageInterval
-          ? Number(form.MileageInterval)
+        mileageInterval: form.mileageInterval
+          ? Number(form.mileageInterval)
           : undefined,
-        MileageBuffer: form.MileageBuffer
-          ? Number(form.MileageBuffer)
+        mileageBuffer: form.mileageBuffer
+          ? Number(form.mileageBuffer)
           : undefined,
-        FirstServiceTimeValue: form.FirstServiceTimeValue
-          ? Number(form.FirstServiceTimeValue)
+        firstServiceTimeValue: form.firstServiceTimeValue
+          ? Number(form.firstServiceTimeValue)
           : undefined,
-        FirstServiceTimeUnit: form.FirstServiceTimeUnit
-          ? Number(form.FirstServiceTimeUnit)
+        firstServiceTimeUnit: form.firstServiceTimeUnit
+          ? Number(form.firstServiceTimeUnit)
           : undefined,
-        FirstServiceMileage: form.FirstServiceMileage
-          ? Number(form.FirstServiceMileage)
+        firstServiceMileage: form.firstServiceMileage
+          ? Number(form.firstServiceMileage)
           : undefined,
-        IsActive: form.IsActive,
+        isActive: form.isActive,
       },
       {
         onSuccess: () => {
@@ -129,7 +133,13 @@ export default function EditServiceSchedulePage() {
     );
   };
 
-  if (isPending || isLoadingTasks || isLoadingVehicles || !form)
+  if (
+    isPending ||
+    isLoadingTasks ||
+    isLoadingVehicles ||
+    isLoadingPrograms ||
+    !form
+  )
     return <div className="p-8">Loading...</div>;
   if (isError)
     return (
@@ -159,6 +169,7 @@ export default function EditServiceSchedulePage() {
           onChange={handleChange}
           availableServiceTasks={serviceTasks}
           availableVehicles={vehicles}
+          availableServicePrograms={servicePrograms}
           disabled={isUpdating}
         />
       </div>
