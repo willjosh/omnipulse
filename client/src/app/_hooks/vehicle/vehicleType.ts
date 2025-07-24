@@ -6,91 +6,91 @@ import {
 
 export interface Vehicle {
   id: number;
-  Name: string;
-  Make: string;
-  Model: string;
-  Year: number;
-  VIN: string;
-  LicensePlate: string;
-  LicensePlateExpirationDate: string;
-  VehicleType: VehicleTypeEnum;
-  VehicleGroupID: number;
-  VehicleGroupName: string;
-  AssignedTechnicianName: string;
-  AssignedTechnicianID?: string | null;
-  Trim: string;
-  Mileage: number;
-  EngineHours: number;
-  FuelCapacity: number;
-  FuelType: FuelTypeEnum;
-  PurchaseDate: string;
-  PurchasePrice: number;
-  Status: VehicleStatusEnum;
-  Location: string;
+  name: string;
+  make: string;
+  model: string;
+  year: number;
+  vin: string;
+  licensePlate: string;
+  licensePlateExpirationDate: string;
+  vehicleType: VehicleTypeEnum;
+  vehicleGroupID: number;
+  vehicleGroupName: string;
+  assignedTechnicianName: string;
+  assignedTechnicianID?: string | null;
+  trim: string;
+  mileage: number;
+  engineHours: number;
+  fuelCapacity: number;
+  fuelType: FuelTypeEnum;
+  purchaseDate: string;
+  purchasePrice: number;
+  status: VehicleStatusEnum;
+  location: string;
 }
 
 export interface VehicleWithLabels
-  extends Omit<Vehicle, "VehicleType" | "Status" | "FuelType"> {
-  VehicleType: number;
-  VehicleTypeLabel: string;
-  Status: number;
-  StatusLabel: string;
-  FuelType: number;
-  FuelTypeLabel: string;
-  VehicleTypeEnum: VehicleTypeEnum;
-  StatusEnum: VehicleStatusEnum;
-  FuelTypeEnum: FuelTypeEnum;
+  extends Omit<Vehicle, "vehicleType" | "status" | "fuelType"> {
+  vehicleType: number;
+  vehicleTypeLabel: string;
+  status: number;
+  statusLabel: string;
+  fuelType: number;
+  fuelTypeLabel: string;
+  vehicleTypeEnum: VehicleTypeEnum;
+  statusEnum: VehicleStatusEnum;
+  fuelTypeEnum: FuelTypeEnum;
 }
 
 export interface CreateVehicleCommand {
-  Name: string;
-  Make: string;
-  Model: string;
-  Year: number;
-  VIN: string;
-  LicensePlate: string;
-  LicensePlateExpirationDate: string;
-  VehicleType: VehicleTypeEnum;
-  VehicleGroupID: number;
-  Trim: string;
-  Mileage: number;
-  EngineHours: number;
-  FuelCapacity: number;
-  FuelType: FuelTypeEnum;
-  PurchaseDate: string;
-  PurchasePrice: number;
-  VehicleStatus: VehicleStatusEnum;
-  Location: string;
-  AssignedTechnicianID?: string | null;
+  name: string;
+  make: string;
+  model: string;
+  year: number;
+  vin: string;
+  licensePlate: string;
+  licensePlateExpirationDate: string;
+  vehicleType: VehicleTypeEnum;
+  vehicleGroupID: number;
+  trim: string;
+  mileage: number;
+  engineHours: number;
+  fuelCapacity: number;
+  fuelType: FuelTypeEnum;
+  purchaseDate: string;
+  purchasePrice: number;
+  vehicleStatus: VehicleStatusEnum;
+  location: string;
+  assignedTechnicianID?: string | null;
 }
 
 export interface UpdateVehicleCommand {
-  id: number;
-  Name: string;
-  Make: string;
-  Model: string;
-  Year: number;
-  VIN: string;
-  LicensePlate: string;
-  LicensePlateExpirationDate: string;
-  VehicleType: VehicleTypeEnum;
-  VehicleGroupID: number;
-  Trim: string;
-  Mileage: number;
-  EngineHours: number;
-  FuelCapacity: number;
-  FuelType: FuelTypeEnum;
-  PurchaseDate: string;
-  PurchasePrice: number;
-  VehicleStatus: VehicleStatusEnum;
-  Location: string;
-  AssignedTechnicianID?: string | null;
+  vehicleID: number;
+  name: string;
+  make: string;
+  model: string;
+  year: number;
+  vin: string;
+  licensePlate: string;
+  licensePlateExpirationDate: string;
+  vehicleType: VehicleTypeEnum;
+  vehicleGroupID: number;
+  trim: string;
+  mileage: number;
+  engineHours: number;
+  fuelCapacity: number;
+  fuelType: FuelTypeEnum;
+  purchaseDate: string;
+  purchasePrice: number;
+  vehicleStatus: VehicleStatusEnum;
+  location: string;
+  assignedTechnicianID?: string | null;
 }
 
 export interface VehicleFilter {
-  page?: number;
-  pageSize?: number;
-  sortBy?: string;
-  sortOrder?: "asc" | "desc";
-  search?: string;
+  PageNumber?: number;
+  PageSize?: number;
+  SortBy?: string;
+  SortDescending?: boolean;
+  Search?: string;
 }
