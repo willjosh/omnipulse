@@ -1,4 +1,4 @@
-import { VehicleGroup } from "@/app/_hooks/vehicle-groups/vehicleGroupTypes";
+import { VehicleGroup } from "@/app/_hooks/vehicle-groups/vehicleGroupType";
 
 interface Column<T> {
   key: keyof T | string;
@@ -14,7 +14,7 @@ export const vehicleGroupTableColumns: Column<VehicleGroup>[] = [
     header: "Name",
     sortable: true,
     render: (group: VehicleGroup) => (
-      <div className="text-sm font-medium text-gray-900">{group.Name}</div>
+      <div className="text-sm font-medium text-gray-900">{group.name}</div>
     ),
   },
   {
@@ -23,7 +23,7 @@ export const vehicleGroupTableColumns: Column<VehicleGroup>[] = [
     sortable: false,
     render: (group: VehicleGroup) => (
       <div className="text-sm text-gray-500 max-w-xs truncate">
-        {group.Description || "No description"}
+        {group.description || "No description"}
       </div>
     ),
   },
@@ -34,12 +34,12 @@ export const vehicleGroupTableColumns: Column<VehicleGroup>[] = [
     render: (group: VehicleGroup) => (
       <span
         className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-          group.IsActive
+          group.isActive
             ? "bg-green-100 text-green-800"
             : "bg-red-100 text-red-800"
         }`}
       >
-        {group.IsActive ? "Active" : "Inactive"}
+        {group.isActive ? "Active" : "Inactive"}
       </span>
     ),
   },

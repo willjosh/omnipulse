@@ -3,7 +3,7 @@ import {
   CreateVehicleGroupCommand,
   UpdateVehicleGroupCommand,
   VehicleGroup,
-} from "@/app/_hooks/vehicle-groups/vehicleGroupTypes";
+} from "@/app/_hooks/vehicle-groups/vehicleGroupType";
 import { PrimaryButton, SecondaryButton } from "@/app/_features/shared/button";
 
 interface VehicleGroupModalProps {
@@ -18,9 +18,9 @@ interface VehicleGroupModalProps {
 }
 
 interface FormData {
-  Name: string;
-  Description: string;
-  IsActive: boolean;
+  name: string;
+  description: string;
+  isActive: boolean;
 }
 
 export const VehicleGroupModal: React.FC<VehicleGroupModalProps> = ({
@@ -32,40 +32,40 @@ export const VehicleGroupModal: React.FC<VehicleGroupModalProps> = ({
   isLoading = false,
 }) => {
   const [formData, setFormData] = useState<FormData>({
-    Name: "",
-    Description: "",
-    IsActive: true,
+    name: "",
+    description: "",
+    isActive: true,
   });
 
   useEffect(() => {
     if (mode === "edit" && vehicleGroup) {
       setFormData({
-        Name: vehicleGroup.Name,
-        Description: vehicleGroup.Description,
-        IsActive: vehicleGroup.IsActive,
+        name: vehicleGroup.name,
+        description: vehicleGroup.description,
+        isActive: vehicleGroup.isActive,
       });
     } else if (mode === "create") {
-      setFormData({ Name: "", Description: "", IsActive: true });
+      setFormData({ name: "", description: "", isActive: true });
     }
   }, [mode, vehicleGroup, isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.Name.trim()) return;
+    if (!formData.name.trim()) return;
 
     if (mode === "create") {
       const createCommand: CreateVehicleGroupCommand = {
-        Name: formData.Name.trim(),
-        Description: formData.Description.trim(),
-        IsActive: formData.IsActive,
+        name: formData.name.trim(),
+        description: formData.description.trim(),
+        isActive: formData.isActive,
       };
       await onSubmit(createCommand);
     } else if (mode === "edit" && vehicleGroup) {
       const updateCommand: UpdateVehicleGroupCommand = {
-        id: vehicleGroup.id,
-        Name: formData.Name.trim(),
-        Description: formData.Description.trim(),
-        IsActive: formData.IsActive,
+        vehicleGroupId: vehicleGroup.id,
+        name: formData.name.trim(),
+        description: formData.description.trim(),
+        isActive: formData.isActive,
       };
       await onSubmit(updateCommand);
     }
@@ -90,9 +90,9 @@ export const VehicleGroupModal: React.FC<VehicleGroupModalProps> = ({
               </label>
               <input
                 type="text"
-                value={formData.Name}
+                value={formData.name}
                 onChange={e =>
-                  setFormData({ ...formData, Name: e.target.value })
+                  setFormData({ ...formData, name: e.target.value })
                 }
                 className="w-full px-3 py-2 border border-[var(--border)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:border-transparent"
                 required
@@ -103,9 +103,9 @@ export const VehicleGroupModal: React.FC<VehicleGroupModalProps> = ({
                 Description
               </label>
               <textarea
-                value={formData.Description}
+                value={formData.description}
                 onChange={e =>
-                  setFormData({ ...formData, Description: e.target.value })
+                  setFormData({ ...formData, description: e.target.value })
                 }
                 rows={3}
                 className="w-full px-3 py-2 border border-[var(--border)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:border-transparent"
@@ -115,9 +115,9 @@ export const VehicleGroupModal: React.FC<VehicleGroupModalProps> = ({
               <input
                 type="checkbox"
                 id={`isActive-${mode}`}
-                checked={formData.IsActive}
+                checked={formData.isActive}
                 onChange={e =>
-                  setFormData({ ...formData, IsActive: e.target.checked })
+                  setFormData({ ...formData, isActive: e.target.checked })
                 }
                 className="mr-2"
               />
