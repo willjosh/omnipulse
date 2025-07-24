@@ -91,14 +91,12 @@ if (app.Environment.IsDevelopment())
 
     // Automatically apply migrations. Create the database if it does not exist
     using var scope = app.Services.CreateScope();
-    var db = scope.ServiceProvider.GetRequiredService<OmnipulseDatabaseContext>();
+    var omnipulseDbContext = scope.ServiceProvider.GetRequiredService<OmnipulseDatabaseContext>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-    db.Database.Migrate();
-
-    // Seed DB
-    await DatabaseSeeder.SeedAsync(db, userManager, roleManager);
+    // omnipulseDbContext.Database.Migrate();
+    await omnipulseDbContext.Database.EnsureCreatedAsync();
 }
 else
 {
