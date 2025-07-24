@@ -9,8 +9,8 @@ import { Archive, Edit, Details } from "@/app/_features/shared/icons";
 import { technicianTableColumns } from "./TechnicianTableColumns";
 import {
   useTechnicians,
-  useHandleTechnicianStatus,
   useUpdateTechnician,
+  useDeactivateTechnician,
 } from "@/app/_hooks/technician/useTechnicians";
 import { Technician } from "@/app/_hooks/technician/technicianType";
 
@@ -18,11 +18,11 @@ const TechnicianList: React.FC = () => {
   const router = useRouter();
   const [selectedTechnicians, setSelectedTechnicians] = useState<string[]>([]);
   const [filters, setFilters] = useState({
-    page: 1,
-    pageSize: 10,
-    sortBy: "FirstName",
-    sortOrder: "asc" as "asc" | "desc",
-    search: "",
+    PageNumber: 1,
+    PageSize: 10,
+    SortBy: "firstName",
+    SortDescending: false,
+    Search: "",
   });
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
@@ -31,7 +31,7 @@ const TechnicianList: React.FC = () => {
 
   const { technicians, pagination, isPending, isError } =
     useTechnicians(filters);
-  const handleTechnicianStatusMutation = useHandleTechnicianStatus();
+  const deactivateTechnicianMutation = useDeactivateTechnician();
 
   const handleSelectAll = () => {
     if (selectedTechnicians.length === technicians.length) {
@@ -52,26 +52,25 @@ const TechnicianList: React.FC = () => {
   const handleSort = (sortKey: string) => {
     setFilters(prev => ({
       ...prev,
-      sortBy: sortKey,
-      sortOrder:
-        prev.sortBy === sortKey && prev.sortOrder === "asc" ? "desc" : "asc",
+      SortBy: sortKey,
+      SortDescending: prev.SortBy === sortKey ? !prev.SortDescending : false,
     }));
   };
 
   const handleSearch = (searchTerm: string) => {
     setFilters(prev => ({
       ...prev,
-      search: searchTerm,
-      page: 1, // Reset to first page when searching
+      Search: searchTerm,
+      PageNumber: 1, // Reset to first page when searching
     }));
   };
 
   const handlePageChange = (newPage: number) => {
-    setFilters(prev => ({ ...prev, page: newPage }));
+    setFilters(prev => ({ ...prev, PageNumber: newPage }));
   };
 
   const handlePageSizeChange = (newPageSize: number) => {
-    setFilters(prev => ({ ...prev, pageSize: newPageSize, page: 1 }));
+    setFilters(prev => ({ ...prev, PageSize: newPageSize, PageNumber: 1 }));
   };
 
   const handleRowClick = (technician: Technician) => {
@@ -80,14 +79,13 @@ const TechnicianList: React.FC = () => {
 
   const handleToggleTechnicianStatus = async () => {
     if (!confirmModal.technician) return;
-
     try {
-      await handleTechnicianStatusMutation.mutateAsync(
+      await deactivateTechnicianMutation.mutateAsync(
         confirmModal.technician.id,
       );
       setConfirmModal({ isOpen: false });
     } catch (error) {
-      console.error("Error handling technician status:", error);
+      console.error("Error deactivating technician:", error);
     }
   };
 
@@ -110,9 +108,9 @@ const TechnicianList: React.FC = () => {
         },
       },
       {
-        key: technician.IsActive ? "deactivate" : "activate",
-        label: technician.IsActive ? "Deactivate" : "Activate",
-        variant: technician.IsActive
+        key: technician.isActive ? "deactivate" : "activate",
+        label: technician.isActive ? "Deactivate" : "Activate",
+        variant: technician.isActive
           ? ("danger" as const)
           : ("default" as const),
         icon: <Archive />,
@@ -151,19 +149,19 @@ const TechnicianList: React.FC = () => {
 
       <div className="flex items-center justify-between mb-4">
         <FilterBar
-          searchValue={filters.search}
+          searchValue={filters.Search}
           onSearchChange={handleSearch}
           searchPlaceholder="Search technicians"
           onFilterChange={() => console.log("Filter change")}
         />
 
         <PaginationControls
-          currentPage={filters.page}
+          currentPage={filters.PageNumber}
           totalPages={pagination?.totalPages || 0}
           totalItems={pagination?.totalCount || 0}
-          itemsPerPage={filters.pageSize}
-          onNextPage={() => handlePageChange(filters.page + 1)}
-          onPreviousPage={() => handlePageChange(filters.page - 1)}
+          itemsPerPage={filters.PageSize}
+          onNextPage={() => handlePageChange(filters.PageNumber + 1)}
+          onPreviousPage={() => handlePageChange(filters.PageNumber - 1)}
         />
       </div>
 
@@ -175,8 +173,8 @@ const TechnicianList: React.FC = () => {
         onSelectAll={handleSelectAll}
         onRowClick={handleRowClick}
         onSort={handleSort}
-        sortBy={filters.sortBy}
-        sortOrder={filters.sortOrder}
+        sortBy={filters.SortBy}
+        sortOrder={filters.SortDescending ? "desc" : "asc"}
         actions={getTechnicianActions}
         showActions={true}
         fixedLayout={false}
@@ -189,10 +187,10 @@ const TechnicianList: React.FC = () => {
         isOpen={confirmModal.isOpen}
         onClose={() => setConfirmModal({ isOpen: false })}
         onConfirm={handleToggleTechnicianStatus}
-        title={`${confirmModal.technician?.IsActive ? "Deactivate" : "Activate"} Technician`}
-        message={`Are you sure you want to ${confirmModal.technician?.IsActive ? "deactivate" : "activate"} ${confirmModal.technician?.FirstName} ${confirmModal.technician?.LastName}?`}
+        title={`${confirmModal.technician?.isActive ? "Deactivate" : "Activate"} Technician`}
+        message={`Are you sure you want to ${confirmModal.technician?.isActive ? "deactivate" : "activate"} ${confirmModal.technician?.firstName} ${confirmModal.technician?.lastName}?`}
         confirmText={
-          confirmModal.technician?.IsActive ? "Deactivate" : "Activate"
+          confirmModal.technician?.isActive ? "Deactivate" : "Activate"
         }
         cancelText="Cancel"
       />

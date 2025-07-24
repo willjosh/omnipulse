@@ -5,8 +5,8 @@ import FormContainer from "@/app/_features/shared/form/FormContainer";
 import DetailFieldRow from "@/app/_features/shared/detail/DetailFieldRow";
 import {
   useServiceTask,
-  useDeactivateServiceTask,
-} from "@/app/_hooks/service-task/useServiceTask";
+  useDeleteServiceTask,
+} from "@/app/_hooks/service-task/useServiceTasks";
 import { getServiceTaskCategoryLabel } from "@/app/_utils/serviceTaskEnumHelper";
 import Loading from "@/app/_features/shared/feedback/Loading";
 import EmptyState from "@/app/_features/shared/feedback/EmptyState";
@@ -24,7 +24,7 @@ export default function ServiceTaskDetailPage() {
   const { data: task, isPending, isError } = useServiceTask(id!);
   const router = useRouter();
   const [isArchiveModalOpen, setArchiveModalOpen] = useState(false);
-  const deactivateServiceTask = useDeactivateServiceTask();
+  const deleteServiceTask = useDeleteServiceTask();
   const notify = useNotification();
 
   if (isPending) {
@@ -41,20 +41,23 @@ export default function ServiceTaskDetailPage() {
 
   const breadcrumbs = [{ label: "Service Tasks", href: "/service-tasks" }];
 
-  const handleArchive = async () => {
-    try {
-      await deactivateServiceTask.mutateAsync(id!);
-      notify("Service task archived successfully", "success");
-      router.push("/service-tasks");
-    } catch {
-      notify("Failed to archive service task", "error");
-    }
+  const handleArchive = () => {
+    deleteServiceTask.mutate(id!, {
+      onSuccess: () => {
+        notify("Service task deleted successfully", "success");
+        router.push("/service-tasks");
+      },
+      onError: error => {
+        console.error(error);
+        notify("Failed to delete service task", "error");
+      },
+    });
   };
 
   return (
     <div className="min-h-screen mx-auto bg-gray-50">
       <ServiceTaskHeader
-        title={task.Name}
+        title={task.name}
         breadcrumbs={breadcrumbs}
         actions={
           <>
@@ -67,15 +70,15 @@ export default function ServiceTaskDetailPage() {
               className="bg-red-600 hover:bg-red-700"
               onClick={() => setArchiveModalOpen(true)}
             >
-              <ArchiveIcon /> Archive
+              <ArchiveIcon /> Delete
             </PrimaryButton>
             <ConfirmModal
               isOpen={isArchiveModalOpen}
               onClose={() => setArchiveModalOpen(false)}
               onConfirm={handleArchive}
               title="Archive Service Task"
-              message="Are you sure you want to archive this service task? This action can be undone by editing the task and reactivating it."
-              confirmText="Archive"
+              message="Are you sure you want to delete this service task? This action cannot be undone."
+              confirmText="Delete"
               cancelText="Cancel"
             />
           </>
@@ -83,23 +86,23 @@ export default function ServiceTaskDetailPage() {
       />
       <div className="m-4 px-6 pb-12">
         <FormContainer title="Details" className="max-w-2xl mx-auto">
-          <DetailFieldRow label="Name" value={task.Name} />
-          <DetailFieldRow label="Description" value={task.Description || "-"} />
+          <DetailFieldRow label="Name" value={task.name} />
+          <DetailFieldRow label="Description" value={task.description || "-"} />
           <DetailFieldRow
             label="Estimated Labour Hours"
-            value={task.EstimatedLabourHours}
+            value={task.estimatedLabourHours}
           />
           <DetailFieldRow
             label="Estimated Cost"
-            value={`$${task.EstimatedCost.toFixed(2)}`}
+            value={`$${(task.estimatedCost ?? 0).toFixed(2)}`}
           />
           <DetailFieldRow
             label="Category"
-            value={getServiceTaskCategoryLabel(task.CategoryEnum)}
+            value={getServiceTaskCategoryLabel(task.categoryEnum)}
           />
           <DetailFieldRow
             label="Active"
-            value={task.IsActive ? "Yes" : "No"}
+            value={task.isActive ? "Yes" : "No"}
             noBorder
           />
         </FormContainer>

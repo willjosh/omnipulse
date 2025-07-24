@@ -1,15 +1,15 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { agent } from "@/app/_lib/axios/agent";
 import {
-  Technician,
-  TechnicianFilter,
-  CreateTechnicianCommand,
-  UpdateTechnicianCommand,
-} from "./technicianType";
+  ServiceProgram,
+  CreateServiceProgramCommand,
+  UpdateServiceProgramCommand,
+  ServiceProgramFilter,
+} from "./serviceProgramType";
 import { PagedResponse } from "@/app/_hooks/shared_types/pagedResponse";
 import { useDebounce } from "@/app/_hooks/shared_types/useDebounce";
 
-export function useTechnicians(filter: TechnicianFilter = {}) {
+export function useServicePrograms(filter: ServiceProgramFilter = {}) {
   const debouncedSearch = useDebounce(filter?.Search || "", 300);
   const debouncedFilter = { ...filter, Search: debouncedSearch };
 
@@ -18,8 +18,6 @@ export function useTechnicians(filter: TechnicianFilter = {}) {
     queryParams.append("PageNumber", debouncedFilter.PageNumber.toString());
   if (debouncedFilter.PageSize)
     queryParams.append("PageSize", debouncedFilter.PageSize.toString());
-  if (debouncedFilter.Search)
-    queryParams.append("Search", debouncedFilter.Search);
   if (debouncedFilter.SortBy)
     queryParams.append("SortBy", debouncedFilter.SortBy);
   if (debouncedFilter.SortDescending !== undefined)
@@ -27,23 +25,25 @@ export function useTechnicians(filter: TechnicianFilter = {}) {
       "SortDescending",
       debouncedFilter.SortDescending.toString(),
     );
+  if (debouncedFilter.Search)
+    queryParams.append("Search", debouncedFilter.Search);
 
   const queryString = queryParams.toString();
 
   const { data, isPending, isError, isSuccess, error } = useQuery<
-    PagedResponse<Technician>
+    PagedResponse<ServiceProgram>
   >({
-    queryKey: ["technicians", debouncedFilter],
+    queryKey: ["servicePrograms", debouncedFilter],
     queryFn: async () => {
-      const { data } = await agent.get<PagedResponse<Technician>>(
-        `/api/Technicians${queryString ? `?${queryString}` : ""}`,
+      const { data } = await agent.get<PagedResponse<ServiceProgram>>(
+        `/api/ServicePrograms${queryString ? `?${queryString}` : ""}`,
       );
       return data;
     },
   });
 
   return {
-    technicians: data?.items ?? [],
+    servicePrograms: data?.items ?? [],
     pagination: data
       ? {
           totalCount: data.totalCount,
@@ -61,59 +61,61 @@ export function useTechnicians(filter: TechnicianFilter = {}) {
   };
 }
 
-export function useTechnician(id: string) {
-  return useQuery({
-    queryKey: ["technician", id],
+export function useServiceProgram(id: number) {
+  return useQuery<ServiceProgram>({
+    queryKey: ["serviceProgram", id],
     queryFn: async () => {
-      const { data } = await agent.get<Technician>(`/api/Technicians/${id}`);
+      const { data } = await agent.get<ServiceProgram>(
+        `/api/ServicePrograms/${id}`,
+      );
       return data;
     },
     enabled: !!id,
   });
 }
 
-export function useCreateTechnician() {
+export function useCreateServiceProgram() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (command: CreateTechnicianCommand) => {
-      const { data } = await agent.post("/api/Technicians", command);
+    mutationFn: async (command: CreateServiceProgramCommand) => {
+      const { data } = await agent.post("/api/ServicePrograms", command);
       return data;
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["technicians"] });
+      await queryClient.invalidateQueries({ queryKey: ["servicePrograms"] });
     },
   });
 }
 
-export function useUpdateTechnician() {
+export function useUpdateServiceProgram() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (command: UpdateTechnicianCommand) => {
+    mutationFn: async (command: UpdateServiceProgramCommand) => {
       const { data } = await agent.put(
-        `/api/Technicians/${command.id}`,
+        `/api/ServicePrograms/${command.serviceProgramID}`,
         command,
       );
       return data;
     },
     onSuccess: async (_data, variables) => {
-      await queryClient.invalidateQueries({ queryKey: ["technicians"] });
+      await queryClient.invalidateQueries({ queryKey: ["servicePrograms"] });
       await queryClient.invalidateQueries({
-        queryKey: ["technician", variables.id],
+        queryKey: ["serviceProgram", variables.serviceProgramID],
       });
     },
   });
 }
 
-export function useDeactivateTechnician() {
+export function useDeleteServiceProgram() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (id: string) => {
-      const { data } = await agent.patch(`/api/Technicians/${id}/deactivate`);
+    mutationFn: async (id: number) => {
+      const { data } = await agent.delete(`/api/ServicePrograms/${id}`);
       return data;
     },
     onSuccess: async (_data, id) => {
-      await queryClient.invalidateQueries({ queryKey: ["technicians"] });
-      await queryClient.invalidateQueries({ queryKey: ["technician", id] });
+      await queryClient.invalidateQueries({ queryKey: ["servicePrograms"] });
+      await queryClient.invalidateQueries({ queryKey: ["serviceProgram", id] });
     },
   });
 }

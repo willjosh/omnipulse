@@ -2,70 +2,70 @@
 import { toISOorNull } from "@/app/_utils/dateTimeUtils";
 
 export interface IssueFormState {
-  VehicleID: string;
-  PriorityLevel: string;
-  ReportedDate: string;
-  Description: string;
-  Category: string;
-  Status: string;
-  Title: string;
-  ReportedByUserID: string;
-  ResolutionNotes?: string;
-  ResolvedDate?: string;
-  ResolvedByUserID?: string;
+  vehicleID: string;
+  priorityLevel: string;
+  reportedDate: string;
+  description: string;
+  category: string;
+  status: string;
+  title: string;
+  reportedByUserID: string;
+  resolutionNotes?: string;
+  resolvedDate?: string;
+  resolvedByUserID?: string;
 }
 
 export function validateIssueForm(form: IssueFormState) {
   const errors: { [key: string]: string } = {};
-  if (!form.VehicleID) errors.VehicleID = "Vehicle is required";
-  if (!form.PriorityLevel) errors.PriorityLevel = "Priority is required";
-  if (!form.Title) errors.Title = "Summary is required";
-  if (!form.Category) errors.Category = "Category is required";
-  if (!form.ReportedByUserID)
-    errors.ReportedByUserID = "Reported By is required";
+  if (!form.vehicleID) errors.vehicleID = "Vehicle is required";
+  if (!form.priorityLevel) errors.priorityLevel = "Priority is required";
+  if (!form.title) errors.title = "Summary is required";
+  if (!form.category) errors.category = "Category is required";
+  if (!form.reportedByUserID)
+    errors.reportedByUserID = "Reported By is required";
   return errors;
 }
 
 export function mapFormToCreateIssueCommand(form: IssueFormState) {
   return {
-    VehicleID: Number(form.VehicleID),
-    PriorityLevel: Number(form.PriorityLevel),
-    ReportedDate: form.ReportedDate || null,
-    Title: form.Title,
-    Description: form.Description,
-    Category: Number(form.Category),
-    Status: Number(form.Status),
-    ReportedByUserID: form.ReportedByUserID,
+    vehicleID: Number(form.vehicleID),
+    priorityLevel: Number(form.priorityLevel),
+    reportedDate: form.reportedDate || null,
+    title: form.title,
+    description: form.description,
+    category: Number(form.category),
+    status: Number(form.status),
+    reportedByUserID: form.reportedByUserID,
   };
 }
 
 export function mapFormToUpdateIssueCommand(form: IssueFormState, id: number) {
   return {
-    id,
-    VehicleID: Number(form.VehicleID),
-    PriorityLevel: Number(form.PriorityLevel),
-    ReportedDate: toISOorNull(form.ReportedDate),
-    Title: form.Title,
-    Description: form.Description,
-    Category: Number(form.Category),
-    Status: Number(form.Status),
-    ReportedByUserID: form.ReportedByUserID,
-    ResolutionNotes: form.ResolutionNotes || null,
-    ResolvedDate: toISOorNull(form.ResolvedDate),
-    ResolvedByUserID: form.ResolvedByUserID || null,
+    issueID: id,
+    vehicleID: Number(form.vehicleID),
+    priorityLevel: Number(form.priorityLevel),
+    reportedDate: toISOorNull(form.reportedDate),
+    title: form.title,
+    description: form.description,
+    category: Number(form.category),
+    status: Number(form.status),
+    reportedByUserID: form.reportedByUserID,
+    resolutionNotes: form.resolutionNotes || null,
+    resolvedDate: toISOorNull(form.resolvedDate),
+    resolvedByUserID: form.resolvedByUserID || null,
   };
 }
 
 export const emptyIssueFormState: IssueFormState = {
-  VehicleID: "",
-  PriorityLevel: "",
-  ReportedDate: "",
-  Description: "",
-  Category: "",
-  Status: "1",
-  Title: "",
-  ReportedByUserID: "",
-  ResolutionNotes: "",
-  ResolvedDate: "",
-  ResolvedByUserID: "",
+  vehicleID: "",
+  priorityLevel: "",
+  reportedDate: "",
+  description: "",
+  category: "",
+  status: "1",
+  title: "",
+  reportedByUserID: "",
+  resolutionNotes: "",
+  resolvedDate: "",
+  resolvedByUserID: "",
 };

@@ -43,17 +43,17 @@ export default function EditIssuePage() {
   useEffect(() => {
     if (issue) {
       setForm({
-        VehicleID: issue.VehicleID?.toString() || "",
-        PriorityLevel: issue.PriorityLevel?.toString() || "",
-        ReportedDate: issue.ReportedDate || "",
-        Title: issue.Title || "",
-        Description: issue.Description || "",
-        Category: issue.Category?.toString() || "",
-        Status: issue.Status?.toString() || "1",
-        ReportedByUserID: issue.ReportedByUserID,
-        ResolutionNotes: issue.ResolutionNotes || "",
-        ResolvedDate: issue.ResolvedDate || "",
-        ResolvedByUserID: issue.ResolvedByUserID || "",
+        vehicleID: issue.vehicleID?.toString() || "",
+        priorityLevel: issue.priorityLevel?.toString() || "",
+        reportedDate: issue.reportedDate || "",
+        title: issue.title || "",
+        description: issue.description || "",
+        category: issue.category?.toString() || "",
+        status: issue.status?.toString() || "1",
+        reportedByUserID: issue.reportedByUserID,
+        resolutionNotes: issue.resolutionNotes || "",
+        resolvedDate: issue.resolvedDate || "",
+        resolvedByUserID: issue.resolvedByUserID || "",
       });
     }
   }, [issue]);
@@ -76,25 +76,25 @@ export default function EditIssuePage() {
     if (!validate() || !id) return;
 
     // Only recombine if the user changed date or time
-    let reportedDateToSave = form.ReportedDate;
-    if (reportedTime && form.ReportedDate) {
-      const originalTime = extractTimeFromISO(form.ReportedDate);
+    let reportedDateToSave = form.reportedDate;
+    if (reportedTime && form.reportedDate) {
+      const originalTime = extractTimeFromISO(form.reportedDate);
       // Compare only the date part (YYYY-MM-DD)
-      const originalDate = form.ReportedDate
-        ? new Date(form.ReportedDate).toISOString().split("T")[0]
+      const originalDate = form.reportedDate
+        ? new Date(form.reportedDate).toISOString().split("T")[0]
         : "";
-      const currentDate = form.ReportedDate
-        ? new Date(form.ReportedDate).toISOString().split("T")[0]
+      const currentDate = form.reportedDate
+        ? new Date(form.reportedDate).toISOString().split("T")[0]
         : "";
       if (reportedTime !== originalTime || currentDate !== originalDate) {
         reportedDateToSave = combineDateAndTime(
-          form.ReportedDate,
+          form.reportedDate,
           reportedTime,
         );
       }
     }
 
-    const updatedForm = { ...form, ReportedDate: reportedDateToSave };
+    const updatedForm = { ...form, reportedDate: reportedDateToSave };
 
     updateIssue(mapFormToUpdateIssueCommand(updatedForm, id), {
       onSuccess: () => {
@@ -113,10 +113,16 @@ export default function EditIssuePage() {
       <IssueHeader
         title={`Edit Issue #${id}`}
         breadcrumbs={breadcrumbs}
-        onCancel={() => router.back()}
-        onSave={handleSave}
-        saveText={isPending ? "Saving..." : "Save Issue"}
-        isSaving={isPending}
+        actions={
+          <>
+            <SecondaryButton onClick={() => router.back()}>
+              Cancel
+            </SecondaryButton>
+            <PrimaryButton onClick={handleSave} disabled={isPending}>
+              {isPending ? "Saving..." : "Save Issue"}
+            </PrimaryButton>
+          </>
+        }
       />
       <IssueDetailsForm
         value={form}
@@ -127,7 +133,7 @@ export default function EditIssuePage() {
         statusEditable={true}
       />
       {/* Conditionally render Resolution Details if status is RESOLVED */}
-      {String(form.Status) === String(IssueStatusEnum.RESOLVED) && (
+      {String(form.status) === String(IssueStatusEnum.RESOLVED) && (
         <IssueResolutionForm
           value={form}
           errors={errors}

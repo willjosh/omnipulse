@@ -19,14 +19,14 @@ import {
 
 interface IssueResolutionFormProps {
   value: {
-    ResolutionNotes?: string;
-    ResolvedDate?: string;
-    ResolvedByUserID?: string;
+    resolutionNotes?: string;
+    resolvedDate?: string;
+    resolvedByUserID?: string;
   };
   errors: { [key: string]: string };
   onChange: (field: string, value: string) => void;
   disabled?: boolean;
-  technicians: Array<{ id: string; FirstName: string; LastName: string }>;
+  technicians: Array<{ id: string; firstName: string; lastName: string }>;
 }
 
 const IssueResolutionForm: React.FC<IssueResolutionFormProps> = ({
@@ -42,13 +42,13 @@ const IssueResolutionForm: React.FC<IssueResolutionFormProps> = ({
 
   // Prefill resolvedTime when value.ResolvedDate changes
   useEffect(() => {
-    setResolvedTime(extractTimeFromISO(value.ResolvedDate));
-  }, [value.ResolvedDate]);
+    setResolvedTime(extractTimeFromISO(value.resolvedDate));
+  }, [value.resolvedDate]);
 
   // Resolved By options
   const resolvedByOptions = technicians.map(t => ({
     value: String(t.id),
-    label: `${t.FirstName} ${t.LastName}`,
+    label: `${t.firstName} ${t.lastName}`,
   }));
   const filteredResolvedBy = resolvedBySearch
     ? resolvedByOptions.filter(u =>
@@ -61,10 +61,10 @@ const IssueResolutionForm: React.FC<IssueResolutionFormProps> = ({
   } | null>(null);
   useEffect(() => {
     const found =
-      resolvedByOptions.find(u => u.value === String(value.ResolvedByUserID)) ||
+      resolvedByOptions.find(u => u.value === String(value.resolvedByUserID)) ||
       null;
     setSelectedResolvedBy(found);
-  }, [resolvedByOptions, value.ResolvedByUserID]);
+  }, [resolvedByOptions, value.resolvedByUserID]);
 
   return (
     <FormContainer
@@ -77,8 +77,8 @@ const IssueResolutionForm: React.FC<IssueResolutionFormProps> = ({
           Resolution Notes
         </label>
         <textarea
-          value={value.ResolutionNotes}
-          onChange={e => onChange("ResolutionNotes", e.target.value)}
+          value={value.resolutionNotes}
+          onChange={e => onChange("resolutionNotes", e.target.value)}
           placeholder="Describe the resolution in detail..."
           className="w-full border border-gray-300 rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white min-h-[100px] resize-y"
           disabled={disabled}
@@ -92,9 +92,9 @@ const IssueResolutionForm: React.FC<IssueResolutionFormProps> = ({
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <DatePicker
                 value={
-                  value.ResolvedDate &&
-                  !isNaN(new Date(value.ResolvedDate).getTime())
-                    ? new Date(value.ResolvedDate)
+                  value.resolvedDate &&
+                  !isNaN(new Date(value.resolvedDate).getTime())
+                    ? new Date(value.resolvedDate)
                     : null
                 }
                 onChange={date => {
@@ -107,7 +107,7 @@ const IssueResolutionForm: React.FC<IssueResolutionFormProps> = ({
                     date ? date.toISOString() : "",
                     newTime,
                   );
-                  onChange("ResolvedDate", iso);
+                  onChange("resolvedDate", iso);
                 }}
                 slotProps={{ textField: { size: "small" } }}
                 disabled={disabled}
@@ -121,10 +121,10 @@ const IssueResolutionForm: React.FC<IssueResolutionFormProps> = ({
               onChange={(_e, newValue) => {
                 setResolvedTime(newValue || "");
                 const iso = combineDateAndTime(
-                  value.ResolvedDate ?? "",
+                  value.resolvedDate ?? "",
                   newValue || "",
                 );
-                onChange("ResolvedDate", iso);
+                onChange("resolvedDate", iso);
               }}
               renderInput={params => (
                 <TextField {...params} placeholder="Select time" size="small" />
@@ -142,7 +142,7 @@ const IssueResolutionForm: React.FC<IssueResolutionFormProps> = ({
           value={selectedResolvedBy}
           onChange={u => {
             setSelectedResolvedBy(u);
-            if (u) onChange("ResolvedByUserID", u.value);
+            if (u) onChange("resolvedByUserID", u.value);
           }}
           disabled={disabled}
         >

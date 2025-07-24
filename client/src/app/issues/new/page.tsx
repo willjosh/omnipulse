@@ -18,7 +18,7 @@ export default function CreateIssueHeaderOnly() {
   const router = useRouter();
 
   // Form state
-  const [form, setForm] = useState<IssueFormState>(emptyIssueFormState);
+  const [form, setForm] = useState<IssueFormState>({ ...emptyIssueFormState });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [resetKey, setResetKey] = useState(0); // for resetting form
 
@@ -56,16 +56,7 @@ export default function CreateIssueHeaderOnly() {
     if (!validate()) return;
     createIssue(toCreateIssueCommand(), {
       onSuccess: () => {
-        setForm({
-          VehicleID: "",
-          PriorityLevel: "",
-          ReportedDate: "",
-          Title: "",
-          Description: "",
-          Category: "",
-          Status: "1",
-          ReportedByUserID: "",
-        });
+        setForm(emptyIssueFormState);
         setResetKey(k => k + 1);
       },
     });
@@ -81,10 +72,22 @@ export default function CreateIssueHeaderOnly() {
       <IssueHeader
         title="New Issue"
         breadcrumbs={breadcrumbs}
-        onCancel={() => router.back()}
-        onSave={handleSave}
-        saveText={isPending ? "Saving..." : "Save Issue"}
-        isSaving={isPending}
+        actions={
+          <>
+            <SecondaryButton onClick={() => router.back()}>
+              Cancel
+            </SecondaryButton>
+            <SecondaryButton
+              onClick={handleSaveAndAddAnother}
+              disabled={isPending}
+            >
+              {isPending ? "Saving..." : "Save & Add Another"}
+            </SecondaryButton>
+            <PrimaryButton onClick={handleSave} disabled={isPending}>
+              {isPending ? "Saving..." : "Save Issue"}
+            </PrimaryButton>
+          </>
+        }
       />
       <IssueDetailsForm
         key={resetKey}

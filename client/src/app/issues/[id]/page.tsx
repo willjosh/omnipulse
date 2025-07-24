@@ -82,19 +82,19 @@ const IssueDetailsPage = () => {
           <div className="flex items-start justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900 mb-1">
-                {issue.Title}
+                {issue.title}
               </h1>
               <p className="text-gray-600 mb-2">
-                Issue #{issue.IssueNumber} • {issue.VehicleName} •{" "}
-                {issue.CategoryLabel} • {issue.PriorityLevelLabel}
+                Issue #{issue.issueNumber} • {issue.vehicleName} •{" "}
+                {issue.categoryLabel} • {issue.priorityLevelLabel}
               </p>
               <div className="flex items-center space-x-4 text-sm">
-                <StatusBadge status={issue.StatusLabel} />
+                <StatusBadge status={issue.statusLabel} />
                 <span className="text-gray-600">
-                  Reported by {issue.ReportedByUserName}
+                  Reported by {issue.reportedByUserName}
                 </span>
                 <span className="text-gray-600">
-                  {issue.ReportedDate ? issue.ReportedDate : "Unknown"}
+                  {issue.reportedDate ? issue.reportedDate : "Unknown"}
                 </span>
               </div>
             </div>
@@ -128,43 +128,43 @@ const IssueDetailsPage = () => {
                   </h2>
                 </div>
                 <div className="p-3 space-y-2">
-                  <DetailFieldRow label="Issue #" value={issue.IssueNumber} />
+                  <DetailFieldRow label="Issue #" value={issue.issueNumber} />
                   <DetailFieldRow
                     label="Status"
-                    value={<StatusBadge status={issue.StatusLabel} />}
+                    value={<StatusBadge status={issue.statusLabel} />}
                   />
                   <DetailFieldRow
                     label="Priority"
-                    value={issue.PriorityLevelLabel}
+                    value={issue.priorityLevelLabel}
                   />
                   <DetailFieldRow
                     label="Category"
-                    value={issue.CategoryLabel}
+                    value={issue.categoryLabel}
                   />
                   <DetailFieldRow
                     label="Vehicle"
                     value={
                       <span className="text-blue-700 font-medium">
-                        {issue.VehicleName}
+                        {issue.vehicleName}
                       </span>
                     }
                   />
                   <DetailFieldRow
                     label="Assigned To"
-                    value={issue.ResolvedByUserName || "Unassigned"}
+                    value={issue.resolvedByUserName || "Unassigned"}
                   />
                   <DetailFieldRow
                     label="Reported By"
-                    value={issue.ReportedByUserName}
+                    value={issue.reportedByUserName}
                   />
                   <DetailFieldRow
                     label="Reported Date"
-                    value={issue.ReportedDate ? issue.ReportedDate : "Unknown"}
+                    value={issue.reportedDate ? issue.reportedDate : "Unknown"}
                   />
                   <DetailFieldRow
                     label="Description"
                     value={
-                      issue.Description || (
+                      issue.description || (
                         <span className="text-gray-400">
                           No description provided.
                         </span>
@@ -186,19 +186,19 @@ const IssueDetailsPage = () => {
                 <div className="p-3 space-y-2">
                   <DetailFieldRow
                     label="Resolved Date"
-                    value={issue.ResolvedDate ? issue.ResolvedDate : "Unknown"}
+                    value={issue.resolvedDate ? issue.resolvedDate : "Unknown"}
                   />
                   <DetailFieldRow
                     label="Time to Resolve"
                     value={getTimeToResolve(
-                      issue.ReportedDate,
-                      issue.ResolvedDate,
+                      issue.reportedDate,
+                      issue.resolvedDate,
                     )}
                   />
                   <DetailFieldRow
                     label="Resolution Notes"
                     value={
-                      issue.ResolutionNotes || (
+                      issue.resolutionNotes || (
                         <span className="text-gray-400">
                           No resolution notes provided.
                         </span>
@@ -231,12 +231,12 @@ const IssueDetailsPage = () => {
                         Issue reported
                       </h3>
                       <p className="text-xs text-gray-500">
-                        {issue.ReportedDate ? issue.ReportedDate : "Unknown"} by{" "}
-                        {issue.ReportedByUserName}
+                        {issue.reportedDate ? issue.reportedDate : "Unknown"} by{" "}
+                        {issue.reportedByUserName}
                       </p>
                     </li>
                     {/* Issue resolved event, only if resolved */}
-                    {issue.ResolvedDate && (
+                    {issue.resolvedDate && (
                       <li className="ml-6">
                         <span className="absolute -left-3 flex items-center justify-center w-6 h-6 bg-green-100 rounded-full ring-8 ring-white">
                           <svg
@@ -251,8 +251,8 @@ const IssueDetailsPage = () => {
                           Issue resolved
                         </h3>
                         <p className="text-xs text-gray-500">
-                          {issue.ResolvedDate} by{" "}
-                          {issue.ResolvedByUserName || "Unassigned"}
+                          {issue.resolvedDate} by{" "}
+                          {issue.resolvedByUserName || "Unassigned"}
                         </p>
                       </li>
                     )}

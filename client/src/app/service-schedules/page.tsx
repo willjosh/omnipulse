@@ -3,7 +3,7 @@ import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { DataTable, PaginationControls } from "@/app/_features/shared/table";
 import { PrimaryButton } from "@/app/_features/shared/button";
-import { useServiceSchedules } from "@/app/_hooks/service-schedule/useServiceSchedule";
+import { useServiceSchedules } from "@/app/_hooks/service-schedule/useServiceSchedules";
 import { ServiceScheduleWithLabels } from "@/app/_hooks/service-schedule/serviceScheduleType";
 import { FilterBar } from "@/app/_features/shared/filter";
 import { Plus } from "lucide-react";
@@ -24,7 +24,7 @@ export default function ServiceScheduleListPage() {
 
   // Compose filter object for data fetching
   const filter = useMemo(
-    () => ({ page, pageSize, search }),
+    () => ({ PageNumber: page, PageSize: pageSize, Search: search }),
     [page, pageSize, search],
   );
 
@@ -34,35 +34,35 @@ export default function ServiceScheduleListPage() {
 
   // Table columns
   const columns = [
-    { key: "Name", header: "Name", sortable: true, width: "200px" },
+    { key: "name", header: "Name", sortable: true, width: "200px" },
     {
-      key: "ServiceTasks",
+      key: "serviceTasks",
       header: "Tasks",
       render: (item: ServiceScheduleWithLabels) => (
         <div>
-          {item.ServiceTasks.map(task => (
-            <div key={task.id}>{task.Name}</div>
+          {item.serviceTasks.map(task => (
+            <div key={task.id}>{task.name}</div>
           ))}
         </div>
       ),
       width: "220px",
     },
     {
-      key: "TimeIntervalValue",
+      key: "timeIntervalValue",
       header: "Frequency",
       render: (item: ServiceScheduleWithLabels) =>
-        item.TimeIntervalValue && item.TimeIntervalUnitLabel
-          ? `${item.TimeIntervalValue} ${item.TimeIntervalUnitLabel}`
-          : item.MileageInterval
-            ? `${item.MileageInterval} km`
+        item.timeIntervalValue && item.timeIntervalUnitLabel
+          ? `${item.timeIntervalValue} ${item.timeIntervalUnitLabel}`
+          : item.mileageInterval
+            ? `${item.mileageInterval} km`
             : "-",
       width: "140px",
     },
     {
-      key: "IsActive",
+      key: "isActive",
       header: "Active",
       render: (item: ServiceScheduleWithLabels) =>
-        item.IsActive ? "Yes" : "No",
+        item.isActive ? "Yes" : "No",
       width: "80px",
     },
   ];

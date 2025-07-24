@@ -72,12 +72,12 @@ const VehicleDetailsPage = () => {
         <div className="p-3 space-y-2">
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
             <span className="text-sm font-medium text-gray-600">Name</span>
-            <span className="text-sm text-gray-900">{vehicle.Name}</span>
+            <span className="text-sm text-gray-900">{vehicle.name}</span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
             <span className="text-sm font-medium text-gray-600">Mileage</span>
             <span className="text-sm text-gray-900">
-              {vehicle.Mileage?.toLocaleString() || "—"} mi
+              {vehicle.mileage?.toLocaleString() || "—"} mi
             </span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
@@ -85,22 +85,22 @@ const VehicleDetailsPage = () => {
               Engine Hours
             </span>
             <span className="text-sm text-gray-900">
-              {vehicle.EngineHours || "—"} hrs
+              {vehicle.engineHours || "—"} hrs
             </span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
             <span className="text-sm font-medium text-gray-600">Status</span>
             <div className="flex items-center">
               <div
-                className={`w-2 h-2 rounded-full mr-2 ${getStatusDot(vehicle.Status)}`}
+                className={`w-2 h-2 rounded-full mr-2 ${getStatusDot(vehicle.status)}`}
               ></div>
-              <span className="text-sm text-gray-900">{vehicle.Status}</span>
+              <span className="text-sm text-gray-900">{vehicle.status}</span>
             </div>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
             <span className="text-sm font-medium text-gray-600">Group</span>
             <span className="text-sm text-blue-600">
-              {vehicle.VehicleGroupName}
+              {vehicle.vehicleGroupName}
             </span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
@@ -108,19 +108,19 @@ const VehicleDetailsPage = () => {
               Assigned Technician
             </span>
             <span className="text-sm text-gray-500">
-              {vehicle.AssignedTechnicianName || "Unassigned"}
+              {vehicle.assignedTechnicianName || "Unassigned"}
             </span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
             <span className="text-sm font-medium text-gray-600">Type</span>
             <span className="text-sm text-blue-600">
-              {vehicle.VehicleTypeLabel}
+              {vehicle.vehicleTypeLabel}
             </span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
             <span className="text-sm font-medium text-gray-600">Fuel Type</span>
             <span className="text-sm text-gray-900">
-              {vehicle.FuelTypeLabel || "—"}
+              {vehicle.fuelTypeLabel || "—"}
             </span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
@@ -128,7 +128,7 @@ const VehicleDetailsPage = () => {
               VIN Number
             </span>
             <span className="text-sm text-gray-900 font-mono">
-              {vehicle.VIN}
+              {vehicle.vin}
             </span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
@@ -136,7 +136,7 @@ const VehicleDetailsPage = () => {
               License Plate
             </span>
             <span className="text-sm text-gray-900">
-              {vehicle.LicensePlate}
+              {vehicle.licensePlate}
             </span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
@@ -144,29 +144,29 @@ const VehicleDetailsPage = () => {
               License Plate Expiration
             </span>
             <span className="text-sm text-gray-900">
-              {vehicle.LicensePlateExpirationDate}
+              {vehicle.licensePlateExpirationDate}
             </span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
             <span className="text-sm font-medium text-gray-600">Year</span>
-            <span className="text-sm text-gray-500">{vehicle.Year}</span>
+            <span className="text-sm text-gray-500">{vehicle.year}</span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
             <span className="text-sm font-medium text-gray-600">Make</span>
-            <span className="text-sm text-gray-500">{vehicle.Make}</span>
+            <span className="text-sm text-gray-500">{vehicle.make}</span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
             <span className="text-sm font-medium text-gray-600">Model</span>
-            <span className="text-sm text-gray-500">{vehicle.Model}</span>
+            <span className="text-sm text-gray-500">{vehicle.model}</span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
             <span className="text-sm font-medium text-gray-600">Trim</span>
-            <span className="text-sm text-gray-500">{vehicle.Trim || "—"}</span>
+            <span className="text-sm text-gray-500">{vehicle.trim || "—"}</span>
           </div>
           <div className="flex justify-between items-center py-3">
             <span className="text-sm font-medium text-gray-600">Location</span>
             <span className="text-sm text-gray-500">
-              {vehicle.Location || "—"}
+              {vehicle.location || "—"}
             </span>
           </div>
         </div>
@@ -224,13 +224,13 @@ const VehicleDetailsPage = () => {
               Fuel Capacity
             </span>
             <span className="text-sm text-gray-900">
-              {vehicle.FuelCapacity ? `${vehicle.FuelCapacity} L` : "—"}
+              {vehicle.fuelCapacity ? `${vehicle.fuelCapacity} L` : "—"}
             </span>
           </div>
           <div className="flex justify-between items-center py-3">
             <span className="text-sm font-medium text-gray-600">Fuel Type</span>
             <span className="text-sm text-gray-900">
-              {vehicle.FuelType || "—"}
+              {vehicle.fuelType || "—"}
             </span>
           </div>
         </div>
@@ -246,19 +246,19 @@ const VehicleDetailsPage = () => {
             <span className="text-sm font-medium text-gray-600">
               Vehicle Type
             </span>
-            <span className="text-sm text-gray-900">{vehicle.VehicleType}</span>
+            <span className="text-sm text-gray-900">{vehicle.vehicleType}</span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
             <span className="text-sm font-medium text-gray-600">
               Make & Model
             </span>
             <span className="text-sm text-gray-900">
-              {vehicle.Year} {vehicle.Make} {vehicle.Model}
+              {vehicle.year} {vehicle.make} {vehicle.model}
             </span>
           </div>
           <div className="flex justify-between items-center py-3">
             <span className="text-sm font-medium text-gray-600">Trim</span>
-            <span className="text-sm text-gray-900">{vehicle.Trim || "—"}</span>
+            <span className="text-sm text-gray-900">{vehicle.trim || "—"}</span>
           </div>
         </div>
       </div>
@@ -279,7 +279,7 @@ const VehicleDetailsPage = () => {
               Purchase Date
             </span>
             <span className="text-sm text-gray-900">
-              {vehicle.PurchaseDate || "—"}
+              {vehicle.purchaseDate || "—"}
             </span>
           </div>
           <div className="flex justify-between items-center py-3">
@@ -287,8 +287,8 @@ const VehicleDetailsPage = () => {
               Purchase Price
             </span>
             <span className="text-sm text-gray-900">
-              {vehicle.PurchasePrice
-                ? `$${vehicle.PurchasePrice.toLocaleString()}`
+              {vehicle.purchasePrice
+                ? `$${vehicle.purchasePrice.toLocaleString()}`
                 : "—"}
             </span>
           </div>
@@ -308,14 +308,14 @@ const VehicleDetailsPage = () => {
         <div className="p-3 space-y-2">
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
             <span className="text-sm font-medium text-gray-600">Status</span>
-            <span className="text-sm text-gray-900">{vehicle.StatusLabel}</span>
+            <span className="text-sm text-gray-900">{vehicle.statusLabel}</span>
           </div>
           <div className="flex justify-between items-center py-3">
             <span className="text-sm font-medium text-gray-600">
               Current Mileage
             </span>
             <span className="text-sm text-gray-900">
-              {vehicle.Mileage ? `${vehicle.Mileage.toLocaleString()} mi` : "—"}
+              {vehicle.mileage ? `${vehicle.mileage.toLocaleString()} mi` : "—"}
             </span>
           </div>
         </div>
@@ -337,7 +337,7 @@ const VehicleDetailsPage = () => {
               Engine Hours
             </span>
             <span className="text-sm text-gray-900">
-              {vehicle.EngineHours || "—"} hrs
+              {vehicle.engineHours || "—"} hrs
             </span>
           </div>
         </div>
@@ -394,33 +394,33 @@ const VehicleDetailsPage = () => {
           <div className="flex items-start justify-between">
             <div className="flex items-start space-x-4">
               <div className="w-22 h-22 bg-gray-100 rounded-3xl flex items-center justify-center">
-                {getVehicleIcon(vehicle.VehicleType)}
+                {getVehicleIcon(vehicle.vehicleType)}
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900 mb-1">
-                  {vehicle.Name}
+                  {vehicle.name}
                 </h1>
                 <p className="text-gray-600 mb-2">
-                  {vehicle.VehicleType} • {vehicle.Year} {vehicle.Make}{" "}
-                  {vehicle.Model} • {vehicle.VIN} • {vehicle.LicensePlate}
+                  {vehicle.vehicleType} • {vehicle.year} {vehicle.make}{" "}
+                  {vehicle.model} • {vehicle.vin} • {vehicle.licensePlate}
                 </p>
                 <div className="flex items-center space-x-4 text-sm">
                   <span className="text-gray-600">
-                    {vehicle.Mileage?.toLocaleString() || "—"} mi
+                    {vehicle.mileage?.toLocaleString() || "—"} mi
                   </span>
                   <div
-                    className={`flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(vehicle.Status)}`}
+                    className={`flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(vehicle.status)}`}
                   >
                     <div
-                      className={`w-1.5 h-1.5 rounded-full mr-1.5 ${getStatusDot(vehicle.Status)}`}
+                      className={`w-1.5 h-1.5 rounded-full mr-1.5 ${getStatusDot(vehicle.status)}`}
                     ></div>
-                    {vehicle.Status}
+                    {vehicle.status}
                   </div>
                   <span className="text-gray-600">
-                    {vehicle.VehicleGroupName}
+                    {vehicle.vehicleGroupName}
                   </span>
                   <span className="text-gray-500">
-                    {vehicle.AssignedTechnicianName || "Unassigned"}
+                    {vehicle.assignedTechnicianName || "Unassigned"}
                   </span>
                 </div>
               </div>

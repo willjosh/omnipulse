@@ -4,8 +4,8 @@ import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
   useInventoryItems,
-  useDeactivateInventoryItem,
-} from "@/app/_hooks/inventory-item/useInventoryItem";
+  useDeleteInventoryItem,
+} from "@/app/_hooks/inventory-item/useInventoryItems";
 import { InventoryItemWithLabels } from "@/app/_hooks/inventory-item/inventoryItemType";
 import { Loading } from "@/app/_features/shared/feedback";
 import EmptyState from "@/app/_features/shared/feedback/EmptyState";
@@ -34,16 +34,16 @@ const InventoryList = () => {
     item?: InventoryItemWithLabels;
   }>({ isOpen: false });
   const [filters, setFilters] = useState({
-    page: 1,
-    pageSize: 10,
-    sortBy: "ItemName",
-    sortOrder: "asc" as "asc" | "desc",
-    search: "",
+    PageNumber: 1,
+    PageSize: 10,
+    SortBy: "itemName",
+    SortDescending: false,
+    Search: "",
   });
 
   const { inventoryItems, pagination, isPending, isError } =
     useInventoryItems(filters);
-  const deactivateInventoryMutation = useDeactivateInventoryItem();
+  const deleteInventoryMutation = useDeleteInventoryItem();
 
   const handleSelectAll = () => {
     if (!inventoryItems) return;
@@ -69,19 +69,18 @@ const InventoryList = () => {
   const handleSort = (sortKey: string) => {
     setFilters(prev => ({
       ...prev,
-      sortBy: sortKey,
-      sortOrder:
-        prev.sortBy === sortKey && prev.sortOrder === "asc" ? "desc" : "asc",
-      page: 1,
+      SortBy: sortKey,
+      SortDescending: prev.SortBy === sortKey ? !prev.SortDescending : false,
+      PageNumber: 1,
     }));
   };
 
   const handleSearch = (searchTerm: string) => {
-    setFilters(prev => ({ ...prev, search: searchTerm, page: 1 }));
+    setFilters(prev => ({ ...prev, Search: searchTerm, PageNumber: 1 }));
   };
 
   const handlePageChange = (newPage: number) => {
-    setFilters(prev => ({ ...prev, page: newPage }));
+    setFilters(prev => ({ ...prev, PageNumber: newPage }));
   };
 
   const handleRowClick = (item: InventoryItemWithLabels) => {
@@ -93,7 +92,7 @@ const InventoryList = () => {
 
     try {
       const itemId = confirmModal.item.id;
-      await deactivateInventoryMutation.mutateAsync(itemId);
+      await deleteInventoryMutation.mutateAsync(itemId);
       setConfirmModal({ isOpen: false });
     } catch (error) {
       console.error("Error archiving inventory item:", error);
@@ -179,19 +178,19 @@ const InventoryList = () => {
 
       <div className="flex items-center justify-between mb-4">
         <FilterBar
-          searchValue={filters.search}
+          searchValue={filters.Search}
           onSearchChange={handleSearch}
           searchPlaceholder="Search inventory"
           onFilterChange={() => console.log("Filter change")}
         />
 
         <PaginationControls
-          currentPage={filters.page}
+          currentPage={filters.PageNumber}
           totalPages={pagination?.totalPages || 0}
           totalItems={pagination?.totalCount || 0}
-          itemsPerPage={filters.pageSize}
-          onNextPage={() => handlePageChange(filters.page + 1)}
-          onPreviousPage={() => handlePageChange(filters.page - 1)}
+          itemsPerPage={filters.PageSize}
+          onNextPage={() => handlePageChange(filters.PageNumber + 1)}
+          onPreviousPage={() => handlePageChange(filters.PageNumber - 1)}
         />
       </div>
 
@@ -226,7 +225,7 @@ const InventoryList = () => {
         onClose={() => setConfirmModal({ isOpen: false })}
         onConfirm={handleArchiveItem}
         title="Archive Item"
-        message={`Are you sure you want to archive ${confirmModal.item?.ItemName}?`}
+        message={`Are you sure you want to archive ${confirmModal.item?.itemName}?`}
         confirmText="Archive"
         cancelText="Cancel"
       />

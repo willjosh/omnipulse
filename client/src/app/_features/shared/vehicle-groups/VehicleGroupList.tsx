@@ -1,12 +1,17 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { useVehicleGroups } from "@/app/_hooks/vehicle-groups/useVehicleGroups";
+import {
+  useVehicleGroups,
+  useCreateVehicleGroup,
+  useUpdateVehicleGroup,
+  useDeleteVehicleGroup,
+} from "@/app/_hooks/vehicle-groups/useVehicleGroups";
 import {
   CreateVehicleGroupCommand,
   UpdateVehicleGroupCommand,
   VehicleGroup,
-} from "@/app/_hooks/vehicle-groups/vehicleGroupTypes";
+} from "@/app/_hooks/vehicle-groups/vehicleGroupType";
 import { Plus, Layers } from "lucide-react";
 import { Loading } from "@/app/_features/shared/feedback";
 import { DataTable } from "@/app/_features/shared/table";
@@ -29,13 +34,11 @@ export const VehicleGroupList: React.FC = () => {
     vehicleGroup?: VehicleGroup;
   }>({ isOpen: false });
 
-  const {
-    vehicleGroups,
-    isLoading,
-    createVehicleGroupMutation,
-    deleteVehicleGroupMutation,
-    updateVehicleGroupMutation,
-  } = useVehicleGroups();
+  const { vehicleGroups, pagination, isPending, isError, isSuccess, error } =
+    useVehicleGroups();
+  const createVehicleGroupMutation = useCreateVehicleGroup();
+  const updateVehicleGroupMutation = useUpdateVehicleGroup();
+  const deleteVehicleGroupMutation = useDeleteVehicleGroup();
 
   const handleCreateClick = () => {
     setModalState({ isOpen: true, mode: "create" });
@@ -129,7 +132,7 @@ export const VehicleGroupList: React.FC = () => {
     );
   };
 
-  if (isLoading) {
+  if (isPending) {
     return <Loading />;
   }
 
@@ -159,7 +162,7 @@ export const VehicleGroupList: React.FC = () => {
         onSelectAll={handleSelectAll}
         actions={vehicleGroupActions}
         showActions={true}
-        loading={isLoading}
+        loading={isPending}
         fixedLayout={false}
         getItemId={group =>
           group.id ? group.id.toString() : `temp-${Date.now()}`
@@ -186,7 +189,7 @@ export const VehicleGroupList: React.FC = () => {
         onClose={() => setConfirmModal({ isOpen: false })}
         onConfirm={handleDeleteVehicleGroup}
         title="Delete Vehicle Group"
-        message={`Are you sure you want to delete "${confirmModal.vehicleGroup?.Name}"? This action cannot be undone.`}
+        message={`Are you sure you want to delete "${confirmModal.vehicleGroup?.name}"? This action cannot be undone.`}
         confirmText="Delete"
         cancelText="Cancel"
       />

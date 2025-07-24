@@ -1,9 +1,9 @@
 export interface PagedResponse<T> {
-  Items: T[];
-  TotalCount: number;
-  PageNumber: number;
-  PageSize: number;
-  TotalPages: number;
-  HasPreviousPage: boolean;
-  HasNextPage: boolean;
+  items: T[];
+  totalCount: number;
+  pageNumber: number;
+  pageSize: number;
+  totalPages: number;
+  hasPreviousPage: boolean;
+  hasNextPage: boolean;
 }

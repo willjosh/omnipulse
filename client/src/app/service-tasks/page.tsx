@@ -3,7 +3,7 @@ import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { DataTable, PaginationControls } from "@/app/_features/shared/table";
 import { PrimaryButton } from "@/app/_features/shared/button";
-import { useServiceTasks } from "@/app/_hooks/service-task/useServiceTask";
+import { useServiceTasks } from "@/app/_hooks/service-task/useServiceTasks";
 import { ServiceTaskWithLabels } from "@/app/_hooks/service-task/serviceTaskType";
 import { getServiceTaskCategoryLabel } from "@/app/_utils/serviceTaskEnumHelper";
 import { DEFAULT_PAGE_SIZE } from "@/app/_features/shared/table/constants";
@@ -36,24 +36,32 @@ export default function ServiceTaskListPage() {
 
   // Compose filter object for data fetching
   const filter = useMemo(
-    () => ({ page, pageSize, search, sortBy, sortOrder }),
+    () => ({
+      PageNumber: page,
+      PageSize: pageSize,
+      Search: search,
+      SortBy: sortBy,
+      SortDescending: sortOrder === "desc",
+    }),
     [page, pageSize, search, sortBy, sortOrder],
   );
 
   // Fetch data using the filter
   const { serviceTasks, pagination, isPending } = useServiceTasks(filter);
 
+  console.log(serviceTasks);
+
   // Transform data for the table
   const tableData = useMemo(
     () =>
       serviceTasks.map((task: ServiceTaskWithLabels) => ({
         id: task.id.toString(),
-        Name: task.Name,
-        Description: task.Description || "-",
-        EstimatedLabourHours: task.EstimatedLabourHours,
-        EstimatedCost: `$${task.EstimatedCost.toFixed(2)}`,
-        CategoryLabel: getServiceTaskCategoryLabel(task.CategoryEnum),
-        IsActive: task.IsActive ? "Yes" : "No",
+        name: task.name,
+        description: task.description || "-",
+        estimatedLabourHours: task.estimatedLabourHours,
+        estimatedCost: `$${(task.estimatedCost ?? 0).toFixed(2)}`,
+        categoryLabel: getServiceTaskCategoryLabel(task.categoryEnum),
+        isActive: task.isActive ? "Yes" : "No",
       })),
     [serviceTasks],
   );

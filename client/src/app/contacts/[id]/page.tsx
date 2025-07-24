@@ -92,28 +92,28 @@ const TechnicianProfilePage = () => {
         <div className="p-3 space-y-2">
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
             <span className="text-sm font-medium text-gray-600">Full Name</span>
-            <span className="text-sm text-gray-900">{`${technician.FirstName} ${technician.LastName}`}</span>
+            <span className="text-sm text-gray-900">{`${technician.firstName} ${technician.lastName}`}</span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
             <span className="text-sm font-medium text-gray-600">
               First Name
             </span>
             <span className="text-sm text-gray-900">
-              {technician.FirstName}
+              {technician.firstName}
             </span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
             <span className="text-sm font-medium text-gray-600">Last Name</span>
-            <span className="text-sm text-gray-900">{technician.LastName}</span>
+            <span className="text-sm text-gray-900">{technician.lastName}</span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
             <span className="text-sm font-medium text-gray-600">Email</span>
-            <span className="text-sm text-blue-600">{technician.Email}</span>
+            <span className="text-sm text-blue-600">{technician.email}</span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
             <span className="text-sm font-medium text-gray-600">Hire Date</span>
             <span className="text-sm text-gray-900">
-              {formatDate(technician.HireDate)}
+              {formatDate(technician.hireDate)}
             </span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
@@ -121,7 +121,7 @@ const TechnicianProfilePage = () => {
               Years of Service
             </span>
             <span className="text-sm text-gray-900">
-              {getYearsOfService(technician.HireDate)} years
+              {getYearsOfService(technician.hireDate)} years
             </span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
@@ -129,11 +129,11 @@ const TechnicianProfilePage = () => {
             <div className="flex items-center">
               <div
                 className={`w-2 h-2 rounded-full mr-2 ${
-                  technician.IsActive ? "bg-green-500" : "bg-red-500"
+                  technician.isActive ? "bg-green-500" : "bg-red-500"
                 }`}
               ></div>
               <span className="text-sm text-gray-900">
-                {technician.IsActive ? "Active" : "Inactive"}
+                {technician.isActive ? "Active" : "Inactive"}
               </span>
             </div>
           </div>
@@ -221,30 +221,30 @@ const TechnicianProfilePage = () => {
             </button>
             <div className="flex items-center space-x-4">
               <div className="w-12 h-12 rounded-full text-primary flex items-center justify-center text-white font-semibold text-lg">
-                {getInitials(technician.FirstName, technician.LastName)}
+                {getInitials(technician.firstName, technician.lastName)}
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">
-                  {`${technician.FirstName} ${technician.LastName}`}
+                  {`${technician.firstName} ${technician.lastName}`}
                 </h1>
                 <div className="flex items-center space-x-4 text-sm text-gray-500">
                   <span className="flex items-center">
                     <Mail size={14} className="mr-1" />
-                    {technician.Email}
+                    {technician.email}
                   </span>
                   <span className="flex items-center">
                     <Calendar size={14} className="mr-1" />
-                    Hired {formatDate(technician.HireDate)}
+                    Hired {formatDate(technician.hireDate)}
                   </span>
                   <span
-                    className={`flex items-center ${technician.IsActive ? "text-green-600" : "text-red-600"}`}
+                    className={`flex items-center ${technician.isActive ? "text-green-600" : "text-red-600"}`}
                   >
                     <div
                       className={`w-2 h-2 rounded-full mr-1 ${
-                        technician.IsActive ? "bg-green-500" : "bg-red-500"
+                        technician.isActive ? "bg-green-500" : "bg-red-500"
                       }`}
                     ></div>
-                    {technician.IsActive ? "Active" : "Inactive"}
+                    {technician.isActive ? "Active" : "Inactive"}
                   </span>
                 </div>
               </div>

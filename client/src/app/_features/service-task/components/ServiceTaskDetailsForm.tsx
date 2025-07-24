@@ -11,12 +11,12 @@ import {
 } from "@headlessui/react";
 
 export interface ServiceTaskDetailsFormValues {
-  Name: string;
-  Description?: string;
-  EstimatedLabourHours: number | string;
-  EstimatedCost: number | string;
-  Category: ServiceTaskCategoryEnum | "";
-  IsActive: boolean;
+  name: string;
+  description?: string;
+  estimatedLabourHours: number | string;
+  estimatedCost: number | string;
+  category: ServiceTaskCategoryEnum | "";
+  isActive: boolean;
 }
 
 interface ServiceTaskDetailsFormProps {
@@ -51,7 +51,7 @@ const ServiceTaskDetailsForm: React.FC<ServiceTaskDetailsFormProps> = ({
     );
   }, [categorySearch]);
   const selectedCategory =
-    categoryOptions.find(opt => opt.value === value.Category) || null;
+    categoryOptions.find(opt => opt.value === value.category) || null;
 
   // For IsActive Combobox
   const isActiveOptions = [
@@ -59,25 +59,25 @@ const ServiceTaskDetailsForm: React.FC<ServiceTaskDetailsFormProps> = ({
     { value: false, label: "Inactive" },
   ];
   const selectedIsActive =
-    isActiveOptions.find(opt => opt.value === value.IsActive) ||
+    isActiveOptions.find(opt => opt.value === value.isActive) ||
     isActiveOptions[0];
 
   return (
     <FormContainer title="Details">
-      <FormField label="Name" required error={errors.Name}>
+      <FormField label="Name" required error={errors.name}>
         <input
           type="text"
-          value={value.Name}
-          onChange={e => onChange("Name", e.target.value)}
+          value={value.name}
+          onChange={e => onChange("name", e.target.value)}
           placeholder="Enter service task name"
           className="w-full border border-gray-300 rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
           disabled={disabled}
         />
       </FormField>
-      <FormField label="Description" error={errors.Description}>
+      <FormField label="Description" error={errors.description}>
         <textarea
-          value={value.Description || ""}
-          onChange={e => onChange("Description", e.target.value)}
+          value={value.description || ""}
+          onChange={e => onChange("description", e.target.value)}
           placeholder="Optional notes or description"
           className="w-full border border-gray-300 rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white min-h-[80px] resize-y"
           disabled={disabled}
@@ -86,36 +86,36 @@ const ServiceTaskDetailsForm: React.FC<ServiceTaskDetailsFormProps> = ({
       <FormField
         label="Estimated Labour Hours"
         required
-        error={errors.EstimatedLabourHours}
+        error={errors.estimatedLabourHours}
       >
         <input
           type="number"
           min={0}
           step={0.1}
-          value={value.EstimatedLabourHours}
-          onChange={e => onChange("EstimatedLabourHours", e.target.value)}
+          value={value.estimatedLabourHours}
+          onChange={e => onChange("estimatedLabourHours", e.target.value)}
           placeholder="e.g. 2.5"
           className="w-full border border-gray-300 rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
           disabled={disabled}
         />
       </FormField>
-      <FormField label="Estimated Cost" required error={errors.EstimatedCost}>
+      <FormField label="Estimated Cost" required error={errors.estimatedCost}>
         <input
           type="number"
           min={0}
           step={0.01}
-          value={value.EstimatedCost}
-          onChange={e => onChange("EstimatedCost", e.target.value)}
+          value={value.estimatedCost}
+          onChange={e => onChange("estimatedCost", e.target.value)}
           placeholder="e.g. 100.00"
           className="w-full border border-gray-300 rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
           disabled={disabled}
         />
       </FormField>
-      <FormField label="Category" required error={errors.Category}>
+      <FormField label="Category" required error={errors.category}>
         <Combobox
           value={selectedCategory}
           onChange={opt => {
-            if (opt) onChange("Category", opt.value);
+            if (opt) onChange("category", opt.value);
           }}
           disabled={disabled}
         >
@@ -190,7 +190,7 @@ const ServiceTaskDetailsForm: React.FC<ServiceTaskDetailsFormProps> = ({
           <Combobox
             value={selectedIsActive}
             onChange={opt => {
-              if (opt) onChange("IsActive", opt.value);
+              if (opt) onChange("isActive", opt.value);
             }}
             disabled={disabled}
           >

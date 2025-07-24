@@ -14,36 +14,47 @@ import {
   getStatusLabel,
   getFuelTypeLabel,
 } from "@/app/_utils/vehicleEnumHelper";
+import {
+  VehicleTypeEnum,
+  VehicleStatusEnum,
+  FuelTypeEnum,
+} from "@/app/_hooks/vehicle/vehicleEnum";
 
 // Helper function to convert vehicle data
 const convertVehicleData = (vehicle: Vehicle): VehicleWithLabels => ({
   ...vehicle,
-  VehicleTypeLabel: getVehicleTypeLabel(vehicle.VehicleType),
-  StatusLabel: getStatusLabel(vehicle.Status),
-  FuelTypeLabel: getFuelTypeLabel(vehicle.FuelType),
-  VehicleTypeEnum: vehicle.VehicleType,
-  StatusEnum: vehicle.Status,
-  FuelTypeEnum: vehicle.FuelType,
+  vehicleType: vehicle.vehicleType as number,
+  vehicleTypeLabel: getVehicleTypeLabel(vehicle.vehicleType),
+  vehicleTypeEnum: vehicle.vehicleType as VehicleTypeEnum,
+  status: vehicle.status as number,
+  statusLabel: getStatusLabel(vehicle.status),
+  statusEnum: vehicle.status as VehicleStatusEnum,
+  fuelType: vehicle.fuelType as number,
+  fuelTypeLabel: getFuelTypeLabel(vehicle.fuelType),
+  fuelTypeEnum: vehicle.fuelType as FuelTypeEnum,
 });
 
 export const useVehicles = (filters?: VehicleFilter, id?: string) => {
   const queryClient = useQueryClient();
   const queryParams = new URLSearchParams();
-  const debouncedSearch = useDebounce(filters?.search || "", 300);
+  const debouncedSearch = useDebounce(filters?.Search || "", 300);
 
-  const debouncedFilters = { ...filters, search: debouncedSearch };
+  const debouncedFilters = { ...filters, Search: debouncedSearch };
 
   // Build query params...
-  if (debouncedFilters?.page)
-    queryParams.append("page", debouncedFilters.page.toString());
-  if (debouncedFilters?.pageSize)
-    queryParams.append("pageSize", debouncedFilters.pageSize.toString());
-  if (debouncedFilters?.sortBy)
-    queryParams.append("sortBy", debouncedFilters.sortBy);
-  if (debouncedFilters?.sortOrder)
-    queryParams.append("sortOrder", debouncedFilters.sortOrder);
-  if (debouncedFilters?.search)
-    queryParams.append("search", debouncedFilters.search);
+  if (debouncedFilters?.PageNumber)
+    queryParams.append("PageNumber", debouncedFilters.PageNumber.toString());
+  if (debouncedFilters?.PageSize)
+    queryParams.append("PageSize", debouncedFilters.PageSize.toString());
+  if (debouncedFilters?.SortBy)
+    queryParams.append("SortBy", debouncedFilters.SortBy);
+  if (debouncedFilters?.SortDescending !== undefined)
+    queryParams.append(
+      "SortDescending",
+      debouncedFilters.SortDescending.toString(),
+    );
+  if (debouncedFilters?.Search)
+    queryParams.append("Search", debouncedFilters.Search);
 
   // Fetch vehicles with conversion
   const { data: vehiclesResponse, isLoading: isLoadingVehicles } = useQuery<
@@ -52,14 +63,14 @@ export const useVehicles = (filters?: VehicleFilter, id?: string) => {
     queryKey: ["vehicles", debouncedFilters],
     queryFn: async () => {
       const url = queryParams.toString()
-        ? `vehicles?${queryParams.toString()}`
-        : "vehicles";
+        ? `/api/Vehicles?${queryParams.toString()}`
+        : "/api/Vehicles";
       const response = await agent.get<PagedResponse<Vehicle>>(url);
 
       // Convert the vehicles data
-      const convertedItems = response.data.Items.map(convertVehicleData);
+      const convertedItems = response.data.items.map(convertVehicleData);
 
-      return { ...response.data, Items: convertedItems };
+      return { ...response.data, items: convertedItems };
     },
   });
 
@@ -68,16 +79,16 @@ export const useVehicles = (filters?: VehicleFilter, id?: string) => {
     useQuery<VehicleWithLabels>({
       queryKey: ["vehicle", id],
       queryFn: async () => {
-        const response = await agent.get<Vehicle>(`vehicles/${id}`);
+        const response = await agent.get<Vehicle>(`/api/Vehicles/${id}`);
         return convertVehicleData(response.data);
       },
-      enabled: !!id, // Only run query if id is provided
+      enabled: !!id,
     });
 
-  // This hook provides functions to create vehicles.
+  // Function to create vehicles.
   const createVehicleMutation = useMutation({
     mutationFn: async (createVehicleCommand: CreateVehicleCommand) => {
-      const response = await agent.post("vehicles", createVehicleCommand);
+      const response = await agent.post("/api/Vehicles", createVehicleCommand);
       return response.data;
     },
     onSuccess: async () => {
@@ -85,45 +96,45 @@ export const useVehicles = (filters?: VehicleFilter, id?: string) => {
     },
   });
 
-  // this hooks provides functions to update vehicles.
+  // Function to update vehicles.
   const updateVehicleMutation = useMutation({
     mutationFn: async (updateVehicleCommand: UpdateVehicleCommand) => {
       const response = await agent.put(
-        `vehicles/${updateVehicleCommand.id}`,
+        `/api/Vehicles/${updateVehicleCommand.vehicleID}`,
         updateVehicleCommand,
       );
       return response.data;
     },
-    onSuccess: async (data, variables) => {
+    onSuccess: async (_data, variables) => {
       await queryClient.invalidateQueries({ queryKey: ["vehicles"] });
       await queryClient.invalidateQueries({
-        queryKey: ["vehicle", variables.id],
+        queryKey: ["vehicle", variables.vehicleID],
       });
     },
   });
 
   const deactivateVehicleMutation = useMutation({
     mutationFn: async (id: string) => {
-      const response = await agent.post(`vehicles/deactivate/${id}`);
+      const response = await agent.patch(`/api/Vehicles/${id}/deactivate`);
       return response.data;
     },
-    onSuccess: async (data, variables) => {
+    onSuccess: async (_data, id) => {
       await queryClient.invalidateQueries({ queryKey: ["vehicles"] });
-      await queryClient.invalidateQueries({ queryKey: ["vehicle", variables] });
+      await queryClient.invalidateQueries({ queryKey: ["vehicle", id] });
     },
   });
 
   return {
     vehiclesResponse,
-    vehicles: vehiclesResponse?.Items || [],
-    pagination: vehiclesResponse?.Items
+    vehicles: vehiclesResponse?.items || [],
+    pagination: vehiclesResponse?.items
       ? {
-          totalCount: vehiclesResponse.TotalCount,
-          pageNumber: vehiclesResponse.PageNumber,
-          pageSize: vehiclesResponse.PageSize,
-          totalPages: vehiclesResponse.TotalPages,
-          hasPreviousPage: vehiclesResponse.HasPreviousPage,
-          hasNextPage: vehiclesResponse.HasNextPage,
+          totalCount: vehiclesResponse.totalCount,
+          pageNumber: vehiclesResponse.pageNumber,
+          pageSize: vehiclesResponse.pageSize,
+          totalPages: vehiclesResponse.totalPages,
+          hasPreviousPage: vehiclesResponse.hasPreviousPage,
+          hasNextPage: vehiclesResponse.hasNextPage,
         }
       : null,
     vehicle,

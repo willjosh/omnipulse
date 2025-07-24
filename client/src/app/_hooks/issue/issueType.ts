@@ -8,66 +8,66 @@ export { IssueCategoryEnum, IssueStatusEnum, PriorityLevelEnum };
 
 export interface Issue {
   id: number;
-  IssueNumber: number;
-  VehicleID: number;
-  VehicleName: string;
-  Title: string;
-  Description?: string | null;
-  Category: IssueCategoryEnum;
-  PriorityLevel: PriorityLevelEnum;
-  Status: IssueStatusEnum;
-  ReportedByUserID: string;
-  ReportedByUserName: string;
-  ReportedDate?: string | null;
-  ResolvedDate?: string | null;
-  ResolvedByUserID?: string | null;
-  ResolvedByUserName?: string | null;
-  ResolutionNotes?: string | null;
+  issueNumber: number;
+  vehicleID: number;
+  vehicleName: string;
+  title: string;
+  description?: string | null;
+  category: IssueCategoryEnum;
+  priorityLevel: PriorityLevelEnum;
+  status: IssueStatusEnum;
+  reportedByUserID: string;
+  reportedByUserName: string;
+  reportedDate?: string | null;
+  resolvedDate?: string | null;
+  resolvedByUserID?: string | null;
+  resolvedByUserName?: string | null;
+  resolutionNotes?: string | null;
 }
 
 export interface IssueWithLabels
   extends Omit<Issue, "Category" | "PriorityLevel" | "Status"> {
-  Category: number;
-  CategoryLabel: string;
-  CategoryEnum: IssueCategoryEnum;
-  PriorityLevel: number;
-  PriorityLevelLabel: string;
-  PriorityLevelEnum: PriorityLevelEnum;
-  Status: number;
-  StatusLabel: string;
-  StatusEnum: IssueStatusEnum;
+  category: number;
+  categoryLabel: string;
+  categoryEnum: IssueCategoryEnum;
+  priorityLevel: number;
+  priorityLevelLabel: string;
+  priorityLevelEnum: PriorityLevelEnum;
+  status: number;
+  statusLabel: string;
+  statusEnum: IssueStatusEnum;
 }
 
 export interface CreateIssueCommand {
-  VehicleID: number;
-  Title: string;
-  Description?: string | null;
-  PriorityLevel: PriorityLevelEnum;
-  Category: IssueCategoryEnum;
-  Status: IssueStatusEnum;
-  ReportedByUserID: string;
-  ReportedDate?: string | null;
+  vehicleID: number;
+  title: string;
+  description?: string | null;
+  priorityLevel: PriorityLevelEnum;
+  category: IssueCategoryEnum;
+  status: IssueStatusEnum;
+  reportedByUserID: string;
+  reportedDate?: string | null;
 }
 
 export interface UpdateIssueCommand {
-  id: number;
-  VehicleID: number;
-  Title: string;
-  Description?: string | null;
-  PriorityLevel: PriorityLevelEnum;
-  Category: IssueCategoryEnum;
-  Status: IssueStatusEnum;
-  ReportedByUserID: string;
-  ReportedDate?: string | null;
-  ResolutionNotes?: string | null;
-  ResolvedDate?: string | null;
-  ResolvedByUserID?: string | null;
+  issueID: number;
+  vehicleID: number;
+  title: string;
+  description?: string | null;
+  priorityLevel: PriorityLevelEnum;
+  category: IssueCategoryEnum;
+  status: IssueStatusEnum;
+  reportedByUserID: string;
+  reportedDate?: string | null;
+  resolutionNotes?: string | null;
+  resolvedDate?: string | null;
+  resolvedByUserID?: string | null;
 }
 
 export interface IssueFilter {
-  page?: number;
-  pageSize?: number;
-  sortBy?: string;
-  sortOrder?: "asc" | "desc";
-  search?: string;
+  PageNumber?: number;
+  PageSize?: number;
+  SortBy?: string;
+  SortDescending?: boolean;
+  Search?: string;
 }

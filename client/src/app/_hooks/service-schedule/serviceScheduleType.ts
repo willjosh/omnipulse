@@ -5,67 +5,67 @@ import {
 import { TimeUnitEnum } from "./serviceScheduleEnum";
 
 export interface ServiceSchedule {
+  serviceTasks: ServiceTask[];
   id: number;
-  ServiceTasks: ServiceTask[];
-  ServiceProgramID: number;
-  Name: string;
-  TimeIntervalValue?: number | null;
-  TimeIntervalUnit?: TimeUnitEnum | null;
-  TimeBufferValue?: number | null;
-  TimeBufferUnit?: TimeUnitEnum | null;
-  MileageInterval?: number | null;
-  MileageBuffer?: number | null;
-  FirstServiceTimeValue?: number | null;
-  FirstServiceTimeUnit?: TimeUnitEnum | null;
-  FirstServiceMileage?: number | null;
-  IsActive: boolean;
+  serviceProgramID: number;
+  name: string;
+  timeIntervalValue?: number | null;
+  timeIntervalUnit?: TimeUnitEnum | null;
+  timeBufferValue?: number | null;
+  timeBufferUnit?: TimeUnitEnum | null;
+  mileageInterval?: number | null;
+  mileageBuffer?: number | null;
+  firstServiceTimeValue?: number | null;
+  firstServiceTimeUnit?: TimeUnitEnum | null;
+  firstServiceMileage?: number | null;
+  isActive: boolean;
 }
 
 export interface ServiceScheduleWithLabels
   extends Omit<
     ServiceSchedule,
-    | "ServiceTasks"
-    | "TimeIntervalUnit"
-    | "TimeBufferUnit"
-    | "FirstServiceTimeUnit"
+    | "serviceTasks"
+    | "timeIntervalUnit"
+    | "timeBufferUnit"
+    | "firstServiceTimeUnit"
   > {
-  ServiceTasks: ServiceTaskWithLabels[];
-  TimeIntervalUnit?: number | null;
-  TimeIntervalUnitLabel?: string;
-  TimeIntervalUnitEnum?: TimeUnitEnum | null;
-  TimeBufferUnit?: number | null;
-  TimeBufferUnitLabel?: string;
-  TimeBufferUnitEnum?: TimeUnitEnum | null;
-  FirstServiceTimeUnit?: number | null;
-  FirstServiceTimeUnitLabel?: string;
-  FirstServiceTimeUnitEnum?: TimeUnitEnum | null;
+  serviceTasks: ServiceTaskWithLabels[];
+  timeIntervalUnit?: number | null;
+  timeIntervalUnitLabel?: string | null;
+  timeIntervalUnitEnum?: TimeUnitEnum | null;
+  timeBufferUnit?: number | null;
+  timeBufferUnitLabel?: string | null;
+  timeBufferUnitEnum?: TimeUnitEnum | null;
+  firstServiceTimeUnit?: number | null;
+  firstServiceTimeUnitLabel?: string | null;
+  firstServiceTimeUnitEnum?: TimeUnitEnum | null;
 }
 
 export interface CreateServiceScheduleCommand {
-  ServiceProgramID: number;
-  Name: string;
-  ServiceTaskIDs: number[];
-  TimeIntervalValue?: number | null;
-  TimeIntervalUnit?: TimeUnitEnum | null;
-  TimeBufferValue?: number | null;
-  TimeBufferUnit?: TimeUnitEnum | null;
-  MileageInterval?: number | null;
-  MileageBuffer?: number | null;
-  FirstServiceTimeValue?: number | null;
-  FirstServiceTimeUnit?: TimeUnitEnum | null;
-  FirstServiceMileage?: number | null;
-  IsActive: boolean;
+  serviceProgramID: number;
+  name: string;
+  serviceTaskIDs: number[];
+  timeIntervalValue?: number | null;
+  timeIntervalUnit?: TimeUnitEnum | null;
+  timeBufferValue?: number | null;
+  timeBufferUnit?: TimeUnitEnum | null;
+  mileageInterval?: number | null;
+  mileageBuffer?: number | null;
+  firstServiceTimeValue?: number | null;
+  firstServiceTimeUnit?: TimeUnitEnum | null;
+  firstServiceMileage?: number | null;
+  isActive: boolean;
 }
 
 export interface UpdateServiceScheduleCommand
   extends CreateServiceScheduleCommand {
-  ServiceScheduleID: number;
+  serviceScheduleID: number;
 }
 
 export interface ServiceScheduleFilter {
-  page?: number;
-  pageSize?: number;
-  search?: string;
-  sortBy?: string;
-  sortOrder?: "asc" | "desc";
+  PageNumber?: number;
+  PageSize?: number;
+  SortBy?: string;
+  SortDescending?: boolean;
+  Search?: string;
 }

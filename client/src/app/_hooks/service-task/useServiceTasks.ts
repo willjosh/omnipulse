@@ -16,26 +16,29 @@ export const convertServiceTaskData = (
   task: ServiceTask,
 ): ServiceTaskWithLabels => ({
   ...task,
-  Category: task.Category as number,
-  CategoryLabel: getServiceTaskCategoryLabel(task.Category),
-  CategoryEnum: task.Category as ServiceTaskCategoryEnum,
+  category: task.category as number,
+  categoryLabel: getServiceTaskCategoryLabel(task.category),
+  categoryEnum: task.category as ServiceTaskCategoryEnum,
 });
 
 export function useServiceTasks(filter: ServiceTaskFilter = {}) {
-  const debouncedSearch = useDebounce(filter?.search || "", 300);
+  const debouncedSearch = useDebounce(filter?.Search || "", 300);
   const debouncedFilter = { ...filter, search: debouncedSearch };
 
   const queryParams = new URLSearchParams();
-  if (debouncedFilter.page)
-    queryParams.append("page", debouncedFilter.page.toString());
-  if (debouncedFilter.pageSize)
-    queryParams.append("pageSize", debouncedFilter.pageSize.toString());
-  if (debouncedFilter.search)
-    queryParams.append("search", debouncedFilter.search);
-  if (debouncedFilter.sortBy)
-    queryParams.append("sortBy", debouncedFilter.sortBy);
-  if (debouncedFilter.sortOrder)
-    queryParams.append("sortOrder", debouncedFilter.sortOrder);
+  if (debouncedFilter.PageNumber)
+    queryParams.append("PageNumber", debouncedFilter.PageNumber.toString());
+  if (debouncedFilter.PageSize)
+    queryParams.append("PageSize", debouncedFilter.PageSize.toString());
+  if (debouncedFilter.Search)
+    queryParams.append("Search", debouncedFilter.Search);
+  if (debouncedFilter.SortBy)
+    queryParams.append("SortBy", debouncedFilter.SortBy);
+  if (debouncedFilter.SortDescending !== undefined)
+    queryParams.append(
+      "SortDescending",
+      debouncedFilter.SortDescending.toString(),
+    );
 
   const queryString = queryParams.toString();
 
@@ -45,22 +48,22 @@ export function useServiceTasks(filter: ServiceTaskFilter = {}) {
     queryKey: ["serviceTasks", debouncedFilter],
     queryFn: async () => {
       const { data } = await agent.get<PagedResponse<ServiceTask>>(
-        `/serviceTasks${queryString ? `?${queryString}` : ""}`,
+        `/api/ServiceTasks${queryString ? `?${queryString}` : ""}`,
       );
-      return { ...data, Items: data.Items.map(convertServiceTaskData) };
+      return { ...data, items: data.items.map(convertServiceTaskData) };
     },
   });
 
   return {
-    serviceTasks: data?.Items ?? [],
+    serviceTasks: data?.items ?? [],
     pagination: data
       ? {
-          totalCount: data.TotalCount,
-          pageNumber: data.PageNumber,
-          pageSize: data.PageSize,
-          totalPages: data.TotalPages,
-          hasPreviousPage: data.HasPreviousPage,
-          hasNextPage: data.HasNextPage,
+          totalCount: data.totalCount,
+          pageNumber: data.pageNumber,
+          pageSize: data.pageSize,
+          totalPages: data.totalPages,
+          hasPreviousPage: data.hasPreviousPage,
+          hasNextPage: data.hasNextPage,
         }
       : null,
     isPending,
@@ -74,7 +77,7 @@ export function useServiceTask(id: number) {
   return useQuery<ServiceTaskWithLabels>({
     queryKey: ["serviceTask", id],
     queryFn: async () => {
-      const { data } = await agent.get<ServiceTask>(`/serviceTasks/${id}`);
+      const { data } = await agent.get<ServiceTask>(`/api/ServiceTasks/${id}`);
       return convertServiceTaskData(data);
     },
     enabled: !!id,
@@ -85,7 +88,7 @@ export function useCreateServiceTask() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (command: CreateServiceTaskCommand) => {
-      const { data } = await agent.post("/serviceTasks", command);
+      const { data } = await agent.post("/api/ServiceTasks", command);
       return data;
     },
     onSuccess: async () => {
@@ -98,23 +101,26 @@ export function useUpdateServiceTask() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (command: UpdateServiceTaskCommand) => {
-      const { data } = await agent.put(`/serviceTasks/${command.id}`, command);
+      const { data } = await agent.put(
+        `/api/ServiceTasks/${command.ServiceTaskID}`,
+        command,
+      );
       return data;
     },
     onSuccess: async (_data, variables) => {
       await queryClient.invalidateQueries({ queryKey: ["serviceTasks"] });
       await queryClient.invalidateQueries({
-        queryKey: ["serviceTask", variables.id],
+        queryKey: ["serviceTask", variables.ServiceTaskID],
       });
     },
   });
 }
 
-export function useDeactivateServiceTask() {
+export function useDeleteServiceTask() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: number) => {
-      const { data } = await agent.post(`/serviceTasks/deactivate/${id}`);
+      const { data } = await agent.delete(`/api/ServiceTasks/${id}`);
       return data;
     },
     onSuccess: async (_data, id) => {

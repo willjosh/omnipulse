@@ -11,41 +11,44 @@ import { TimeUnitEnum } from "./serviceScheduleEnum";
 import { PagedResponse } from "@/app/_hooks/shared_types/pagedResponse";
 import { useDebounce } from "@/app/_hooks/shared_types/useDebounce";
 import { getTimeUnitEnumLabel } from "@/app/_utils/serviceScheduleEnumHelper";
-import { convertServiceTaskData } from "../service-task/useServiceTask";
+import { convertServiceTaskData } from "../service-task/useServiceTasks";
 
 const convertServiceScheduleData = (
   schedule: ServiceSchedule,
 ): ServiceScheduleWithLabels => ({
   ...schedule,
-  ServiceTasks: schedule.ServiceTasks.map(convertServiceTaskData),
-  TimeIntervalUnit: schedule.TimeIntervalUnit as number,
-  TimeIntervalUnitLabel: getTimeUnitEnumLabel(schedule.TimeIntervalUnit),
-  TimeIntervalUnitEnum: schedule.TimeIntervalUnit as TimeUnitEnum,
-  TimeBufferUnit: schedule.TimeBufferUnit as number,
-  TimeBufferUnitLabel: getTimeUnitEnumLabel(schedule.TimeBufferUnit),
-  TimeBufferUnitEnum: schedule.TimeBufferUnit as TimeUnitEnum,
-  FirstServiceTimeUnit: schedule.FirstServiceTimeUnit as number,
-  FirstServiceTimeUnitLabel: getTimeUnitEnumLabel(
-    schedule.FirstServiceTimeUnit,
+  serviceTasks: schedule.serviceTasks.map(convertServiceTaskData),
+  timeIntervalUnit: schedule.timeIntervalUnit as number,
+  timeIntervalUnitLabel: getTimeUnitEnumLabel(schedule.timeIntervalUnit),
+  timeIntervalUnitEnum: schedule.timeIntervalUnit as TimeUnitEnum,
+  timeBufferUnit: schedule.timeBufferUnit as number,
+  timeBufferUnitLabel: getTimeUnitEnumLabel(schedule.timeBufferUnit),
+  timeBufferUnitEnum: schedule.timeBufferUnit as TimeUnitEnum,
+  firstServiceTimeUnit: schedule.firstServiceTimeUnit as number,
+  firstServiceTimeUnitLabel: getTimeUnitEnumLabel(
+    schedule.firstServiceTimeUnit,
   ),
-  FirstServiceTimeUnitEnum: schedule.FirstServiceTimeUnit as TimeUnitEnum,
+  firstServiceTimeUnitEnum: schedule.firstServiceTimeUnit as TimeUnitEnum,
 });
 
 export function useServiceSchedules(filter: ServiceScheduleFilter = {}) {
-  const debouncedSearch = useDebounce(filter?.search || "", 300);
-  const debouncedFilter = { ...filter, search: debouncedSearch };
+  const debouncedSearch = useDebounce(filter?.Search || "", 300);
+  const debouncedFilter = { ...filter, Search: debouncedSearch };
 
   const queryParams = new URLSearchParams();
-  if (debouncedFilter.page)
-    queryParams.append("page", debouncedFilter.page.toString());
-  if (debouncedFilter.pageSize)
-    queryParams.append("pageSize", debouncedFilter.pageSize.toString());
-  if (debouncedFilter.search)
-    queryParams.append("search", debouncedFilter.search);
-  if (debouncedFilter.sortBy)
-    queryParams.append("sortBy", debouncedFilter.sortBy);
-  if (debouncedFilter.sortOrder)
-    queryParams.append("sortOrder", debouncedFilter.sortOrder);
+  if (debouncedFilter.PageNumber)
+    queryParams.append("PageNumber", debouncedFilter.PageNumber.toString());
+  if (debouncedFilter.PageSize)
+    queryParams.append("PageSize", debouncedFilter.PageSize.toString());
+  if (debouncedFilter.Search)
+    queryParams.append("Search", debouncedFilter.Search);
+  if (debouncedFilter.SortBy)
+    queryParams.append("SortBy", debouncedFilter.SortBy);
+  if (debouncedFilter.SortDescending !== undefined)
+    queryParams.append(
+      "SortDescending",
+      debouncedFilter.SortDescending.toString(),
+    );
 
   const queryString = queryParams.toString();
 
@@ -55,22 +58,22 @@ export function useServiceSchedules(filter: ServiceScheduleFilter = {}) {
     queryKey: ["serviceSchedules", debouncedFilter],
     queryFn: async () => {
       const { data } = await agent.get<PagedResponse<ServiceSchedule>>(
-        `/serviceSchedules${queryString ? `?${queryString}` : ""}`,
+        `/api/ServiceSchedules${queryString ? `?${queryString}` : ""}`,
       );
-      return { ...data, Items: data.Items.map(convertServiceScheduleData) };
+      return { ...data, items: data.items.map(convertServiceScheduleData) };
     },
   });
 
   return {
-    serviceSchedules: data?.Items ?? [],
+    serviceSchedules: data?.items ?? [],
     pagination: data
       ? {
-          totalCount: data.TotalCount,
-          pageNumber: data.PageNumber,
-          pageSize: data.PageSize,
-          totalPages: data.TotalPages,
-          hasPreviousPage: data.HasPreviousPage,
-          hasNextPage: data.HasNextPage,
+          totalCount: data.totalCount,
+          pageNumber: data.pageNumber,
+          pageSize: data.pageSize,
+          totalPages: data.totalPages,
+          hasPreviousPage: data.hasPreviousPage,
+          hasNextPage: data.hasNextPage,
         }
       : null,
     isPending,
@@ -85,7 +88,7 @@ export function useServiceSchedule(id: number) {
     queryKey: ["serviceSchedule", id],
     queryFn: async () => {
       const { data } = await agent.get<ServiceSchedule>(
-        `/serviceSchedules/${id}`,
+        `/api/ServiceSchedules/${id}`,
       );
       return convertServiceScheduleData(data);
     },
@@ -97,7 +100,7 @@ export function useCreateServiceSchedule() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (command: CreateServiceScheduleCommand) => {
-      const { data } = await agent.post("/serviceSchedules", command);
+      const { data } = await agent.post("/api/ServiceSchedules", command);
       return data;
     },
     onSuccess: async () => {
@@ -111,7 +114,7 @@ export function useUpdateServiceSchedule() {
   return useMutation({
     mutationFn: async (command: UpdateServiceScheduleCommand) => {
       const { data } = await agent.put(
-        `/serviceSchedules/${command.ServiceScheduleID}`,
+        `/api/ServiceSchedules/${command.serviceScheduleID}`,
         command,
       );
       return data;
@@ -119,7 +122,7 @@ export function useUpdateServiceSchedule() {
     onSuccess: async (_data, variables) => {
       await queryClient.invalidateQueries({ queryKey: ["serviceSchedules"] });
       await queryClient.invalidateQueries({
-        queryKey: ["serviceSchedule", variables.ServiceScheduleID],
+        queryKey: ["serviceSchedule", variables.serviceScheduleID],
       });
     },
   });
@@ -129,7 +132,8 @@ export function useDeleteServiceSchedule() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: number) => {
-      await agent.delete(`/serviceSchedules/${id}`);
+      const { data } = await agent.delete(`/api/ServiceSchedules/${id}`);
+      return data;
     },
     onSuccess: async (_data, id) => {
       await queryClient.invalidateQueries({ queryKey: ["serviceSchedules"] });

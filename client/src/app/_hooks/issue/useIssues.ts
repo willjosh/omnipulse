@@ -24,39 +24,39 @@ function formatDate(date?: string | null): string {
   return isNaN(d.getTime()) ? "Unknown" : d.toLocaleString();
 }
 
-// Helper to convert Issue to IssueWithLabels
 const convertIssueData = (issue: Issue): IssueWithLabels => ({
   ...issue,
-  Category: issue.Category as number,
-  CategoryLabel: getIssueCategoryLabel(issue.Category),
-  CategoryEnum: issue.Category as IssueCategoryEnum,
-  PriorityLevel: issue.PriorityLevel as number,
-  PriorityLevelLabel: getPriorityLevelLabel(issue.PriorityLevel),
-  PriorityLevelEnum: issue.PriorityLevel as PriorityLevelEnum,
-  Status: issue.Status as number,
-  StatusLabel: getIssueStatusLabel(issue.Status),
-  StatusEnum: issue.Status as IssueStatusEnum,
-  ReportedDate: formatDate(issue.ReportedDate),
-  ResolvedDate: formatDate(issue.ResolvedDate),
+  category: issue.category as number,
+  categoryLabel: getIssueCategoryLabel(issue.category),
+  categoryEnum: issue.category as IssueCategoryEnum,
+  priorityLevel: issue.priorityLevel as number,
+  priorityLevelLabel: getPriorityLevelLabel(issue.priorityLevel),
+  priorityLevelEnum: issue.priorityLevel as PriorityLevelEnum,
+  status: issue.status as number,
+  statusLabel: getIssueStatusLabel(issue.status),
+  statusEnum: issue.status as IssueStatusEnum,
+  reportedDate: formatDate(issue.reportedDate),
+  resolvedDate: formatDate(issue.resolvedDate),
 });
 
 export function useIssues(filter: IssueFilter) {
-  // Debounce the search parameter for consistency
-  const debouncedSearch = useDebounce(filter?.search || "", 300);
-  const debouncedFilter = { ...filter, search: debouncedSearch };
+  const debouncedSearch = useDebounce(filter?.Search || "", 300);
+  const debouncedFilter = { ...filter, Search: debouncedSearch };
 
-  // Build query params to match backend canonical names
   const queryParams = new URLSearchParams();
-  if (debouncedFilter.page)
-    queryParams.append("page", debouncedFilter.page.toString());
-  if (debouncedFilter.pageSize)
-    queryParams.append("pageSize", debouncedFilter.pageSize.toString());
-  if (debouncedFilter.search)
-    queryParams.append("search", debouncedFilter.search);
-  if (debouncedFilter.sortBy)
-    queryParams.append("sortBy", debouncedFilter.sortBy);
-  if (debouncedFilter.sortOrder)
-    queryParams.append("sortOrder", debouncedFilter.sortOrder);
+  if (debouncedFilter.PageNumber)
+    queryParams.append("PageNumber", debouncedFilter.PageNumber.toString());
+  if (debouncedFilter.PageSize)
+    queryParams.append("PageSize", debouncedFilter.PageSize.toString());
+  if (debouncedFilter.Search)
+    queryParams.append("Search", debouncedFilter.Search);
+  if (debouncedFilter.SortBy)
+    queryParams.append("SortBy", debouncedFilter.SortBy);
+  if (debouncedFilter.SortDescending !== undefined)
+    queryParams.append(
+      "SortDescending",
+      debouncedFilter.SortDescending.toString(),
+    );
 
   const queryString = queryParams.toString();
 
@@ -66,23 +66,22 @@ export function useIssues(filter: IssueFilter) {
     queryKey: ["issues", debouncedFilter],
     queryFn: async () => {
       const { data } = await agent.get<PagedResponse<Issue>>(
-        `/issues${queryString ? `?${queryString}` : ""}`,
+        `/api/Issues${queryString ? `?${queryString}` : ""}`,
       );
-
-      return { ...data, Items: data.Items.map(convertIssueData) };
+      return { ...data, items: data.items.map(convertIssueData) };
     },
   });
 
   return {
-    issues: data?.Items ?? [],
+    issues: data?.items ?? [],
     pagination: data
       ? {
-          totalCount: data.TotalCount,
-          pageNumber: data.PageNumber,
-          pageSize: data.PageSize,
-          totalPages: data.TotalPages,
-          hasPreviousPage: data.HasPreviousPage,
-          hasNextPage: data.HasNextPage,
+          totalCount: data.totalCount,
+          pageNumber: data.pageNumber,
+          pageSize: data.pageSize,
+          totalPages: data.totalPages,
+          hasPreviousPage: data.hasPreviousPage,
+          hasNextPage: data.hasNextPage,
         }
       : null,
     isPending,
@@ -96,7 +95,7 @@ export function useIssue(id: number) {
   return useQuery({
     queryKey: ["issue", id],
     queryFn: async () => {
-      const { data } = await agent.get<Issue>(`/issues/${id}`);
+      const { data } = await agent.get<Issue>(`/api/Issues/${id}`);
       return convertIssueData(data);
     },
     enabled: !!id,
@@ -107,7 +106,7 @@ export function useCreateIssue() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (command: CreateIssueCommand) => {
-      const { data } = await agent.post("/issues", command);
+      const { data } = await agent.post("/api/Issues", command);
       return data;
     },
     onSuccess: async () => {
@@ -120,13 +119,16 @@ export function useUpdateIssue() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (command: UpdateIssueCommand) => {
-      const { data } = await agent.put(`/issues/${command.id}`, command);
+      const { data } = await agent.put(
+        `/api/Issues/${command.issueID}`,
+        command,
+      );
       return data;
     },
     onSuccess: async (_data, variables) => {
       await queryClient.invalidateQueries({ queryKey: ["issues"] });
       await queryClient.invalidateQueries({
-        queryKey: ["issue", variables.id],
+        queryKey: ["issue", variables.issueID],
       });
     },
   });
@@ -136,7 +138,7 @@ export function useDeleteIssue() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: number) => {
-      const { data } = await agent.delete(`/issues/${id}`);
+      const { data } = await agent.delete(`/api/Issues/${id}`);
       return data;
     },
     onSuccess: async (_data, id) => {
