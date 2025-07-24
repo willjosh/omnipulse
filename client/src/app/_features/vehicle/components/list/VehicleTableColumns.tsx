@@ -9,86 +9,87 @@ import React from "react";
 
 export const vehicleTableColumns = [
   {
-    key: "Name",
+    key: "name",
     header: "Name",
     sortable: false,
     render: (vehicle: VehicleWithLabels) => (
       <div className="flex items-center">
         <div className="flex-shrink-0">
           <div className="size-8 rounded bg-gray-100 flex items-center justify-center text-sm">
-            {getVehicleIcon(vehicle.VehicleType)}
+            {getVehicleIcon(vehicle.vehicleType)}
           </div>
         </div>
         <div className="ml-3">
           <div className="text-sm font-medium text-gray-900">
-            {vehicle.Name}
+            {vehicle.name}
           </div>
         </div>
       </div>
     ),
   },
   {
-    key: "Year",
+    key: "year",
     header: "Year",
     sortable: false,
-    render: (vehicle: VehicleWithLabels) => vehicle.Year,
+    render: (vehicle: VehicleWithLabels) => vehicle.year,
   },
-  { key: "Make", header: "Make", sortable: false },
-  { key: "Model", header: "Model", sortable: false },
+  { key: "make", header: "Make", sortable: false },
+  { key: "model", header: "Model", sortable: false },
   {
-    key: "VIN",
+    key: "vin",
     header: "VIN",
     render: (vehicle: VehicleWithLabels) => (
-      <span className="text-sm">{vehicle.VIN}</span>
+      <span className="text-sm">{vehicle.vin}</span>
     ),
   },
   {
-    key: "Status",
+    key: "status",
     header: "Status",
     sortable: false,
     render: (vehicle: VehicleWithLabels) => (
       <div className="flex items-center">
         <div
-          className={`size-2 rounded-full mr-2 ${getStatusDot(vehicle.Status)}`}
+          className={`size-2 rounded-full mr-2 ${getStatusDot(vehicle.status)}`}
         ></div>
-        <span>{vehicle.StatusLabel}</span>
+        <span>{vehicle.statusLabel}</span>
       </div>
     ),
   },
   {
-    key: "VehicleType",
+    key: "vehicleType",
     header: "Type",
     sortable: false,
     render: (vehicle: VehicleWithLabels) =>
-      getVehicleTypeLabel(vehicle.VehicleType),
+      getVehicleTypeLabel(vehicle.vehicleType),
   },
-  { key: "VehicleGroupName", header: "Group", sortable: false },
+  { key: "vehicleGroupName", header: "Group", sortable: false },
   {
-    key: "Mileage",
+    key: "mileage",
     header: "Meter",
     render: (vehicle: VehicleWithLabels) => (
       <span className="text-primary hover:text-blue-800 cursor-pointer underline">
-        {vehicle.Mileage.toLocaleString()} mi{" "}
+        {vehicle.mileage.toLocaleString()} mi{" "}
       </span>
     ),
   },
-  { key: "LicensePlate", header: "License Plate", sortable: false },
+  { key: "licensePlate", header: "License Plate", sortable: false },
   {
-    key: "AssignedTechnicianName",
+    key: "assignedTechnicianName",
     header: "Operator",
     render: (vehicle: VehicleWithLabels) =>
-      vehicle.AssignedTechnicianName ? (
+      vehicle.assignedTechnicianName ? (
         <div className="flex items-center">
           <div className="flex-shrink-0 h-6 w-6">
             <div className="size-6 rounded-full bg-blue-100 flex items-center justify-center">
               <span className="text-xs font-medium text-blue-800">
-                {vehicle.AssignedTechnicianName.split(" ")
-                  .map(n => n[0])
+                {vehicle.assignedTechnicianName
+                  .split(" ")
+                  .map((n: string) => n[0])
                   .join("")}{" "}
               </span>
             </div>
           </div>
-          <span className="ml-2">{vehicle.AssignedTechnicianName}</span>
+          <span className="ml-2">{vehicle.assignedTechnicianName}</span>
         </div>
       ) : (
         <span className="text-gray-400 italic">Unassigned</span>

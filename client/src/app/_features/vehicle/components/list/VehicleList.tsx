@@ -20,11 +20,11 @@ const VehicleList: React.FC = () => {
   const router = useRouter();
   const [selectedVehicles, setSelectedVehicles] = useState<string[]>([]);
   const [filters, setFilters] = useState({
-    page: 1,
-    pageSize: 10,
-    sortBy: "Name",
-    sortOrder: "asc" as "asc" | "desc",
-    search: "",
+    PageNumber: 1,
+    PageSize: 10,
+    SortBy: "name",
+    SortDescending: false,
+    Search: "",
   });
   const { vehicles, pagination, isLoadingVehicles, deactivateVehicleMutation } =
     useVehicles(filters);
@@ -104,30 +104,29 @@ const VehicleList: React.FC = () => {
   const handleSort = (sortKey: string) => {
     setFilters(prev => ({
       ...prev,
-      sortBy: sortKey,
-      sortOrder:
-        prev.sortBy === sortKey && prev.sortOrder === "asc" ? "desc" : "asc",
-      page: 1, // Reset to first page when sorting
+      SortBy: sortKey,
+      SortDescending: prev.SortBy === sortKey ? !prev.SortDescending : false,
+      PageNumber: 1, // Reset to first page when sorting
     }));
   };
 
   const handleSearch = (searchTerm: string) => {
     setFilters(prev => ({
       ...prev,
-      search: searchTerm,
-      page: 1, // Reset to first page when searching
+      Search: searchTerm,
+      PageNumber: 1, // Reset to first page when searching
     }));
   };
 
   const handlePageChange = (newPage: number) => {
-    setFilters(prev => ({ ...prev, page: newPage }));
+    setFilters(prev => ({ ...prev, PageNumber: newPage }));
   };
 
   const handlePageSizeChange = (newPageSize: number) => {
     setFilters(prev => ({
       ...prev,
-      limit: newPageSize,
-      page: 1, // Reset to first page when changing page size
+      PageSize: newPageSize,
+      PageNumber: 1, // Reset to first page when changing page size
     }));
   };
 
@@ -165,7 +164,7 @@ const VehicleList: React.FC = () => {
         {/* <TabNavigation tabs={vehicleTabConfig} activeTab={filters} /> */}
 
         <FilterBar
-          searchValue={filters.search}
+          searchValue={filters.Search}
           onSearchChange={handleSearch}
           searchPlaceholder="Search vehicles"
           // filters={"placeholder"}
@@ -173,12 +172,12 @@ const VehicleList: React.FC = () => {
         />
 
         <PaginationControls
-          currentPage={filters.page}
+          currentPage={filters.PageNumber}
           totalPages={pagination?.totalPages || 0}
           totalItems={pagination?.totalCount || 0}
-          itemsPerPage={filters.pageSize}
-          onNextPage={() => handlePageChange(filters.page + 1)}
-          onPreviousPage={() => handlePageChange(filters.page - 1)}
+          itemsPerPage={filters.PageSize}
+          onNextPage={() => handlePageChange(filters.PageNumber + 1)}
+          onPreviousPage={() => handlePageChange(filters.PageNumber - 1)}
         />
       </div>
 
@@ -202,7 +201,7 @@ const VehicleList: React.FC = () => {
         onClose={() => setConfirmModal({ isOpen: false })}
         onConfirm={handleArchiveVehicle}
         title="Archive Vehicle"
-        message={`Are you sure you want archive ${confirmModal.vehicle?.Name}?`}
+        message={`Are you sure you want archive ${confirmModal.vehicle?.name}?`}
         confirmText="Archive"
         cancelText="Cancel"
       />

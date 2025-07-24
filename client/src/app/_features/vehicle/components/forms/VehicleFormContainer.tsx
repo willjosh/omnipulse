@@ -207,7 +207,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
     return showValidation ? validationErrors[fieldName] : "";
   };
 
-  const originalVehicleName = vehicleData?.Name || vehicleId;
+  const originalVehicleName = vehicleData?.name || vehicleId;
   const pageTitle =
     formMode === "create"
       ? "Add New Vehicle"
