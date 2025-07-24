@@ -10,57 +10,57 @@ interface Column<T> {
 
 export const inventoryTableColumns: Column<InventoryItemWithLabels>[] = [
   {
-    key: "ItemName",
+    key: "itemName",
     header: "Part",
     sortable: true,
     render: (item: InventoryItemWithLabels) => (
-      <div className="text-sm font-medium text-gray-900">{item.ItemName}</div>
+      <div className="text-sm font-medium text-gray-900">{item.itemName}</div>
     ),
   },
   {
-    key: "Description",
+    key: "description",
     header: "Description",
     sortable: false,
     render: (item: InventoryItemWithLabels) => (
       <div className="text-sm text-gray-500 max-w-xs truncate">
-        {item.Description || "No description"}
+        {item.description || "No description"}
       </div>
     ),
   },
   {
-    key: "CategoryLabel",
+    key: "categoryLabel",
     header: "Category",
     sortable: true,
     render: (item: InventoryItemWithLabels) => (
-      <div className="text-sm text-gray-700">{item.CategoryLabel}</div>
+      <div className="text-sm text-gray-700">{item.categoryLabel}</div>
     ),
   },
   {
-    key: "Manufacturer",
+    key: "manufacturer",
     header: "Manufacturer",
     sortable: true,
     render: (item: InventoryItemWithLabels) => (
-      <div className="text-sm text-gray-700">{item.Manufacturer || "—"}</div>
+      <div className="text-sm text-gray-700">{item.manufacturer || "—"}</div>
     ),
   },
   {
-    key: "ManufacturerPartNumber",
+    key: "manufacturerPartNumber",
     header: "Manufacturer Part Number",
     sortable: false,
     render: (item: InventoryItemWithLabels) => (
       <div className="text-sm text-gray-700">
-        {item.ManufacturerPartNumber || "—"}
+        {item.manufacturerPartNumber || "—"}
       </div>
     ),
   },
   {
-    key: "UnitCost",
+    key: "unitCost",
     header: "Unit Cost",
     sortable: true,
     render: (item: InventoryItemWithLabels) => (
       <div className="text-sm text-gray-900">
-        {item.UnitCost
-          ? `$${item.UnitCost.toFixed(2)} ${item.UnitCostMeasurementUnitLabel ? `/ ${item.UnitCostMeasurementUnitLabel}` : ""}`
+        {item.unitCost
+          ? `$${item.unitCost.toFixed(2)}${item.unitCostMeasurementUnitLabel ? ` / ${item.unitCostMeasurementUnitLabel}` : ""}`
           : "—"}
       </div>
     ),

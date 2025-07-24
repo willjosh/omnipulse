@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import {
   useCreateInventoryItem,
   useUpdateInventoryItem,
-} from "@/app/_hooks/inventory-item/useInventoryItem";
+} from "@/app/_hooks/inventory-item/useInventoryItems";
 import {
   CreateInventoryItemCommand,
   UpdateInventoryItemCommand,
@@ -31,18 +31,18 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
   item,
 }) => {
   const [formData, setFormData] = useState({
-    ItemNumber: "",
-    ItemName: "",
-    Description: "",
-    Category: InventoryItemCategoryEnum.ENGINE,
-    Manufacturer: "",
-    ManufacturerPartNumber: "",
-    UniversalProductCode: "",
-    UnitCost: 0,
-    UnitCostMeasurementUnit: InventoryItemUnitCostMeasurementUnitEnum.Unit,
-    Supplier: "",
-    WeightKG: 0,
-    IsActive: true,
+    itemNumber: "",
+    itemName: "",
+    description: "",
+    category: InventoryItemCategoryEnum.ENGINE,
+    manufacturer: "",
+    manufacturerPartNumber: "",
+    universalProductCode: "",
+    unitCost: 0,
+    unitCostMeasurementUnit: InventoryItemUnitCostMeasurementUnitEnum.Unit,
+    supplier: "",
+    weightKG: 0,
+    isActive: true,
   });
 
   const createInventoryMutation = useCreateInventoryItem();
@@ -52,36 +52,36 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
   useEffect(() => {
     if (mode === "edit" && item) {
       setFormData({
-        ItemNumber: item.ItemNumber || "",
-        ItemName: item.ItemName || "",
-        Description: item.Description || "",
-        Category: item.Category ?? InventoryItemCategoryEnum.ENGINE,
-        Manufacturer: item.Manufacturer || "",
-        ManufacturerPartNumber: item.ManufacturerPartNumber || "",
-        UniversalProductCode: item.UniversalProductCode || "",
-        UnitCost: item.UnitCost ?? 0,
-        UnitCostMeasurementUnit:
-          item.UnitCostMeasurementUnit ??
+        itemNumber: item.itemNumber || "",
+        itemName: item.itemName || "",
+        description: item.description || "",
+        category: item.category ?? InventoryItemCategoryEnum.ENGINE,
+        manufacturer: item.manufacturer || "",
+        manufacturerPartNumber: item.manufacturerPartNumber || "",
+        universalProductCode: item.universalProductCode || "",
+        unitCost: item.unitCost ?? 0,
+        unitCostMeasurementUnit:
+          item.unitCostMeasurementUnit ??
           InventoryItemUnitCostMeasurementUnitEnum.Unit,
-        Supplier: item.Supplier || "",
-        WeightKG: item.WeightKG ?? 0,
-        IsActive: item.IsActive ?? true,
+        supplier: item.supplier || "",
+        weightKG: item.weightKG ?? 0,
+        isActive: item.isActive ?? true,
       });
     } else if (mode === "create") {
       // Reset form for create mode
       setFormData({
-        ItemNumber: "",
-        ItemName: "",
-        Description: "",
-        Category: InventoryItemCategoryEnum.ENGINE,
-        Manufacturer: "",
-        ManufacturerPartNumber: "",
-        UniversalProductCode: "",
-        UnitCost: 0,
-        UnitCostMeasurementUnit: InventoryItemUnitCostMeasurementUnitEnum.Unit,
-        Supplier: "",
-        WeightKG: 0,
-        IsActive: true,
+        itemNumber: "",
+        itemName: "",
+        description: "",
+        category: InventoryItemCategoryEnum.ENGINE,
+        manufacturer: "",
+        manufacturerPartNumber: "",
+        universalProductCode: "",
+        unitCost: 0,
+        unitCostMeasurementUnit: InventoryItemUnitCostMeasurementUnitEnum.Unit,
+        supplier: "",
+        weightKG: 0,
+        isActive: true,
       });
     }
   }, [mode, item, isOpen]);
@@ -93,7 +93,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.ItemNumber.trim() || !formData.ItemName.trim()) {
+    if (!formData.itemNumber.trim() || !formData.itemName.trim()) {
       alert("Item Number and Item Name are required");
       return;
     }
@@ -104,7 +104,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
         await createInventoryMutation.mutateAsync(createCommand);
       } else {
         const updateCommand: UpdateInventoryItemCommand = {
-          id: item!.id,
+          inventoryItemID: item!.id,
           ...formData,
         };
         await updateInventoryMutation.mutateAsync(updateCommand);
@@ -126,18 +126,18 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
     // Reset form when closing in create mode
     if (mode === "create") {
       setFormData({
-        ItemNumber: "",
-        ItemName: "",
-        Description: "",
-        Category: InventoryItemCategoryEnum.ENGINE,
-        Manufacturer: "",
-        ManufacturerPartNumber: "",
-        UniversalProductCode: "",
-        UnitCost: 0,
-        UnitCostMeasurementUnit: InventoryItemUnitCostMeasurementUnitEnum.Unit,
-        Supplier: "",
-        WeightKG: 0,
-        IsActive: true,
+        itemNumber: "",
+        itemName: "",
+        description: "",
+        category: InventoryItemCategoryEnum.ENGINE,
+        manufacturer: "",
+        manufacturerPartNumber: "",
+        universalProductCode: "",
+        unitCost: 0,
+        unitCostMeasurementUnit: InventoryItemUnitCostMeasurementUnitEnum.Unit,
+        supplier: "",
+        weightKG: 0,
+        isActive: true,
       });
     }
     onClose();
@@ -183,7 +183,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
   ];
 
   const modalTitle =
-    mode === "create" ? "Add New Item" : `Edit Item - ${item?.ItemName}`;
+    mode === "create" ? "Add New Item" : `Edit Item - ${item?.itemName}`;
 
   const submitButtonText =
     mode === "create"
@@ -215,8 +215,8 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
               </label>
               <input
                 type="text"
-                value={formData.ItemNumber || ""}
-                onChange={e => handleInputChange("ItemNumber", e.target.value)}
+                value={formData.itemNumber || ""}
+                onChange={e => handleInputChange("itemNumber", e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
@@ -228,8 +228,8 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
               </label>
               <input
                 type="text"
-                value={formData.ItemName || ""}
-                onChange={e => handleInputChange("ItemName", e.target.value)}
+                value={formData.itemName || ""}
+                onChange={e => handleInputChange("itemName", e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
@@ -241,8 +241,8 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
               Description
             </label>
             <textarea
-              value={formData.Description || ""}
-              onChange={e => handleInputChange("Description", e.target.value)}
+              value={formData.description || ""}
+              onChange={e => handleInputChange("description", e.target.value)}
               rows={3}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -254,9 +254,9 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
                 Category
               </label>
               <select
-                value={formData.Category ?? InventoryItemCategoryEnum.ENGINE}
+                value={formData.category ?? InventoryItemCategoryEnum.ENGINE}
                 onChange={e =>
-                  handleInputChange("Category", parseInt(e.target.value))
+                  handleInputChange("category", parseInt(e.target.value))
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
@@ -274,9 +274,9 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
               </label>
               <input
                 type="text"
-                value={formData.Manufacturer || ""}
+                value={formData.manufacturer || ""}
                 onChange={e =>
-                  handleInputChange("Manufacturer", e.target.value)
+                  handleInputChange("manufacturer", e.target.value)
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -290,9 +290,9 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
               </label>
               <input
                 type="text"
-                value={formData.ManufacturerPartNumber || ""}
+                value={formData.manufacturerPartNumber || ""}
                 onChange={e =>
-                  handleInputChange("ManufacturerPartNumber", e.target.value)
+                  handleInputChange("manufacturerPartNumber", e.target.value)
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -304,9 +304,9 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
               </label>
               <input
                 type="text"
-                value={formData.UniversalProductCode || ""}
+                value={formData.universalProductCode || ""}
                 onChange={e =>
-                  handleInputChange("UniversalProductCode", e.target.value)
+                  handleInputChange("universalProductCode", e.target.value)
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -322,9 +322,9 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
                 type="number"
                 step="0.01"
                 min="0"
-                value={formData.UnitCost ?? 0}
+                value={formData.unitCost ?? 0}
                 onChange={e =>
-                  handleInputChange("UnitCost", parseFloat(e.target.value) || 0)
+                  handleInputChange("unitCost", parseFloat(e.target.value) || 0)
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -336,12 +336,12 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
               </label>
               <select
                 value={
-                  formData.UnitCostMeasurementUnit ??
+                  formData.unitCostMeasurementUnit ??
                   InventoryItemUnitCostMeasurementUnitEnum.Unit
                 }
                 onChange={e =>
                   handleInputChange(
-                    "UnitCostMeasurementUnit",
+                    "unitCostMeasurementUnit",
                     parseInt(e.target.value),
                   )
                 }
@@ -363,8 +363,8 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
               </label>
               <input
                 type="text"
-                value={formData.Supplier || ""}
-                onChange={e => handleInputChange("Supplier", e.target.value)}
+                value={formData.supplier || ""}
+                onChange={e => handleInputChange("supplier", e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -377,9 +377,9 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
                 type="number"
                 step="0.01"
                 min="0"
-                value={formData.WeightKG ?? 0}
+                value={formData.weightKG ?? 0}
                 onChange={e =>
-                  handleInputChange("WeightKG", parseFloat(e.target.value) || 0)
+                  handleInputChange("weightKG", parseFloat(e.target.value) || 0)
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -390,8 +390,8 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
             <input
               type="checkbox"
               id="isActive"
-              checked={formData.IsActive}
-              onChange={e => handleInputChange("IsActive", e.target.checked)}
+              checked={formData.isActive}
+              onChange={e => handleInputChange("isActive", e.target.checked)}
               className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
             />
             <label htmlFor="isActive" className="ml-2 text-sm text-gray-700">
