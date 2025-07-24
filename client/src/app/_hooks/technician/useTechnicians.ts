@@ -10,20 +10,23 @@ import { PagedResponse } from "@/app/_hooks/shared_types/pagedResponse";
 import { useDebounce } from "@/app/_hooks/shared_types/useDebounce";
 
 export function useTechnicians(filter: TechnicianFilter = {}) {
-  const debouncedSearch = useDebounce(filter?.search || "", 300);
-  const debouncedFilter = { ...filter, search: debouncedSearch };
+  const debouncedSearch = useDebounce(filter?.Search || "", 300);
+  const debouncedFilter = { ...filter, Search: debouncedSearch };
 
   const queryParams = new URLSearchParams();
-  if (debouncedFilter.page)
-    queryParams.append("page", debouncedFilter.page.toString());
-  if (debouncedFilter.pageSize)
-    queryParams.append("pageSize", debouncedFilter.pageSize.toString());
-  if (debouncedFilter.search)
-    queryParams.append("search", debouncedFilter.search);
-  if (debouncedFilter.sortBy)
-    queryParams.append("sortBy", debouncedFilter.sortBy);
-  if (debouncedFilter.sortOrder)
-    queryParams.append("sortOrder", debouncedFilter.sortOrder);
+  if (debouncedFilter.PageNumber)
+    queryParams.append("PageNumber", debouncedFilter.PageNumber.toString());
+  if (debouncedFilter.PageSize)
+    queryParams.append("PageSize", debouncedFilter.PageSize.toString());
+  if (debouncedFilter.Search)
+    queryParams.append("Search", debouncedFilter.Search);
+  if (debouncedFilter.SortBy)
+    queryParams.append("SortBy", debouncedFilter.SortBy);
+  if (debouncedFilter.SortDescending !== undefined)
+    queryParams.append(
+      "SortDescending",
+      debouncedFilter.SortDescending.toString(),
+    );
 
   const queryString = queryParams.toString();
 
@@ -33,22 +36,22 @@ export function useTechnicians(filter: TechnicianFilter = {}) {
     queryKey: ["technicians", debouncedFilter],
     queryFn: async () => {
       const { data } = await agent.get<PagedResponse<Technician>>(
-        `/technicians${queryString ? `?${queryString}` : ""}`,
+        `/api/Technicians${queryString ? `?${queryString}` : ""}`,
       );
       return data;
     },
   });
 
   return {
-    technicians: data?.Items ?? [],
+    technicians: data?.items ?? [],
     pagination: data
       ? {
-          totalCount: data.TotalCount,
-          pageNumber: data.PageNumber,
-          pageSize: data.PageSize,
-          totalPages: data.TotalPages,
-          hasPreviousPage: data.HasPreviousPage,
-          hasNextPage: data.HasNextPage,
+          totalCount: data.totalCount,
+          pageNumber: data.pageNumber,
+          pageSize: data.pageSize,
+          totalPages: data.totalPages,
+          hasPreviousPage: data.hasPreviousPage,
+          hasNextPage: data.hasNextPage,
         }
       : null,
     isPending,
@@ -62,8 +65,8 @@ export function useTechnician(id: string) {
   return useQuery({
     queryKey: ["technician", id],
     queryFn: async () => {
-      const { data } = await agent.get(`/technicians/${id}`);
-      return data as Technician;
+      const { data } = await agent.get<Technician>(`/api/Technicians/${id}`);
+      return data;
     },
     enabled: !!id,
   });
@@ -73,7 +76,7 @@ export function useCreateTechnician() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (command: CreateTechnicianCommand) => {
-      const { data } = await agent.post("/technicians", command);
+      const { data } = await agent.post("/api/Technicians", command);
       return data;
     },
     onSuccess: async () => {
@@ -86,7 +89,10 @@ export function useUpdateTechnician() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (command: UpdateTechnicianCommand) => {
-      const { data } = await agent.put(`/technicians/${command.id}`, command);
+      const { data } = await agent.put(
+        `/api/Technicians/${command.id}`,
+        command,
+      );
       return data;
     },
     onSuccess: async (_data, variables) => {
@@ -98,11 +104,11 @@ export function useUpdateTechnician() {
   });
 }
 
-export function useHandleTechnicianStatus() {
+export function useDeactivateTechnician() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { data } = await agent.post(`/technicians/status/${id}`);
+      const { data } = await agent.patch(`/api/Technicians/${id}/deactivate`);
       return data;
     },
     onSuccess: async (_data, id) => {

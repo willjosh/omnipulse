@@ -1,33 +1,33 @@
 export interface Technician {
   id: string;
-  FirstName: string;
-  LastName: string;
-  HireDate: string;
-  IsActive: boolean;
-  Email: string;
+  firstName: string;
+  lastName: string;
+  hireDate: string;
+  isActive: boolean;
+  email: string;
 }
 
 export interface CreateTechnicianCommand {
-  Email: string;
-  FirstName: string;
-  LastName: string;
-  HireDate: string;
-  IsActive: boolean;
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  hireDate: string;
+  isActive: boolean;
 }
 
 export interface UpdateTechnicianCommand {
   id: string;
-  FirstName?: string | null;
-  LastName?: string | null;
-  Email?: string | null;
-  HireDate?: string | null;
-  IsActive?: boolean | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  hireDate?: string | null;
+  isActive?: boolean | null;
 }
 
 export interface TechnicianFilter {
-  page?: number;
-  pageSize?: number;
-  sortBy?: string;
-  sortOrder?: "asc" | "desc";
-  search?: string;
+  PageNumber?: number;
+  PageSize?: number;
+  SortBy?: string;
+  SortDescending?: boolean;
+  Search?: string;
 }
