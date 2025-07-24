@@ -3,16 +3,17 @@ import { DataTable } from "../../shared/table/";
 
 // Define the type for a single issue row (should match the data from useIssues)
 export interface IssueRow {
-  id: string;
-  issueNumber: string;
+  id: number;
+  issueNumber: number;
   title: string;
-  vehicle: string;
-  category: string;
-  priority: string;
-  status: string;
-  reportedBy: string;
+  vehicleName: string;
+  categoryLabel: string;
+  priorityLevelLabel: string;
+  statusLabel: string;
+  reportedByUserName: string;
   reportedDate: string;
-  assignedTo: string;
+  resolvedByUserName?: string;
+  resolvedDate?: string;
 }
 
 interface IssueListTableProps {
@@ -25,13 +26,14 @@ interface IssueListTableProps {
 const columns = [
   { key: "issueNumber", header: "Issue #" },
   { key: "title", header: "Title", width: "280px" },
-  { key: "vehicle", header: "Vehicle", width: "180px" },
-  { key: "category", header: "Category" },
-  { key: "priority", header: "Priority" },
-  { key: "status", header: "Status" },
-  { key: "reportedBy", header: "Reported By", width: "150px" },
+  { key: "vehicleName", header: "Vehicle", width: "180px" },
+  { key: "categoryLabel", header: "Category" },
+  { key: "priorityLevelLabel", header: "Priority" },
+  { key: "statusLabel", header: "Status" },
+  { key: "reportedByUserName", header: "Reported By", width: "150px" },
   { key: "reportedDate", header: "Reported Date", width: "190px" },
-  { key: "assignedTo", header: "Assigned To", width: "150px" },
+  { key: "resolvedByUserName", header: "Resolved By", width: "150px" },
+  { key: "resolvedDate", header: "Resolved Date", width: "190px" },
 ];
 
 export const IssueListTable: React.FC<IssueListTableProps> = ({
@@ -48,7 +50,7 @@ export const IssueListTable: React.FC<IssueListTableProps> = ({
       selectedItems={[]}
       onSelectItem={() => {}}
       onSelectAll={() => {}}
-      getItemId={item => item.id}
+      getItemId={item => String(item.id)}
       loading={isLoading}
       showActions={false}
       emptyState={emptyState}

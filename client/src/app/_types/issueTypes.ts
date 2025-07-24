@@ -1,13 +1,13 @@
 export interface IssueDetailsFormProps {
   value: {
-    VehicleID: string;
-    PriorityLevel: string;
-    ReportedDate: string;
-    Title: string;
-    Description: string;
-    Status: string;
-    ReportedByUserID: string;
-    Category: string;
+    vehicleID: string;
+    priorityLevel: string;
+    reportedDate: string;
+    title: string;
+    description: string;
+    status: string;
+    reportedByUserID: string;
+    category: string;
   };
   errors: { [key: string]: string };
   onChange: (field: string, value: string) => void;

@@ -26,6 +26,7 @@ import {
 } from "@/app/_utils/dateTimeUtils";
 import { IssueDetailsFormProps } from "@/app/_types/issueTypes";
 import { VehicleOption } from "@/app/_types/vehicleTypes";
+import { VehicleWithLabels } from "@/app/_hooks/vehicle/vehicleType";
 
 const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
   value,
@@ -40,50 +41,61 @@ const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
   const [vehicleSearch, setVehicleSearch] = useState("");
   const { vehicles, isLoadingVehicles } = useVehicles();
   const vehicleOptions = useMemo(
-    () => vehicles.map(v => ({ value: v.id.toString(), label: v.Name })),
+    () =>
+      vehicles.map((v: VehicleWithLabels) => ({
+        value: v.id.toString(),
+        label: v.name,
+      })),
     [vehicles],
   );
 
   const filteredVehicles = useMemo(() => {
     if (!vehicleSearch) return vehicleOptions;
     const searchLower = vehicleSearch.toLowerCase();
-    return vehicleOptions.filter(v =>
+    return vehicleOptions.filter((v: VehicleOption) =>
       v.label.toLowerCase().includes(searchLower),
     );
   }, [vehicleSearch, vehicleOptions]);
   const selectedVehicle: VehicleOption | null =
-    vehicleOptions.find(v => v.value === value.VehicleID) || null;
+    vehicleOptions.find((v: VehicleOption) => v.value === value.vehicleID) ||
+    null;
 
   // Fetch technicians for Reported By dropdown
   const { technicians, isPending: isLoadingTechnicians } = useTechnicians();
-  const usersList = technicians.map(t => ({
-    value: String(t.id),
-    label: `${t.FirstName} ${t.LastName}`,
-  }));
+  const usersList = technicians.map(
+    (t: { id: string; firstName: string; lastName: string }) => ({
+      value: String(t.id),
+      label: `${t.firstName} ${t.lastName}`,
+    }),
+  );
   const [userSearch, setUserSearch] = useState("");
   const filteredUsers = useMemo(() => {
     if (!userSearch) return usersList;
     const searchLower = userSearch.toLowerCase();
-    return usersList.filter(u => u.label.toLowerCase().includes(searchLower));
+    return usersList.filter((u: { label: string }) =>
+      u.label.toLowerCase().includes(searchLower),
+    );
   }, [userSearch, usersList]);
   const selectedUser =
-    usersList.find(u => u.value === String(value.ReportedByUserID)) || null;
+    usersList.find(
+      (u: { value: string }) => u.value === String(value.reportedByUserID),
+    ) || null;
 
   // Local state for time selection
   const [reportedTime, setReportedTime] = useState<string>("");
 
   // Prefill reportedTime when value.ReportedDate changes
   useEffect(() => {
-    setReportedTime(extractTimeFromISO(value.ReportedDate));
-  }, [value.ReportedDate]);
+    setReportedTime(extractTimeFromISO(value.reportedDate));
+  }, [value.reportedDate]);
 
   return (
     <FormContainer title="Details" className="mt-6 max-w-2xl mx-auto w-full">
       {/* Asset (Vehicle) Dropdown with search */}
-      <FormField label="Asset" required error={errors.VehicleID}>
+      <FormField label="Asset" required error={errors.vehicleID}>
         <Combobox
           value={selectedVehicle}
-          onChange={v => v && onChange("VehicleID", v.value)}
+          onChange={v => v && onChange("vehicleID", v.value)}
           disabled={disabled || isLoadingVehicles}
         >
           <div className="relative">
@@ -118,7 +130,7 @@ const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
                   No vehicles found.
                 </div>
               ) : (
-                filteredVehicles.map(opt => (
+                filteredVehicles.map((opt: VehicleOption) => (
                   <ComboboxOption
                     key={opt.value}
                     value={opt}
@@ -153,14 +165,14 @@ const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
           </div>
         </Combobox>
       </FormField>
-      <FormField label="Priority Level" required error={errors.PriorityLevel}>
+      <FormField label="Priority Level" required error={errors.priorityLevel}>
         <Combobox
           value={
             getPriorityOptions().find(
-              opt => opt.value === value.PriorityLevel,
+              opt => opt.value === value.priorityLevel,
             ) || null
           }
-          onChange={opt => opt && onChange("PriorityLevel", opt.value)}
+          onChange={opt => opt && onChange("priorityLevel", opt.value)}
           disabled={disabled}
         >
           <div className="relative">
@@ -225,12 +237,12 @@ const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
       </FormField>
       {/* Status Dropdown */}
       {showStatus && (
-        <FormField label="Status" required error={errors.Status}>
+        <FormField label="Status" required error={errors.status}>
           <Combobox
             value={
-              getStatusOptions().find(opt => opt.value === value.Status) || null
+              getStatusOptions().find(opt => opt.value === value.status) || null
             }
-            onChange={opt => opt && onChange("Status", opt.value)}
+            onChange={opt => opt && onChange("status", opt.value)}
             disabled={disabled || !statusEditable}
           >
             <div className="relative">
@@ -295,13 +307,13 @@ const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
         </FormField>
       )}
       {/* Category Dropdown */}
-      <FormField label="Category" required error={errors.Category}>
+      <FormField label="Category" required error={errors.category}>
         <Combobox
           value={
-            getCategoryOptions().find(opt => opt.value === value.Category) ||
+            getCategoryOptions().find(opt => opt.value === value.category) ||
             null
           }
-          onChange={opt => opt && onChange("Category", opt.value)}
+          onChange={opt => opt && onChange("category", opt.value)}
           disabled={disabled}
         >
           <div className="relative">
@@ -364,15 +376,15 @@ const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
           </div>
         </Combobox>
       </FormField>
-      <FormField label="Reported Date" error={errors.ReportedDate}>
+      <FormField label="Reported Date" error={errors.reportedDate}>
         <div className="flex">
           <div className="w-1/3 mr-4">
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <DatePicker
                 value={
-                  value.ReportedDate &&
-                  !isNaN(new Date(value.ReportedDate).getTime())
-                    ? new Date(value.ReportedDate)
+                  value.reportedDate &&
+                  !isNaN(new Date(value.reportedDate).getTime())
+                    ? new Date(value.reportedDate)
                     : null
                 }
                 onChange={date => {
@@ -385,7 +397,7 @@ const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
                     date ? date.toISOString() : "",
                     newTime,
                   );
-                  onChange("ReportedDate", iso);
+                  onChange("reportedDate", iso);
                 }}
                 slotProps={{ textField: { size: "small" } }}
                 disabled={disabled}
@@ -399,10 +411,10 @@ const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
               onChange={(_e, newValue) => {
                 setReportedTime(newValue || "");
                 const iso = combineDateAndTime(
-                  value.ReportedDate,
+                  value.reportedDate,
                   newValue || "",
                 );
-                onChange("ReportedDate", iso);
+                onChange("reportedDate", iso);
               }}
               renderInput={params => (
                 <TextField {...params} placeholder="Select time" size="small" />
@@ -413,31 +425,31 @@ const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
           </div>
         </div>
       </FormField>
-      <FormField label="Summary" required error={errors.Title}>
+      <FormField label="Summary" required error={errors.title}>
         <input
           type="text"
-          value={value.Title}
-          onChange={e => onChange("Title", e.target.value)}
+          value={value.title}
+          onChange={e => onChange("title", e.target.value)}
           placeholder="Enter summary"
           className="w-full border border-gray-300 rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white h-[40px]"
           disabled={disabled}
         />
       </FormField>
       {/* Description Field (Rich Text Editor placeholder) */}
-      <FormField label="Description" error={errors.Description}>
+      <FormField label="Description" error={errors.description}>
         {/* TODO: Replace with a real rich text editor (e.g., React Quill, Slate, Tiptap) */}
         <textarea
-          value={value.Description}
-          onChange={e => onChange("Description", e.target.value)}
+          value={value.description}
+          onChange={e => onChange("description", e.target.value)}
           placeholder="Describe the issue in detail..."
           className="w-full border border-gray-300 rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white min-h-[100px] resize-y"
           disabled={disabled}
         />
       </FormField>
-      <FormField label="Reported By" required error={errors.ReportedByUserID}>
+      <FormField label="Reported By" required error={errors.reportedByUserID}>
         <Combobox
           value={selectedUser}
-          onChange={u => u && onChange("ReportedByUserID", u.value)}
+          onChange={u => u && onChange("reportedByUserID", u.value)}
           disabled={disabled || isLoadingTechnicians}
         >
           <div className="relative">
@@ -469,7 +481,7 @@ const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
               {filteredUsers.length === 0 && (
                 <div className="px-4 py-2 text-gray-500">No users found.</div>
               )}
-              {filteredUsers.map(opt => (
+              {filteredUsers.map((opt: { value: string; label: string }) => (
                 <ComboboxOption
                   key={opt.value}
                   value={opt}
