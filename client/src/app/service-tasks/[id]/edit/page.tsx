@@ -9,7 +9,7 @@ import { PrimaryButton, SecondaryButton } from "@/app/_features/shared/button";
 import {
   useServiceTask,
   useUpdateServiceTask,
-} from "@/app/_hooks/service-task/useServiceTask";
+} from "@/app/_hooks/service-task/useServiceTasks";
 import { useNotification } from "@/app/_features/shared/feedback/NotificationProvider";
 
 export default function EditServiceTaskPage() {
@@ -29,29 +29,29 @@ export default function EditServiceTaskPage() {
   useEffect(() => {
     if (task) {
       setForm({
-        Name: task.Name,
-        Description: task.Description || "",
-        EstimatedLabourHours: task.EstimatedLabourHours.toString(),
-        EstimatedCost: task.EstimatedCost.toString(),
-        Category: task.CategoryEnum,
-        IsActive: task.IsActive,
+        name: task.name,
+        description: task.description || "",
+        estimatedLabourHours: task.estimatedLabourHours.toString(),
+        estimatedCost: task.estimatedCost.toString(),
+        category: task.categoryEnum,
+        isActive: task.isActive,
       });
     }
   }, [task]);
 
   const breadcrumbs = [
     { label: "Service Tasks", href: "/service-tasks" },
-    { label: task?.Name || "...", href: `/service-tasks/${id}` },
+    { label: task?.name || "...", href: `/service-tasks/${id}` },
   ];
 
   const validate = () => {
     const newErrors: typeof errors = {};
-    if (!form?.Name?.trim()) newErrors.Name = "Name is required.";
-    if (!form?.EstimatedLabourHours || isNaN(Number(form.EstimatedLabourHours)))
-      newErrors.EstimatedLabourHours = "Estimated Labour Hours is required.";
-    if (!form?.EstimatedCost || isNaN(Number(form.EstimatedCost)))
-      newErrors.EstimatedCost = "Estimated Cost is required.";
-    if (!form?.Category) newErrors.Category = "Category is required.";
+    if (!form?.name?.trim()) newErrors.name = "Name is required.";
+    if (!form?.estimatedLabourHours || isNaN(Number(form.estimatedLabourHours)))
+      newErrors.estimatedLabourHours = "Estimated Labour Hours is required.";
+    if (!form?.estimatedCost || isNaN(Number(form.estimatedCost)))
+      newErrors.estimatedCost = "Estimated Cost is required.";
+    if (!form?.category) newErrors.category = "Category is required.";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -72,13 +72,13 @@ export default function EditServiceTaskPage() {
     if (!validate() || !form) return;
     updateServiceTask(
       {
-        id: id!,
-        Name: form.Name,
-        Description: form.Description,
-        EstimatedLabourHours: Number(form.EstimatedLabourHours),
-        EstimatedCost: Number(form.EstimatedCost),
-        Category: Number(form.Category),
-        IsActive: form.IsActive,
+        ServiceTaskID: id!,
+        name: form.name,
+        description: form.description,
+        estimatedLabourHours: Number(form.estimatedLabourHours),
+        estimatedCost: Number(form.estimatedCost),
+        category: Number(form.category),
+        isActive: form.isActive,
       },
       {
         onSuccess: () => {

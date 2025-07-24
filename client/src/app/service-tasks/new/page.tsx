@@ -6,16 +6,16 @@ import ServiceTaskDetailsForm, {
   ServiceTaskDetailsFormValues,
 } from "@/app/_features/service-task/components/ServiceTaskDetailsForm";
 import { PrimaryButton, SecondaryButton } from "@/app/_features/shared/button";
-import { useCreateServiceTask } from "@/app/_hooks/service-task/useServiceTask";
+import { useCreateServiceTask } from "@/app/_hooks/service-task/useServiceTasks";
 import { useNotification } from "@/app/_features/shared/feedback/NotificationProvider";
 
 const initialForm: ServiceTaskDetailsFormValues = {
-  Name: "",
-  Description: "",
-  EstimatedLabourHours: "",
-  EstimatedCost: "",
-  Category: "",
-  IsActive: true,
+  name: "",
+  description: "",
+  estimatedLabourHours: "",
+  estimatedCost: "",
+  category: "",
+  isActive: true,
 };
 
 export default function CreateServiceTaskPage() {
@@ -34,12 +34,12 @@ export default function CreateServiceTaskPage() {
 
   const validate = () => {
     const newErrors: typeof errors = {};
-    if (!form.Name.trim()) newErrors.Name = "Name is required.";
-    if (!form.EstimatedLabourHours || isNaN(Number(form.EstimatedLabourHours)))
-      newErrors.EstimatedLabourHours = "Estimated Labour Hours is required.";
-    if (!form.EstimatedCost || isNaN(Number(form.EstimatedCost)))
-      newErrors.EstimatedCost = "Estimated Cost is required.";
-    if (!form.Category) newErrors.Category = "Category is required.";
+    if (!form.name.trim()) newErrors.name = "Name is required.";
+    if (!form.estimatedLabourHours || isNaN(Number(form.estimatedLabourHours)))
+      newErrors.estimatedLabourHours = "Estimated Labour Hours is required.";
+    if (!form.estimatedCost || isNaN(Number(form.estimatedCost)))
+      newErrors.estimatedCost = "Estimated Cost is required.";
+    if (!form.category) newErrors.category = "Category is required.";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -61,12 +61,12 @@ export default function CreateServiceTaskPage() {
     setIsSaving(true);
     createServiceTask(
       {
-        Name: form.Name,
-        Description: form.Description,
-        EstimatedLabourHours: Number(form.EstimatedLabourHours),
-        EstimatedCost: Number(form.EstimatedCost),
-        Category: Number(form.Category),
-        IsActive: form.IsActive,
+        name: form.name,
+        description: form.description,
+        estimatedLabourHours: Number(form.estimatedLabourHours),
+        estimatedCost: Number(form.estimatedCost),
+        category: Number(form.category),
+        isActive: form.isActive,
       },
       {
         onSuccess: () => {
@@ -84,12 +84,12 @@ export default function CreateServiceTaskPage() {
     setIsSaving(true);
     createServiceTask(
       {
-        Name: form.Name,
-        Description: form.Description,
-        EstimatedLabourHours: Number(form.EstimatedLabourHours),
-        EstimatedCost: Number(form.EstimatedCost),
-        Category: Number(form.Category),
-        IsActive: form.IsActive,
+        name: form.name,
+        description: form.description,
+        estimatedLabourHours: Number(form.estimatedLabourHours),
+        estimatedCost: Number(form.estimatedCost),
+        category: Number(form.category),
+        isActive: form.isActive,
       },
       {
         onSuccess: () => {
