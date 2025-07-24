@@ -5,7 +5,7 @@ import { Edit, ArrowLeft, Package } from "lucide-react";
 import { TabNavigation } from "@/app/_features/shared/tabs";
 import { PrimaryButton, OptionButton } from "@/app/_features/shared/button";
 import { Loading } from "@/app/_features/shared/feedback";
-import { useInventoryItem } from "@/app/_hooks/inventory-item/useInventoryItem";
+import { useInventoryItem } from "@/app/_hooks/inventory-item/useInventoryItems";
 import InventoryModal from "@/app/_features/shared/inventory/InventoryModal";
 
 const InventoryItemDetailsPage = () => {
@@ -84,13 +84,13 @@ const InventoryItemDetailsPage = () => {
               Item Number
             </span>
             <span className="text-sm text-gray-900 font-mono">
-              {inventoryItem.ItemNumber}
+              {inventoryItem.itemNumber}
             </span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
             <span className="text-sm font-medium text-gray-600">Item Name</span>
             <span className="text-sm text-gray-900">
-              {inventoryItem.ItemName}
+              {inventoryItem.itemName}
             </span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
@@ -98,23 +98,23 @@ const InventoryItemDetailsPage = () => {
               Description
             </span>
             <span className="text-sm text-gray-900">
-              {inventoryItem.Description || "—"}
+              {inventoryItem.description || "—"}
             </span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
             <span className="text-sm font-medium text-gray-600">Category</span>
             <span className="text-sm text-blue-600">
-              {inventoryItem.CategoryLabel || "—"}
+              {inventoryItem.categoryLabel || "—"}
             </span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
             <span className="text-sm font-medium text-gray-600">Status</span>
             <div className="flex items-center">
               <div
-                className={`w-2 h-2 rounded-full mr-2 ${inventoryItem.IsActive ? "bg-green-500" : "bg-red-500"}`}
+                className={`w-2 h-2 rounded-full mr-2 ${inventoryItem.isActive ? "bg-green-500" : "bg-red-500"}`}
               ></div>
               <span className="text-sm text-gray-900">
-                {inventoryItem.IsActive ? "Active" : "Inactive"}
+                {inventoryItem.isActive ? "Active" : "Inactive"}
               </span>
             </div>
           </div>
@@ -135,7 +135,7 @@ const InventoryItemDetailsPage = () => {
               Manufacturer
             </span>
             <span className="text-sm text-gray-900">
-              {inventoryItem.Manufacturer || "—"}
+              {inventoryItem.manufacturer || "—"}
             </span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
@@ -143,7 +143,7 @@ const InventoryItemDetailsPage = () => {
               Manufacturer Part Number
             </span>
             <span className="text-sm text-gray-900 font-mono">
-              {inventoryItem.ManufacturerPartNumber || "—"}
+              {inventoryItem.manufacturerPartNumber || "—"}
             </span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
@@ -151,19 +151,19 @@ const InventoryItemDetailsPage = () => {
               Universal Product Code
             </span>
             <span className="text-sm text-gray-900 font-mono">
-              {inventoryItem.UniversalProductCode || "—"}
+              {inventoryItem.universalProductCode || "—"}
             </span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
             <span className="text-sm font-medium text-gray-600">Supplier</span>
             <span className="text-sm text-gray-900">
-              {inventoryItem.Supplier || "—"}
+              {inventoryItem.supplier || "—"}
             </span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
             <span className="text-sm font-medium text-gray-600">Weight</span>
             <span className="text-sm text-gray-900">
-              {formatWeight(inventoryItem.WeightKG)}
+              {formatWeight(inventoryItem.weightKG)}
             </span>
           </div>
         </div>
@@ -182,7 +182,7 @@ const InventoryItemDetailsPage = () => {
         <div className="flex justify-between items-center py-3 border-b border-gray-100">
           <span className="text-sm font-medium text-gray-600">Unit Cost</span>
           <span className="text-sm text-gray-900 font-semibold">
-            {formatCurrency(inventoryItem.UnitCost)}
+            {formatCurrency(inventoryItem.unitCost)}
           </span>
         </div>
         <div className="flex justify-between items-center py-3 border-b border-gray-100">
@@ -190,7 +190,7 @@ const InventoryItemDetailsPage = () => {
             Cost Measurement Unit
           </span>
           <span className="text-sm text-gray-900">
-            {inventoryItem.UnitCostMeasurementUnitLabel || "—"}
+            {inventoryItem.unitCostMeasurementUnitLabel || "—"}
           </span>
         </div>
       </div>
@@ -236,28 +236,28 @@ const InventoryItemDetailsPage = () => {
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900 mb-1">
-                  {inventoryItem.ItemName}
+                  {inventoryItem.itemName}
                 </h1>
                 <p className="text-gray-600 mb-2">
-                  {inventoryItem.ItemNumber} •{" "}
-                  {inventoryItem.CategoryLabel || "No Category"} •{" "}
-                  {inventoryItem.Manufacturer || "No Manufacturer"}
+                  {inventoryItem.itemNumber} •{" "}
+                  {inventoryItem.categoryLabel || "No Category"} •{" "}
+                  {inventoryItem.manufacturer || "No Manufacturer"}
                 </p>
                 <div className="flex items-center space-x-4 text-sm">
                   <span className="text-gray-600">
-                    {formatCurrency(inventoryItem.UnitCost)}
+                    {formatCurrency(inventoryItem.unitCost)}
                   </span>
                   <div
-                    className={`flex items-center px-2 py-1 rounded-full text-xs font-medium ${inventoryItem.IsActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
+                    className={`flex items-center px-2 py-1 rounded-full text-xs font-medium ${inventoryItem.isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
                   >
                     <div
-                      className={`w-1.5 h-1.5 rounded-full mr-1.5 ${inventoryItem.IsActive ? "bg-green-500" : "bg-red-500"}`}
+                      className={`w-1.5 h-1.5 rounded-full mr-1.5 ${inventoryItem.isActive ? "bg-green-500" : "bg-red-500"}`}
                     ></div>
-                    {inventoryItem.IsActive ? "Active" : "Inactive"}
+                    {inventoryItem.isActive ? "Active" : "Inactive"}
                   </div>
-                  {inventoryItem.Supplier && (
+                  {inventoryItem.supplier && (
                     <span className="text-gray-600">
-                      {inventoryItem.Supplier}
+                      {inventoryItem.supplier}
                     </span>
                   )}
                 </div>
