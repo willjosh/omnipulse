@@ -4,6 +4,7 @@ import FormField from "@/app/_features/shared/form/FormField";
 import { TimeUnitEnum } from "@/app/_hooks/service-schedule/serviceScheduleEnum";
 import { ServiceTaskWithLabels } from "@/app/_hooks/service-task/serviceTaskType";
 import { Vehicle } from "@/app/_hooks/vehicle/vehicleType";
+import { ServiceProgram } from "@/app/_hooks/service-program/serviceProgramType";
 import {
   Combobox,
   ComboboxInput,
@@ -13,19 +14,19 @@ import {
 } from "@headlessui/react";
 
 export interface ServiceScheduleDetailsFormValues {
-  Name: string;
-  TimeIntervalValue?: number | string;
-  TimeIntervalUnit?: TimeUnitEnum | "";
-  MileageInterval?: number | string;
-  TimeBufferValue?: number | string;
-  TimeBufferUnit?: TimeUnitEnum | "";
-  MileageBuffer?: number | string;
-  FirstServiceTimeValue?: number | string;
-  FirstServiceTimeUnit?: TimeUnitEnum | "";
-  FirstServiceMileage?: number | string;
-  ServiceTaskIDs: number[];
-  IsActive: boolean;
-  ServiceProgramID: number | string;
+  name: string;
+  timeIntervalValue?: number | string;
+  timeIntervalUnit?: TimeUnitEnum | "";
+  mileageInterval?: number | string;
+  timeBufferValue?: number | string;
+  timeBufferUnit?: TimeUnitEnum | "";
+  mileageBuffer?: number | string;
+  firstServiceTimeValue?: number | string;
+  firstServiceTimeUnit?: TimeUnitEnum | "";
+  firstServiceMileage?: number | string;
+  serviceTaskIDs: number[];
+  isActive: boolean;
+  serviceProgramID: number | string;
 }
 
 interface ServiceScheduleDetailsFormProps {
@@ -36,19 +37,13 @@ interface ServiceScheduleDetailsFormProps {
   showIsActive?: boolean;
   availableServiceTasks: ServiceTaskWithLabels[];
   availableVehicles: Vehicle[];
+  availableServicePrograms: ServiceProgram[];
 }
 
 const timeUnitOptions = [
   { value: TimeUnitEnum.Hours, label: "Hours" },
   { value: TimeUnitEnum.Days, label: "Days" },
   { value: TimeUnitEnum.Weeks, label: "Weeks" },
-];
-
-const serviceProgramOptions = [
-  { value: 1, label: "Standard Maintenance" },
-  { value: 2, label: "Heavy Duty Program" },
-  { value: 3, label: "Seasonal Service" },
-  { value: 4, label: "Warranty Program" },
 ];
 
 const ServiceScheduleDetailsForm: React.FC<ServiceScheduleDetailsFormProps> = ({
@@ -58,6 +53,7 @@ const ServiceScheduleDetailsForm: React.FC<ServiceScheduleDetailsFormProps> = ({
   disabled = false,
   showIsActive = false,
   availableServiceTasks,
+  availableServicePrograms,
 }) => {
   // Service Task Multi-Select Combobox
   const [taskSearch, setTaskSearch] = React.useState("");
@@ -65,11 +61,11 @@ const ServiceScheduleDetailsForm: React.FC<ServiceScheduleDetailsFormProps> = ({
     if (!taskSearch) return availableServiceTasks;
     const searchLower = taskSearch.toLowerCase();
     return availableServiceTasks.filter(task =>
-      task.Name.toLowerCase().includes(searchLower),
+      task.name.toLowerCase().includes(searchLower),
     );
   }, [taskSearch, availableServiceTasks]);
   const selectedTasks = availableServiceTasks.filter(task =>
-    value.ServiceTaskIDs.includes(task.id),
+    value.serviceTaskIDs.includes(task.id),
   );
 
   // Combobox search state for unit fields
@@ -102,30 +98,30 @@ const ServiceScheduleDetailsForm: React.FC<ServiceScheduleDetailsFormProps> = ({
   }, [firstServiceTimeUnitSearch]);
 
   const selectedTimeIntervalUnit =
-    timeUnitOptions.find(opt => opt.value === value.TimeIntervalUnit) || null;
+    timeUnitOptions.find(opt => opt.value === value.timeIntervalUnit) || null;
   const selectedTimeBufferUnit =
-    timeUnitOptions.find(opt => opt.value === value.TimeBufferUnit) || null;
+    timeUnitOptions.find(opt => opt.value === value.timeBufferUnit) || null;
   const selectedFirstServiceTimeUnit =
-    timeUnitOptions.find(opt => opt.value === value.FirstServiceTimeUnit) ||
+    timeUnitOptions.find(opt => opt.value === value.firstServiceTimeUnit) ||
     null;
 
   // Add search state for Service Program
   const [serviceProgramSearch, setServiceProgramSearch] = React.useState("");
   const filteredServiceProgramOptions = React.useMemo(() => {
-    if (!serviceProgramSearch) return serviceProgramOptions;
+    if (!serviceProgramSearch) return availableServicePrograms;
     const searchLower = serviceProgramSearch.toLowerCase();
-    return serviceProgramOptions.filter(opt =>
-      opt.label.toLowerCase().includes(searchLower),
+    return availableServicePrograms.filter(opt =>
+      opt.name.toLowerCase().includes(searchLower),
     );
-  }, [serviceProgramSearch]);
+  }, [serviceProgramSearch, availableServicePrograms]);
 
   return (
     <FormContainer title="Service Schedule Details">
-      <FormField label="Name" required error={errors.Name}>
+      <FormField label="Name" required error={errors.name}>
         <input
           type="text"
-          value={value.Name}
-          onChange={e => onChange("Name", e.target.value)}
+          value={value.name}
+          onChange={e => onChange("name", e.target.value)}
           placeholder="Enter schedule name"
           className="w-full border border-gray-300 rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
           disabled={disabled}
@@ -133,20 +129,20 @@ const ServiceScheduleDetailsForm: React.FC<ServiceScheduleDetailsFormProps> = ({
       </FormField>
       {/* Frequency Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <FormField label="Time Interval" error={errors.TimeIntervalValue}>
+        <FormField label="Time Interval" error={errors.timeIntervalValue}>
           <div className="flex gap-2">
             <input
               type="number"
               min={0}
-              value={value.TimeIntervalValue || ""}
-              onChange={e => onChange("TimeIntervalValue", e.target.value)}
+              value={value.timeIntervalValue || ""}
+              onChange={e => onChange("timeIntervalValue", e.target.value)}
               placeholder="e.g. 6"
               className="w-24 border border-gray-300 rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
               disabled={disabled}
             />
             <Combobox
               value={selectedTimeIntervalUnit}
-              onChange={opt => onChange("TimeIntervalUnit", opt?.value || "")}
+              onChange={opt => onChange("timeIntervalUnit", opt?.value || "")}
               disabled={disabled}
             >
               <div className="relative">
@@ -216,12 +212,12 @@ const ServiceScheduleDetailsForm: React.FC<ServiceScheduleDetailsFormProps> = ({
             </Combobox>
           </div>
         </FormField>
-        <FormField label="Mileage Interval (km)" error={errors.MileageInterval}>
+        <FormField label="Mileage Interval (km)" error={errors.mileageInterval}>
           <input
             type="number"
             min={0}
-            value={value.MileageInterval || ""}
-            onChange={e => onChange("MileageInterval", e.target.value)}
+            value={value.mileageInterval || ""}
+            onChange={e => onChange("mileageInterval", e.target.value)}
             placeholder="e.g. 10000"
             className="w-full border border-gray-300 rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
             disabled={disabled}
@@ -230,20 +226,20 @@ const ServiceScheduleDetailsForm: React.FC<ServiceScheduleDetailsFormProps> = ({
       </div>
       {/* Buffer Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <FormField label="Time Buffer" error={errors.TimeBufferValue}>
+        <FormField label="Time Buffer" error={errors.timeBufferValue}>
           <div className="flex gap-2">
             <input
               type="number"
               min={0}
-              value={value.TimeBufferValue || ""}
-              onChange={e => onChange("TimeBufferValue", e.target.value)}
+              value={value.timeBufferValue || ""}
+              onChange={e => onChange("timeBufferValue", e.target.value)}
               placeholder="e.g. 1"
               className="w-24 border border-gray-300 rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
               disabled={disabled}
             />
             <Combobox
               value={selectedTimeBufferUnit}
-              onChange={opt => onChange("TimeBufferUnit", opt?.value || "")}
+              onChange={opt => onChange("timeBufferUnit", opt?.value || "")}
               disabled={disabled}
             >
               <div className="relative">
@@ -313,12 +309,12 @@ const ServiceScheduleDetailsForm: React.FC<ServiceScheduleDetailsFormProps> = ({
             </Combobox>
           </div>
         </FormField>
-        <FormField label="Mileage Buffer (km)" error={errors.MileageBuffer}>
+        <FormField label="Mileage Buffer (km)" error={errors.mileageBuffer}>
           <input
             type="number"
             min={0}
-            value={value.MileageBuffer || ""}
-            onChange={e => onChange("MileageBuffer", e.target.value)}
+            value={value.mileageBuffer || ""}
+            onChange={e => onChange("mileageBuffer", e.target.value)}
             placeholder="e.g. 500"
             className="w-full border border-gray-300 rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
             disabled={disabled}
@@ -329,14 +325,14 @@ const ServiceScheduleDetailsForm: React.FC<ServiceScheduleDetailsFormProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField
           label="First Service Time"
-          error={errors.FirstServiceTimeValue}
+          error={errors.firstServiceTimeValue}
         >
           <div className="flex gap-2">
             <input
               type="number"
               min={0}
-              value={value.FirstServiceTimeValue || ""}
-              onChange={e => onChange("FirstServiceTimeValue", e.target.value)}
+              value={value.firstServiceTimeValue || ""}
+              onChange={e => onChange("firstServiceTimeValue", e.target.value)}
               placeholder="e.g. 12"
               className="w-24 border border-gray-300 rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
               disabled={disabled}
@@ -344,7 +340,7 @@ const ServiceScheduleDetailsForm: React.FC<ServiceScheduleDetailsFormProps> = ({
             <Combobox
               value={selectedFirstServiceTimeUnit}
               onChange={opt =>
-                onChange("FirstServiceTimeUnit", opt?.value || "")
+                onChange("firstServiceTimeUnit", opt?.value || "")
               }
               disabled={disabled}
             >
@@ -417,13 +413,13 @@ const ServiceScheduleDetailsForm: React.FC<ServiceScheduleDetailsFormProps> = ({
         </FormField>
         <FormField
           label="First Service Mileage (km)"
-          error={errors.FirstServiceMileage}
+          error={errors.firstServiceMileage}
         >
           <input
             type="number"
             min={0}
-            value={value.FirstServiceMileage || ""}
-            onChange={e => onChange("FirstServiceMileage", e.target.value)}
+            value={value.firstServiceMileage || ""}
+            onChange={e => onChange("firstServiceMileage", e.target.value)}
             placeholder="e.g. 5000"
             className="w-full border border-gray-300 rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
             disabled={disabled}
@@ -431,13 +427,13 @@ const ServiceScheduleDetailsForm: React.FC<ServiceScheduleDetailsFormProps> = ({
         </FormField>
       </div>
       {/* Service Tasks Selection */}
-      <FormField label="Service Tasks" required error={errors.ServiceTaskIDs}>
+      <FormField label="Service Tasks" required error={errors.serviceTaskIDs}>
         <Combobox
           multiple
           value={selectedTasks}
           onChange={opts =>
             onChange(
-              "ServiceTaskIDs",
+              "serviceTaskIDs",
               opts.map((t: ServiceTaskWithLabels) => t.id),
             )
           }
@@ -478,8 +474,8 @@ const ServiceScheduleDetailsForm: React.FC<ServiceScheduleDetailsFormProps> = ({
                       `cursor-pointer select-none px-4 py-2 flex items-center ${active ? "bg-blue-100" : ""}`
                     }
                   >
-                    <span className="flex-1">{task.Name}</span>
-                    {value.ServiceTaskIDs.includes(task.id) && (
+                    <span className="flex-1">{task.name}</span>
+                    {value.serviceTaskIDs.includes(task.id) && (
                       <svg
                         className="h-5 w-5 text-blue-600 ml-2"
                         fill="none"
@@ -506,7 +502,7 @@ const ServiceScheduleDetailsForm: React.FC<ServiceScheduleDetailsFormProps> = ({
                 key={task.id}
                 className="inline-block bg-blue-100 text-blue-800 text-xs font-medium px-3 py-1 rounded-full"
               >
-                {task.Name}
+                {task.name}
               </span>
             ))}
           </div>
@@ -515,8 +511,8 @@ const ServiceScheduleDetailsForm: React.FC<ServiceScheduleDetailsFormProps> = ({
       {showIsActive && (
         <FormField label="Active">
           <select
-            value={value.IsActive ? "true" : "false"}
-            onChange={e => onChange("IsActive", e.target.value === "true")}
+            value={value.isActive ? "true" : "false"}
+            onChange={e => onChange("isActive", e.target.value === "true")}
             className="w-full border border-gray-300 rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
             disabled={disabled}
           >
@@ -528,22 +524,22 @@ const ServiceScheduleDetailsForm: React.FC<ServiceScheduleDetailsFormProps> = ({
       <FormField
         label="Service Program"
         required
-        error={errors.ServiceProgramID}
+        error={errors.serviceProgramID}
       >
         <Combobox
           value={
-            serviceProgramOptions.find(
-              opt => opt.value === value.ServiceProgramID,
+            availableServicePrograms.find(
+              opt => opt.id === value.serviceProgramID,
             ) || null
           }
-          onChange={opt => onChange("ServiceProgramID", opt?.value || null)}
+          onChange={opt => onChange("serviceProgramID", opt?.id || null)}
           disabled={disabled}
         >
           <div className="relative">
             <ComboboxInput
               className="w-full border border-gray-300 rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-              displayValue={(opt: { label?: string } | undefined) =>
-                opt?.label || ""
+              displayValue={(opt: ServiceProgram | undefined) =>
+                opt?.name || ""
               }
               onChange={e => setServiceProgramSearch(e.target.value)}
               placeholder="Select or search program..."
@@ -567,7 +563,7 @@ const ServiceScheduleDetailsForm: React.FC<ServiceScheduleDetailsFormProps> = ({
             <ComboboxOptions className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-3xl shadow-lg max-h-60 overflow-auto">
               {filteredServiceProgramOptions.map(opt => (
                 <ComboboxOption
-                  key={opt.value}
+                  key={opt.id}
                   value={opt}
                   className={({ active, selected }) =>
                     `cursor-pointer select-none px-4 py-2 flex items-center ${active ? "bg-blue-100" : ""}`
@@ -575,7 +571,7 @@ const ServiceScheduleDetailsForm: React.FC<ServiceScheduleDetailsFormProps> = ({
                 >
                   {({ selected }) => (
                     <>
-                      <span className="flex-1">{opt.label}</span>
+                      <span className="flex-1">{opt.name}</span>
                       {selected && (
                         <svg
                           className="h-5 w-5 text-blue-600 ml-2"
