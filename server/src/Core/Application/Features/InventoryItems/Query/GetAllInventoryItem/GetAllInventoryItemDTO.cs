@@ -6,6 +6,7 @@ namespace Application.Features.InventoryItems.Query.GetAllInventoryItem;
 
 public class GetAllInventoryItemDTO
 {
+    public int ID { get; set; }
     public required string ItemNumber { get; set; }
     public required string ItemName { get; set; }
     public string? Description { get; set; }
