@@ -22,32 +22,35 @@ const convertInventoryItemData = (
   item: InventoryItem,
 ): InventoryItemWithLabels => ({
   ...item,
-  Category: item.Category as number,
-  CategoryLabel: getInventoryItemCategoryLabel(item.Category),
-  CategoryEnum: item.Category as InventoryItemCategoryEnum,
-  UnitCostMeasurementUnit: item.UnitCostMeasurementUnit as number,
-  UnitCostMeasurementUnitLabel: getInventoryItemUnitCostMeasurementUnitLabel(
-    item.UnitCostMeasurementUnit,
+  category: item.category as number,
+  categoryLabel: getInventoryItemCategoryLabel(item.category),
+  categoryEnum: item.category as InventoryItemCategoryEnum,
+  unitCostMeasurementUnit: item.unitCostMeasurementUnit as number,
+  unitCostMeasurementUnitLabel: getInventoryItemUnitCostMeasurementUnitLabel(
+    item.unitCostMeasurementUnit,
   ),
-  UnitCostMeasurementUnitEnum:
-    item.UnitCostMeasurementUnit as InventoryItemUnitCostMeasurementUnitEnum,
+  unitCostMeasurementUnitEnum:
+    item.unitCostMeasurementUnit as InventoryItemUnitCostMeasurementUnitEnum,
 });
 
 export function useInventoryItems(filter: InventoryItemFilter = {}) {
-  const debouncedSearch = useDebounce(filter?.search || "", 300);
-  const debouncedFilter = { ...filter, search: debouncedSearch };
+  const debouncedSearch = useDebounce(filter?.Search || "", 300);
+  const debouncedFilter = { ...filter, Search: debouncedSearch };
 
   const queryParams = new URLSearchParams();
-  if (debouncedFilter.page)
-    queryParams.append("page", debouncedFilter.page.toString());
-  if (debouncedFilter.pageSize)
-    queryParams.append("pageSize", debouncedFilter.pageSize.toString());
-  if (debouncedFilter.search)
-    queryParams.append("search", debouncedFilter.search);
-  if (debouncedFilter.sortBy)
-    queryParams.append("sortBy", debouncedFilter.sortBy);
-  if (debouncedFilter.sortOrder)
-    queryParams.append("sortOrder", debouncedFilter.sortOrder);
+  if (debouncedFilter.PageNumber)
+    queryParams.append("PageNumber", debouncedFilter.PageNumber.toString());
+  if (debouncedFilter.PageSize)
+    queryParams.append("PageSize", debouncedFilter.PageSize.toString());
+  if (debouncedFilter.Search)
+    queryParams.append("Search", debouncedFilter.Search);
+  if (debouncedFilter.SortBy)
+    queryParams.append("SortBy", debouncedFilter.SortBy);
+  if (debouncedFilter.SortDescending !== undefined)
+    queryParams.append(
+      "SortDescending",
+      debouncedFilter.SortDescending.toString(),
+    );
 
   const queryString = queryParams.toString();
 
@@ -57,22 +60,22 @@ export function useInventoryItems(filter: InventoryItemFilter = {}) {
     queryKey: ["inventoryItems", debouncedFilter],
     queryFn: async () => {
       const { data } = await agent.get<PagedResponse<InventoryItem>>(
-        `/inventoryItems${queryString ? `?${queryString}` : ""}`,
+        `/api/InventoryItems${queryString ? `?${queryString}` : ""}`,
       );
-      return { ...data, Items: data.Items.map(convertInventoryItemData) };
+      return { ...data, items: data.items.map(convertInventoryItemData) };
     },
   });
 
   return {
-    inventoryItems: data?.Items ?? [],
+    inventoryItems: data?.items ?? [],
     pagination: data
       ? {
-          totalCount: data.TotalCount,
-          pageNumber: data.PageNumber,
-          pageSize: data.PageSize,
-          totalPages: data.TotalPages,
-          hasPreviousPage: data.HasPreviousPage,
-          hasNextPage: data.HasNextPage,
+          totalCount: data.totalCount,
+          pageNumber: data.pageNumber,
+          pageSize: data.pageSize,
+          totalPages: data.totalPages,
+          hasPreviousPage: data.hasPreviousPage,
+          hasNextPage: data.hasNextPage,
         }
       : null,
     isPending,
@@ -86,7 +89,9 @@ export function useInventoryItem(id: number) {
   return useQuery<InventoryItemWithLabels>({
     queryKey: ["inventoryItem", id],
     queryFn: async () => {
-      const { data } = await agent.get<InventoryItem>(`/inventoryItems/${id}`);
+      const { data } = await agent.get<InventoryItem>(
+        `/api/InventoryItems/${id}`,
+      );
       return convertInventoryItemData(data);
     },
     enabled: !!id,
@@ -97,7 +102,7 @@ export function useCreateInventoryItem() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (command: CreateInventoryItemCommand) => {
-      const { data } = await agent.post("/inventoryItems", command);
+      const { data } = await agent.post("/api/InventoryItems", command);
       return data;
     },
     onSuccess: async () => {
@@ -111,7 +116,7 @@ export function useUpdateInventoryItem() {
   return useMutation({
     mutationFn: async (command: UpdateInventoryItemCommand) => {
       const { data } = await agent.put(
-        `/inventoryItems/${command.id}`,
+        `/api/InventoryItems/${command.inventoryItemID}`,
         command,
       );
       return data;
@@ -119,17 +124,17 @@ export function useUpdateInventoryItem() {
     onSuccess: async (_data, variables) => {
       await queryClient.invalidateQueries({ queryKey: ["inventoryItems"] });
       await queryClient.invalidateQueries({
-        queryKey: ["inventoryItem", variables.id],
+        queryKey: ["inventoryItem", variables.inventoryItemID],
       });
     },
   });
 }
 
-export function useDeactivateInventoryItem() {
+export function useDeleteInventoryItem() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: number) => {
-      const { data } = await agent.post(`/inventoryItems/deactivate/${id}`);
+      const { data } = await agent.delete(`/api/InventoryItems/${id}`);
       return data;
     },
     onSuccess: async (_data, id) => {

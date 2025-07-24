@@ -5,65 +5,65 @@ import {
 
 export interface InventoryItem {
   id: number;
-  ItemNumber: string;
-  ItemName: string;
-  Description?: string | null;
-  Category?: InventoryItemCategoryEnum | null;
-  Manufacturer?: string | null;
-  ManufacturerPartNumber?: string | null;
-  UniversalProductCode?: string | null;
-  UnitCost?: number | null;
-  UnitCostMeasurementUnit?: InventoryItemUnitCostMeasurementUnitEnum | null;
-  Supplier?: string | null;
-  WeightKG?: number | null;
-  IsActive: boolean;
+  itemNumber: string;
+  itemName: string;
+  description?: string | null;
+  category?: InventoryItemCategoryEnum | null;
+  manufacturer?: string | null;
+  manufacturerPartNumber?: string | null;
+  universalProductCode?: string | null;
+  unitCost?: number | null;
+  unitCostMeasurementUnit?: InventoryItemUnitCostMeasurementUnitEnum | null;
+  supplier?: string | null;
+  weightKG?: number | null;
+  isActive: boolean;
 }
 
 export interface InventoryItemWithLabels
-  extends Omit<InventoryItem, "Category" | "UnitCostMeasurementUnit"> {
-  Category: number;
-  CategoryLabel: string;
-  CategoryEnum: InventoryItemCategoryEnum;
-  UnitCostMeasurementUnit: number;
-  UnitCostMeasurementUnitLabel: string;
-  UnitCostMeasurementUnitEnum: InventoryItemUnitCostMeasurementUnitEnum;
+  extends Omit<InventoryItem, "category" | "unitCostMeasurementUnit"> {
+  category: number;
+  categoryLabel: string;
+  categoryEnum: InventoryItemCategoryEnum;
+  unitCostMeasurementUnit: number;
+  unitCostMeasurementUnitLabel: string;
+  unitCostMeasurementUnitEnum: InventoryItemUnitCostMeasurementUnitEnum;
 }
 
 export interface CreateInventoryItemCommand {
-  ItemNumber: string;
-  ItemName: string;
-  Description?: string | null;
-  Category?: InventoryItemCategoryEnum | null;
-  Manufacturer?: string | null;
-  ManufacturerPartNumber?: string | null;
-  UniversalProductCode?: string | null;
-  UnitCost?: number | null;
-  UnitCostMeasurementUnit?: InventoryItemUnitCostMeasurementUnitEnum | null;
-  Supplier?: string | null;
-  WeightKG?: number | null;
-  IsActive: boolean;
+  itemNumber: string;
+  itemName: string;
+  description?: string | null;
+  category?: InventoryItemCategoryEnum | null;
+  manufacturer?: string | null;
+  manufacturerPartNumber?: string | null;
+  universalProductCode?: string | null;
+  unitCost?: number | null;
+  unitCostMeasurementUnit?: InventoryItemUnitCostMeasurementUnitEnum | null;
+  supplier?: string | null;
+  weightKG?: number | null;
+  isActive: boolean;
 }
 
 export interface UpdateInventoryItemCommand {
-  id: number;
-  ItemNumber: string;
-  ItemName: string;
-  Description?: string | null;
-  Category?: InventoryItemCategoryEnum | null;
-  Manufacturer?: string | null;
-  ManufacturerPartNumber?: string | null;
-  UniversalProductCode?: string | null;
-  UnitCost?: number | null;
-  UnitCostMeasurementUnit?: InventoryItemUnitCostMeasurementUnitEnum | null;
-  Supplier?: string | null;
-  WeightKG?: number | null;
-  IsActive: boolean;
+  inventoryItemID: number;
+  itemNumber: string;
+  itemName: string;
+  description?: string | null;
+  category?: InventoryItemCategoryEnum | null;
+  manufacturer?: string | null;
+  manufacturerPartNumber?: string | null;
+  universalProductCode?: string | null;
+  unitCost?: number | null;
+  unitCostMeasurementUnit?: InventoryItemUnitCostMeasurementUnitEnum | null;
+  supplier?: string | null;
+  weightKG?: number | null;
+  isActive: boolean;
 }
 
 export interface InventoryItemFilter {
-  page?: number;
-  pageSize?: number;
-  sortBy?: string;
-  sortOrder?: "asc" | "desc";
-  search?: string;
+  PageNumber?: number;
+  PageSize?: number;
+  SortBy?: string;
+  SortDescending?: boolean;
+  Search?: string;
 }
