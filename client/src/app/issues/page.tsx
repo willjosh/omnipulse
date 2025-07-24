@@ -19,7 +19,7 @@ export default function IssuesPage() {
 
   // Compose filter object for useIssues
   const filter = useMemo(
-    () => ({ page, pageSize, search }),
+    () => ({ PageNumber: page, PageSize: pageSize, Search: search }),
     [page, pageSize, search],
   );
 
@@ -29,16 +29,17 @@ export default function IssuesPage() {
   const tableData: IssueRow[] = useMemo(
     () =>
       issues.map((issue: IssueWithLabels) => ({
-        id: issue.id.toString(),
-        issueNumber: `#${issue.IssueNumber}`,
-        title: issue.Title,
-        vehicle: issue.VehicleName,
-        category: issue.CategoryLabel,
-        priority: issue.PriorityLevelLabel,
-        status: issue.StatusLabel,
-        reportedBy: issue.ReportedByUserName,
-        reportedDate: issue.ReportedDate || "Unknown",
-        assignedTo: issue.ResolvedByUserName || "Unassigned",
+        id: issue.id,
+        issueNumber: issue.issueNumber,
+        title: issue.title,
+        vehicleName: issue.vehicleName,
+        categoryLabel: issue.categoryLabel,
+        priorityLevelLabel: issue.priorityLevelLabel,
+        statusLabel: issue.statusLabel,
+        reportedByUserName: issue.reportedByUserName,
+        reportedDate: issue.reportedDate || "Unknown",
+        resolvedByUserName: issue.resolvedByUserName || "Unassigned",
+        resolvedDate: issue.resolvedDate || "",
       })),
     [issues],
   );
