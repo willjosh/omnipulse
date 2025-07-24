@@ -41,6 +41,7 @@ public class InventoryItemMappingProfile : Profile
             .ForSourceMember(src => src.Inventories, opt => opt.DoNotValidate()) // Navigation Property - not included in DTO
             .ForSourceMember(src => src.WorkOrderLineItems, opt => opt.DoNotValidate()) // Navigation Property - not included in DTO
             .ForSourceMember(src => src.CreatedAt, opt => opt.DoNotValidate()) // not needed in DTO
-            .ForSourceMember(src => src.UpdatedAt, opt => opt.DoNotValidate()); // not needed in DTO
+            .ForSourceMember(src => src.UpdatedAt, opt => opt.DoNotValidate())
+            .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.ID)); // Ensure ID is mapped
     }
 }
