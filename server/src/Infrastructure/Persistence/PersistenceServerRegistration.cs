@@ -35,6 +35,7 @@ public static class PersistenceServerRegistration
                 {
                     context.Set<ServiceTask>().Add(new ServiceTask
                     {
+                        ID = 0,
                         Name = "Service Task 1",
                         Description = "Service Task 1 Description",
                         EstimatedLabourHours = 1.0,
@@ -59,6 +60,7 @@ public static class PersistenceServerRegistration
                 {
                     await context.Set<ServiceTask>().AddAsync(new ServiceTask
                     {
+                        ID = 0,
                         Name = "Service Task 1",
                         Description = "Service Task 1 Description",
                         EstimatedLabourHours = 1.0,
