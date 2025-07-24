@@ -30,11 +30,12 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({
     useTechnician(technicianId || "");
 
   const [formData, setFormData] = useState<CreateTechnicianCommand>({
-    Email: "",
-    FirstName: "",
-    LastName: "",
-    HireDate: new Date().toISOString().split("T")[0],
-    IsActive: true,
+    email: "",
+    password: "",
+    firstName: "",
+    lastName: "",
+    hireDate: new Date().toISOString().split("T")[0],
+    isActive: true,
   });
 
   const [errors, setErrors] = useState<Partial<CreateTechnicianCommand>>({});
@@ -43,11 +44,12 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({
   useEffect(() => {
     if (mode === "edit" && existingTechnician) {
       setFormData({
-        Email: existingTechnician.Email,
-        FirstName: existingTechnician.FirstName,
-        LastName: existingTechnician.LastName,
-        HireDate: existingTechnician.HireDate.split("T")[0],
-        IsActive: existingTechnician.IsActive,
+        email: existingTechnician.email,
+        password: "", // password is not editable in edit mode
+        firstName: existingTechnician.firstName,
+        lastName: existingTechnician.lastName,
+        hireDate: existingTechnician.hireDate.split("T")[0],
+        isActive: existingTechnician.isActive,
       });
     }
   }, [mode, existingTechnician]);
@@ -65,20 +67,20 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({
   const validateForm = (): boolean => {
     const newErrors: Partial<CreateTechnicianCommand> = {};
 
-    if (!formData.FirstName.trim()) {
-      newErrors.FirstName = "First name is required";
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = "First name is required";
     }
-    if (!formData.LastName.trim()) {
-      newErrors.LastName = "Last name is required";
+    if (!formData.lastName.trim()) {
+      newErrors.lastName = "Last name is required";
     }
-    if (!formData.Email.trim()) {
-      newErrors.Email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.Email)) {
-      newErrors.Email = "Email format is invalid";
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Email format is invalid";
     }
 
-    if (!formData.HireDate) {
-      newErrors.HireDate = "Hire date is required";
+    if (!formData.hireDate) {
+      newErrors.hireDate = "Hire date is required";
     }
 
     setErrors(newErrors);
@@ -98,11 +100,10 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({
       } else {
         const updateData: UpdateTechnicianCommand = {
           id: technicianId!,
-          FirstName: formData.FirstName,
-          LastName: formData.LastName,
-          Email: formData.Email,
-          HireDate: formData.HireDate,
-          IsActive: formData.IsActive,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          hireDate: formData.hireDate,
+          isActive: formData.isActive,
         };
 
         await updateTechnicianMutation.mutateAsync(updateData);
@@ -111,7 +112,9 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({
       router.push("/contacts");
     } catch (error) {
       console.error(
-        `Error ${mode === "create" ? "creating" : "updating"} technician:`,
+        mode === "create"
+          ? "Error creating technician:"
+          : "Error updating technician:",
         error,
       );
     }
@@ -128,13 +131,13 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({
           label="First Name"
           htmlFor="firstName"
           required
-          error={errors.FirstName}
+          error={errors.firstName}
         >
           <input
             id="firstName"
             type="text"
-            value={formData.FirstName}
-            onChange={e => handleInputChange("FirstName", e.target.value)}
+            value={formData.firstName}
+            onChange={e => handleInputChange("firstName", e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="Enter first name"
           />
@@ -144,13 +147,13 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({
           label="Last Name"
           htmlFor="lastName"
           required
-          error={errors.LastName}
+          error={errors.lastName}
         >
           <input
             id="lastName"
             type="text"
-            value={formData.LastName}
-            onChange={e => handleInputChange("LastName", e.target.value)}
+            value={formData.lastName}
+            onChange={e => handleInputChange("lastName", e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             placeholder="Enter last name"
           />
@@ -161,13 +164,13 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({
         label="Email Address"
         htmlFor="email"
         required
-        error={errors.Email}
+        error={errors.email}
       >
         <input
           id="email"
           type="email"
-          value={formData.Email}
-          onChange={e => handleInputChange("Email", e.target.value)}
+          value={formData.email}
+          onChange={e => handleInputChange("email", e.target.value)}
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           placeholder="Enter email address"
         />
@@ -177,13 +180,13 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({
         label="Hire Date"
         htmlFor="hireDate"
         required
-        error={errors.HireDate}
+        error={errors.hireDate}
       >
         <input
           id="hireDate"
           type="date"
-          value={formData.HireDate}
-          onChange={e => handleInputChange("HireDate", e.target.value)}
+          value={formData.hireDate}
+          onChange={e => handleInputChange("hireDate", e.target.value)}
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
       </FormField>
@@ -194,8 +197,8 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({
             <input
               type="radio"
               name="status"
-              checked={formData.IsActive === true}
-              onChange={() => handleInputChange("IsActive", true)}
+              checked={formData.isActive === true}
+              onChange={() => handleInputChange("isActive", true)}
               className="mr-2 text-blue-600"
             />
             <span className="text-sm text-gray-700">Active</span>
@@ -204,8 +207,8 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({
             <input
               type="radio"
               name="status"
-              checked={formData.IsActive === false}
-              onChange={() => handleInputChange("IsActive", false)}
+              checked={formData.isActive === false}
+              onChange={() => handleInputChange("isActive", false)}
               className="mr-2 text-blue-600"
             />
             <span className="text-sm text-gray-700">Inactive</span>

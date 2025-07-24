@@ -3,7 +3,7 @@ import React from "react";
 
 export const technicianTableColumns = [
   {
-    key: "FirstName",
+    key: "firstName",
     header: "Name",
     sortable: true,
     render: (technician: Technician) => (
@@ -11,33 +11,33 @@ export const technicianTableColumns = [
         <div className="flex-shrink-0">
           <div className="size-8 rounded-full bg-blue-100 flex items-center justify-center">
             <span className="text-xs font-medium text-blue-800">
-              {technician.FirstName[0]}
-              {technician.LastName[0]}
+              {technician.firstName[0]}
+              {technician.lastName[0]}
             </span>
           </div>
         </div>
         <div className="ml-3">
           <div className="text-sm font-medium text-gray-900">
-            {technician.FirstName} {technician.LastName}
+            {technician.firstName} {technician.lastName}
           </div>
         </div>
       </div>
     ),
   },
   {
-    key: "Email",
+    key: "email",
     header: "Email",
     sortable: false,
     render: (technician: Technician) => (
-      <span className="text-sm text-gray-600">{technician.Email}</span>
+      <span className="text-sm text-gray-600">{technician.email}</span>
     ),
   },
   {
-    key: "HireDate",
+    key: "hireDate",
     header: "Hire Date",
     sortable: true,
     render: (technician: Technician) => {
-      const hireDate = new Date(technician.HireDate);
+      const hireDate = new Date(technician.hireDate);
       return (
         <span className="text-sm text-gray-900">
           {hireDate.toLocaleDateString()}
@@ -46,27 +46,27 @@ export const technicianTableColumns = [
     },
   },
   {
-    key: "IsActive",
+    key: "isActive",
     header: "Status",
     sortable: false,
     render: (technician: Technician) => (
       <div className="flex items-center">
         <div
           className={`size-2 rounded-full mr-2 ${
-            technician.IsActive ? "bg-green-400" : "bg-red-400"
+            technician.isActive ? "bg-green-400" : "bg-red-400"
           }`}
         ></div>
         <span className="text-sm">
-          {technician.IsActive ? "Active" : "Inactive"}
+          {technician.isActive ? "Active" : "Inactive"}
         </span>
       </div>
     ),
   },
   {
-    key: "UserType",
+    key: "userType",
     header: "User Type",
     sortable: false,
-    render: (technician: Technician) => (
+    render: (_technician: Technician) => (
       <span className="text-sm text-gray-900">Technician</span>
     ),
   },
