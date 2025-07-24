@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { PrimaryButton } from "../_features/shared/button";
 import { Plus } from "lucide-react";
@@ -12,14 +12,19 @@ import { ServiceProgram } from "../_hooks/service-program/serviceProgramType";
 export default function ServiceProgramsPage() {
   const router = useRouter();
 
-  // Non-functional search state
+  // Search state
   const [search, setSearch] = useState("");
 
   // Pagination state
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  // Compose filter object for data fetching
+  // Reset page to 1 when search changes
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
+
+  // Compose filter object for data fetching (include search)
   const filter = useMemo(
     () => ({ PageNumber: page, PageSize: pageSize, Search: search }),
     [page, pageSize, search],
