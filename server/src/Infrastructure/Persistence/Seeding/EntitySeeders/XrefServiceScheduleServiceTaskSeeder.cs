@@ -1,6 +1,7 @@
 using Domain.Entities;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 using Persistence.DatabaseContext;
 using Persistence.Seeding.Contracts;
@@ -11,17 +12,19 @@ public class XrefServiceScheduleServiceTaskSeeder : IEntitySeeder
 {
     private readonly OmnipulseDatabaseContext _dbContext;
     private readonly DbSet<XrefServiceScheduleServiceTask> _xrefDbSet;
+    private readonly ILogger<XrefServiceScheduleServiceTaskSeeder> _logger;
 
-    public XrefServiceScheduleServiceTaskSeeder(OmnipulseDatabaseContext context)
+    public XrefServiceScheduleServiceTaskSeeder(OmnipulseDatabaseContext context, ILogger<XrefServiceScheduleServiceTaskSeeder> logger)
     {
         _dbContext = context;
         _xrefDbSet = context.XrefServiceScheduleServiceTasks;
+        _logger = logger;
     }
 
-    private static List<XrefServiceScheduleServiceTask> CreateXrefs(OmnipulseDatabaseContext context)
+    private List<XrefServiceScheduleServiceTask> CreateXrefServiceScheduleServiceTasks()
     {
-        var schedules = context.ServiceSchedules.Take(5).ToList();
-        var tasks = context.ServiceTasks.Take(5).ToList();
+        var schedules = _dbContext.ServiceSchedules.Take(5).ToList();
+        var tasks = _dbContext.ServiceTasks.Take(5).ToList();
         var xrefs = new List<XrefServiceScheduleServiceTask>();
 
         foreach (var schedule in schedules)
@@ -38,6 +41,7 @@ public class XrefServiceScheduleServiceTaskSeeder : IEntitySeeder
             }
         }
 
+        _logger.LogInformation("{MethodName}() - Created {Count} XrefServiceScheduleServiceTasks: {@Xrefs}", nameof(CreateXrefServiceScheduleServiceTasks), xrefs.Count, xrefs);
         return xrefs;
     }
 
@@ -45,7 +49,7 @@ public class XrefServiceScheduleServiceTaskSeeder : IEntitySeeder
     {
         if (_xrefDbSet.Any()) return;
 
-        var xrefs = CreateXrefs(_dbContext);
+        var xrefs = CreateXrefServiceScheduleServiceTasks();
 
         _xrefDbSet.AddRange(xrefs);
         _dbContext.SaveChanges();
@@ -55,7 +59,7 @@ public class XrefServiceScheduleServiceTaskSeeder : IEntitySeeder
     {
         if (await _xrefDbSet.AnyAsync(ct)) return;
 
-        var xrefs = CreateXrefs(_dbContext);
+        var xrefs = CreateXrefServiceScheduleServiceTasks();
 
         await _xrefDbSet.AddRangeAsync(xrefs, ct);
         await _dbContext.SaveChangesAsync(ct);

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 using Persistence.DatabaseContext;
 using Persistence.Seeding.Contracts;
@@ -29,11 +30,11 @@ public static class SeedingExtensions
     {
         return
         [
-            new ServiceProgramSeeder(context),
-            new ServiceTaskSeeder(context),
-            new ServiceScheduleSeeder(context),
-            new XrefServiceScheduleServiceTaskSeeder(context),
-            new VehicleGroupSeeder(context),
+            context.GetService<ServiceProgramSeeder>(),
+            context.GetService<ServiceTaskSeeder>(),
+            context.GetService<ServiceScheduleSeeder>(),
+            context.GetService<XrefServiceScheduleServiceTaskSeeder>(),
+            context.GetService<VehicleGroupSeeder>(),
         ];
     }
 }

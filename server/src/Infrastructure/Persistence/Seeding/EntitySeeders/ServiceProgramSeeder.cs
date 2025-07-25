@@ -1,6 +1,7 @@
 using Domain.Entities;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 using Persistence.DatabaseContext;
 using Persistence.Seeding.Contracts;
@@ -13,14 +14,16 @@ public class ServiceProgramSeeder : IEntitySeeder
 
     private readonly OmnipulseDatabaseContext _dbContext;
     private readonly DbSet<ServiceProgram> _serviceProgramDbSet;
+    private readonly ILogger<ServiceProgramSeeder> _logger;
 
-    public ServiceProgramSeeder(OmnipulseDatabaseContext context)
+    public ServiceProgramSeeder(OmnipulseDatabaseContext context, ILogger<ServiceProgramSeeder> logger)
     {
         _dbContext = context;
         _serviceProgramDbSet = context.ServicePrograms;
+        _logger = logger;
     }
 
-    private static List<ServiceProgram> CreateServicePrograms()
+    private List<ServiceProgram> CreateServicePrograms()
     {
         var now = DateTime.UtcNow;
         var servicePrograms = new List<ServiceProgram>();
@@ -40,6 +43,7 @@ public class ServiceProgramSeeder : IEntitySeeder
             });
         }
 
+        _logger.LogInformation("{MethodName}() - Created {Count} Service Programs: {@ServicePrograms}", nameof(CreateServicePrograms), servicePrograms.Count, servicePrograms);
         return servicePrograms;
     }
 

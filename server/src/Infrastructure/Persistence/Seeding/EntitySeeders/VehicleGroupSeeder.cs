@@ -1,6 +1,7 @@
 using Domain.Entities;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 using Persistence.DatabaseContext;
 using Persistence.Seeding.Contracts;
@@ -13,14 +14,16 @@ public class VehicleGroupSeeder : IEntitySeeder
 
     private readonly OmnipulseDatabaseContext _dbContext;
     private readonly DbSet<VehicleGroup> _vehicleGroupDbSet;
+    private readonly ILogger<VehicleGroupSeeder> _logger;
 
-    public VehicleGroupSeeder(OmnipulseDatabaseContext context)
+    public VehicleGroupSeeder(OmnipulseDatabaseContext context, ILogger<VehicleGroupSeeder> logger)
     {
         _dbContext = context;
         _vehicleGroupDbSet = context.VehicleGroups;
+        _logger = logger;
     }
 
-    private static List<VehicleGroup> CreateVehicleGroups()
+    private List<VehicleGroup> CreateVehicleGroups()
     {
         var now = DateTime.UtcNow;
         var vehicleGroups = new List<VehicleGroup>();
@@ -38,6 +41,7 @@ public class VehicleGroupSeeder : IEntitySeeder
             });
         }
 
+        _logger.LogInformation("{MethodName}() - Created {Count} Vehicle Groups: {@VehicleGroups}", nameof(CreateVehicleGroups), vehicleGroups.Count, vehicleGroups);
         return vehicleGroups;
     }
 

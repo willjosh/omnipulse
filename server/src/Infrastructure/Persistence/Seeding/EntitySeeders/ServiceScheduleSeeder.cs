@@ -2,6 +2,7 @@ using Domain.Entities;
 using Domain.Entities.Enums;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 using Persistence.DatabaseContext;
 using Persistence.Seeding.Contracts;
@@ -14,21 +15,23 @@ public class ServiceScheduleSeeder : IEntitySeeder
 
     private readonly OmnipulseDatabaseContext _dbContext;
     private readonly DbSet<ServiceSchedule> _serviceScheduleDbSet;
+    private readonly ILogger<ServiceScheduleSeeder> _logger;
 
-    public ServiceScheduleSeeder(OmnipulseDatabaseContext context)
+    public ServiceScheduleSeeder(OmnipulseDatabaseContext context, ILogger<ServiceScheduleSeeder> logger)
     {
         _dbContext = context;
         _serviceScheduleDbSet = context.ServiceSchedules;
+        _logger = logger;
     }
 
-    private static List<ServiceSchedule> CreateServiceSchedules()
+    private List<ServiceSchedule> CreateServiceSchedules()
     {
         var now = DateTime.UtcNow;
-        var schedules = new List<ServiceSchedule>();
+        var serviceSchedules = new List<ServiceSchedule>();
 
         for (int i = 1; i <= SeedCount; i++)
         {
-            schedules.Add(new ServiceSchedule
+            serviceSchedules.Add(new ServiceSchedule
             {
                 ID = 0,
                 ServiceProgramID = 1,
@@ -50,7 +53,8 @@ public class ServiceScheduleSeeder : IEntitySeeder
             });
         }
 
-        return schedules;
+        _logger.LogInformation("{MethodName}() - Created {Count} Service Schedules: {@ServiceSchedules}", nameof(CreateServiceSchedules), serviceSchedules.Count, serviceSchedules);
+        return serviceSchedules;
     }
 
     public void Seed()

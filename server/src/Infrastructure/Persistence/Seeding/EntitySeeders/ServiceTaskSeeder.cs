@@ -48,7 +48,7 @@ public class ServiceTaskSeeder : IEntitySeeder
             });
         }
 
-        _logger.LogInformation("{MethodName} - Created Service Tasks: {@ServiceTasks}", nameof(CreateServiceTasks), serviceTasks);
+        _logger.LogInformation("{MethodName}() - Created {Count} Service Tasks: {@ServiceTasks}", nameof(CreateServiceTasks), serviceTasks.Count, serviceTasks);
         return serviceTasks;
     }
 

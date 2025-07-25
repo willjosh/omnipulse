@@ -11,6 +11,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Persistence.DatabaseContext;
 using Persistence.Repository;
 using Persistence.Seeding;
+using Persistence.Seeding.Contracts;
+using Persistence.Seeding.EntitySeeders;
 
 namespace Persistence;
 
@@ -52,6 +54,13 @@ public static class PersistenceServerRegistration
         services.AddScoped<IWorkOrderRepository, WorkOrderRepository>();
         services.AddScoped<IXrefServiceProgramVehicleRepository, XrefServiceProgramVehicleRepository>();
         services.AddScoped<IXrefServiceScheduleServiceTaskRepository, XrefServiceScheduleServiceTaskRepository>();
+
+        // Register Seeders
+        services.AddScoped<ServiceProgramSeeder>();
+        services.AddScoped<ServiceTaskSeeder>();
+        services.AddScoped<ServiceScheduleSeeder>();
+        services.AddScoped<XrefServiceScheduleServiceTaskSeeder>();
+        services.AddScoped<VehicleGroupSeeder>();
 
         return services;
     }
