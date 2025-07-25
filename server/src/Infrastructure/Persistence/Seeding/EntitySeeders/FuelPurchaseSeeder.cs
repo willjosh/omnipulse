@@ -15,6 +15,8 @@ public class FuelPurchaseSeeder : IEntitySeeder
     private readonly OmnipulseDatabaseContext _dbContext;
     private readonly DbSet<FuelPurchase> _fuelPurchaseDbSet;
     private readonly ILogger<FuelPurchaseSeeder> _logger;
+    private readonly List<string> _userIds = [];
+    private readonly Random _random = new();
 
     public FuelPurchaseSeeder(OmnipulseDatabaseContext context, ILogger<FuelPurchaseSeeder> logger)
     {
@@ -30,11 +32,18 @@ public class FuelPurchaseSeeder : IEntitySeeder
 
         for (int i = 1; i <= SeedCount; i++)
         {
+            var userId = GetRandomUserId();
+            if (userId == null)
+            {
+                _logger.LogWarning("No users found. Skipping fuel purchase seeding.");
+                break;
+            }
+
             fuelPurchases.Add(new FuelPurchase
             {
                 ID = 0,
                 VehicleId = 1,
-                PurchasedByUserId = "1", // TODO
+                PurchasedByUserId = userId,
                 PurchaseDate = now.AddDays(-i),
                 OdometerReading = 10000 + i * 500,
                 Volume = 50 + i * 5,
@@ -78,5 +87,14 @@ public class FuelPurchaseSeeder : IEntitySeeder
 
         await _fuelPurchaseDbSet.AddRangeAsync(purchases, ct);
         await _dbContext.SaveChangesAsync(ct);
+    }
+
+    private string? GetRandomUserId()
+    {
+        if (_userIds.Count == 0) _userIds.AddRange([.. _dbContext.Users.Select(u => u.Id)]);
+
+        return _userIds.Count == 0
+            ? null
+            : _userIds[_random.Next(_userIds.Count)];
     }
 }
