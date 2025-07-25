@@ -21,26 +21,6 @@ public class ServiceScheduleSeeder : IEntitySeeder
         _serviceScheduleDbSet = context.ServiceSchedules;
     }
 
-    public void Seed()
-    {
-        if (_serviceScheduleDbSet.Any()) return;
-
-        var serviceSchedules = CreateServiceSchedules();
-
-        _serviceScheduleDbSet.AddRange(serviceSchedules);
-        _dbContext.SaveChanges();
-    }
-
-    public async Task SeedAsync(CancellationToken ct)
-    {
-        if (await _serviceScheduleDbSet.AnyAsync(ct)) return;
-
-        var serviceSchedules = CreateServiceSchedules();
-
-        await _serviceScheduleDbSet.AddRangeAsync(serviceSchedules, ct);
-        await _dbContext.SaveChangesAsync(ct);
-    }
-
     private static List<ServiceSchedule> CreateServiceSchedules()
     {
         var now = DateTime.UtcNow;
@@ -71,5 +51,25 @@ public class ServiceScheduleSeeder : IEntitySeeder
         }
 
         return schedules;
+    }
+
+    public void Seed()
+    {
+        if (_serviceScheduleDbSet.Any()) return;
+
+        var serviceSchedules = CreateServiceSchedules();
+
+        _serviceScheduleDbSet.AddRange(serviceSchedules);
+        _dbContext.SaveChanges();
+    }
+
+    public async Task SeedAsync(CancellationToken ct)
+    {
+        if (await _serviceScheduleDbSet.AnyAsync(ct)) return;
+
+        var serviceSchedules = CreateServiceSchedules();
+
+        await _serviceScheduleDbSet.AddRangeAsync(serviceSchedules, ct);
+        await _dbContext.SaveChangesAsync(ct);
     }
 }

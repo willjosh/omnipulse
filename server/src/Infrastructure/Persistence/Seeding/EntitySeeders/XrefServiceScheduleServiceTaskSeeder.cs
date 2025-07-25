@@ -18,26 +18,6 @@ public class XrefServiceScheduleServiceTaskSeeder : IEntitySeeder
         _xrefDbSet = context.XrefServiceScheduleServiceTasks;
     }
 
-    public void Seed()
-    {
-        if (_xrefDbSet.Any()) return;
-
-        var xrefs = CreateXrefs(_dbContext);
-
-        _xrefDbSet.AddRange(xrefs);
-        _dbContext.SaveChanges();
-    }
-
-    public async Task SeedAsync(CancellationToken ct)
-    {
-        if (await _xrefDbSet.AnyAsync(ct)) return;
-
-        var xrefs = CreateXrefs(_dbContext);
-
-        await _xrefDbSet.AddRangeAsync(xrefs, ct);
-        await _dbContext.SaveChangesAsync(ct);
-    }
-
     private static List<XrefServiceScheduleServiceTask> CreateXrefs(OmnipulseDatabaseContext context)
     {
         var schedules = context.ServiceSchedules.Take(5).ToList();
@@ -59,5 +39,25 @@ public class XrefServiceScheduleServiceTaskSeeder : IEntitySeeder
         }
 
         return xrefs;
+    }
+
+    public void Seed()
+    {
+        if (_xrefDbSet.Any()) return;
+
+        var xrefs = CreateXrefs(_dbContext);
+
+        _xrefDbSet.AddRange(xrefs);
+        _dbContext.SaveChanges();
+    }
+
+    public async Task SeedAsync(CancellationToken ct)
+    {
+        if (await _xrefDbSet.AnyAsync(ct)) return;
+
+        var xrefs = CreateXrefs(_dbContext);
+
+        await _xrefDbSet.AddRangeAsync(xrefs, ct);
+        await _dbContext.SaveChangesAsync(ct);
     }
 }

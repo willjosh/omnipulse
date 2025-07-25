@@ -1,5 +1,7 @@
 using Domain.Entities;
+
 using Microsoft.EntityFrameworkCore;
+
 using Persistence.DatabaseContext;
 using Persistence.Seeding.Contracts;
 
@@ -16,26 +18,6 @@ public class ServiceProgramSeeder : IEntitySeeder
     {
         _dbContext = context;
         _serviceProgramDbSet = context.ServicePrograms;
-    }
-
-    public void Seed()
-    {
-        if (_serviceProgramDbSet.Any()) return;
-
-        var servicePrograms = CreateServicePrograms();
-
-        _serviceProgramDbSet.AddRange(servicePrograms);
-        _dbContext.SaveChanges();
-    }
-
-    public async Task SeedAsync(CancellationToken ct)
-    {
-        if (await _serviceProgramDbSet.AnyAsync(ct)) return;
-
-        var servicePrograms = CreateServicePrograms();
-
-        await _serviceProgramDbSet.AddRangeAsync(servicePrograms, ct);
-        await _dbContext.SaveChangesAsync(ct);
     }
 
     private static List<ServiceProgram> CreateServicePrograms()
@@ -59,5 +41,25 @@ public class ServiceProgramSeeder : IEntitySeeder
         }
 
         return servicePrograms;
+    }
+
+    public void Seed()
+    {
+        if (_serviceProgramDbSet.Any()) return;
+
+        var servicePrograms = CreateServicePrograms();
+
+        _serviceProgramDbSet.AddRange(servicePrograms);
+        _dbContext.SaveChanges();
+    }
+
+    public async Task SeedAsync(CancellationToken ct)
+    {
+        if (await _serviceProgramDbSet.AnyAsync(ct)) return;
+
+        var servicePrograms = CreateServicePrograms();
+
+        await _serviceProgramDbSet.AddRangeAsync(servicePrograms, ct);
+        await _dbContext.SaveChangesAsync(ct);
     }
 }
