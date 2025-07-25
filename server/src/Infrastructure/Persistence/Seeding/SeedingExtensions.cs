@@ -31,6 +31,7 @@ public static class SeedingExtensions
         [
             new ServiceTaskSeeder(context),
             new ServiceProgramSeeder(context),
+            new ServiceScheduleSeeder(context),
         ];
     }
 }
