@@ -2,6 +2,7 @@ using Domain.Entities;
 using Domain.Entities.Enums;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 using Persistence.DatabaseContext;
 using Persistence.Seeding.Contracts;
@@ -14,14 +15,16 @@ public class ServiceTaskSeeder : IEntitySeeder
 
     private readonly OmnipulseDatabaseContext _dbContext;
     private readonly DbSet<ServiceTask> _serviceTaskDbSet;
+    private readonly ILogger<ServiceTaskSeeder> _logger;
 
-    public ServiceTaskSeeder(OmnipulseDatabaseContext context)
+    public ServiceTaskSeeder(OmnipulseDatabaseContext context, ILogger<ServiceTaskSeeder> logger)
     {
         _dbContext = context;
         _serviceTaskDbSet = context.ServiceTasks;
+        _logger = logger;
     }
 
-    private static List<ServiceTask> CreateServiceTasks()
+    private List<ServiceTask> CreateServiceTasks()
     {
         var now = DateTime.UtcNow;
         var serviceTasks = new List<ServiceTask>();
@@ -45,6 +48,7 @@ public class ServiceTaskSeeder : IEntitySeeder
             });
         }
 
+        _logger.LogInformation("{MethodName} - Created Service Tasks: {@ServiceTasks}", nameof(CreateServiceTasks), serviceTasks);
         return serviceTasks;
     }
 
