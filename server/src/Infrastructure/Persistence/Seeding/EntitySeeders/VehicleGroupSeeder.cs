@@ -1,0 +1,63 @@
+using Domain.Entities;
+
+using Microsoft.EntityFrameworkCore;
+
+using Persistence.DatabaseContext;
+using Persistence.Seeding.Contracts;
+
+namespace Persistence.Seeding.EntitySeeders;
+
+public class VehicleGroupSeeder : IEntitySeeder
+{
+    private const int SeedCount = 3;
+
+    private readonly OmnipulseDatabaseContext _dbContext;
+    private readonly DbSet<VehicleGroup> _vehicleGroupDbSet;
+
+    public VehicleGroupSeeder(OmnipulseDatabaseContext context)
+    {
+        _dbContext = context;
+        _vehicleGroupDbSet = context.VehicleGroups;
+    }
+
+    private static List<VehicleGroup> CreateVehicleGroups()
+    {
+        var now = DateTime.UtcNow;
+        var vehicleGroups = new List<VehicleGroup>();
+
+        for (int i = 1; i <= SeedCount; i++)
+        {
+            vehicleGroups.Add(new VehicleGroup
+            {
+                ID = 0,
+                Name = $"Vehicle Group {i} Name",
+                Description = $"Vehicle Group {i} Description",
+                IsActive = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+        }
+
+        return vehicleGroups;
+    }
+
+    public void Seed()
+    {
+        if (_vehicleGroupDbSet.Any()) return;
+
+        var vehicleGroups = CreateVehicleGroups();
+
+        _vehicleGroupDbSet.AddRange(vehicleGroups);
+        _dbContext.SaveChanges();
+    }
+
+    public async Task SeedAsync(CancellationToken ct)
+    {
+        if (await _vehicleGroupDbSet.AnyAsync(ct)) return;
+
+        var vehicleGroups = CreateVehicleGroups();
+
+        await _vehicleGroupDbSet.AddRangeAsync(vehicleGroups, ct);
+        await _dbContext.SaveChangesAsync(ct);
+    }
+}

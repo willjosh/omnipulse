@@ -33,6 +33,7 @@ public static class SeedingExtensions
             new ServiceTaskSeeder(context),
             new ServiceScheduleSeeder(context),
             new XrefServiceScheduleServiceTaskSeeder(context),
+            new VehicleGroupSeeder(context),
         ];
     }
 }
