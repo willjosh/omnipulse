@@ -51,8 +51,8 @@ public class ServiceTaskSeeder : IEntitySeeder
             serviceTasks.Add(new ServiceTask
             {
                 ID = 0,
-                Name = $"Service Task {i}",
-                Description = $"This is service task number {i}.",
+                Name = $"Service Task {i} Name",
+                Description = $"Service Task {i} Description",
                 EstimatedLabourHours = 1.0 + i * 0.5,
                 EstimatedCost = 50m + i * 25,
                 Category = i % 2 == 0 ? ServiceTaskCategoryEnum.PREVENTIVE : ServiceTaskCategoryEnum.CORRECTIVE,
