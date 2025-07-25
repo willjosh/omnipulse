@@ -1,6 +1,7 @@
 #!/bin/bash
 
 DEV_COMPOSE_FILE="docker-compose.dev.yml"
+SQL_SERVER_VOLUME_NAME="capstone-project-25t2-3900-w18a-date_omnipulse_sql_data"
 
 set -e
 
@@ -68,6 +69,28 @@ cleanup() {
     docker system prune -f
 }
 
+# Delete SQL Server volume
+delete_sql_data() {
+    if docker volume inspect "$SQL_SERVER_VOLUME_NAME" >/dev/null 2>&1; then
+        print_warning "Deleting Docker Volume: $SQL_SERVER_VOLUME_NAME"
+
+        CONTAINERS_USING_VOLUME=$(docker ps -a -q --filter volume="$SQL_SERVER_VOLUME_NAME")
+
+        print_info "Containers using the volume: $CONTAINERS_USING_VOLUME"
+
+        if [ -n "$CONTAINERS_USING_VOLUME" ]; then
+            print_info "Stopping and removing containers using the volume"
+            docker stop $CONTAINERS_USING_VOLUME
+            docker rm $CONTAINERS_USING_VOLUME
+        fi
+
+        docker volume rm "$SQL_SERVER_VOLUME_NAME"
+        print_info "SQL data volume $SQL_SERVER_VOLUME_NAME deleted successfully."
+    else
+        print_info "Volume not found: $SQL_SERVER_VOLUME_NAME"
+    fi
+}
+
 # Show logs
 show_logs() {
     if [ -z "$1" ]; then
@@ -104,6 +127,9 @@ case "$1" in
     "cleanup"|"clean")
         cleanup
         ;;
+    "delete-sql")
+        delete_sql_data
+        ;;
     "logs")
         show_logs "$2"
         ;;
@@ -120,6 +146,7 @@ case "$1" in
             "client  - Start only the frontend client"
             "server  - Start only the backend server and database"
             "stop    - Stop all running services"
+            "delete-sql - Delete SQL Server Docker volume"
             "cleanup - Stop services and clean up Docker resources"
             "logs    - Show logs for all services or specific service"
             "rebuild - Rebuild a specific service"
