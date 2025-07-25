@@ -29,9 +29,10 @@ public static class SeedingExtensions
     {
         return
         [
-            new ServiceTaskSeeder(context),
             new ServiceProgramSeeder(context),
+            new ServiceTaskSeeder(context),
             new ServiceScheduleSeeder(context),
+            new XrefServiceScheduleServiceTaskSeeder(context),
         ];
     }
 }
