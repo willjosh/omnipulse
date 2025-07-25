@@ -63,6 +63,7 @@ public static class PersistenceServerRegistration
         services.AddScoped<VehicleGroupSeeder>();
         services.AddScoped<UserSeeder>();
         services.AddScoped<InventoryItemLocationSeeder>();
+        services.AddScoped<FuelPurchaseSeeder>();
 
         return services;
     }
