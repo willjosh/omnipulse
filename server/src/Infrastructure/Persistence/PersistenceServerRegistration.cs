@@ -61,6 +61,7 @@ public static class PersistenceServerRegistration
         services.AddScoped<ServiceScheduleSeeder>();
         services.AddScoped<XrefServiceScheduleServiceTaskSeeder>();
         services.AddScoped<VehicleGroupSeeder>();
+        services.AddScoped<UserSeeder>();
 
         return services;
     }

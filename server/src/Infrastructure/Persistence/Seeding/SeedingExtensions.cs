@@ -35,6 +35,7 @@ public static class SeedingExtensions
             context.GetService<ServiceScheduleSeeder>(),
             context.GetService<XrefServiceScheduleServiceTaskSeeder>(),
             context.GetService<VehicleGroupSeeder>(),
+            context.GetService<UserSeeder>(),
         ];
     }
 }
