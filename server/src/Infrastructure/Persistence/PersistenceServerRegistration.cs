@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Persistence.DatabaseContext;
 using Persistence.Repository;
+using Persistence.Seeding;
 
 namespace Persistence;
 
@@ -27,56 +28,7 @@ public static class PersistenceServerRegistration
             .UseSqlServer(
                 config.GetConnectionString("OmnipulseDatabaseConnection")
             )
-            .UseSeeding((context, _) =>
-            {
-                var taskExists = context.Set<ServiceTask>().Any();
-
-                if (!taskExists)
-                {
-                    context.Set<ServiceTask>().Add(new ServiceTask
-                    {
-                        ID = 0,
-                        Name = "Service Task 1",
-                        Description = "Service Task 1 Description",
-                        EstimatedLabourHours = 1.0,
-                        EstimatedCost = 100.0m,
-                        Category = ServiceTaskCategoryEnum.PREVENTIVE,
-                        IsActive = true,
-                        UpdatedAt = DateTime.UtcNow,
-                        CreatedAt = DateTime.UtcNow,
-                        XrefServiceScheduleServiceTasks = [],
-                        MaintenanceHistories = [],
-                        WorkOrderLineItems = []
-                    });
-
-                    context.SaveChanges();
-                }
-            })
-            .UseAsyncSeeding(async (context, _, cancellationToken) =>
-            {
-                var taskExists = await context.Set<ServiceTask>().AnyAsync(cancellationToken);
-
-                if (!taskExists)
-                {
-                    await context.Set<ServiceTask>().AddAsync(new ServiceTask
-                    {
-                        ID = 0,
-                        Name = "Service Task 1",
-                        Description = "Service Task 1 Description",
-                        EstimatedLabourHours = 1.0,
-                        EstimatedCost = 100.0m,
-                        Category = ServiceTaskCategoryEnum.PREVENTIVE,
-                        IsActive = true,
-                        UpdatedAt = DateTime.UtcNow,
-                        CreatedAt = DateTime.UtcNow,
-                        XrefServiceScheduleServiceTasks = [],
-                        MaintenanceHistories = [],
-                        WorkOrderLineItems = []
-                    }, cancellationToken);
-
-                    await context.SaveChangesAsync(cancellationToken);
-                }
-            })
+            .UseOmnipulseDbSeeding()
         );
 
         services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<OmnipulseDatabaseContext>().AddDefaultTokenProviders();
