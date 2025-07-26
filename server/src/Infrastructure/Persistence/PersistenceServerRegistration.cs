@@ -65,6 +65,7 @@ public static class PersistenceServerRegistration
         services.AddScoped<InventoryItemLocationSeeder>();
         services.AddScoped<FuelPurchaseSeeder>();
         services.AddScoped<InventoryItemSeeder>();
+        services.AddScoped<VehicleSeeder>();
 
         return services;
     }

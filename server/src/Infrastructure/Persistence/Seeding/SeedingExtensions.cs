@@ -39,6 +39,7 @@ public static class SeedingExtensions
             context.GetService<InventoryItemLocationSeeder>(),
             context.GetService<FuelPurchaseSeeder>(),
             context.GetService<InventoryItemSeeder>(),
+            context.GetService<VehicleSeeder>(),
         ];
     }
 }
