@@ -1,6 +1,7 @@
 using Application.Contracts.Persistence;
 
 using Domain.Entities;
+using Domain.Entities.Enums;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +10,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Persistence.DatabaseContext;
 using Persistence.Repository;
+using Persistence.Seeding;
+using Persistence.Seeding.Contracts;
+using Persistence.Seeding.EntitySeeders;
 
 namespace Persistence;
 
@@ -22,11 +26,11 @@ public static class PersistenceServerRegistration
     /// <returns>The service collection with the Persistence services added.</returns>
     public static IServiceCollection AddPersistenceServer(this IServiceCollection services, IConfiguration config)
     {
-        services.AddDbContext<OmnipulseDatabaseContext>(opt =>
-            opt.UseSqlServer(
-                config.GetConnectionString("OmnipulseDatabaseConnection"),
-                sql => sql.EnableRetryOnFailure()
+        services.AddDbContext<OmnipulseDatabaseContext>(opt => opt
+            .UseSqlServer(
+                config.GetConnectionString("OmnipulseDatabaseConnection")
             )
+            .UseOmnipulseDbSeeding()
         );
 
         services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<OmnipulseDatabaseContext>().AddDefaultTokenProviders();
@@ -50,6 +54,20 @@ public static class PersistenceServerRegistration
         services.AddScoped<IWorkOrderRepository, WorkOrderRepository>();
         services.AddScoped<IXrefServiceProgramVehicleRepository, XrefServiceProgramVehicleRepository>();
         services.AddScoped<IXrefServiceScheduleServiceTaskRepository, XrefServiceScheduleServiceTaskRepository>();
+
+        // Register Seeders
+        services.AddScoped<ServiceProgramSeeder>();
+        services.AddScoped<ServiceTaskSeeder>();
+        services.AddScoped<ServiceScheduleSeeder>();
+        services.AddScoped<XrefServiceScheduleServiceTaskSeeder>();
+        services.AddScoped<VehicleGroupSeeder>();
+        services.AddScoped<UserSeeder>();
+        services.AddScoped<InventoryItemLocationSeeder>();
+        services.AddScoped<FuelPurchaseSeeder>();
+        services.AddScoped<InventoryItemSeeder>();
+        services.AddScoped<VehicleSeeder>();
+        services.AddScoped<IssueSeeder>();
+        services.AddScoped<XrefServiceProgramVehicleSeeder>();
 
         return services;
     }

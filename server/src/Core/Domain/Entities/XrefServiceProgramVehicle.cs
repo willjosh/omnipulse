@@ -6,11 +6,11 @@ public class XrefServiceProgramVehicle
     public required int ServiceProgramID { get; set; }
     public required int VehicleID { get; set; }
 
-    // public required string AddedByUserID { get; set; } // FK // TODO
+    // public required string AddedByUserID { get; set; } // FK // TODO XrefServiceProgramVehicle User
     public required DateTime AddedAt { get; set; } = DateTime.UtcNow;
 
     // Navigation Properties
     public required ServiceProgram ServiceProgram { get; set; }
     public required Vehicle Vehicle { get; set; }
-    public required User User { get; set; }
+    // public required User User { get; set; } // TODO XrefServiceProgramVehicle User
 }

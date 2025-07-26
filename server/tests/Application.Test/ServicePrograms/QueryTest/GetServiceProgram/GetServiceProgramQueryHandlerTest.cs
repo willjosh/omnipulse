@@ -88,7 +88,7 @@ public class GetServiceProgramQueryHandlerTest
                     AddedAt = FixedDate,
                     ServiceProgram = null!,
                     Vehicle = null!,
-                    User = null!
+                    // User = null! // TODO XrefServiceProgramVehicle User
                 }
             ]
         };
