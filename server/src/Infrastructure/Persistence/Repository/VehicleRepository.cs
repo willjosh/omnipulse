@@ -22,22 +22,8 @@ public class VehicleRepository : GenericRepository<Vehicle>, IVehicleRepository
             .Include(v => v.User)
             .Include(v => v.VehicleGroup);
 
-        if (!string.IsNullOrWhiteSpace(parameters.Search))
-        {
-            var search = parameters.Search.ToLowerInvariant();
-
-            // Look for matches
-            query = query.
-                Where(v =>
-                    v.Name.ToLowerInvariant().Contains(search) ||
-                    v.Make.ToLowerInvariant().Contains(search) ||
-                    v.Model.ToLowerInvariant().Contains(search) ||
-                    v.VIN.ToLowerInvariant().Contains(search) ||
-                    v.Year.ToString().ToLowerInvariant().Contains(search) ||
-                    v.Location.ToLowerInvariant().Contains(search) ||
-                    v.LicensePlate.ToLowerInvariant().Contains(search)
-                );
-        }
+        // Apply search filter
+        query = ApplySearchFilter(query, parameters.Search);
 
         // Apply sorting
         query = ApplySorting(query, parameters.SortBy, parameters.SortDescending);
@@ -58,6 +44,23 @@ public class VehicleRepository : GenericRepository<Vehicle>, IVehicleRepository
             PageNumber = parameters.PageNumber,
             PageSize = parameters.PageSize
         };
+    }
+
+    private static IQueryable<Vehicle> ApplySearchFilter(IQueryable<Vehicle> query, string? searchText)
+    {
+        if (string.IsNullOrWhiteSpace(searchText)) return query;
+
+        string searchPattern = $"%{searchText.Trim().ToLowerInvariant()}%";
+
+        return query.Where(v =>
+            EF.Functions.Like(v.Name, searchPattern) ||
+            EF.Functions.Like(v.Make, searchPattern) ||
+            EF.Functions.Like(v.Model, searchPattern) ||
+            EF.Functions.Like(v.Year.ToString(), searchPattern) ||
+            EF.Functions.Like(v.VIN, searchPattern) ||
+            EF.Functions.Like(v.Location, searchPattern) ||
+            EF.Functions.Like(v.LicensePlate, searchPattern)
+        );
     }
 
     public async Task<Vehicle?> GetVehicleWithDetailsAsync(int vehicleId)
