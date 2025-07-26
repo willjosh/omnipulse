@@ -21,7 +21,7 @@ const TabNavigation: React.FC<TabNavigationProps> = ({
 }) => {
   return (
     <div className={`mb-4 ${className}`}>
-      <div className="border-b border-gray-200">
+      <div className="border-b border-gray-300">
         <nav className="flex space-x-8">
           {tabs.map(tab => (
             <button
