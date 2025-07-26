@@ -15,8 +15,6 @@ public class FuelPurchaseSeeder : IEntitySeeder
     private readonly OmnipulseDatabaseContext _dbContext;
     private readonly DbSet<FuelPurchase> _fuelPurchaseDbSet;
     private readonly ILogger<FuelPurchaseSeeder> _logger;
-    private readonly List<string> _userIds = [];
-    private readonly Random _random = new();
 
     public FuelPurchaseSeeder(OmnipulseDatabaseContext context, ILogger<FuelPurchaseSeeder> logger)
     {
@@ -30,39 +28,30 @@ public class FuelPurchaseSeeder : IEntitySeeder
         var now = DateTime.UtcNow;
         var fuelPurchases = new List<FuelPurchase>();
 
-        // Get existing Vehicles to use their actual IDs
-        var existingVehicles = _dbContext.Vehicles.ToList();
-        if (existingVehicles.Count == 0)
-        {
-            _logger.LogWarning("{MethodName}() - No Vehicles found. FuelPurchases will not be created.", nameof(CreateFuelPurchases));
-            return fuelPurchases;
-        }
+        // Check if Vehicles exist before creating FuelPurchases
+        if (!SeedingHelper.CheckEntitiesExist<Vehicle>(_dbContext, _logger)) return fuelPurchases;
 
-        for (int i = 1; i <= SeedCount; i++)
+        for (int i = 0; i < SeedCount; i++)
         {
-            var userId = GetRandomUserId();
-            if (userId == null)
-            {
-                _logger.LogWarning("No users found. Skipping fuel purchase seeding.");
-                break;
-            }
+            var userId = SeedingHelper.ProjectEntityByIndex<User, string>(_dbContext, u => u.Id, i, _logger);
+            if (string.IsNullOrEmpty(userId)) continue;
 
-            // Use modulo to cycle through available Vehicles
-            var vehicle = existingVehicles[(i - 1) % existingVehicles.Count];
+            var vehicleId = SeedingHelper.ProjectEntityByIndex<Vehicle, int>(_dbContext, v => v.ID, i, _logger);
+            if (vehicleId == 0) continue;
 
             fuelPurchases.Add(new FuelPurchase
             {
                 ID = 0,
-                VehicleId = vehicle.ID,
+                VehicleId = vehicleId,
                 PurchasedByUserId = userId,
-                PurchaseDate = now.AddDays(-i),
-                OdometerReading = 10000 + i * 500,
-                Volume = 50 + i * 5,
-                PricePerUnit = 2.5m + i * 0.1m,
+                PurchaseDate = now.AddDays(-(i + 1)),
+                OdometerReading = 10000 + (i + 1) * 500,
+                Volume = 50 + (i + 1) * 5,
+                PricePerUnit = 2.5m + (i + 1) * 0.1m,
                 TotalCost = 0, // Will be calculated
-                FuelStation = $"Station {i}",
-                ReceiptNumber = $"RCPT-{i:0000}",
-                Notes = $"Fuel purchase {i}",
+                FuelStation = $"Station {i + 1}",
+                ReceiptNumber = $"RCPT-{i + 1:0000}",
+                Notes = $"Fuel purchase {i + 1}",
                 CreatedAt = now,
                 UpdatedAt = now,
                 Vehicle = null!,
@@ -98,14 +87,5 @@ public class FuelPurchaseSeeder : IEntitySeeder
 
         await _fuelPurchaseDbSet.AddRangeAsync(purchases, ct);
         await _dbContext.SaveChangesAsync(ct);
-    }
-
-    private string? GetRandomUserId()
-    {
-        if (_userIds.Count == 0) _userIds.AddRange([.. _dbContext.Users.Select(u => u.Id)]);
-
-        return _userIds.Count == 0
-            ? null
-            : _userIds[_random.Next(_userIds.Count)];
     }
 }

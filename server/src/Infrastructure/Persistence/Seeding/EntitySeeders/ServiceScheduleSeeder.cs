@@ -29,33 +29,31 @@ public class ServiceScheduleSeeder : IEntitySeeder
         var now = DateTime.UtcNow;
         var serviceSchedules = new List<ServiceSchedule>();
 
-        // Get existing ServicePrograms to use their actual IDs
-        var existingServicePrograms = _dbContext.ServicePrograms.ToList();
-        if (existingServicePrograms.Count == 0)
-        {
-            _logger.LogWarning($"{nameof(CreateServiceSchedules)}() - No {nameof(ServiceProgram)} found. {nameof(ServiceSchedule)}s will not be created.");
+        // Check if ServicePrograms exist before creating ServiceSchedules
+        if (!SeedingHelper.CheckEntitiesExist<ServiceProgram>(_dbContext, _logger))
             return serviceSchedules;
-        }
 
-        for (int i = 1; i <= SeedCount; i++)
+        for (int i = 0; i < SeedCount; i++)
         {
-            // Use modulo to cycle through available ServicePrograms
-            var serviceProgram = existingServicePrograms[(i - 1) % existingServicePrograms.Count];
+            var serviceProgramId = SeedingHelper.ProjectEntityByIndex<ServiceProgram, int>(
+                _dbContext, sp => sp.ID, i, _logger
+            );
+            if (serviceProgramId == 0) continue;
 
             serviceSchedules.Add(new ServiceSchedule
             {
                 ID = 0,
-                ServiceProgramID = serviceProgram.ID,
-                Name = $"Service Schedule {i} Name",
-                TimeIntervalValue = 6 * i,
+                ServiceProgramID = serviceProgramId,
+                Name = $"Service Schedule {i + 1} Name",
+                TimeIntervalValue = 6 * (i + 1),
                 TimeIntervalUnit = TimeUnitEnum.Days,
                 TimeBufferValue = 1,
                 TimeBufferUnit = TimeUnitEnum.Days,
-                MileageInterval = 10000 * i,
+                MileageInterval = 10000 * (i + 1),
                 MileageBuffer = 1000,
-                FirstServiceTimeValue = 3 * i,
+                FirstServiceTimeValue = 3 * (i + 1),
                 FirstServiceTimeUnit = TimeUnitEnum.Days,
-                FirstServiceMileage = 5000 * i,
+                FirstServiceMileage = 5000 * (i + 1),
                 IsActive = true,
                 CreatedAt = now,
                 UpdatedAt = now,

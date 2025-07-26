@@ -23,18 +23,25 @@ public class XrefServiceScheduleServiceTaskSeeder : IEntitySeeder
 
     private List<XrefServiceScheduleServiceTask> CreateXrefServiceScheduleServiceTasks()
     {
-        var schedules = _dbContext.ServiceSchedules.Take(5).ToList();
-        var tasks = _dbContext.ServiceTasks.Take(5).ToList();
-        var xrefs = new List<XrefServiceScheduleServiceTask>();
+        if (!SeedingHelper.CheckEntitiesExist<ServiceSchedule>(_dbContext, _logger))
+            return [];
 
-        foreach (var schedule in schedules)
+        if (!SeedingHelper.CheckEntitiesExist<ServiceTask>(_dbContext, _logger))
+            return [];
+
+        var scheduleIds = SeedingHelper.ProjectEntities<ServiceSchedule, int>(_dbContext, s => s.ID, _logger);
+        var taskIds = SeedingHelper.ProjectEntities<ServiceTask, int>(_dbContext, t => t.ID, _logger);
+
+        var xrefs = new List<XrefServiceScheduleServiceTask>(scheduleIds.Count * taskIds.Count);
+
+        foreach (var scheduleId in scheduleIds)
         {
-            foreach (var task in tasks)
+            foreach (var taskId in taskIds)
             {
                 xrefs.Add(new XrefServiceScheduleServiceTask
                 {
-                    ServiceScheduleID = schedule.ID,
-                    ServiceTaskID = task.ID,
+                    ServiceScheduleID = scheduleId,
+                    ServiceTaskID = taskId,
                     ServiceSchedule = null!,
                     ServiceTask = null!
                 });
