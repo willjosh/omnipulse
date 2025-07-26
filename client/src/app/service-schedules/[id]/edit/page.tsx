@@ -69,8 +69,6 @@ export default function EditServiceSchedulePage() {
     if (!form?.name?.trim()) newErrors.name = "Name is required.";
     if (!form?.serviceTaskIDs.length)
       newErrors.serviceTaskIDs = "At least one service task is required.";
-    if (!form?.serviceProgramID)
-      newErrors.serviceProgramID = "Service Program is required.";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -171,6 +169,7 @@ export default function EditServiceSchedulePage() {
           availableVehicles={vehicles}
           availableServicePrograms={servicePrograms}
           disabled={isUpdating}
+          showServiceProgram={false}
         />
       </div>
       {/* Footer Actions */}
