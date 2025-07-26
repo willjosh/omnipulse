@@ -80,8 +80,7 @@ export default function ServiceProgramDetailsPage() {
   };
 
   const handleAddServiceSchedule = () => {
-    // TODO: Navigate to add service schedule page
-    console.log("Add service schedule");
+    router.push(`/service-schedules/new?serviceProgramId=${id}`);
     setIsAddDropdownOpen(false);
   };
 
@@ -238,7 +237,7 @@ export default function ServiceProgramDetailsPage() {
         {/* Service Program Description */}
         {serviceProgram.description &&
           serviceProgram.description.trim() !== "" && (
-            <div className="mb-4 p-4 bg-white rounded-lg shadow">
+            <div className="mb-6 p-4 bg-white rounded-lg shadow">
               <h3 className="text-sm font-medium text-gray-900 mb-2">
                 Description
               </h3>
