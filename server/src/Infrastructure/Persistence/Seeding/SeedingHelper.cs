@@ -85,6 +85,49 @@ public static class SeedingHelper
     }
 
     /// <summary>
+    /// Projects a single entity of type <typeparamref name="T"/> at a specific index to a result shape <typeparamref name="TResult"/> using the given selector.
+    /// Index is wrapped using modulo if it exceeds the entity count.
+    /// </summary>
+    /// <typeparam name="T">The entity type.</typeparam>
+    /// <typeparam name="TResult">The projection result type.</typeparam>
+    /// <param name="context">Database context.</param>
+    /// <param name="index">Target index (supports negative or out-of-bounds).</param>
+    /// <param name="selector">Projection expression (e.g., entity => entity.Id).</param>
+    /// <param name="logger">Logger.</param>
+    /// <returns>Projected entity result, or null if no entities found.</returns>
+    public static TResult? ProjectEntityByIndex<T, TResult>(
+        OmnipulseDatabaseContext context,
+        Expression<Func<T, TResult>> selector,
+        int index,
+        ILogger logger
+    ) where T : class
+    {
+        var dbSet = context.Set<T>().AsNoTracking();
+
+        var count = dbSet.Count();
+        if (count == 0)
+        {
+            logger.LogWarning("{Method}() - No {EntityType} found. Cannot project entity to {ResultType} at index {Index}.",
+                nameof(ProjectEntityByIndex),
+                typeof(T).Name,
+                typeof(TResult).Name,
+                index
+            );
+            return default;
+        }
+
+        var actualIndex = ((index % count) + count) % count;
+
+        var result = dbSet
+            .TagWith($"{nameof(ProjectEntityByIndex)}<{typeof(T).Name}, {typeof(TResult).Name}>")
+            .Skip(actualIndex)
+            .Select(selector)
+            .FirstOrDefault();
+
+        return result;
+    }
+
+    /// <summary>
     /// Checks if entities exist.
     /// </summary>
     /// <typeparam name="T">The entity type</typeparam>
