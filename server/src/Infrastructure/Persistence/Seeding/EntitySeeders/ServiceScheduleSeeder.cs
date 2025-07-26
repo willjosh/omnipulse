@@ -33,10 +33,10 @@ public class ServiceScheduleSeeder : IEntitySeeder
         if (!SeedingHelper.CheckEntitiesExist<ServiceProgram>(_dbContext, _logger))
             return serviceSchedules;
 
-        for (int i = 0; i < SeedCount; i++)
+        for (int i = 1; i <= SeedCount; i++)
         {
             var serviceProgramId = SeedingHelper.ProjectEntityByIndex<ServiceProgram, int>(
-                _dbContext, sp => sp.ID, i, _logger
+                _dbContext, sp => sp.ID, i - 1, _logger
             );
             if (serviceProgramId == 0) continue;
 
@@ -44,16 +44,16 @@ public class ServiceScheduleSeeder : IEntitySeeder
             {
                 ID = 0,
                 ServiceProgramID = serviceProgramId,
-                Name = $"Service Schedule {i + 1} Name",
-                TimeIntervalValue = 6 * (i + 1),
+                Name = $"Service Schedule {i} Name",
+                TimeIntervalValue = 6 * i,
                 TimeIntervalUnit = TimeUnitEnum.Days,
                 TimeBufferValue = 1,
                 TimeBufferUnit = TimeUnitEnum.Days,
-                MileageInterval = 10000 * (i + 1),
+                MileageInterval = 10000 * i,
                 MileageBuffer = 1000,
-                FirstServiceTimeValue = 3 * (i + 1),
+                FirstServiceTimeValue = 3 * i,
                 FirstServiceTimeUnit = TimeUnitEnum.Days,
-                FirstServiceMileage = 5000 * (i + 1),
+                FirstServiceMileage = 5000 * i,
                 IsActive = true,
                 CreatedAt = now,
                 UpdatedAt = now,

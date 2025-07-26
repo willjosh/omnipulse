@@ -31,12 +31,12 @@ public class FuelPurchaseSeeder : IEntitySeeder
         // Check if Vehicles exist before creating FuelPurchases
         if (!SeedingHelper.CheckEntitiesExist<Vehicle>(_dbContext, _logger)) return fuelPurchases;
 
-        for (int i = 0; i < SeedCount; i++)
+        for (int i = 1; i <= SeedCount; i++)
         {
-            var userId = SeedingHelper.ProjectEntityByIndex<User, string>(_dbContext, u => u.Id, i, _logger);
+            var userId = SeedingHelper.ProjectEntityByIndex<User, string>(_dbContext, u => u.Id, i - 1, _logger);
             if (string.IsNullOrEmpty(userId)) continue;
 
-            var vehicleId = SeedingHelper.ProjectEntityByIndex<Vehicle, int>(_dbContext, v => v.ID, i, _logger);
+            var vehicleId = SeedingHelper.ProjectEntityByIndex<Vehicle, int>(_dbContext, v => v.ID, i - 1, _logger);
             if (vehicleId == 0) continue;
 
             fuelPurchases.Add(new FuelPurchase
@@ -44,14 +44,14 @@ public class FuelPurchaseSeeder : IEntitySeeder
                 ID = 0,
                 VehicleId = vehicleId,
                 PurchasedByUserId = userId,
-                PurchaseDate = now.AddDays(-(i + 1)),
-                OdometerReading = 10000 + (i + 1) * 500,
-                Volume = 50 + (i + 1) * 5,
-                PricePerUnit = 2.5m + (i + 1) * 0.1m,
+                PurchaseDate = now.AddDays(-i),
+                OdometerReading = 10000 + i * 500,
+                Volume = 50 + i * 5,
+                PricePerUnit = 2.5m + i * 0.1m,
                 TotalCost = 0, // Will be calculated
-                FuelStation = $"Station {i + 1}",
-                ReceiptNumber = $"RCPT-{i + 1:0000}",
-                Notes = $"Fuel purchase {i + 1}",
+                FuelStation = $"Station {i}",
+                ReceiptNumber = $"RCPT-{i:0000}",
+                Notes = $"Fuel purchase {i}",
                 CreatedAt = now,
                 UpdatedAt = now,
                 Vehicle = null!,
