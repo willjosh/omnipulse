@@ -11,25 +11,14 @@ namespace Persistence.Repository;
 
 public class IssueRepository : GenericRepository<Issue>, IIssueRepository
 {
-    public IssueRepository(OmnipulseDatabaseContext context) : base(context)
-    {
-    }
-
+    public IssueRepository(OmnipulseDatabaseContext context) : base(context) { }
 
     public async Task<PagedResult<Issue>> GetAllIssuesPagedAsync(PaginationParameters parameters)
     {
         var query = _dbSet.AsQueryable();
 
-        // Filtering (search by title, description, or issue number)
-        if (!string.IsNullOrWhiteSpace(parameters.Search))
-        {
-            var search = parameters.Search.ToLower();
-            query = query.Where(i =>
-                i.Title.ToLower().Contains(search)
-                || (i.Description != null && i.Description.ToLower().Contains(search))
-                || i.IssueNumber.ToString().ToLower().Contains(search)
-            );
-        }
+        // Apply search filter
+        query = ApplySearchFilter(query, parameters.Search);
 
         // Sorting
         if (!string.IsNullOrWhiteSpace(parameters.SortBy))
@@ -63,6 +52,19 @@ public class IssueRepository : GenericRepository<Issue>, IIssueRepository
             PageNumber = parameters.PageNumber,
             PageSize = parameters.PageSize
         };
+    }
+
+    private static IQueryable<Issue> ApplySearchFilter(IQueryable<Issue> query, string? searchText)
+    {
+        if (string.IsNullOrWhiteSpace(searchText)) return query;
+
+        string searchPattern = $"%{searchText.Trim().ToLowerInvariant()}%";
+
+        return query.Where(i =>
+            EF.Functions.Like(i.Title, searchPattern) ||
+            EF.Functions.Like(i.Description ?? string.Empty, searchPattern) ||
+            EF.Functions.Like(i.IssueNumber.ToString(), searchPattern)
+        );
     }
 
     public async Task<Issue?> GetIssueWithDetailsAsync(int issueID)

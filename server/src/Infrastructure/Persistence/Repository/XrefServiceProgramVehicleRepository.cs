@@ -35,17 +35,7 @@ public class XrefServiceProgramVehicleRepository : IXrefServiceProgramVehicleRep
             .Where(x => x.ServiceProgramID == serviceProgramId);
 
         // Apply search filter
-        if (!string.IsNullOrWhiteSpace(parameters.Search))
-        {
-            var searchLower = parameters.Search.ToLowerInvariant();
-            query = query.Where(x =>
-                x.Vehicle.Name.Contains(searchLower, StringComparison.InvariantCultureIgnoreCase) ||
-                x.Vehicle.Make.Contains(searchLower, StringComparison.InvariantCultureIgnoreCase) ||
-                x.Vehicle.Model.Contains(searchLower, StringComparison.InvariantCultureIgnoreCase) ||
-                x.Vehicle.VehicleType.ToString().Contains(searchLower, StringComparison.InvariantCultureIgnoreCase) ||
-                x.Vehicle.VehicleGroup.Name.Contains(searchLower, StringComparison.InvariantCultureIgnoreCase)
-            );
-        }
+        query = ApplySearchFilter(query, parameters.Search);
 
         // Apply sorting
         query = parameters.SortBy?.ToLowerInvariant() switch
@@ -86,6 +76,21 @@ public class XrefServiceProgramVehicleRepository : IXrefServiceProgramVehicleRep
         };
     }
 
+    private static IQueryable<XrefServiceProgramVehicle> ApplySearchFilter(IQueryable<XrefServiceProgramVehicle> query, string? searchText)
+    {
+        if (string.IsNullOrWhiteSpace(searchText)) return query;
+
+        string searchPattern = $"%{searchText.Trim().ToLowerInvariant()}%";
+
+        return query.Where(x =>
+            EF.Functions.Like(x.Vehicle.Name, searchPattern) ||
+            EF.Functions.Like(x.Vehicle.Make, searchPattern) ||
+            EF.Functions.Like(x.Vehicle.Model, searchPattern) ||
+            EF.Functions.Like(x.Vehicle.VehicleType.ToString(), searchPattern) ||
+            EF.Functions.Like(x.Vehicle.VehicleGroup.Name, searchPattern)
+        );
+    }
+
     public async Task<PagedResult<Vehicle>> GetAllServiceProgramVehiclesPagedAsync(int serviceProgramID, PaginationParameters parameters)
     {
         var query = _dbContext.XrefServiceProgramVehicles
@@ -95,17 +100,7 @@ public class XrefServiceProgramVehicleRepository : IXrefServiceProgramVehicleRep
             .Select(x => x.Vehicle);
 
         // Apply search filter
-        if (!string.IsNullOrWhiteSpace(parameters.Search))
-        {
-            var searchLower = parameters.Search.ToLowerInvariant();
-            query = query.Where(v =>
-                v.Name.Contains(searchLower, StringComparison.InvariantCultureIgnoreCase) ||
-                v.Make.Contains(searchLower, StringComparison.InvariantCultureIgnoreCase) ||
-                v.Model.Contains(searchLower, StringComparison.InvariantCultureIgnoreCase) ||
-                v.VehicleType.ToString().Contains(searchLower, StringComparison.InvariantCultureIgnoreCase) ||
-                v.VehicleGroup.Name.Contains(searchLower, StringComparison.InvariantCultureIgnoreCase)
-            );
-        }
+        query = ApplyVehicleSearchFilter(query, parameters.Search);
 
         // Apply sorting
         query = parameters.SortBy?.ToLowerInvariant() switch
@@ -141,6 +136,21 @@ public class XrefServiceProgramVehicleRepository : IXrefServiceProgramVehicleRep
             PageNumber = parameters.PageNumber,
             PageSize = parameters.PageSize
         };
+    }
+
+    private static IQueryable<Vehicle> ApplyVehicleSearchFilter(IQueryable<Vehicle> query, string? searchText)
+    {
+        if (string.IsNullOrWhiteSpace(searchText)) return query;
+
+        string searchPattern = $"%{searchText.Trim().ToLowerInvariant()}%";
+
+        return query.Where(v =>
+            EF.Functions.Like(v.Name, searchPattern) ||
+            EF.Functions.Like(v.Make, searchPattern) ||
+            EF.Functions.Like(v.Model, searchPattern) ||
+            EF.Functions.Like(v.VehicleType.ToString(), searchPattern) ||
+            EF.Functions.Like(v.VehicleGroup.Name, searchPattern)
+        );
     }
 
     public async Task<List<XrefServiceProgramVehicle>> GetByVehicleIDAsync(int vehicleId)

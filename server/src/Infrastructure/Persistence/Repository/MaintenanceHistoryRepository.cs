@@ -23,19 +23,8 @@ public class MaintenanceHistoryRepository : GenericRepository<MaintenanceHistory
             .Include(mh => mh.ServiceTask)
             .Include(mh => mh.User);
 
-        if (!string.IsNullOrWhiteSpace(parameters.Search))
-        {
-            var search = $"%{parameters.Search}%";
-            query = query.Where(mh =>
-                EF.Functions.Like(mh.Vehicle.Name, search) ||
-                EF.Functions.Like(mh.WorkOrder.Title, search) ||
-                mh.WorkOrderID.ToString().Contains(parameters.Search) ||
-                EF.Functions.Like(mh.ServiceTask.Name, search) ||
-                EF.Functions.Like(mh.User.FirstName, search) ||
-                EF.Functions.Like(mh.User.LastName, search) ||
-                (mh.Description != null && EF.Functions.Like(mh.Description, search))
-            );
-        }
+        // Apply search filter
+        query = ApplySearchFilter(query, parameters.Search);
 
         // Apply sorting
         query = ApplySorting(query, parameters.SortBy, parameters.SortDescending);
@@ -54,6 +43,23 @@ public class MaintenanceHistoryRepository : GenericRepository<MaintenanceHistory
             PageNumber = parameters.PageNumber,
             PageSize = parameters.PageSize
         };
+    }
+
+    private static IQueryable<MaintenanceHistory> ApplySearchFilter(IQueryable<MaintenanceHistory> query, string? searchText)
+    {
+        if (string.IsNullOrWhiteSpace(searchText)) return query;
+
+        string searchPattern = $"%{searchText.Trim().ToLowerInvariant()}%";
+
+        return query.Where(mh =>
+            EF.Functions.Like(mh.Vehicle.Name, searchPattern) ||
+            EF.Functions.Like(mh.WorkOrder.Title, searchPattern) ||
+            mh.WorkOrderID.ToString().Contains(searchText) ||
+            EF.Functions.Like(mh.ServiceTask.Name, searchPattern) ||
+            EF.Functions.Like(mh.User.FirstName, searchPattern) ||
+            EF.Functions.Like(mh.User.LastName, searchPattern) ||
+            EF.Functions.Like(mh.Description ?? string.Empty, searchPattern)
+        );
     }
 
     private IQueryable<MaintenanceHistory> ApplySorting(IQueryable<MaintenanceHistory> query, string? sortBy, bool sortDescending)
