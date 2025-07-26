@@ -39,6 +39,11 @@ export default function ServiceProgramDetailsPage() {
     Search: search,
   });
 
+  // Filter service schedules to only show those belonging to this service program
+  const filteredServiceSchedules = serviceSchedules.filter(
+    schedule => schedule.serviceProgramID === id,
+  );
+
   const [activeTab, setActiveTab] = useState("schedules");
   const [isAddDropdownOpen, setIsAddDropdownOpen] = useState(false);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
@@ -95,11 +100,11 @@ export default function ServiceProgramDetailsPage() {
   };
 
   const handleSelectAll = () => {
-    if (selectedItems.length === serviceSchedules.length) {
+    if (selectedItems.length === filteredServiceSchedules.length) {
       setSelectedItems([]);
     } else {
       setSelectedItems(
-        serviceSchedules.map(schedule => schedule.id.toString()),
+        filteredServiceSchedules.map(schedule => schedule.id.toString()),
       );
     }
   };
@@ -233,7 +238,7 @@ export default function ServiceProgramDetailsPage() {
         {/* Service Program Description */}
         {serviceProgram.description &&
           serviceProgram.description.trim() !== "" && (
-            <div className="mb-6 p-4 bg-white rounded-lg shadow">
+            <div className="mb-4 p-4 bg-white rounded-lg shadow">
               <h3 className="text-sm font-medium text-gray-900 mb-2">
                 Description
               </h3>
@@ -273,7 +278,7 @@ export default function ServiceProgramDetailsPage() {
               )}
             </div>
 
-            {!isLoadingSchedules && serviceSchedules.length === 0 ? (
+            {!isLoadingSchedules && filteredServiceSchedules.length === 0 ? (
               <div className="bg-white rounded-lg shadow w-full">
                 <EmptyState
                   title="No Service Schedules"
@@ -288,7 +293,7 @@ export default function ServiceProgramDetailsPage() {
               <div className="bg-white rounded-lg shadow w-full">
                 <div className="w-full">
                   <DataTable
-                    data={serviceSchedules}
+                    data={filteredServiceSchedules}
                     columns={serviceScheduleColumns}
                     selectedItems={selectedItems}
                     onSelectItem={handleSelectItem}
