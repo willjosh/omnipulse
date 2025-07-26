@@ -26,6 +26,8 @@ public class IssueSeeder : IEntitySeeder
 
     private List<Issue> CreateIssues()
     {
+        const int resolvedEveryNthIssue = 3;
+
         var now = DateTime.UtcNow;
         var issues = new List<Issue>();
 
@@ -41,30 +43,42 @@ public class IssueSeeder : IEntitySeeder
             var vehicleId = SeedingHelper.ProjectEntityByIndex<Vehicle, int>(_dbContext, v => v.ID, i - 1, _logger);
             if (vehicleId == 0) continue;
 
-            var resolvedByUserId = i % 3 == 0 ? SeedingHelper.ProjectEntityByIndex<User, string>(_dbContext, u => u.Id, (i + 1) % 3, _logger) : null;
+            var reportedDate = now.AddDays(-i * 7);
+            var isResolved = i % resolvedEveryNthIssue == 0;
+            var resolvedDate = isResolved ? reportedDate.AddDays(1) : (DateTime?)null; // Resolved >= Reported
+
+            if (resolvedDate.HasValue && resolvedDate < reportedDate)
+            {
+                _logger.LogError("❌ Skipping issue {Index} - ResolvedDate before ReportedDate", i);
+                continue;
+            }
+
+            var resolvedByUserId = isResolved
+                ? SeedingHelper.ProjectEntityByIndex<User, string>(_dbContext, u => u.Id, (i + 1) % 3, _logger)
+                : null;
 
             issues.Add(new Issue
             {
                 ID = 0,
                 VehicleID = vehicleId,
-                IssueNumber = 1000 + i,
-                ReportedByUserID = reportedByUserId,
-                ReportedDate = now.AddDays(-i * 2),
+                IssueNumber = i + 1,
                 Title = $"Issue {i} Title",
                 Description = $"Issue {i} Description.",
-                Category = (IssueCategoryEnum)((i - 1) % 8), // Cycle through all categories
-                PriorityLevel = (PriorityLevelEnum)((i - 1) % 4), // Cycle through all priority levels
-                Status = i % 3 == 0 ? IssueStatusEnum.RESOLVED : IssueStatusEnum.OPEN, // Some resolved, some open
-                ResolvedDate = i % 3 == 0 ? now.AddDays(-i) : null,
+                Category = (IssueCategoryEnum)((i - 1) % Enum.GetValues<IssueCategoryEnum>().Length),
+                PriorityLevel = (PriorityLevelEnum)((i - 1) % Enum.GetValues<PriorityLevelEnum>().Length),
+                Status = isResolved ? IssueStatusEnum.RESOLVED : IssueStatusEnum.OPEN,
+                ReportedDate = reportedDate,
+                ReportedByUserID = reportedByUserId,
+                ResolvedDate = resolvedDate,
                 ResolvedByUserID = resolvedByUserId,
-                ResolutionNotes = i % 3 == 0 ? $"Issue {i} has been resolved successfully." : null,
+                ResolutionNotes = isResolved ? $"Issue {i} has been resolved successfully." : null,
+                CreatedAt = now,
+                UpdatedAt = now,
                 IssueAttachments = [],
                 IssueAssignments = [],
                 Vehicle = null!,
                 ReportedByUser = null!,
-                ResolvedByUser = null,
-                CreatedAt = now,
-                UpdatedAt = now
+                ResolvedByUser = null
             });
         }
 
