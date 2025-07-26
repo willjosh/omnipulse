@@ -10,7 +10,7 @@ export interface ServiceTask {
   isActive: boolean;
 }
 
-export interface ServiceTaskWithLabels extends Omit<ServiceTask, "Category"> {
+export interface ServiceTaskWithLabels extends Omit<ServiceTask, "category"> {
   category: number;
   categoryLabel: string;
   categoryEnum: ServiceTaskCategoryEnum;
