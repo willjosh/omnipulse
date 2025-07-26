@@ -29,12 +29,23 @@ public class ServiceScheduleSeeder : IEntitySeeder
         var now = DateTime.UtcNow;
         var serviceSchedules = new List<ServiceSchedule>();
 
+        // Get existing ServicePrograms to use their actual IDs
+        var existingServicePrograms = _dbContext.ServicePrograms.ToList();
+        if (existingServicePrograms.Count == 0)
+        {
+            _logger.LogWarning($"{nameof(CreateServiceSchedules)}() - No {nameof(ServiceProgram)} found. {nameof(ServiceSchedule)}s will not be created.");
+            return serviceSchedules;
+        }
+
         for (int i = 1; i <= SeedCount; i++)
         {
+            // Use modulo to cycle through available ServicePrograms
+            var serviceProgram = existingServicePrograms[(i - 1) % existingServicePrograms.Count];
+
             serviceSchedules.Add(new ServiceSchedule
             {
                 ID = 0,
-                ServiceProgramID = 1,
+                ServiceProgramID = serviceProgram.ID,
                 Name = $"Service Schedule {i} Name",
                 TimeIntervalValue = 6 * i,
                 TimeIntervalUnit = TimeUnitEnum.Days,
