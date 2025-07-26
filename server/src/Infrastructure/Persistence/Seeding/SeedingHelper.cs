@@ -78,7 +78,7 @@ public static class SeedingHelper
 
         if (projected.Count == 0)
         {
-            logger.LogWarning("No {EntityType} found when projecting entities.", typeof(T).Name);
+            logger.LogWarning("{Method}() - No {EntityType} entities found to project to {ResultType}.", nameof(ProjectEntities), typeof(T).Name, typeof(TResult).Name);
         }
 
         return projected;
