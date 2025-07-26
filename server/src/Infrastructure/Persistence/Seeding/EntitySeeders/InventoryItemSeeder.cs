@@ -61,6 +61,8 @@ public class InventoryItemSeeder : IEntitySeeder
     {
         if (_inventoryItemDbSet.Any()) return;
 
+        _logger.LogInformation("🌱 {MethodName}() - Seeding {EntityName}", nameof(Seed), nameof(InventoryItem));
+
         var inventoryItems = CreateInventoryItems();
 
         _inventoryItemDbSet.AddRange(inventoryItems);
@@ -70,6 +72,8 @@ public class InventoryItemSeeder : IEntitySeeder
     public async Task SeedAsync(CancellationToken ct)
     {
         if (await _inventoryItemDbSet.AnyAsync(ct)) return;
+
+        _logger.LogInformation("🌱 {MethodName}() - Seeding {EntityName}", nameof(SeedAsync), nameof(InventoryItem));
 
         var inventoryItems = CreateInventoryItems();
 

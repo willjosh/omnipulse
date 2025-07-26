@@ -81,6 +81,8 @@ public class VehicleSeeder : IEntitySeeder
     {
         if (_vehicleDbSet.Any()) return;
 
+        _logger.LogInformation("🌱 {MethodName}() - Seeding {EntityName}", nameof(Seed), nameof(Vehicle));
+
         var vehicles = CreateVehicles();
 
         _vehicleDbSet.AddRange(vehicles);
@@ -90,6 +92,8 @@ public class VehicleSeeder : IEntitySeeder
     public async Task SeedAsync(CancellationToken ct)
     {
         if (await _vehicleDbSet.AnyAsync(ct)) return;
+
+        _logger.LogInformation("🌱 {MethodName}() - Seeding {EntityName}", nameof(SeedAsync), nameof(Vehicle));
 
         var vehicles = CreateVehicles();
 

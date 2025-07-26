@@ -73,6 +73,8 @@ public class FuelPurchaseSeeder : IEntitySeeder
     {
         if (_fuelPurchaseDbSet.Any()) return;
 
+        _logger.LogInformation("🌱 {MethodName}() - Seeding {EntityName}", nameof(Seed), nameof(FuelPurchase));
+
         var purchases = CreateFuelPurchases();
 
         _fuelPurchaseDbSet.AddRange(purchases);
@@ -82,6 +84,8 @@ public class FuelPurchaseSeeder : IEntitySeeder
     public async Task SeedAsync(CancellationToken ct)
     {
         if (await _fuelPurchaseDbSet.AnyAsync(ct)) return;
+
+        _logger.LogInformation("🌱 {MethodName}() - Seeding {EntityName}", nameof(SeedAsync), nameof(FuelPurchase));
 
         var purchases = CreateFuelPurchases();
 

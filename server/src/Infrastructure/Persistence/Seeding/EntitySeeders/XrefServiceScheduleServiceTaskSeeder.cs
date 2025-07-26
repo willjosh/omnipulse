@@ -56,6 +56,8 @@ public class XrefServiceScheduleServiceTaskSeeder : IEntitySeeder
     {
         if (_xrefDbSet.Any()) return;
 
+        _logger.LogInformation("🌱 {MethodName}() - Seeding {EntityName}", nameof(Seed), nameof(XrefServiceScheduleServiceTask));
+
         var xrefs = CreateXrefServiceScheduleServiceTasks();
 
         _xrefDbSet.AddRange(xrefs);
@@ -65,6 +67,8 @@ public class XrefServiceScheduleServiceTaskSeeder : IEntitySeeder
     public async Task SeedAsync(CancellationToken ct)
     {
         if (await _xrefDbSet.AnyAsync(ct)) return;
+
+        _logger.LogInformation("🌱 {MethodName}() - Seeding {EntityName}", nameof(SeedAsync), nameof(XrefServiceScheduleServiceTask));
 
         var xrefs = CreateXrefServiceScheduleServiceTasks();
 

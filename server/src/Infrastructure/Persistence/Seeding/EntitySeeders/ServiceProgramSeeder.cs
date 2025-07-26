@@ -51,6 +51,8 @@ public class ServiceProgramSeeder : IEntitySeeder
     {
         if (_serviceProgramDbSet.Any()) return;
 
+        _logger.LogInformation("🌱 {MethodName}() - Seeding {EntityName}", nameof(Seed), nameof(ServiceProgram));
+
         var servicePrograms = CreateServicePrograms();
 
         _serviceProgramDbSet.AddRange(servicePrograms);
@@ -60,6 +62,8 @@ public class ServiceProgramSeeder : IEntitySeeder
     public async Task SeedAsync(CancellationToken ct)
     {
         if (await _serviceProgramDbSet.AnyAsync(ct)) return;
+
+        _logger.LogInformation("🌱 {MethodName}() - Seeding {EntityName}", nameof(SeedAsync), nameof(ServiceProgram));
 
         var servicePrograms = CreateServicePrograms();
 

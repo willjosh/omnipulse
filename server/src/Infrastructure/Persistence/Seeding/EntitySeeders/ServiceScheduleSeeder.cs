@@ -70,6 +70,8 @@ public class ServiceScheduleSeeder : IEntitySeeder
     {
         if (_serviceScheduleDbSet.Any()) return;
 
+        _logger.LogInformation("🌱 {MethodName}() - Seeding {EntityName}", nameof(Seed), nameof(ServiceSchedule));
+
         var serviceSchedules = CreateServiceSchedules();
 
         _serviceScheduleDbSet.AddRange(serviceSchedules);
@@ -79,6 +81,8 @@ public class ServiceScheduleSeeder : IEntitySeeder
     public async Task SeedAsync(CancellationToken ct)
     {
         if (await _serviceScheduleDbSet.AnyAsync(ct)) return;
+
+        _logger.LogInformation("🌱 {MethodName}() - Seeding {EntityName}", nameof(SeedAsync), nameof(ServiceSchedule));
 
         var serviceSchedules = CreateServiceSchedules();
 

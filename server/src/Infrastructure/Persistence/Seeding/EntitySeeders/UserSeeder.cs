@@ -3,6 +3,7 @@ using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+
 using Persistence.DatabaseContext;
 using Persistence.Seeding.Contracts;
 
@@ -66,11 +67,15 @@ public class UserSeeder : IEntitySeeder
 
     public void Seed()
     {
+        _logger.LogInformation("🌱 {MethodName}() - Seeding {EntityName}", nameof(Seed), nameof(User));
+
         SeedAsync(CancellationToken.None).GetAwaiter().GetResult();
     }
 
     public async Task SeedAsync(CancellationToken ct)
     {
+        _logger.LogInformation("🌱 {MethodName}() - Seeding {EntityName}", nameof(SeedAsync), nameof(User));
+
         var users = CreateUsers();
 
         foreach (var user in users)

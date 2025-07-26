@@ -49,6 +49,8 @@ public class VehicleGroupSeeder : IEntitySeeder
     {
         if (_vehicleGroupDbSet.Any()) return;
 
+        _logger.LogInformation("🌱 {MethodName}() - Seeding {EntityName}", nameof(Seed), nameof(VehicleGroup));
+
         var vehicleGroups = CreateVehicleGroups();
 
         _vehicleGroupDbSet.AddRange(vehicleGroups);
@@ -58,6 +60,8 @@ public class VehicleGroupSeeder : IEntitySeeder
     public async Task SeedAsync(CancellationToken ct)
     {
         if (await _vehicleGroupDbSet.AnyAsync(ct)) return;
+
+        _logger.LogInformation("🌱 {MethodName}() - Seeding {EntityName}", nameof(SeedAsync), nameof(VehicleGroup));
 
         var vehicleGroups = CreateVehicleGroups();
 

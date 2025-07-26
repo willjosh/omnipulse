@@ -56,6 +56,8 @@ public class ServiceTaskSeeder : IEntitySeeder
     {
         if (_serviceTaskDbSet.Any()) return;
 
+        _logger.LogInformation("🌱 {MethodName}() - Seeding {EntityName}", nameof(Seed), nameof(ServiceTask));
+
         var serviceTasks = CreateServiceTasks();
 
         _serviceTaskDbSet.AddRange(serviceTasks);
@@ -65,6 +67,8 @@ public class ServiceTaskSeeder : IEntitySeeder
     public async Task SeedAsync(CancellationToken ct)
     {
         if (await _serviceTaskDbSet.AnyAsync(ct)) return;
+
+        _logger.LogInformation("🌱 {MethodName}() - Seeding {EntityName}", nameof(SeedAsync), nameof(ServiceTask));
 
         var serviceTasks = CreateServiceTasks();
 

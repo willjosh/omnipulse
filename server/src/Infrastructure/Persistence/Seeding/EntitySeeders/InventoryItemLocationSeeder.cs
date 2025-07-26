@@ -1,6 +1,8 @@
 using Domain.Entities;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+
 using Persistence.DatabaseContext;
 using Persistence.Seeding.Contracts;
 
@@ -51,6 +53,8 @@ public class InventoryItemLocationSeeder : IEntitySeeder
     {
         if (_itemLocationDbSet.Any()) return;
 
+        _logger.LogInformation("🌱 {MethodName}() - Seeding {EntityName}", nameof(Seed), nameof(InventoryItemLocation));
+
         var itemLocations = CreateLocations();
 
         _itemLocationDbSet.AddRange(itemLocations);
@@ -60,6 +64,8 @@ public class InventoryItemLocationSeeder : IEntitySeeder
     public async Task SeedAsync(CancellationToken ct)
     {
         if (await _itemLocationDbSet.AnyAsync(ct)) return;
+
+        _logger.LogInformation("🌱 {MethodName}() - Seeding {EntityName}", nameof(SeedAsync), nameof(InventoryItemLocation));
 
         var itemLocations = CreateLocations();
 
