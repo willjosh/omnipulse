@@ -52,15 +52,8 @@ public class ServiceScheduleRepository : GenericRepository<ServiceSchedule>, ISe
             query = query.Where(ss => ss.ServiceProgramID == serviceProgramID.Value);
         }
 
-        // Filtering (search)
-        if (!string.IsNullOrWhiteSpace(parameters.Search))
-        {
-            var search = parameters.Search.ToLowerInvariant();
-            query = query.Where(ss =>
-                ss.Name.Contains(search, StringComparison.InvariantCultureIgnoreCase) ||
-                ss.ServiceProgram.Name.Contains(search, StringComparison.InvariantCultureIgnoreCase)
-            );
-        }
+        // Apply search filter
+        query = ApplySearchFilter(query, parameters.Search);
 
         // Apply sorting
         query = ApplySorting(query, parameters.SortBy, parameters.SortDescending);
@@ -81,6 +74,17 @@ public class ServiceScheduleRepository : GenericRepository<ServiceSchedule>, ISe
             PageNumber = parameters.PageNumber,
             PageSize = parameters.PageSize
         };
+    }
+
+    private static IQueryable<ServiceSchedule> ApplySearchFilter(IQueryable<ServiceSchedule> query, string? searchText)
+    {
+        if (string.IsNullOrWhiteSpace(searchText)) return query;
+
+        string searchPattern = $"%{searchText.Trim().ToLowerInvariant()}%";
+
+        return query.Where(ss =>
+            EF.Functions.Like(ss.Name, searchPattern)
+        );
     }
 
     private static IQueryable<ServiceSchedule> ApplySorting(IQueryable<ServiceSchedule> query, string? sortBy, bool sortDescending)
