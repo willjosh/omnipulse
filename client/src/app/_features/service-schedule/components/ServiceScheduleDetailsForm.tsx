@@ -35,6 +35,7 @@ interface ServiceScheduleDetailsFormProps {
   onChange: (field: keyof ServiceScheduleDetailsFormValues, value: any) => void;
   disabled?: boolean;
   showIsActive?: boolean;
+  showServiceProgram?: boolean;
   availableServiceTasks: ServiceTaskWithLabels[];
   availableVehicles: Vehicle[];
   availableServicePrograms: ServiceProgram[];
@@ -52,6 +53,7 @@ const ServiceScheduleDetailsForm: React.FC<ServiceScheduleDetailsFormProps> = ({
   onChange,
   disabled = false,
   showIsActive = false,
+  showServiceProgram = true,
   availableServiceTasks,
   availableServicePrograms,
 }) => {
@@ -521,80 +523,82 @@ const ServiceScheduleDetailsForm: React.FC<ServiceScheduleDetailsFormProps> = ({
           </select>
         </FormField>
       )}
-      <FormField
-        label="Service Program"
-        required
-        error={errors.serviceProgramID}
-      >
-        <Combobox
-          value={
-            availableServicePrograms.find(
-              opt => opt.id === value.serviceProgramID,
-            ) || null
-          }
-          onChange={opt => onChange("serviceProgramID", opt?.id || null)}
-          disabled={disabled}
+      {showServiceProgram && (
+        <FormField
+          label="Service Program"
+          required
+          error={errors.serviceProgramID}
         >
-          <div className="relative">
-            <ComboboxInput
-              className="w-full border border-gray-300 rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-              displayValue={(opt: ServiceProgram | undefined) =>
-                opt?.name || ""
-              }
-              onChange={e => setServiceProgramSearch(e.target.value)}
-              placeholder="Select or search program..."
-              disabled={disabled}
-            />
-            <ComboboxButton className="absolute inset-y-0 right-0 flex items-center pr-2">
-              <svg
-                className="h-5 w-5 text-gray-400"
-                viewBox="0 0 20 20"
-                fill="none"
-                stroke="currentColor"
-              >
-                <path
-                  d="M7 7l3-3 3 3m0 6l-3 3-3-3"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </ComboboxButton>
-            <ComboboxOptions className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-3xl shadow-lg max-h-60 overflow-auto">
-              {filteredServiceProgramOptions.map(opt => (
-                <ComboboxOption
-                  key={opt.id}
-                  value={opt}
-                  className={({ active, selected }) =>
-                    `cursor-pointer select-none px-4 py-2 flex items-center ${active ? "bg-blue-100" : ""}`
-                  }
+          <Combobox
+            value={
+              availableServicePrograms.find(
+                opt => opt.id === value.serviceProgramID,
+              ) || null
+            }
+            onChange={opt => onChange("serviceProgramID", opt?.id || null)}
+            disabled={disabled}
+          >
+            <div className="relative">
+              <ComboboxInput
+                className="w-full border border-gray-300 rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                displayValue={(opt: ServiceProgram | undefined) =>
+                  opt?.name || ""
+                }
+                onChange={e => setServiceProgramSearch(e.target.value)}
+                placeholder="Select or search program..."
+                disabled={disabled}
+              />
+              <ComboboxButton className="absolute inset-y-0 right-0 flex items-center pr-2">
+                <svg
+                  className="h-5 w-5 text-gray-400"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  stroke="currentColor"
                 >
-                  {({ selected }) => (
-                    <>
-                      <span className="flex-1">{opt.name}</span>
-                      {selected && (
-                        <svg
-                          className="h-5 w-5 text-blue-600 ml-2"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
-                      )}
-                    </>
-                  )}
-                </ComboboxOption>
-              ))}
-            </ComboboxOptions>
-          </div>
-        </Combobox>
-      </FormField>
+                  <path
+                    d="M7 7l3-3 3 3m0 6l-3 3-3-3"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </ComboboxButton>
+              <ComboboxOptions className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-3xl shadow-lg max-h-60 overflow-auto">
+                {filteredServiceProgramOptions.map(opt => (
+                  <ComboboxOption
+                    key={opt.id}
+                    value={opt}
+                    className={({ active, selected }) =>
+                      `cursor-pointer select-none px-4 py-2 flex items-center ${active ? "bg-blue-100" : ""}`
+                    }
+                  >
+                    {({ selected }) => (
+                      <>
+                        <span className="flex-1">{opt.name}</span>
+                        {selected && (
+                          <svg
+                            className="h-5 w-5 text-blue-600 ml-2"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M5 13l4 4L19 7"
+                            />
+                          </svg>
+                        )}
+                      </>
+                    )}
+                  </ComboboxOption>
+                ))}
+              </ComboboxOptions>
+            </div>
+          </Combobox>
+        </FormField>
+      )}
     </FormContainer>
   );
 };
