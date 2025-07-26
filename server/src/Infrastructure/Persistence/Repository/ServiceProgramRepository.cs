@@ -27,16 +27,8 @@ public class ServiceProgramRepository : GenericRepository<ServiceProgram>, IServ
             .Include(sp => sp.ServiceSchedules)
             .Include(sp => sp.XrefServiceProgramVehicles);
 
-        if (!string.IsNullOrWhiteSpace(parameters.Search))
-        {
-            var search = parameters.Search.ToLowerInvariant();
-
-            // Look for matches in name and description
-            query = query.Where(sp =>
-                sp.Name.ToLowerInvariant().Contains(search) ||
-                (sp.Description != null && sp.Description.ToLowerInvariant().Contains(search))
-            );
-        }
+        // Apply search filter
+        query = ApplySearchFilter(query, parameters.Search);
 
         // Apply sorting
         query = ApplySorting(query, parameters.SortBy, parameters.SortDescending);
@@ -57,6 +49,18 @@ public class ServiceProgramRepository : GenericRepository<ServiceProgram>, IServ
             PageNumber = parameters.PageNumber,
             PageSize = parameters.PageSize
         };
+    }
+
+    private static IQueryable<ServiceProgram> ApplySearchFilter(IQueryable<ServiceProgram> query, string? searchText)
+    {
+        if (string.IsNullOrWhiteSpace(searchText)) return query;
+
+        string searchPattern = $"%{searchText.Trim().ToLowerInvariant()}%";
+
+        return query.Where(sp =>
+            EF.Functions.Like(sp.Name, searchPattern) ||
+            EF.Functions.Like(sp.Description ?? string.Empty, searchPattern)
+        );
     }
 
     // Helper method to apply sorting based on parameters
