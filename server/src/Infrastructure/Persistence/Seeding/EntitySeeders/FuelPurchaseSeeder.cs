@@ -30,6 +30,14 @@ public class FuelPurchaseSeeder : IEntitySeeder
         var now = DateTime.UtcNow;
         var fuelPurchases = new List<FuelPurchase>();
 
+        // Get existing Vehicles to use their actual IDs
+        var existingVehicles = _dbContext.Vehicles.ToList();
+        if (existingVehicles.Count == 0)
+        {
+            _logger.LogWarning("{MethodName}() - No Vehicles found. FuelPurchases will not be created.", nameof(CreateFuelPurchases));
+            return fuelPurchases;
+        }
+
         for (int i = 1; i <= SeedCount; i++)
         {
             var userId = GetRandomUserId();
@@ -39,10 +47,13 @@ public class FuelPurchaseSeeder : IEntitySeeder
                 break;
             }
 
+            // Use modulo to cycle through available Vehicles
+            var vehicle = existingVehicles[(i - 1) % existingVehicles.Count];
+
             fuelPurchases.Add(new FuelPurchase
             {
                 ID = 0,
-                VehicleId = 1,
+                VehicleId = vehicle.ID,
                 PurchasedByUserId = userId,
                 PurchaseDate = now.AddDays(-i),
                 OdometerReading = 10000 + i * 500,
