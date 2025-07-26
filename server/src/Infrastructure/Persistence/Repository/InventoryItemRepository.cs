@@ -17,24 +17,8 @@ public class InventoryItemRepository : GenericRepository<InventoryItem>, IInvent
     {
         var query = _dbSet.AsQueryable();
 
-        // Filtering (search by item number, item name, description, category, manufacturer, manufacturer part number, universal product code, supplier)
-        if (!string.IsNullOrWhiteSpace(parameters.Search))
-        {
-            var search = parameters.Search.ToLowerInvariant();
-
-            // Look for matches
-            query = query.Where(i =>
-                (!string.IsNullOrEmpty(i.ItemNumber) && i.ItemNumber.ToLowerInvariant().Contains(search)) ||
-                (!string.IsNullOrEmpty(i.ItemName) && i.ItemName.ToLowerInvariant().Contains(search)) ||
-                (i.Description != null && i.Description.ToLowerInvariant().Contains(search)) ||
-                (i.Category.HasValue && i.Category.Value.ToString().ToLowerInvariant().Contains(search)) ||
-                (i.Manufacturer != null && i.Manufacturer.ToLowerInvariant().Contains(search)) ||
-                (i.ManufacturerPartNumber != null && i.ManufacturerPartNumber.ToLowerInvariant().Contains(search)) ||
-                (i.UniversalProductCode != null && i.UniversalProductCode.ToLowerInvariant().Contains(search)) ||
-                (i.Supplier != null && i.Supplier.ToLowerInvariant().Contains(search)) ||
-                (i.WeightKG.HasValue && i.WeightKG.Value.ToString().ToLowerInvariant().Contains(search))
-            );
-        }
+        // Apply search filter
+        query = ApplySearchFilter(query, parameters.Search);
 
         // Apply sorting
         query = ApplySorting(query, parameters.SortBy, parameters.SortDescending);
@@ -55,6 +39,25 @@ public class InventoryItemRepository : GenericRepository<InventoryItem>, IInvent
             PageNumber = parameters.PageNumber,
             PageSize = parameters.PageSize
         };
+    }
+
+    private static IQueryable<InventoryItem> ApplySearchFilter(IQueryable<InventoryItem> query, string? searchText)
+    {
+        if (string.IsNullOrWhiteSpace(searchText)) return query;
+
+        string searchPattern = $"%{searchText.Trim().ToLowerInvariant()}%";
+
+        return query.Where(i =>
+            EF.Functions.Like(i.ItemNumber, searchPattern) ||
+            EF.Functions.Like(i.ItemName, searchPattern) ||
+            EF.Functions.Like(i.Description ?? string.Empty, searchPattern) ||
+            (i.Category.HasValue && EF.Functions.Like(i.Category.Value.ToString(), searchPattern)) ||
+            EF.Functions.Like(i.Manufacturer ?? string.Empty, searchPattern) ||
+            EF.Functions.Like(i.ManufacturerPartNumber ?? string.Empty, searchPattern) ||
+            EF.Functions.Like(i.UniversalProductCode ?? string.Empty, searchPattern) ||
+            EF.Functions.Like(i.Supplier ?? string.Empty, searchPattern) ||
+            (i.WeightKG.HasValue && EF.Functions.Like(i.WeightKG.Value.ToString(), searchPattern))
+        );
     }
 
     public async Task<bool> IsItemNumberUniqueAsync(string itemNumber)
