@@ -148,23 +148,23 @@ public class GetAllServiceProgramVehicleQueryHandlerTest
             AddedAt = FixedDate,
             ServiceProgram = CreateServiceProgram(serviceProgramId),
             Vehicle = vehicle ?? CreateVehicle(vehicleId),
-            User = new User
-            {
-                Id = "test-user",
-                Email = "test@example.com",
-                FirstName = "Test",
-                LastName = "User",
-                HireDate = FixedDate,
-                IsActive = true,
-                CreatedAt = FixedDate,
-                UpdatedAt = FixedDate,
-                MaintenanceHistories = [],
-                IssueAttachments = [],
-                VehicleAssignments = [],
-                VehicleDocuments = [],
-                VehicleInspections = [],
-                Vehicles = []
-            }
+            // User = new User // TODO XrefServiceProgramVehicle User
+            // {
+            //     Id = "test-user",
+            //     Email = "test@example.com",
+            //     FirstName = "Test",
+            //     LastName = "User",
+            //     HireDate = FixedDate,
+            //     IsActive = true,
+            //     CreatedAt = FixedDate,
+            //     UpdatedAt = FixedDate,
+            //     MaintenanceHistories = [],
+            //     IssueAttachments = [],
+            //     VehicleAssignments = [],
+            //     VehicleDocuments = [],
+            //     VehicleInspections = [],
+            //     Vehicles = []
+            // }
         };
     }
 
