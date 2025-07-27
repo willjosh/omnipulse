@@ -1,6 +1,6 @@
 "use client";
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import ServiceScheduleHeader from "@/app/_features/service-schedule/components/ServiceScheduleHeader";
 import ServiceScheduleDetailsForm, {
   ServiceScheduleDetailsFormValues,
@@ -30,8 +30,11 @@ const initialForm: ServiceScheduleDetailsFormValues = {
   serviceProgramID: "",
 };
 
-export default function CreateServiceSchedulePage() {
+function CreateServiceScheduleForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const serviceProgramId = searchParams.get("serviceProgramId");
+
   const [form, setForm] =
     useState<ServiceScheduleDetailsFormValues>(initialForm);
   const [errors, setErrors] = useState<
@@ -47,6 +50,13 @@ export default function CreateServiceSchedulePage() {
   });
   const { mutate: createServiceSchedule, isPending: isCreating } =
     useCreateServiceSchedule();
+
+  // Pre-fill service program ID if provided in URL
+  useEffect(() => {
+    if (serviceProgramId) {
+      setForm(prev => ({ ...prev, serviceProgramID: serviceProgramId }));
+    }
+  }, [serviceProgramId]);
 
   const breadcrumbs: BreadcrumbItem[] = [
     { label: "Service Schedules", href: "/service-schedules" },
@@ -84,7 +94,12 @@ export default function CreateServiceSchedulePage() {
   };
 
   const handleCancel = () => {
-    router.push("/service-schedules");
+    // If we came from a service program page, go back there
+    if (serviceProgramId) {
+      router.push(`/service-programs/${serviceProgramId}`);
+    } else {
+      router.push("/service-schedules");
+    }
   };
 
   const handleSaveAndAddAnother = () => {
@@ -116,6 +131,10 @@ export default function CreateServiceSchedulePage() {
       onSuccess: () => {
         setForm(initialForm);
         setErrors({});
+        // If we came from a service program page, go back there
+        if (serviceProgramId) {
+          router.push(`/service-programs/${serviceProgramId}`);
+        }
       },
     });
   };
@@ -157,6 +176,7 @@ export default function CreateServiceSchedulePage() {
           availableVehicles={vehicles}
           availableServicePrograms={servicePrograms}
           disabled={isCreating}
+          showServiceProgram={!serviceProgramId}
         />
       </div>
       {/* Footer Actions */}
@@ -183,5 +203,13 @@ export default function CreateServiceSchedulePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CreateServiceSchedulePage() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <CreateServiceScheduleForm />
+    </Suspense>
   );
 }
