@@ -5,7 +5,6 @@ using Domain.Entities;
 using Infrastructure;
 
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
 using Persistence;

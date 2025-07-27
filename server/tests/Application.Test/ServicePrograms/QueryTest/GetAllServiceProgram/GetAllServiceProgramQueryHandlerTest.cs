@@ -14,8 +14,6 @@ using FluentValidation.Results;
 
 using Moq;
 
-using Xunit;
-
 namespace Application.Test.ServicePrograms.QueryTest.GetAllServiceProgram;
 
 public class GetAllServiceProgramQueryHandlerTest

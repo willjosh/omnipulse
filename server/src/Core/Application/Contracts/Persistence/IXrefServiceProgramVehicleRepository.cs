@@ -1,5 +1,3 @@
-using Application.Features.ServicePrograms.Query.GetAllServiceProgramVehicle;
-using Application.Models;
 using Application.Models.PaginationModels;
 
 using Domain.Entities;

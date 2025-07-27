@@ -1,8 +1,6 @@
 using Application.Features.Shared;
 using Application.Models.PaginationModels;
 
-using Xunit;
-
 namespace Application.Test.Pagination;
 
 public class PaginationValidatorTest

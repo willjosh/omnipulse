@@ -1,14 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
 using Application.Features.MaintenanceHistories.Query.GetAllMaintenanceHistories;
 using Application.MappingProfiles;
-using Application.Models;
 using Application.Models.PaginationModels;
 
 using AutoMapper;
@@ -19,8 +13,6 @@ using Domain.Entities.Enums;
 using FluentValidation;
 
 using Moq;
-
-using Xunit;
 
 namespace Application.Test.MaintenanceHistories.QueryTest.GetAllMaintenanceHistories;
 

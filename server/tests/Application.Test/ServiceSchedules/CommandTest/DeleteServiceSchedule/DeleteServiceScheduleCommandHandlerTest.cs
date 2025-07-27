@@ -1,5 +1,3 @@
-using System;
-
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
@@ -8,8 +6,6 @@ using Application.Features.ServiceSchedules.Command.DeleteServiceSchedule;
 using Domain.Entities;
 
 using Moq;
-
-using Xunit;
 
 namespace Application.Test.ServiceSchedules.CommandTest.DeleteServiceSchedule;
 

@@ -1,5 +1,3 @@
-using System;
-
 using Application.Features.Users.Command.CreateTechnician;
 using Application.Features.Users.Command.UpdateTechnician;
 using Application.Features.Users.Query.GetAllTechnician;

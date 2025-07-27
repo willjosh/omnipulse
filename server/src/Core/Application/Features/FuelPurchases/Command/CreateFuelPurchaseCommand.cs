@@ -1,5 +1,3 @@
-using Domain.Entities;
-
 using MediatR;
 
 namespace Application.Features.FuelLogging.Command.CreateFuelPurchase;

@@ -1,5 +1,3 @@
-using System;
-
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
@@ -12,8 +10,6 @@ using Domain.Entities;
 using Domain.Entities.Enums;
 
 using Moq;
-
-using Xunit;
 
 namespace Application.Test.ServiceTasks.CommandTest.DeleteServiceTask;
 

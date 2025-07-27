@@ -1,8 +1,6 @@
 using Application.Features.MaintenanceHistories.Query.GetAllMaintenanceHistories;
 using Application.Models.PaginationModels;
 
-using Xunit;
-
 namespace Application.Test.MaintenanceHistories.QueryTest.GetAllMaintenanceHistories;
 
 public class GetAllMaintenanceHistoriesQueryValidatorTest

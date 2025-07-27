@@ -1,7 +1,5 @@
 using Application.Features.ServicePrograms.Command.RemoveVehicleFromServiceProgram;
 
-using Xunit;
-
 namespace Application.Test.ServicePrograms.CommandTest.RemoveVehicleFromServiceProgram;
 
 public class RemoveVehicleFromServiceProgramCommandValidatorTest

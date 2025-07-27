@@ -12,8 +12,6 @@ using Domain.Entities.Enums;
 
 using Moq;
 
-using Xunit;
-
 namespace Application.Test.ServiceTasks.QueryTest.GetServiceTask;
 
 public class GetServiceTaskQueryHandlerTest

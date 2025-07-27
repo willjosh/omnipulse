@@ -1,5 +1,3 @@
-using System;
-
 namespace Domain.Entities;
 using Domain.Entities.Enums;
 

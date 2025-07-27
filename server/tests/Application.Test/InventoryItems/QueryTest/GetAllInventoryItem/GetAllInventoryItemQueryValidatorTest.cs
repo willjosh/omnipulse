@@ -1,7 +1,4 @@
-using System;
-
 using Application.Features.InventoryItems.Query.GetAllInventoryItem;
-using Application.Models;
 using Application.Models.PaginationModels;
 
 namespace Application.Test.InventoryItems.QueryTest.GetAllInventoryItem;

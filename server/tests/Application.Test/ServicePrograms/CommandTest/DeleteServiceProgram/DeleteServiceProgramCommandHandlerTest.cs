@@ -10,8 +10,6 @@ using FluentValidation.Results;
 
 using Moq;
 
-using Xunit;
-
 namespace Application.Test.ServicePrograms.CommandTest.DeleteServiceProgram;
 
 public class DeleteServiceProgramCommandHandlerTest

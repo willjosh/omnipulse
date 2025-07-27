@@ -1,11 +1,8 @@
-using System;
-
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
 using Application.Features.Users.Query.GetAllTechnician;
 using Application.MappingProfiles;
-using Application.Models;
 using Application.Models.PaginationModels;
 
 using AutoMapper;

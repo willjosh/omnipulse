@@ -1,5 +1,3 @@
-using System;
-
 using FluentValidation;
 
 namespace Application.Features.Users.Command.UpdateTechnician;

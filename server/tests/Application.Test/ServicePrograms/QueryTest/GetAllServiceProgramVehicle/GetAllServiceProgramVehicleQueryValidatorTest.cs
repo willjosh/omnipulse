@@ -1,8 +1,5 @@
 using Application.Features.ServicePrograms.Query.GetAllServiceProgramVehicle;
-using Application.Models;
 using Application.Models.PaginationModels;
-
-using Xunit;
 
 namespace Application.Test.ServicePrograms.QueryTest.GetAllServiceProgramVehicle;
 

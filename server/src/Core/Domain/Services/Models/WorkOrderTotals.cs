@@ -1,5 +1,3 @@
-using System;
-
 namespace Domain.Services.Models;
 
 public class WorkOrderTotals

@@ -1,5 +1,3 @@
-using System;
-
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
@@ -14,8 +12,6 @@ using Domain.Entities.Enums;
 using FluentValidation;
 
 using Moq;
-
-using Xunit;
 
 namespace Application.Test.InventoryItems.CommandTest.CreateInventoryItem;
 

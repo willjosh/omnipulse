@@ -1,10 +1,4 @@
-using System;
-
 using Application.Features.FuelLogging.Command.CreateFuelPurchase;
-
-using Domain.Entities;
-
-using Xunit;
 
 public class CreateFuelPurchaseCommandValidatorTest
 {

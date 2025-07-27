@@ -1,10 +1,6 @@
-using System;
-
 using Application.Features.ServiceSchedules.Command.UpdateServiceSchedule;
 
 using Domain.Entities.Enums;
-
-using Xunit;
 
 namespace Application.Test.ServiceSchedules.CommandTest.UpdateServiceSchedule;
 

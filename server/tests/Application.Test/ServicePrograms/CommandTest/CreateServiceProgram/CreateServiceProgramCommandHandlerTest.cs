@@ -13,8 +13,6 @@ using FluentValidation.Results;
 
 using Moq;
 
-using Xunit;
-
 namespace Application.Test.ServicePrograms.CommandTest.CreateServiceProgram;
 
 public class CreateServiceProgramCommandHandlerTest

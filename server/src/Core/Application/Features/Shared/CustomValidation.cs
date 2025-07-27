@@ -1,5 +1,3 @@
-using System;
-
 namespace Application.Features.Shared;
 
 public static class CustomValidation
