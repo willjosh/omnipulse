@@ -98,8 +98,7 @@ export default function ServiceProgramDetailsPage() {
   };
 
   const handleAddVehicle = () => {
-    // TODO: Navigate to add vehicle page
-    console.log("Add vehicle");
+    router.push(`/service-programs/${id}/vehicles/add`);
     setIsAddDropdownOpen(false);
   };
 
