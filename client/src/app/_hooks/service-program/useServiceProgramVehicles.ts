@@ -145,8 +145,16 @@ export function useAddVehicleToServiceProgram() {
       return data;
     },
     onSuccess: async (_data, variables) => {
+      // Invalidate all service program vehicles queries for this service program
       await queryClient.invalidateQueries({
-        queryKey: ["serviceProgramVehicles", variables.serviceProgramID],
+        predicate: query => {
+          const queryKey = query.queryKey;
+          return (
+            Array.isArray(queryKey) &&
+            queryKey[0] === "serviceProgramVehicles" &&
+            queryKey[1] === variables.serviceProgramID
+          );
+        },
       });
       await queryClient.invalidateQueries({
         queryKey: ["serviceProgram", variables.serviceProgramID],
@@ -166,8 +174,16 @@ export function useRemoveVehicleFromServiceProgram() {
       return data;
     },
     onSuccess: async (_data, variables) => {
+      // Invalidate all service program vehicles queries for this service program
       await queryClient.invalidateQueries({
-        queryKey: ["serviceProgramVehicles", variables.serviceProgramID],
+        predicate: query => {
+          const queryKey = query.queryKey;
+          return (
+            Array.isArray(queryKey) &&
+            queryKey[0] === "serviceProgramVehicles" &&
+            queryKey[1] === variables.serviceProgramID
+          );
+        },
       });
       await queryClient.invalidateQueries({
         queryKey: ["serviceProgram", variables.serviceProgramID],
