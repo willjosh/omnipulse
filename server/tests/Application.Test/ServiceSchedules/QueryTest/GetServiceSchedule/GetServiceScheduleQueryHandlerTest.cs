@@ -114,7 +114,7 @@ public class GetServiceScheduleQueryHandlerTest
                 }
             ]
         };
-        _mockServiceScheduleRepository.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(serviceSchedule);
+        _mockServiceScheduleRepository.Setup(r => r.GetByIdWithServiceTasksAsync(1)).ReturnsAsync(serviceSchedule);
         var query = new GetServiceScheduleQuery(1);
 
         // Act
@@ -144,7 +144,7 @@ public class GetServiceScheduleQueryHandlerTest
     public async Task Throws_EntityNotFoundException_For_Invalid_ID()
     {
         // Arrange
-        _mockServiceScheduleRepository.Setup(r => r.GetByIdAsync(99)).ReturnsAsync((ServiceSchedule)null!);
+        _mockServiceScheduleRepository.Setup(r => r.GetByIdWithServiceTasksAsync(99)).ReturnsAsync((ServiceSchedule)null!);
         var query = new GetServiceScheduleQuery(99);
 
         // Act & Assert
@@ -239,7 +239,7 @@ public class GetServiceScheduleQueryHandlerTest
                 }
             ]
         };
-        _mockServiceScheduleRepository.Setup(r => r.GetByIdAsync(3)).ReturnsAsync(navSchedule);
+        _mockServiceScheduleRepository.Setup(r => r.GetByIdWithServiceTasksAsync(3)).ReturnsAsync(navSchedule);
         var navQuery = new GetServiceScheduleQuery(3);
 
         // Act

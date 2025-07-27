@@ -35,4 +35,11 @@ public interface IServiceScheduleRepository : IGenericRepository<ServiceSchedule
     /// <param name="parameters">The pagination parameters.</param>
     /// <returns>A paged result containing <see cref="ServiceSchedule"/> entities for the given service program.</returns>
     Task<PagedResult<ServiceSchedule>> GetAllByServiceProgramIDPagedAsync(int serviceProgramID, PaginationParameters parameters);
+
+    /// <summary>
+    /// Retrieves a single service schedule by ID with its associated service tasks.
+    /// </summary>
+    /// <param name="serviceScheduleID">The ID of the service schedule.</param>
+    /// <returns>A <see cref="ServiceSchedule"/> entity with its service tasks included, or null if not found.</returns>
+    Task<ServiceSchedule?> GetByIdWithServiceTasksAsync(int serviceScheduleID);
 }

@@ -29,6 +29,14 @@ public class ServiceScheduleRepository : GenericRepository<ServiceSchedule>, ISe
             .ToListAsync();
     }
 
+    public async Task<ServiceSchedule?> GetByIdWithServiceTasksAsync(int serviceScheduleID)
+    {
+        return await _dbSet
+            .Include(ss => ss.XrefServiceScheduleServiceTasks)
+                .ThenInclude(xref => xref.ServiceTask)
+            .FirstOrDefaultAsync(ss => ss.ID == serviceScheduleID);
+    }
+
     public async Task<PagedResult<ServiceSchedule>> GetAllServiceSchedulesPagedAsync(PaginationParameters parameters)
     {
         return await BuildPagedServiceScheduleQuery(parameters);
