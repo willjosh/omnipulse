@@ -7,6 +7,7 @@ import { PrimaryButton } from "@/app/_features/shared/button";
 import { ChevronDown, Plus } from "lucide-react";
 import { useServiceProgram } from "@/app/_hooks/service-program/useServicePrograms";
 import { useServiceSchedules } from "@/app/_hooks/service-schedule/useServiceSchedules";
+import { useServiceProgramVehicles } from "@/app/_hooks/service-program/useServiceProgramVehicles";
 import Loading from "@/app/_features/shared/feedback/Loading";
 import EditIcon from "@/app/_features/shared/icons/Edit";
 import EmptyState from "@/app/_features/shared/feedback/EmptyState";
@@ -14,6 +15,7 @@ import DataTable from "@/app/_features/shared/table/DataTable";
 import FilterBar from "@/app/_features/shared/filter/FilterBar";
 import PaginationControls from "@/app/_features/shared/table/PaginationControls";
 import { ServiceScheduleWithLabels } from "@/app/_hooks/service-schedule/serviceScheduleType";
+import { serviceProgramVehicleTableColumns } from "@/app/_hooks/service-program/serviceProgramVehicleTableColumns";
 
 export default function ServiceProgramDetailsPage() {
   const params = useParams();
@@ -34,6 +36,17 @@ export default function ServiceProgramDetailsPage() {
     pagination,
     isPending: isLoadingSchedules,
   } = useServiceSchedules({
+    PageNumber: page,
+    PageSize: pageSize,
+    Search: search,
+  });
+
+  // Service Program Vehicles
+  const {
+    serviceProgramVehicles,
+    pagination: vehiclesPagination,
+    isPending: isLoadingVehicles,
+  } = useServiceProgramVehicles(id!, {
     PageNumber: page,
     PageSize: pageSize,
     Search: search,
@@ -110,6 +123,10 @@ export default function ServiceProgramDetailsPage() {
 
   const handleRowClick = (schedule: ServiceScheduleWithLabels) => {
     router.push(`/service-schedules/${schedule.id}`);
+  };
+
+  const handleVehicleRowClick = (spVehicle: any) => {
+    router.push(`/vehicles/${spVehicle.vehicle.id}`);
   };
 
   const handlePageChange = (newPage: number) => {
@@ -313,11 +330,60 @@ export default function ServiceProgramDetailsPage() {
         )}
 
         {activeTab === "vehicles" && (
-          <div className="bg-white rounded-lg shadow w-full">
-            <div className="p-8 text-center text-gray-500">
-              Vehicles table coming soon...
+          <>
+            <div className="mb-4 flex items-center justify-between">
+              <FilterBar
+                searchValue={search}
+                onSearchChange={setSearch}
+                searchPlaceholder="Search vehicles..."
+                onFilterChange={() => {}}
+              />
+              {vehiclesPagination && (
+                <PaginationControls
+                  currentPage={vehiclesPagination.pageNumber}
+                  totalPages={vehiclesPagination.totalPages}
+                  totalItems={vehiclesPagination.totalCount}
+                  itemsPerPage={vehiclesPagination.pageSize}
+                  onPreviousPage={() => handlePageChange(page - 1)}
+                  onNextPage={() => handlePageChange(page + 1)}
+                  onPageChange={handlePageChange}
+                  onPageSizeChange={handlePageSizeChange}
+                  className="ml-4"
+                />
+              )}
             </div>
-          </div>
+
+            {!isLoadingVehicles && serviceProgramVehicles.length === 0 ? (
+              <div className="bg-white rounded-lg shadow w-full">
+                <EmptyState
+                  title="No Vehicles Assigned"
+                  message={
+                    search
+                      ? "No vehicles found matching your search criteria."
+                      : "No vehicles have been assigned to this service program yet."
+                  }
+                />
+              </div>
+            ) : (
+              <div className="bg-white rounded-lg shadow w-full">
+                <div className="w-full">
+                  <DataTable
+                    data={serviceProgramVehicles}
+                    columns={serviceProgramVehicleTableColumns}
+                    selectedItems={selectedItems}
+                    onSelectItem={handleSelectItem}
+                    onSelectAll={handleSelectAll}
+                    onRowClick={handleVehicleRowClick}
+                    loading={isLoadingVehicles}
+                    emptyState="No vehicles found"
+                    getItemId={(item: any) => item.vehicleID.toString()}
+                    showActions={false}
+                    fixedLayout={false}
+                  />
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
