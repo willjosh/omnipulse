@@ -30,7 +30,7 @@ public class GetServiceScheduleQueryHandler : IRequestHandler<GetServiceSchedule
     public async Task<ServiceScheduleDTO> Handle(GetServiceScheduleQuery request, CancellationToken cancellationToken)
     {
         _logger.LogInformation($"GetServiceScheduleQuery for ServiceScheduleID: {request.ServiceScheduleID}");
-        var serviceSchedule = await _serviceScheduleRepository.GetByIdAsync(request.ServiceScheduleID);
+        var serviceSchedule = await _serviceScheduleRepository.GetByIdWithServiceTasksAsync(request.ServiceScheduleID);
         if (serviceSchedule == null)
         {
             _logger.LogError($"ServiceSchedule with ID {request.ServiceScheduleID} not found.");

@@ -24,9 +24,9 @@ namespace Application.Features.ServiceSchedules.Command.CreateServiceSchedule;
 /// <param name="TimeBufferUnit">The time buffer unit for the schedule (optional).</param>
 /// <param name="MileageInterval">The mileage interval for the schedule in kilometres.</param>
 /// <param name="MileageBuffer">The mileage buffer for the schedule in kilometres.</param>
-/// <param name="FirstServiceTimeValue">The first service time value (requires TimeIntervalValue and TimeIntervalUnit).</param>
+/// <param name="FirstServiceTimeValue">The first service time value relative to now (requires TimeIntervalValue and TimeIntervalUnit).</param>
 /// <param name="FirstServiceTimeUnit">The first service time unit (requires TimeIntervalValue and TimeIntervalUnit).</param>
-/// <param name="FirstServiceMileage">The first service mileage (requires MileageInterval).</param>
+/// <param name="FirstServiceMileage">The first service mileage relative to current vehicle mileage (requires MileageInterval).</param>
 /// <param name="IsActive">Whether the schedule is active.</param>
 /// <returns>The ID of the newly created service schedule.</returns>
 public record CreateServiceScheduleCommand(
