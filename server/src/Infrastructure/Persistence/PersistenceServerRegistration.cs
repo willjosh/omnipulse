@@ -24,14 +24,15 @@ public static class PersistenceServerRegistration
     /// <returns>The service collection with the Persistence services added.</returns>
     public static IServiceCollection AddPersistenceServer(this IServiceCollection services, IConfiguration config)
     {
+        bool seedDatabaseEnabled = config.GetValue<bool>("SeedDatabaseEnabled");
+
         services.AddDbContext<OmnipulseDatabaseContext>(opt =>
         {
             opt.UseSqlServer(
                 config.GetConnectionString("OmnipulseDatabaseConnection")
             );
 
-            if (config.GetValue<bool>("SeedDatabaseEnabled"))
-                opt.UseOmnipulseDbSeeding();
+            if (seedDatabaseEnabled) opt.UseOmnipulseDbSeeding();
         });
 
         services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<OmnipulseDatabaseContext>().AddDefaultTokenProviders();
