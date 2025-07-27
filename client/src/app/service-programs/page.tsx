@@ -2,18 +2,32 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { PrimaryButton } from "../_features/shared/button";
-import { Plus } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { FilterBar } from "../_features/shared/filter";
 import PaginationControls from "../_features/shared/table/PaginationControls";
 import { DataTable } from "../_features/shared/table";
-import { useServicePrograms } from "../_hooks/service-program/useServicePrograms";
+import { ConfirmModal } from "../_features/shared/modal";
+import {
+  useServicePrograms,
+  useDeleteServiceProgram,
+} from "../_hooks/service-program/useServicePrograms";
 import { ServiceProgram } from "../_hooks/service-program/serviceProgramType";
+import { useNotification } from "../_features/shared/feedback/NotificationProvider";
 
 export default function ServiceProgramsPage() {
   const router = useRouter();
+  const notify = useNotification();
+  const { mutate: deleteServiceProgram, isPending: isDeleting } =
+    useDeleteServiceProgram();
 
   // Search state
   const [search, setSearch] = useState("");
+
+  // Confirmation modal state
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    serviceProgram: ServiceProgram | null;
+  }>({ isOpen: false, serviceProgram: null });
 
   // Pagination state
   const [page, setPage] = useState(1);
@@ -80,6 +94,39 @@ export default function ServiceProgramsPage() {
   const handleRowClick = (row: ServiceProgram) => {
     router.push(`/service-programs/${row.id}`);
   };
+
+  // Delete handler
+  const handleDeleteServiceProgram = async () => {
+    if (!confirmModal.serviceProgram) return;
+
+    deleteServiceProgram(confirmModal.serviceProgram.id, {
+      onSuccess: () => {
+        notify("Service program deleted successfully!", "success");
+        setConfirmModal({ isOpen: false, serviceProgram: null });
+      },
+      onError: error => {
+        console.error("Failed to delete service program:", error);
+        notify("Failed to delete service program", "error");
+        setConfirmModal({ isOpen: false, serviceProgram: null });
+      },
+    });
+  };
+
+  // Actions for the table
+  const serviceProgramActions = useMemo(
+    () => [
+      {
+        key: "delete",
+        label: "Delete",
+        icon: <Trash2 size={16} />,
+        variant: "danger" as const,
+        onClick: (serviceProgram: ServiceProgram) => {
+          setConfirmModal({ isOpen: true, serviceProgram });
+        },
+      },
+    ],
+    [],
+  );
 
   // Empty state
   const emptyState = (
@@ -157,8 +204,26 @@ export default function ServiceProgramsPage() {
         loading={isPending}
         emptyState={emptyState}
         getItemId={item => item.id.toString()}
-        showActions={false}
+        showActions={true}
+        actions={serviceProgramActions}
         fixedLayout={false}
+      />
+
+      {/* Confirmation Modal */}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() =>
+          !isDeleting &&
+          setConfirmModal({ isOpen: false, serviceProgram: null })
+        }
+        onConfirm={handleDeleteServiceProgram}
+        title="Delete Service Program"
+        message={
+          confirmModal.serviceProgram
+            ? `Are you sure you want to delete "${confirmModal.serviceProgram.name}"? This action cannot be undone.`
+            : ""
+        }
+        confirmText={isDeleting ? "Deleting..." : "Delete"}
       />
     </div>
   );
