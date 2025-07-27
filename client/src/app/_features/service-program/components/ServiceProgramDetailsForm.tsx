@@ -5,6 +5,7 @@ import FormField from "@/app/_features/shared/form/FormField";
 export interface ServiceProgramDetailsFormValues {
   name: string;
   description?: string;
+  isActive?: boolean; // Optional for backward compatibility
 }
 
 interface ServiceProgramDetailsFormProps {
@@ -12,6 +13,7 @@ interface ServiceProgramDetailsFormProps {
   errors: Partial<Record<keyof ServiceProgramDetailsFormValues, string>>;
   onChange: (field: keyof ServiceProgramDetailsFormValues, value: any) => void;
   disabled?: boolean;
+  showIsActive?: boolean; // New prop to control whether to show the isActive field
 }
 
 const ServiceProgramDetailsForm: React.FC<ServiceProgramDetailsFormProps> = ({
@@ -19,6 +21,7 @@ const ServiceProgramDetailsForm: React.FC<ServiceProgramDetailsFormProps> = ({
   errors,
   onChange,
   disabled = false,
+  showIsActive = false,
 }) => {
   return (
     <FormContainer title="Details">
@@ -41,6 +44,23 @@ const ServiceProgramDetailsForm: React.FC<ServiceProgramDetailsFormProps> = ({
           disabled={disabled}
         />
       </FormField>
+      {showIsActive && (
+        <FormField label="Status" error={errors.isActive}>
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="isActive"
+              checked={value.isActive ?? true}
+              onChange={e => onChange("isActive", e.target.checked)}
+              className="size-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+              disabled={disabled}
+            />
+            <label htmlFor="isActive" className="ml-2 text-sm text-gray-700">
+              Active
+            </label>
+          </div>
+        </FormField>
+      )}
     </FormContainer>
   );
 };
