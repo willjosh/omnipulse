@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import ServiceProgramHeader from "@/app/_features/service-program/components/ServiceProgramHeader";
 import { TabNavigation } from "@/app/_features/shared/tabs";
@@ -7,15 +7,22 @@ import { PrimaryButton } from "@/app/_features/shared/button";
 import { ChevronDown, Plus } from "lucide-react";
 import { useServiceProgram } from "@/app/_hooks/service-program/useServicePrograms";
 import { useServiceSchedules } from "@/app/_hooks/service-schedule/useServiceSchedules";
-import { useServiceProgramVehicles } from "@/app/_hooks/service-program/useServiceProgramVehicles";
+import {
+  useServiceProgramVehicles,
+  useRemoveVehicleFromServiceProgram,
+} from "@/app/_hooks/service-program/useServiceProgramVehicles";
 import Loading from "@/app/_features/shared/feedback/Loading";
 import EditIcon from "@/app/_features/shared/icons/Edit";
 import EmptyState from "@/app/_features/shared/feedback/EmptyState";
 import DataTable from "@/app/_features/shared/table/DataTable";
 import FilterBar from "@/app/_features/shared/filter/FilterBar";
 import PaginationControls from "@/app/_features/shared/table/PaginationControls";
+import { ConfirmModal } from "@/app/_features/shared/modal";
+import { Archive } from "@/app/_features/shared/icons";
+import { useNotification } from "@/app/_features/shared/feedback/NotificationProvider";
 import { ServiceScheduleWithLabels } from "@/app/_hooks/service-schedule/serviceScheduleType";
 import { serviceProgramVehicleTableColumns } from "@/app/_hooks/service-program/serviceProgramVehicleTableColumns";
+import { ServiceProgramVehicleWithDetails } from "@/app/_hooks/service-program/useServiceProgramVehicles";
 
 export default function ServiceProgramDetailsPage() {
   const params = useParams();
@@ -52,6 +59,10 @@ export default function ServiceProgramDetailsPage() {
     Search: search,
   });
 
+  // Remove vehicle mutation
+  const removeVehicleMutation = useRemoveVehicleFromServiceProgram();
+  const notify = useNotification();
+
   // Filter service schedules to only show those belonging to this service program
   const filteredServiceSchedules = serviceSchedules.filter(
     schedule => schedule.serviceProgramID === id,
@@ -60,6 +71,10 @@ export default function ServiceProgramDetailsPage() {
   const [activeTab, setActiveTab] = useState("schedules");
   const [isAddDropdownOpen, setIsAddDropdownOpen] = useState(false);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    vehicle?: ServiceProgramVehicleWithDetails;
+  }>({ isOpen: false });
 
   const tabs = [
     { key: "schedules", label: "Service Schedules" },
@@ -70,6 +85,22 @@ export default function ServiceProgramDetailsPage() {
   useEffect(() => {
     setPage(1);
   }, [search]);
+
+  // Define vehicle actions before early returns to maintain hook order
+  const vehicleActions = useMemo(
+    () => (spVehicle: ServiceProgramVehicleWithDetails) => [
+      {
+        key: "remove",
+        label: "Delete",
+        variant: "danger" as const,
+        icon: <Archive />,
+        onClick: (vehicle: ServiceProgramVehicleWithDetails) => {
+          setConfirmModal({ isOpen: true, vehicle });
+        },
+      },
+    ],
+    [],
+  );
 
   if (isLoadingProgram) {
     return <Loading />;
@@ -124,8 +155,32 @@ export default function ServiceProgramDetailsPage() {
     router.push(`/service-schedules/${schedule.id}`);
   };
 
-  const handleVehicleRowClick = (spVehicle: any) => {
+  const handleVehicleRowClick = (
+    spVehicle: ServiceProgramVehicleWithDetails,
+  ) => {
     router.push(`/vehicles/${spVehicle.vehicle.id}`);
+  };
+
+  const handleRemoveVehicle = async () => {
+    if (!confirmModal.vehicle) return;
+
+    try {
+      await removeVehicleMutation.mutateAsync({
+        serviceProgramID: id!,
+        vehicleID: confirmModal.vehicle.vehicleID,
+      });
+      setConfirmModal({ isOpen: false });
+      notify(
+        `Successfully removed "${confirmModal.vehicle.vehicle.name}" from the service program`,
+        "success",
+      );
+    } catch (error) {
+      console.error("Error removing vehicle from service program:", error);
+      notify(
+        "Failed to remove vehicle from service program. Please try again.",
+        "error",
+      );
+    }
   };
 
   const handlePageChange = (newPage: number) => {
@@ -249,7 +304,7 @@ export default function ServiceProgramDetailsPage() {
           </>
         }
       />
-      <div className="px-6 mt-4">
+      <div className="px-6 mt-4 mb-8">
         {/* Service Program Description */}
         {serviceProgram.description &&
           serviceProgram.description.trim() !== "" && (
@@ -375,8 +430,11 @@ export default function ServiceProgramDetailsPage() {
                     onRowClick={handleVehicleRowClick}
                     loading={isLoadingVehicles}
                     emptyState="No vehicles found"
-                    getItemId={(item: any) => item.vehicleID.toString()}
-                    showActions={false}
+                    getItemId={(item: ServiceProgramVehicleWithDetails) =>
+                      item.vehicleID.toString()
+                    }
+                    showActions={true}
+                    actions={vehicleActions}
                     fixedLayout={false}
                   />
                 </div>
@@ -385,6 +443,22 @@ export default function ServiceProgramDetailsPage() {
           </>
         )}
       </div>
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() =>
+          !removeVehicleMutation.isPending && setConfirmModal({ isOpen: false })
+        }
+        onConfirm={handleRemoveVehicle}
+        title="Remove Vehicle from Program"
+        message={
+          confirmModal.vehicle
+            ? `Are you sure you want to remove "${confirmModal.vehicle.vehicle.name}" from this service program?`
+            : ""
+        }
+        confirmText={removeVehicleMutation.isPending ? "Removing..." : "Remove"}
+        cancelText="Cancel"
+      />
     </div>
   );
 }

@@ -27,6 +27,7 @@ export const ActionsColumnCell: React.FC<{
   <td
     className="px-2 py-3 whitespace-nowrap text-right text-sm font-medium w-12"
     style={{ width: "48px" }}
+    onClick={e => e.stopPropagation()}
   >
     <ActionDropdown
       item={item}
