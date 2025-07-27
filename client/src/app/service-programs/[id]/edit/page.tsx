@@ -1,32 +1,60 @@
 "use client";
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
 import ServiceProgramHeader from "@/app/_features/service-program/components/ServiceProgramHeader";
 import ServiceProgramDetailsForm, {
   ServiceProgramDetailsFormValues,
 } from "@/app/_features/service-program/components/ServiceProgramDetailsForm";
 import { PrimaryButton, SecondaryButton } from "@/app/_features/shared/button";
-import { useCreateServiceProgram } from "@/app/_hooks/service-program/useServicePrograms";
+import { Loading } from "@/app/_features/shared/feedback";
+import { EmptyState } from "@/app/_features/shared/feedback";
+import {
+  useServiceProgram,
+  useUpdateServiceProgram,
+} from "@/app/_hooks/service-program/useServicePrograms";
 import { useNotification } from "@/app/_features/shared/feedback/NotificationProvider";
 
-const initialForm: ServiceProgramDetailsFormValues = {
-  name: "",
-  description: "",
-};
-
-export default function CreateServiceProgramPage() {
+export default function EditServiceProgramPage() {
+  const params = useParams();
   const router = useRouter();
+  const id = params.id ? Number(params.id) : undefined;
   const notify = useNotification();
-  const [form, setForm] =
-    useState<ServiceProgramDetailsFormValues>(initialForm);
+
+  const [form, setForm] = useState<ServiceProgramDetailsFormValues>({
+    name: "",
+    description: "",
+    isActive: true,
+  });
   const [errors, setErrors] = useState<
     Partial<Record<keyof ServiceProgramDetailsFormValues, string>>
   >({});
   const [isSaving, setIsSaving] = useState(false);
-  const { mutate: createServiceProgram, isPending } = useCreateServiceProgram();
+
+  const {
+    data: serviceProgram,
+    isPending: isLoadingProgram,
+    isError: isProgramError,
+  } = useServiceProgram(id!);
+  const { mutate: updateServiceProgram, isPending: isUpdating } =
+    useUpdateServiceProgram();
+
+  // Populate form when service program data is loaded
+  useEffect(() => {
+    if (serviceProgram) {
+      setForm({
+        name: serviceProgram.name,
+        description: serviceProgram.description || "",
+        isActive: serviceProgram.isActive,
+      });
+    }
+  }, [serviceProgram]);
 
   const breadcrumbs = [
     { label: "Service Programs", href: "/service-programs" },
+    {
+      label: serviceProgram?.name || "Service Program",
+      href: `/service-programs/${id}`,
+    },
   ];
 
   const validate = () => {
@@ -49,19 +77,25 @@ export default function CreateServiceProgramPage() {
   };
 
   const handleCancel = () => {
-    router.push("/service-programs");
+    router.push(`/service-programs/${id}`);
   };
 
   const handleSave = async () => {
-    if (!validate()) return;
+    if (!validate() || !id || !serviceProgram) return;
     setIsSaving(true);
-    createServiceProgram(
-      { name: form.name, description: form.description, isActive: true },
+
+    updateServiceProgram(
+      {
+        serviceProgramID: id,
+        name: form.name,
+        description: form.description,
+        isActive: form.isActive ?? true,
+      },
       {
         onSuccess: () => {
           setIsSaving(false);
-          notify("Service Program created successfully!", "success");
-          router.push("/service-programs");
+          notify("Service Program updated successfully!", "success");
+          router.push(`/service-programs/${id}`);
         },
         onError: (error: any) => {
           setIsSaving(false);
@@ -82,7 +116,7 @@ export default function CreateServiceProgramPage() {
           } else {
             // Generic error
             notify(
-              "Failed to create service program. Please try again.",
+              "Failed to update service program. Please try again.",
               "error",
             );
           }
@@ -91,24 +125,37 @@ export default function CreateServiceProgramPage() {
     );
   };
 
+  if (isLoadingProgram) {
+    return <Loading />;
+  }
+
+  if (isProgramError || !serviceProgram) {
+    return (
+      <EmptyState
+        title="Service Program not found"
+        message="The service program you are trying to edit does not exist or could not be loaded."
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <ServiceProgramHeader
-        title="New Service Program"
+        title="Edit Service Program"
         breadcrumbs={breadcrumbs}
         actions={
           <>
             <SecondaryButton
               onClick={handleCancel}
-              disabled={isSaving || isPending}
+              disabled={isSaving || isUpdating}
             >
               Cancel
             </SecondaryButton>
             <PrimaryButton
               onClick={handleSave}
-              disabled={isSaving || isPending}
+              disabled={isSaving || isUpdating}
             >
-              {isSaving || isPending ? "Saving..." : "Save"}
+              {isSaving || isUpdating ? "Saving..." : "Save"}
             </PrimaryButton>
           </>
         }
@@ -118,7 +165,8 @@ export default function CreateServiceProgramPage() {
           value={form}
           errors={errors}
           onChange={handleChange}
-          disabled={isSaving || isPending}
+          disabled={isSaving || isUpdating}
+          showIsActive={true}
         />
       </div>
       {/* Footer Actions */}
@@ -127,12 +175,12 @@ export default function CreateServiceProgramPage() {
         <div className="flex justify-between items-center">
           <SecondaryButton
             onClick={handleCancel}
-            disabled={isSaving || isPending}
+            disabled={isSaving || isUpdating}
           >
             Cancel
           </SecondaryButton>
-          <PrimaryButton onClick={handleSave} disabled={isSaving || isPending}>
-            {isSaving || isPending ? "Saving..." : "Save"}
+          <PrimaryButton onClick={handleSave} disabled={isSaving || isUpdating}>
+            {isSaving || isUpdating ? "Saving..." : "Save"}
           </PrimaryButton>
         </div>
       </div>
