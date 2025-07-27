@@ -7,6 +7,7 @@ import ServiceProgramDetailsForm, {
 } from "@/app/_features/service-program/components/ServiceProgramDetailsForm";
 import { PrimaryButton, SecondaryButton } from "@/app/_features/shared/button";
 import { useCreateServiceProgram } from "@/app/_hooks/service-program/useServicePrograms";
+import { useNotification } from "@/app/_features/shared/feedback/NotificationProvider";
 
 const initialForm: ServiceProgramDetailsFormValues = {
   name: "",
@@ -15,6 +16,7 @@ const initialForm: ServiceProgramDetailsFormValues = {
 
 export default function CreateServiceProgramPage() {
   const router = useRouter();
+  const notify = useNotification();
   const [form, setForm] =
     useState<ServiceProgramDetailsFormValues>(initialForm);
   const [errors, setErrors] = useState<
@@ -30,6 +32,10 @@ export default function CreateServiceProgramPage() {
   const validate = () => {
     const newErrors: typeof errors = {};
     if (!form.name.trim()) newErrors.name = "Name is required.";
+    if (form.name.length > 200)
+      newErrors.name = "Name must not exceed 200 characters.";
+    if (form.description && form.description.length > 500)
+      newErrors.description = "Description must not exceed 500 characters.";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -54,9 +60,33 @@ export default function CreateServiceProgramPage() {
       {
         onSuccess: () => {
           setIsSaving(false);
+          notify("Service Program created successfully!", "success");
           router.push("/service-programs");
         },
-        onError: () => setIsSaving(false),
+        onError: (error: any) => {
+          setIsSaving(false);
+
+          // Handle specific error types
+          if (error?.response?.status === 409) {
+            // Duplicate name error
+            setErrors({
+              name: "A service program with this name already exists.",
+            });
+            notify("A service program with this name already exists.", "error");
+          } else if (error?.response?.status === 400) {
+            // Validation error
+            const errorMessage =
+              error?.response?.data?.message ||
+              "Validation failed. Please check your input.";
+            notify(errorMessage, "error");
+          } else {
+            // Generic error
+            notify(
+              "Failed to create service program. Please try again.",
+              "error",
+            );
+          }
+        },
       },
     );
   };
