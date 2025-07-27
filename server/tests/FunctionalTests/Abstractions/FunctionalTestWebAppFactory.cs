@@ -14,12 +14,10 @@ namespace FunctionalTests.Abstractions;
 public class FunctionalTestWebAppFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
     private const string MsSqlImage = "mcr.microsoft.com/mssql/server:2022-latest";
-    private const int MsSqlPort = 1433;
     private const string MsSqlPassword = "YourStrong!Passw0rd";
 
     private readonly MsSqlContainer _dbContainer = new MsSqlBuilder()
         .WithImage(MsSqlImage)
-        .WithPortBinding(MsSqlPort)
         .WithPassword(MsSqlPassword)
         .Build();
 
