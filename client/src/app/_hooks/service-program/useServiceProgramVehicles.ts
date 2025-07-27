@@ -9,6 +9,18 @@ import {
 } from "./serviceProgramVehicleType";
 import { PagedResponse } from "@/app/_hooks/shared_types/pagedResponse";
 import { useDebounce } from "@/app/_hooks/shared_types/useDebounce";
+import { VehicleWithLabels } from "@/app/_hooks/vehicle/vehicleType";
+import {
+  FuelTypeEnum,
+  VehicleStatusEnum,
+  VehicleTypeEnum,
+} from "../vehicle/vehicleEnum";
+
+// Enhanced type that combines service program vehicle data with full vehicle details
+export interface ServiceProgramVehicleWithDetails
+  extends ServiceProgramVehicle {
+  vehicle: VehicleWithLabels;
+}
 
 export function useServiceProgramVehicles(
   serviceProgramId: number,
@@ -35,14 +47,70 @@ export function useServiceProgramVehicles(
   const queryString = queryParams.toString();
 
   const { data, isPending, isError, isSuccess, error } = useQuery<
-    PagedResponse<ServiceProgramVehicle>
+    PagedResponse<ServiceProgramVehicleWithDetails>
   >({
     queryKey: ["serviceProgramVehicles", serviceProgramId, debouncedFilter],
     queryFn: async () => {
-      const { data } = await agent.get<PagedResponse<ServiceProgramVehicle>>(
+      // First, get the service program vehicles
+      const { data: serviceProgramVehicles } = await agent.get<
+        PagedResponse<ServiceProgramVehicle>
+      >(
         `/api/ServicePrograms/${serviceProgramId}/vehicles${queryString ? `?${queryString}` : ""}`,
       );
-      return data;
+
+      // Then, fetch full vehicle details for each service program vehicle
+      const enhancedVehicles = await Promise.all(
+        serviceProgramVehicles.items.map(async spVehicle => {
+          try {
+            const { data: vehicleDetails } = await agent.get<VehicleWithLabels>(
+              `/api/Vehicles/${spVehicle.vehicleID}`,
+            );
+
+            return { ...spVehicle, vehicle: vehicleDetails };
+          } catch (error) {
+            console.error(
+              `Failed to fetch vehicle details for ID ${spVehicle.vehicleID}:`,
+              error,
+            );
+            // Return the basic service program vehicle data if vehicle details fetch fails
+            return {
+              ...spVehicle,
+              vehicle: {
+                id: spVehicle.vehicleID,
+                name: spVehicle.vehicleName,
+                make: "",
+                model: "",
+                year: 0,
+                vin: "",
+                licensePlate: "",
+                licensePlateExpirationDate: "",
+                vehicleType: VehicleTypeEnum.OTHER,
+                vehicleTypeLabel: "Other",
+                vehicleTypeEnum: VehicleTypeEnum.OTHER,
+                vehicleGroupID: 0,
+                vehicleGroupName: "",
+                assignedTechnicianName: "",
+                assignedTechnicianID: null,
+                trim: "",
+                mileage: 0,
+                engineHours: 0,
+                fuelCapacity: 0,
+                fuelType: FuelTypeEnum.OTHER,
+                fuelTypeLabel: "Other",
+                fuelTypeEnum: FuelTypeEnum.OTHER,
+                purchaseDate: "",
+                purchasePrice: 0,
+                status: VehicleStatusEnum.INACTIVE,
+                statusLabel: "Inactive",
+                statusEnum: VehicleStatusEnum.INACTIVE,
+                location: "",
+              } as VehicleWithLabels,
+            };
+          }
+        }),
+      );
+
+      return { ...serviceProgramVehicles, items: enhancedVehicles };
     },
     enabled: !!serviceProgramId,
   });
