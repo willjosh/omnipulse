@@ -23,7 +23,7 @@ namespace Domain.Entities;
 ///   <item>Buffer values (<see cref="TimeBufferValue"/>, <see cref="MileageBuffer"/>) are optional. If provided, they cannot exceed their corresponding interval.</item>
 ///   <item>First service properties (<see cref="FirstServiceTimeValue"/>, <see cref="FirstServiceTimeUnit"/>, <see cref="FirstServiceMileage"/>) are optional. If provided, they require their related interval fields to be set:
 ///     <list type="bullet">
-///       <item>These define the initial service point before the normal recurring interval begins (e.g., first service at 100,000 km, then every 50,000 km). Values are absolute targets, not relative (e.g., "at 2 weeks" means 2 weeks from the start date, not from now).</item>
+///       <item>These define the initial service point relative to the current time/mileage before the normal recurring interval begins (e.g., first service in 1 day from now, then every 7 days). Values are relative to now (e.g., "1 day" means 1 day from the current time).</item>
 ///       <item><see cref="FirstServiceTimeValue"/> and <see cref="FirstServiceTimeUnit"/> require <see cref="TimeIntervalValue"/> and <see cref="TimeIntervalUnit"/> to be set.</item>
 ///       <item><see cref="FirstServiceMileage"/> requires <see cref="MileageInterval"/> to be set.</item>
 ///     </list>
@@ -41,9 +41,9 @@ public class ServiceSchedule : BaseEntity
     public TimeUnitEnum? TimeBufferUnit { get; set; }
     public int? MileageInterval { get; set; } // km
     public int? MileageBuffer { get; set; } // km
-    public int? FirstServiceTimeValue { get; set; } // Requires TimeIntervalValue and TimeIntervalUnit if set
-    public TimeUnitEnum? FirstServiceTimeUnit { get; set; } // Requires TimeIntervalValue and TimeIntervalUnit if set
-    public int? FirstServiceMileage { get; set; } // Requires MileageInterval if set
+    public int? FirstServiceTimeValue { get; set; } // Relative to now - requires TimeIntervalValue and TimeIntervalUnit if set
+    public TimeUnitEnum? FirstServiceTimeUnit { get; set; } // Relative to now - requires TimeIntervalValue and TimeIntervalUnit if set
+    public int? FirstServiceMileage { get; set; } // Relative to current mileage - requires MileageInterval if set
     public required bool IsActive { get; set; } = true;
 
     // Navigation Properties
