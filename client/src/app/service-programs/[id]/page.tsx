@@ -304,7 +304,7 @@ export default function ServiceProgramDetailsPage() {
           </>
         }
       />
-      <div className="px-6 mt-4">
+      <div className="px-6 mt-4 mb-8">
         {/* Service Program Description */}
         {serviceProgram.description &&
           serviceProgram.description.trim() !== "" && (
