@@ -2,7 +2,6 @@ using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
 using Application.Features.ServicePrograms.Query.GetAllServiceProgramVehicle;
-using Application.Models;
 using Application.Models.PaginationModels;
 
 using Domain.Entities;
@@ -11,8 +10,6 @@ using FluentValidation;
 using FluentValidation.Results;
 
 using Moq;
-
-using Xunit;
 
 namespace Application.Test.ServicePrograms.QueryTest.GetAllServiceProgramVehicle;
 

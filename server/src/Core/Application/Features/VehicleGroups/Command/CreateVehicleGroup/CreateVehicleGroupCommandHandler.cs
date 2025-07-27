@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;

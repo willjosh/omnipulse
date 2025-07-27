@@ -1,5 +1,3 @@
-using System;
-
 namespace Application.Features.VehicleGroups.Query.GetAllVehicleGroup;
 
 public class GetAllVehicleGroupDTO

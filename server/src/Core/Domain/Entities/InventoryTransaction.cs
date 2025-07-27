@@ -1,6 +1,3 @@
-using System;
-using System.Diagnostics.CodeAnalysis;
-
 using Domain.Entities.Enums;
 
 namespace Domain.Entities;

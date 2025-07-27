@@ -1,5 +1,3 @@
-using System;
-
 namespace Application.Features.InventoryItemLocations.Query.GetAllInventoryItemLocation;
 
 public class GetAllInventoryItemLocationDTO

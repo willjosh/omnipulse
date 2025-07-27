@@ -1,5 +1,3 @@
-using System;
-
 using FluentValidation;
 
 namespace Application.Features.InventoryItems.Command.UpdateInventoryItem;

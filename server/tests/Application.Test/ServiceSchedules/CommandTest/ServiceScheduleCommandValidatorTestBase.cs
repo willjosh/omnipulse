@@ -5,8 +5,6 @@ using Domain.Entities.Enums;
 
 using FluentValidation;
 
-using Xunit;
-
 namespace Application.Test.ServiceSchedules.CommandTest;
 
 /// <summary>

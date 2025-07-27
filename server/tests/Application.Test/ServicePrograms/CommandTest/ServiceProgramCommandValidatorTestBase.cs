@@ -4,8 +4,6 @@ using Application.Test.ServicePrograms.CommandTest.UpdateServiceProgram;
 
 using FluentValidation;
 
-using Xunit;
-
 namespace Application.Test.ServicePrograms.CommandTest;
 
 /// <summary>

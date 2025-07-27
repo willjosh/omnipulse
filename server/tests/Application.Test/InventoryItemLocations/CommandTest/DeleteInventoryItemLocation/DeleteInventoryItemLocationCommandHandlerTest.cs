@@ -8,8 +8,6 @@ using Domain.Entities;
 
 using Moq;
 
-using Xunit;
-
 namespace Application.Test.InventoryItemLocations.CommandTest.DeleteInventoryItemLocation;
 
 public class DeleteInventoryItemLocationCommandHandlerTest

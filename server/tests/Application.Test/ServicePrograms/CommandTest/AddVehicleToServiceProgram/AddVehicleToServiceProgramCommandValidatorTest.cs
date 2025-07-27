@@ -1,10 +1,4 @@
-using System.Threading.Tasks;
-
 using Application.Features.ServicePrograms.Command.AddVehicleToServiceProgram;
-
-using FluentValidation;
-
-using Xunit;
 
 namespace Application.Test.ServicePrograms.CommandTest.AddVehicleToServiceProgram;
 

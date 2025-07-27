@@ -1,5 +1,3 @@
-using System;
-
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
@@ -11,8 +9,6 @@ using AutoMapper;
 using Domain.Entities;
 
 using Moq;
-
-using Xunit;
 
 namespace Application.Test.Vehicles.CommandTest;
 

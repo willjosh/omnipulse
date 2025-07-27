@@ -1,5 +1,3 @@
-using System;
-
 using Application.Features.FuelLogging.Command.CreateFuelPurchase;
 using Application.Features.FuelPurchases.Query.GetAllFuelPurchases;
 

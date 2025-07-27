@@ -1,5 +1,3 @@
-using System;
-
 namespace Application.Models.PaginationModels;
 
 public class PagedResult<T>

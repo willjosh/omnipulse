@@ -1,5 +1,3 @@
-using System;
-
 namespace Application.Contracts.Logger;
 
 /// <summary>

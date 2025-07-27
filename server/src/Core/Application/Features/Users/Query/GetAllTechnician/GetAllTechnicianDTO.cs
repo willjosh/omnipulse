@@ -1,5 +1,3 @@
-using System;
-
 namespace Application.Features.Users.Query.GetAllTechnician;
 
 public class GetAllTechnicianDTO

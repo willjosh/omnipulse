@@ -1,9 +1,4 @@
-using System.Threading.Tasks;
-
 using Application.Features.ServicePrograms.Command.UpdateServiceProgram;
-using Application.Test.ServicePrograms.CommandTest;
-
-using Xunit;
 
 namespace Application.Test.ServicePrograms.CommandTest.UpdateServiceProgram;
 

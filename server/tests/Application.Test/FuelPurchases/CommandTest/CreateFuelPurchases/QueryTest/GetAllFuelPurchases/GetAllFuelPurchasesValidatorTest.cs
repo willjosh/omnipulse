@@ -1,8 +1,6 @@
 using Application.Features.FuelPurchases.Query.GetAllFuelPurchases;
 using Application.Models.PaginationModels;
 
-using Xunit;
-
 namespace Application.Test.FuelPurchases.QueryTest;
 
 public class GetAllFuelPurchasesQueryValidatorTest

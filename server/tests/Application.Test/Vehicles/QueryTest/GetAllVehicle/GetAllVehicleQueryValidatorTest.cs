@@ -1,8 +1,6 @@
 using Application.Features.Vehicles.Query.GetAllVehicle;
 using Application.Models.PaginationModels;
 
-using Xunit;
-
 namespace Application.Test.Vehicles.QueryTest.GetAllVehicle;
 
 public class GetAllVehicleQueryValidatorTest

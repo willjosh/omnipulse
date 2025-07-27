@@ -1,5 +1,3 @@
-using System.Linq;
-
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;

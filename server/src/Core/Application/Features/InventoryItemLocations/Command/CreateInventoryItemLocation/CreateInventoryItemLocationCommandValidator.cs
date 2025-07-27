@@ -1,5 +1,3 @@
-using System;
-
 using FluentValidation;
 
 namespace Application.Features.InventoryItemLocations.Command.CreateInventoryItemLocation;

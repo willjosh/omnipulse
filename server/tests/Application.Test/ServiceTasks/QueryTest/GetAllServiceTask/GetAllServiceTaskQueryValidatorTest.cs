@@ -3,8 +3,6 @@ using Application.Models.PaginationModels;
 
 using FluentValidation.TestHelper;
 
-using Xunit;
-
 namespace Application.Test.ServiceTasks.QueryTest.GetAllServiceTask;
 
 public class GetAllServiceTaskQueryValidatorTest

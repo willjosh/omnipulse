@@ -2,8 +2,6 @@ using Application.Features.ServiceSchedules.Command.CreateServiceSchedule;
 
 using Domain.Entities.Enums;
 
-using Xunit;
-
 namespace Application.Test.ServiceSchedules.CommandTest.CreateServiceSchedule;
 
 public class CreateServiceScheduleCommandValidatorTest

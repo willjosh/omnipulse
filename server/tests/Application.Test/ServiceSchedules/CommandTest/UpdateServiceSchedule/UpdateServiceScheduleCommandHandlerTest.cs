@@ -14,8 +14,6 @@ using FluentValidation.Results;
 
 using Moq;
 
-using Xunit;
-
 namespace Application.Test.ServiceSchedules.CommandTest.UpdateServiceSchedule;
 
 public class UpdateServiceScheduleCommandHandlerTest

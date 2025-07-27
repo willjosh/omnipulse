@@ -1,8 +1,6 @@
 using Application.Features.ServicePrograms.Query.GetAllServiceProgram;
 using Application.Models.PaginationModels;
 
-using Xunit;
-
 namespace Application.Test.ServicePrograms.QueryTest.GetAllServiceProgram;
 
 public class GetAllServiceProgramQueryValidatorTest

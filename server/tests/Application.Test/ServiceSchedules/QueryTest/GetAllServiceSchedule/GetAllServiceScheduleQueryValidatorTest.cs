@@ -1,8 +1,6 @@
 using Application.Features.ServiceSchedules.Query.GetAllServiceSchedule;
 using Application.Models.PaginationModels;
 
-using Xunit;
-
 namespace Application.Test.ServiceSchedules.QueryTest.GetAllServiceSchedule;
 
 public class GetAllServiceScheduleQueryValidatorTest

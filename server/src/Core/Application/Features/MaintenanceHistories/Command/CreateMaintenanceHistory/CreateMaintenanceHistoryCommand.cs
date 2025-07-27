@@ -1,5 +1,3 @@
-using System;
-
 using MediatR;
 
 namespace Application.Features.MaintenanceHistories.Command.CreateMaintenanceHistory;

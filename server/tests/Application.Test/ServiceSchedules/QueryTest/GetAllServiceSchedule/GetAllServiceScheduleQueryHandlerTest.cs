@@ -2,9 +2,7 @@ using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
 using Application.Features.ServiceSchedules.Query.GetAllServiceSchedule;
-using Application.Features.ServiceTasks.Query.GetAllServiceTask;
 using Application.MappingProfiles;
-using Application.Models;
 using Application.Models.PaginationModels;
 
 using AutoMapper;
@@ -15,8 +13,6 @@ using Domain.Entities.Enums;
 using FluentValidation;
 
 using Moq;
-
-using Xunit;
 
 namespace Application.Test.ServiceSchedules.QueryTest.GetAllServiceSchedule;
 

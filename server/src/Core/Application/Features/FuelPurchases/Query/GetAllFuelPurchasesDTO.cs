@@ -1,7 +1,3 @@
-using System;
-
-using Domain.Entities.Enums;
-
 namespace Application.Features.FuelPurchases.Query.GetAllFuelPurchases;
 
 public class GetAllFuelPurchasesDTO

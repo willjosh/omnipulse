@@ -1,12 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-using Application.Models;
 using Application.Models.PaginationModels;
 
 using Domain.Entities;
-using Domain.Entities.Enums;
 
 namespace Application.Contracts.Persistence;
 

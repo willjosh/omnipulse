@@ -1,7 +1,6 @@
 using Application.Contracts.Persistence;
 
 using Domain.Entities;
-using Domain.Entities.Enums;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +10,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Persistence.DatabaseContext;
 using Persistence.Repository;
 using Persistence.Seeding;
-using Persistence.Seeding.Contracts;
 using Persistence.Seeding.EntitySeeders;
 
 namespace Persistence;

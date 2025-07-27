@@ -1,5 +1,3 @@
-using System;
-
 namespace Application.Exceptions.UserException;
 
 public class UpdateUserException : Exception

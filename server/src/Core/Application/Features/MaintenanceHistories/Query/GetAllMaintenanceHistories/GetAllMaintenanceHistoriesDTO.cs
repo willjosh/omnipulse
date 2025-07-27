@@ -1,5 +1,3 @@
-using System;
-
 namespace Application.Features.MaintenanceHistories.Query.GetAllMaintenanceHistories;
 
 public class GetAllMaintenanceHistoryDTO

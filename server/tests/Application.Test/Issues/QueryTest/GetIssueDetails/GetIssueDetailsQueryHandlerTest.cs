@@ -1,7 +1,3 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
@@ -14,8 +10,6 @@ using Domain.Entities;
 using Domain.Entities.Enums;
 
 using Moq;
-
-using Xunit;
 
 namespace Application.Test.Issues.QueryTest.GetIssueDetails;
 

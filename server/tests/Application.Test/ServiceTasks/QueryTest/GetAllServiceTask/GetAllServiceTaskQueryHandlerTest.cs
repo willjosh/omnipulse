@@ -3,7 +3,6 @@ using Application.Contracts.Persistence;
 using Application.Features.ServiceTasks.Query;
 using Application.Features.ServiceTasks.Query.GetAllServiceTask;
 using Application.MappingProfiles;
-using Application.Models;
 using Application.Models.PaginationModels;
 
 using AutoMapper;
@@ -14,8 +13,6 @@ using Domain.Entities.Enums;
 using FluentValidation;
 
 using Moq;
-
-using Xunit;
 
 namespace Application.Test.ServiceTasks.QueryTest.GetAllServiceTask;
 

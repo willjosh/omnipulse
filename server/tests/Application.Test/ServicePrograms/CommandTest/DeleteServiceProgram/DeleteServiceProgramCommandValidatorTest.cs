@@ -1,7 +1,5 @@
 using Application.Features.ServicePrograms.Command.DeleteServiceProgram;
 
-using Xunit;
-
 namespace Application.Test.ServicePrograms.CommandTest.DeleteServiceProgram;
 
 public class DeleteServiceProgramCommandValidatorTest

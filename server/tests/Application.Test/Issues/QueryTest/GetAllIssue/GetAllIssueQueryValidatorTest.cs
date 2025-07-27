@@ -1,8 +1,6 @@
 using Application.Features.Issues.Query.GetAllIssue;
 using Application.Models.PaginationModels;
 
-using Xunit;
-
 namespace Application.Test.Issues.QueryTest.GetAllIssue;
 
 public class GetAllIssueQueryValidatorTest

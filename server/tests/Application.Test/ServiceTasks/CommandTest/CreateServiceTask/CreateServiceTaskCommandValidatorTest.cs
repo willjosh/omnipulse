@@ -2,8 +2,6 @@ using Application.Features.ServiceTasks.Command.CreateServiceTask;
 
 using Domain.Entities.Enums;
 
-using Xunit;
-
 namespace Application.Test.ServiceTasks.CommandTest.CreateServiceTask;
 
 public class CreateServiceTaskCommandValidatorTest

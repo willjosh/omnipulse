@@ -1,5 +1,3 @@
-using System;
-
 using Domain.Entities;
 
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;

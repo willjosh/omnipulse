@@ -1,6 +1,3 @@
-using Application.Models;
-using Application.Models.PaginationModels;
-
 using MediatR;
 
 namespace Application.Features.WorkOrders.Query.GetWorkOrderDetail;

@@ -1,7 +1,5 @@
 using Application.Features.ServicePrograms.Command.CreateServiceProgram;
 
-using Xunit;
-
 namespace Application.Test.ServicePrograms.CommandTest.CreateServiceProgram;
 
 public class CreateServiceProgramCommandValidatorTest : ServiceProgramCommandValidatorTestBase<CreateServiceProgramCommand, CreateServiceProgramCommandValidator>
