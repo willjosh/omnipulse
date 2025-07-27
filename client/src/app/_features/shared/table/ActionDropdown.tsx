@@ -38,7 +38,7 @@ const ActionDropdown: React.FC<ActionDropdownProps> = ({
 
   return (
     <>
-      <div className="relative">
+      <div className="relative" onClick={e => e.stopPropagation()}>
         <div onClick={e => e.stopPropagation()}>
           <OptionButton
             onClick={handleToggle}
@@ -47,7 +47,10 @@ const ActionDropdown: React.FC<ActionDropdownProps> = ({
         </div>
 
         {isOpen && actions.length > 0 && (
-          <div className="absolute right-0 mt-1 w-44 bg-white rounded-md shadow-lg border border-gray-200 z-20">
+          <div
+            className="absolute right-0 mt-1 w-44 bg-white rounded-md shadow-lg border border-gray-200 z-30"
+            onClick={e => e.stopPropagation()}
+          >
             <div className="py-1">
               {actions.map(action => (
                 <button
@@ -73,7 +76,13 @@ const ActionDropdown: React.FC<ActionDropdownProps> = ({
       </div>
 
       {isOpen && (
-        <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
+        <div
+          className="fixed inset-0 z-20"
+          onClick={e => {
+            e.stopPropagation();
+            setIsOpen(false);
+          }}
+        />
       )}
     </>
   );
