@@ -52,7 +52,7 @@ run_backend_checks() {
         git add -- $included_files
     fi
 
-    # Exclude tests that require Docker containers. Run these with GitHub Actions.
+    # Exclude tests that require Docker containers. Run these manually or as part of a CI pipeline (e.g. GitHub Actions).
     run_step "▶️ Backend - Test" dotnet test --filter "TestCategory!=Functional&TestCategory!=Integration"
 
     popd > /dev/null
