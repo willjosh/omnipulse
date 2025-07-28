@@ -58,10 +58,9 @@ public sealed class InventoryItemLocationsController : ControllerBase
 
             return Ok(result);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, $"{nameof(GetInventoryItemLocations)}() - ERROR");
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while retrieving inventory item locations." });
+            throw;
         }
     }
 
@@ -91,10 +90,9 @@ public sealed class InventoryItemLocationsController : ControllerBase
             // TODO: Change Location header from nameof(GetInventoryItemLocations) to nameof(GetInventoryItemLocation)
             return CreatedAtAction(nameof(GetInventoryItemLocations), new { id = inventoryItemLocationId }, inventoryItemLocationId);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, $"{nameof(CreateInventoryItemLocation)}() - ERROR");
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while creating the inventory item location." });
+            throw;
         }
     }
 
@@ -124,10 +122,9 @@ public sealed class InventoryItemLocationsController : ControllerBase
 
             return Ok(inventoryItemLocationId);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, $"{nameof(DeleteInventoryItemLocation)}() - ERROR");
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while deleting the inventory item location." });
+            throw;
         }
     }
 }

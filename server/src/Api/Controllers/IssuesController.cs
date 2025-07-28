@@ -67,10 +67,9 @@ public sealed class IssuesController : ControllerBase
 
             return Ok(result);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, $"{nameof(GetIssues)}() - ERROR");
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while retrieving issues." });
+            throw;
         }
     }
 
@@ -100,10 +99,9 @@ public sealed class IssuesController : ControllerBase
 
             return Ok(result);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, $"{nameof(GetIssue)}() - ERROR");
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while retrieving the issue." });
+            throw;
         }
     }
 
@@ -134,10 +132,9 @@ public sealed class IssuesController : ControllerBase
 
             return CreatedAtAction(nameof(GetIssue), new { id = issueId }, issueId);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, $"{nameof(CreateIssue)}() - ERROR");
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while creating the issue." });
+            throw;
         }
     }
 
@@ -172,10 +169,9 @@ public sealed class IssuesController : ControllerBase
 
             return Ok(issueId);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, $"{nameof(UpdateIssue)}() - ERROR");
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while updating the issue." });
+            throw;
         }
     }
 
@@ -205,10 +201,9 @@ public sealed class IssuesController : ControllerBase
 
             return Ok(issueId);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, $"{nameof(DeleteIssue)}() - ERROR");
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while deleting the issue." });
+            throw;
         }
     }
 }
