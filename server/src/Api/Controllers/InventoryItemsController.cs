@@ -67,10 +67,9 @@ public sealed class InventoryItemsController : ControllerBase
 
             return Ok(result);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, $"{nameof(GetInventoryItems)}() - ERROR");
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while retrieving inventory items." });
+            throw;
         }
     }
 
@@ -100,10 +99,9 @@ public sealed class InventoryItemsController : ControllerBase
 
             return Ok(result);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, $"{nameof(GetInventoryItem)}() - ERROR");
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while retrieving the inventory item." });
+            throw;
         }
     }
 
@@ -134,10 +132,9 @@ public sealed class InventoryItemsController : ControllerBase
 
             return CreatedAtAction(nameof(GetInventoryItem), new { id = inventoryItemId }, inventoryItemId);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, $"{nameof(CreateInventoryItem)}() - ERROR");
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while creating the inventory item." });
+            throw;
         }
     }
 
@@ -174,10 +171,9 @@ public sealed class InventoryItemsController : ControllerBase
 
             return Ok(inventoryItemId);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, $"{nameof(UpdateInventoryItem)}() - ERROR");
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while updating the inventory item." });
+            throw;
         }
     }
 
@@ -207,10 +203,9 @@ public sealed class InventoryItemsController : ControllerBase
 
             return Ok(inventoryItemId);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, $"{nameof(DeleteInventoryItem)}() - ERROR");
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while deleting the inventory item." });
+            throw;
         }
     }
 }

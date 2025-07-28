@@ -62,10 +62,9 @@ public sealed class FuelPurchasesController : ControllerBase
             // TODO: Change Location header from nameof(CreateFuelPurchase) to nameof(GetFuelPurchase)
             return CreatedAtAction(nameof(CreateFuelPurchase), new { id = fuelPurchaseId }, fuelPurchaseId);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, $"{nameof(CreateFuelPurchase)}() - ERROR");
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while creating the fuel purchase." });
+            throw;
         }
     }
 }
