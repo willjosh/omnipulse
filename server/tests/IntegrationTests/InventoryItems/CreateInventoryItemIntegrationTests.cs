@@ -9,6 +9,7 @@ using IntegrationTests.Abstractions;
 
 namespace IntegrationTests.InventoryItems;
 
+[Trait("TestCategory", "Integration")]
 [Trait("Entity", "Inventory Item")]
 public class CreateInventoryItemIntegrationTests : BaseIntegrationTest
 {

@@ -8,6 +8,7 @@ using IntegrationTests.Abstractions;
 
 namespace IntegrationTests.ServicePrograms;
 
+[Trait("TestCategory", "Integration")]
 [Trait("Entity", "Service Program")]
 public class CreateServiceProgramIntegrationTests : BaseIntegrationTest
 {

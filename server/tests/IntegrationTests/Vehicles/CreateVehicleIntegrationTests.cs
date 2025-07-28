@@ -1,5 +1,5 @@
-using Application.Features.Vehicles.Command.CreateVehicle;
 using Application.Features.VehicleGroups.Command.CreateVehicleGroup;
+using Application.Features.Vehicles.Command.CreateVehicle;
 
 using Domain.Entities;
 using Domain.Entities.Enums;
@@ -10,6 +10,7 @@ using IntegrationTests.Abstractions;
 
 namespace IntegrationTests.Vehicles;
 
+[Trait("TestCategory", "Integration")]
 [Trait("Entity", "Vehicle")]
 public class CreateVehicleIntegrationTests : BaseIntegrationTest
 {
@@ -28,11 +29,11 @@ public class CreateVehicleIntegrationTests : BaseIntegrationTest
 
         // Arrange
         var createCommand = new CreateVehicleCommand(
-            Name: $"Test Vehicle {Faker.Random.AlphaNumeric(5)}",
-            Make: "Ford",
-            Model: "Transit",
+            Name: $"Test {nameof(Vehicle)} Name",
+            Make: Faker.Vehicle.Manufacturer(),
+            Model: Faker.Vehicle.Model(),
             Year: 2024,
-            VIN: $"1FTBW2CM0PKA{Faker.Random.AlphaNumeric(5)}",
+            VIN: Faker.Vehicle.Vin(),
             LicensePlate: $"ABC{Faker.Random.AlphaNumeric(3)}",
             LicensePlateExpirationDate: DateTime.UtcNow.AddYears(1),
             VehicleType: VehicleTypeEnum.VAN,

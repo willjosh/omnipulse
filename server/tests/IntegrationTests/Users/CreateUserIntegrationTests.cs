@@ -8,6 +8,7 @@ using IntegrationTests.Abstractions;
 
 namespace IntegrationTests.Users;
 
+[Trait("TestCategory", "Integration")]
 [Trait("Entity", "User")]
 public class CreateUserIntegrationTests : BaseIntegrationTest
 {

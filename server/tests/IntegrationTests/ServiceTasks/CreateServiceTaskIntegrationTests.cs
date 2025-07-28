@@ -9,6 +9,7 @@ using IntegrationTests.Abstractions;
 
 namespace IntegrationTests.ServiceTasks;
 
+[Trait("TestCategory", "Integration")]
 [Trait("Entity", "Service Task")]
 public class CreateServiceTaskIntegrationTests : BaseIntegrationTest
 {
