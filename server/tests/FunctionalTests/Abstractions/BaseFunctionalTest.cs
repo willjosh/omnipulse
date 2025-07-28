@@ -1,5 +1,6 @@
 namespace FunctionalTests.Abstractions;
 
+[Trait("TestCategory", "Functional")]
 public class BaseFunctionalTest : IClassFixture<FunctionalTestWebAppFactory>
 {
     public BaseFunctionalTest(FunctionalTestWebAppFactory factory)
