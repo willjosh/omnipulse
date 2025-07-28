@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { OptionButton } from "../button";
+import { OptionButton } from "../Button";
 
 export interface ActionItem {
   key: string;
