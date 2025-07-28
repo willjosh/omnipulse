@@ -1,5 +1,7 @@
 using Bogus;
 
+using FluentAssertions;
+
 using MediatR;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -33,5 +35,26 @@ public abstract class BaseIntegrationTest : IClassFixture<IntegrationTestWebAppF
     {
         _scope.Dispose();
         GC.SuppressFinalize(this); // Prevent finalisation if subclass adds a finaliser
+    }
+
+    [Fact]
+    public void Should_HaveDatabaseContext_When_TestStarts()
+    {
+        // Assert
+        DbContext.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void Should_HaveSender_When_TestStarts()
+    {
+        // Assert
+        Sender.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void Should_HaveFaker_When_TestStarts()
+    {
+        // Assert
+        Faker.Should().NotBeNull();
     }
 }
