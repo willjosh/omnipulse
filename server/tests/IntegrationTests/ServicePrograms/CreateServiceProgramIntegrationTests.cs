@@ -8,6 +8,7 @@ using IntegrationTests.Abstractions;
 
 namespace IntegrationTests.ServicePrograms;
 
+[Trait("Entity", "Service Program")]
 public class CreateServiceProgramIntegrationTests : BaseIntegrationTest
 {
     public CreateServiceProgramIntegrationTests(IntegrationTestWebAppFactory factory) : base(factory) { }
@@ -17,8 +18,8 @@ public class CreateServiceProgramIntegrationTests : BaseIntegrationTest
     {
         // Arrange
         var createCommand = new CreateServiceProgramCommand(
-            Name: $"Valid {nameof(ServiceProgram)} Name",
-            Description: $"Valid {nameof(ServiceProgram)} Description",
+            Name: $"Valid {nameof(ServiceProgram)} Name {Faker.Random.AlphaNumeric(5)}",
+            Description: $"Valid {nameof(ServiceProgram)} Description {Faker.Random.AlphaNumeric(5)}",
             IsActive: true
         );
 
