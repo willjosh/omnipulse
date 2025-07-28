@@ -67,10 +67,9 @@ public sealed class VehiclesController : ControllerBase
 
             return Ok(result);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, $"{nameof(GetVehicles)}() - ERROR");
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while retrieving vehicles." });
+            throw;
         }
     }
 
@@ -98,10 +97,9 @@ public sealed class VehiclesController : ControllerBase
 
             return Ok(result);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, $"{nameof(GetVehicle)}() - ERROR");
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while retrieving the vehicle." });
+            throw;
         }
     }
 
@@ -132,10 +130,9 @@ public sealed class VehiclesController : ControllerBase
 
             return CreatedAtAction(nameof(GetVehicle), new { id = vehicleId }, vehicleId);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, $"{nameof(CreateVehicle)}() - ERROR");
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while creating the vehicle." });
+            throw;
         }
     }
 
@@ -170,10 +167,9 @@ public sealed class VehiclesController : ControllerBase
 
             return Ok(vehicleId);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, $"{nameof(UpdateVehicle)}() - ERROR");
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while updating the vehicle." });
+            throw;
         }
     }
 
@@ -201,10 +197,9 @@ public sealed class VehiclesController : ControllerBase
 
             return Ok(vehicleId);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, $"{nameof(DeactivateVehicle)}() - ERROR");
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while deactivating the vehicle." });
+            throw;
         }
     }
 }
