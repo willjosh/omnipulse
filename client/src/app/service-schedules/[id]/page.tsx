@@ -1,24 +1,24 @@
 "use client";
 import React from "react";
 import { useParams, useRouter } from "next/navigation";
-import FormContainer from "@/app/_features/shared/form/FormContainer";
-import DetailFieldRow from "@/app/_features/shared/detail/DetailFieldRow";
-import { useServiceSchedule } from "@/app/_hooks/service-schedule/useServiceSchedules";
-import Loading from "@/app/_features/shared/feedback/Loading";
-import EmptyState from "@/app/_features/shared/feedback/EmptyState";
-import ServiceScheduleHeader from "@/app/_features/service-schedule/components/ServiceScheduleHeader";
-import PrimaryButton from "@/app/_features/shared/button/PrimaryButton";
-import EditIcon from "@/app/_features/shared/icons/Edit";
-import ArchiveIcon from "@/app/_features/shared/icons/Archive";
-import ConfirmModal from "@/app/_features/shared/modal/ConfirmModal";
-import { useDeleteServiceSchedule } from "@/app/_hooks/service-schedule/useServiceSchedules";
-import { useNotification } from "@/app/_features/shared/feedback/NotificationProvider";
-import { BreadcrumbItem } from "@/app/_features/shared/layout/Breadcrumbs";
+import FormContainer from "@/components/ui/Form/FormContainer";
+import DetailFieldRow from "@/components/ui/Detail/DetailFieldRow";
+import { useServiceSchedule } from "@/features/service-schedule/hooks/useServiceSchedules";
+import Loading from "@/components/ui/Feedback/Loading";
+import EmptyState from "@/components/ui/Feedback/EmptyState";
+import ServiceScheduleHeader from "@/features/service-schedule/components/ServiceScheduleHeader";
+import PrimaryButton from "@/components/ui/Button/PrimaryButton";
+import EditIcon from "@/components/ui/Icons/Edit";
+import ArchiveIcon from "@/components/ui/Icons/Archive";
+import ConfirmModal from "@/components/ui/Modal/ConfirmModal";
+import { useDeleteServiceSchedule } from "@/features/service-schedule/hooks/useServiceSchedules";
+import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
+import { BreadcrumbItem } from "@/components/ui/Layout/Breadcrumbs";
 
 export default function ServiceScheduleDetailPage() {
   const params = useParams();
   const id = params.id ? Number(params.id) : undefined;
-  const { data: schedule, isPending, isError } = useServiceSchedule(id!);
+  const { serviceSchedule, isPending, isError } = useServiceSchedule(id!);
   const router = useRouter();
   const { mutate: deleteServiceSchedule, isPending: isDeleting } =
     useDeleteServiceSchedule();
@@ -28,7 +28,7 @@ export default function ServiceScheduleDetailPage() {
   if (isPending) {
     return <Loading />;
   }
-  if (isError || !schedule) {
+  if (isError || !serviceSchedule) {
     return (
       <EmptyState
         title="Service Schedule not found"
@@ -56,7 +56,7 @@ export default function ServiceScheduleDetailPage() {
   return (
     <div className="min-h-screen mx-auto bg-gray-50">
       <ServiceScheduleHeader
-        title={schedule.name}
+        title={serviceSchedule.name}
         breadcrumbs={breadcrumbs}
         actions={
           <>
@@ -86,13 +86,13 @@ export default function ServiceScheduleDetailPage() {
       />
       <div className="m-4 px-6 pb-12">
         <FormContainer title="Details" className="max-w-2xl mx-auto">
-          <DetailFieldRow label="Name" value={schedule.name} />
+          <DetailFieldRow label="Name" value={serviceSchedule.name} />
           <DetailFieldRow
             label="Tasks"
             value={
               <div className="flex flex-wrap gap-2 max-w-md break-words justify-end">
-                {schedule.serviceTasks.length > 0 ? (
-                  schedule.serviceTasks.map(task => (
+                {serviceSchedule.serviceTasks.length > 0 ? (
+                  serviceSchedule.serviceTasks.map(task => (
                     <span
                       key={task.id}
                       className="inline-block bg-blue-100 text-blue-800 text-xs font-medium px-3 py-1 rounded-full"
@@ -109,14 +109,15 @@ export default function ServiceScheduleDetailPage() {
           <DetailFieldRow
             label="Frequency"
             value={
-              schedule.timeIntervalValue && schedule.timeIntervalUnitLabel ? (
-                `${schedule.timeIntervalValue} ${
-                  schedule.timeIntervalValue === 1
-                    ? schedule.timeIntervalUnitLabel.replace(/s$/, "")
-                    : schedule.timeIntervalUnitLabel
+              serviceSchedule.timeIntervalValue &&
+              serviceSchedule.timeIntervalUnitLabel ? (
+                `${serviceSchedule.timeIntervalValue} ${
+                  serviceSchedule.timeIntervalValue === 1
+                    ? serviceSchedule.timeIntervalUnitLabel.replace(/s$/, "")
+                    : serviceSchedule.timeIntervalUnitLabel
                 }`
-              ) : schedule.mileageInterval ? (
-                `${schedule.mileageInterval} km`
+              ) : serviceSchedule.mileageInterval ? (
+                `${serviceSchedule.mileageInterval} km`
               ) : (
                 <span className="text-gray-400">-</span>
               )
@@ -125,14 +126,15 @@ export default function ServiceScheduleDetailPage() {
           <DetailFieldRow
             label="Buffer"
             value={
-              schedule.timeBufferValue && schedule.timeBufferUnitLabel ? (
-                `${schedule.timeBufferValue} ${
-                  schedule.timeBufferValue === 1
-                    ? schedule.timeBufferUnitLabel.replace(/s$/, "")
-                    : schedule.timeBufferUnitLabel
+              serviceSchedule.timeBufferValue &&
+              serviceSchedule.timeBufferUnitLabel ? (
+                `${serviceSchedule.timeBufferValue} ${
+                  serviceSchedule.timeBufferValue === 1
+                    ? serviceSchedule.timeBufferUnitLabel.replace(/s$/, "")
+                    : serviceSchedule.timeBufferUnitLabel
                 }`
-              ) : schedule.mileageBuffer ? (
-                `${schedule.mileageBuffer} km`
+              ) : serviceSchedule.mileageBuffer ? (
+                `${serviceSchedule.mileageBuffer} km`
               ) : (
                 <span className="text-gray-400">-</span>
               )
@@ -141,15 +143,18 @@ export default function ServiceScheduleDetailPage() {
           <DetailFieldRow
             label="First Service"
             value={
-              schedule.firstServiceTimeValue &&
-              schedule.firstServiceTimeUnitLabel ? (
-                `${schedule.firstServiceTimeValue} ${
-                  schedule.firstServiceTimeValue === 1
-                    ? schedule.firstServiceTimeUnitLabel.replace(/s$/, "")
-                    : schedule.firstServiceTimeUnitLabel
+              serviceSchedule.firstServiceTimeValue &&
+              serviceSchedule.firstServiceTimeUnitLabel ? (
+                `${serviceSchedule.firstServiceTimeValue} ${
+                  serviceSchedule.firstServiceTimeValue === 1
+                    ? serviceSchedule.firstServiceTimeUnitLabel.replace(
+                        /s$/,
+                        "",
+                      )
+                    : serviceSchedule.firstServiceTimeUnitLabel
                 }`
-              ) : schedule.firstServiceMileage ? (
-                `${schedule.firstServiceMileage} km`
+              ) : serviceSchedule.firstServiceMileage ? (
+                `${serviceSchedule.firstServiceMileage} km`
               ) : (
                 <span className="text-gray-400">-</span>
               )
@@ -158,16 +163,15 @@ export default function ServiceScheduleDetailPage() {
           {/*
           <DetailFieldRow
             label="First Service Date"
-            value={
-              schedule.FirstServiceDate
+              serviceSchedule.firstServiceDate
+                ? new Date(serviceSchedule.firstServiceDate).toLocaleDateString()
                 ? new Date(schedule.FirstServiceDate).toLocaleDateString()
                 : <span className="text-gray-400">-</span>
             }
-          />
           */}
           <DetailFieldRow
             label="Active"
-            value={schedule.isActive ? "Yes" : "No"}
+            value={serviceSchedule.isActive ? "Yes" : "No"}
             noBorder
           />
         </FormContainer>

@@ -1,4 +1,4 @@
-import VehicleFormContainer from "@/app/_features/vehicle/components/forms/VehicleFormContainer";
+import VehicleFormContainer from "@/features/vehicle/components/VehicleFormContainer";
 
 const CreateVehiclePage = () => {
   return <VehicleFormContainer mode="create" />;

@@ -1,13 +1,13 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import ServiceTaskHeader from "@/app/_features/service-task/components/ServiceTaskHeader";
+import ServiceTaskHeader from "@/features/service-task/components/ServiceTaskHeader";
 import ServiceTaskDetailsForm, {
   ServiceTaskDetailsFormValues,
-} from "@/app/_features/service-task/components/ServiceTaskDetailsForm";
-import { PrimaryButton, SecondaryButton } from "@/app/_features/shared/button";
-import { useCreateServiceTask } from "@/app/_hooks/service-task/useServiceTasks";
-import { useNotification } from "@/app/_features/shared/feedback/NotificationProvider";
+} from "@/features/service-task/components/ServiceTaskDetailsForm";
+import { PrimaryButton, SecondaryButton } from "@/components/ui/Button";
+import { useCreateServiceTask } from "@/features/service-task/hooks/useServiceTasks";
+import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
 
 const initialForm: ServiceTaskDetailsFormValues = {
   name: "",
@@ -25,7 +25,7 @@ export default function CreateServiceTaskPage() {
     Partial<Record<keyof ServiceTaskDetailsFormValues, string>>
   >({});
   const [isSaving, setIsSaving] = useState(false);
-  const [resetKey, setResetKey] = useState(0); // for resetting form
+  const [resetKey, setResetKey] = useState(0);
 
   const { mutate: createServiceTask, isPending } = useCreateServiceTask();
   const notify = useNotification();
@@ -127,14 +127,13 @@ export default function CreateServiceTaskPage() {
       />
       <div className="px-6 pb-12 mt-4 max-w-2xl mx-auto">
         <ServiceTaskDetailsForm
-          key={resetKey} // Add key to force re-render and reset form
+          key={resetKey}
           value={form}
           errors={errors}
           onChange={handleChange}
           disabled={isSaving || isPending}
         />
       </div>
-      {/* Footer Actions */}
       <div className="max-w-2xl mx-auto w-full mb-12">
         <hr className="mb-6 border-gray-300" />
         <div className="flex justify-between items-center">

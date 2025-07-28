@@ -1,5 +1,5 @@
 import { Box } from "@mui/material";
-import WorkOrderForm from "@/app/_features/work-order/components/WorkOrderForm";
+import WorkOrderForm from "@/features/work-order/components/WorkOrderForm";
 
 const NewWorkOrderPage = () => {
   return (

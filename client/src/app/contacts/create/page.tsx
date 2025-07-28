@@ -1,4 +1,4 @@
-import TechnicianFormContainer from "@/app/_features/technician/components/forms/TechnicianFormContainer";
+import TechnicianFormContainer from "@/features/technician/components/TechnicianFormContainer";
 
 const CreateTechnicianPage = () => {
   return <TechnicianFormContainer mode="create" />;

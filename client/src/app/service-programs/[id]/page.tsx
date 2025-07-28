@@ -1,28 +1,28 @@
 "use client";
 import React, { useState, useEffect, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
-import ServiceProgramHeader from "@/app/_features/service-program/components/ServiceProgramHeader";
-import { TabNavigation } from "@/app/_features/shared/tabs";
-import { PrimaryButton } from "@/app/_features/shared/button";
+import ServiceProgramHeader from "@/features/service-program/components/ServiceProgramHeader";
+import { TabNavigation } from "@/components/ui/Tabs";
+import { PrimaryButton } from "@/components/ui/Button";
 import { ChevronDown, Plus } from "lucide-react";
-import { useServiceProgram } from "@/app/_hooks/service-program/useServicePrograms";
-import { useServiceSchedules } from "@/app/_hooks/service-schedule/useServiceSchedules";
+import { useServiceProgram } from "@/features/service-program/hooks/useServicePrograms";
+import { useServiceSchedules } from "@/features/service-schedule/hooks/useServiceSchedules";
 import {
   useServiceProgramVehicles,
   useRemoveVehicleFromServiceProgram,
-} from "@/app/_hooks/service-program/useServiceProgramVehicles";
-import Loading from "@/app/_features/shared/feedback/Loading";
-import EditIcon from "@/app/_features/shared/icons/Edit";
-import EmptyState from "@/app/_features/shared/feedback/EmptyState";
-import DataTable from "@/app/_features/shared/table/DataTable";
-import FilterBar from "@/app/_features/shared/filter/FilterBar";
-import PaginationControls from "@/app/_features/shared/table/PaginationControls";
-import { ConfirmModal } from "@/app/_features/shared/modal";
-import { Archive } from "@/app/_features/shared/icons";
-import { useNotification } from "@/app/_features/shared/feedback/NotificationProvider";
-import { ServiceScheduleWithLabels } from "@/app/_hooks/service-schedule/serviceScheduleType";
-import { serviceProgramVehicleTableColumns } from "@/app/_hooks/service-program/serviceProgramVehicleTableColumns";
-import { ServiceProgramVehicleWithDetails } from "@/app/_hooks/service-program/useServiceProgramVehicles";
+} from "@/features/service-program/hooks/useServiceProgramVehicles";
+import Loading from "@/components/ui/Feedback/Loading";
+import EditIcon from "@/components/ui/Icons/Edit";
+import EmptyState from "@/components/ui/Feedback/EmptyState";
+import DataTable from "@/components/ui/Table/DataTable";
+import FilterBar from "@/components/ui/Filter/FilterBar";
+import PaginationControls from "@/components/ui/Table/PaginationControls";
+import { ConfirmModal } from "@/components/ui/Modal";
+import { Archive } from "@/components/ui/Icons";
+import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
+import { ServiceScheduleWithLabels } from "@/features/service-schedule/types/serviceScheduleType";
+import { serviceProgramVehicleTableColumns } from "@/features/service-program/config/serviceProgramVehicleTableColumns";
+import { ServiceProgramVehicleWithDetails } from "@/features/service-program/api/serviceProgramVehicleApi";
 
 export default function ServiceProgramDetailsPage() {
   const params = useParams();
@@ -34,7 +34,7 @@ export default function ServiceProgramDetailsPage() {
   const [pageSize, setPageSize] = useState(10);
 
   const {
-    data: serviceProgram,
+    serviceProgram,
     isPending: isLoadingProgram,
     isError: isProgramError,
   } = useServiceProgram(id!);
@@ -48,7 +48,6 @@ export default function ServiceProgramDetailsPage() {
     Search: search,
   });
 
-  // Service Program Vehicles
   const {
     serviceProgramVehicles,
     pagination: vehiclesPagination,
@@ -59,11 +58,9 @@ export default function ServiceProgramDetailsPage() {
     Search: search,
   });
 
-  // Remove vehicle mutation
   const removeVehicleMutation = useRemoveVehicleFromServiceProgram();
   const notify = useNotification();
 
-  // Filter service schedules to only show those belonging to this service program
   const filteredServiceSchedules = serviceSchedules.filter(
     schedule => schedule.serviceProgramID === id,
   );
@@ -81,12 +78,10 @@ export default function ServiceProgramDetailsPage() {
     { key: "vehicles", label: "Vehicles" },
   ];
 
-  // Reset page to 1 when search changes
   useEffect(() => {
     setPage(1);
   }, [search]);
 
-  // Define vehicle actions before early returns to maintain hook order
   const vehicleActions = useMemo(
     () => (spVehicle: ServiceProgramVehicleWithDetails) => [
       {
@@ -189,7 +184,7 @@ export default function ServiceProgramDetailsPage() {
 
   const handlePageSizeChange = (newPageSize: number) => {
     setPageSize(newPageSize);
-    setPage(1); // Reset to first page when changing page size
+    setPage(1);
   };
 
   const serviceScheduleColumns = [
@@ -305,7 +300,6 @@ export default function ServiceProgramDetailsPage() {
         }
       />
       <div className="px-6 mt-4 mb-8">
-        {/* Service Program Description */}
         {serviceProgram.description &&
           serviceProgram.description.trim() !== "" && (
             <div className="mb-6 p-4 bg-white rounded-lg shadow">

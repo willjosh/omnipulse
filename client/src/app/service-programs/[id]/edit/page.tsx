@@ -1,18 +1,18 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import ServiceProgramHeader from "@/app/_features/service-program/components/ServiceProgramHeader";
+import ServiceProgramHeader from "@/features/service-program/components/ServiceProgramHeader";
 import ServiceProgramDetailsForm, {
   ServiceProgramDetailsFormValues,
-} from "@/app/_features/service-program/components/ServiceProgramDetailsForm";
-import { PrimaryButton, SecondaryButton } from "@/app/_features/shared/button";
-import { Loading } from "@/app/_features/shared/feedback";
-import { EmptyState } from "@/app/_features/shared/feedback";
+} from "@/features/service-program/components/ServiceProgramDetailsForm";
+import { PrimaryButton, SecondaryButton } from "@/components/ui/Button";
+import { Loading } from "@/components/ui/Feedback";
+import { EmptyState } from "@/components/ui/Feedback";
 import {
   useServiceProgram,
   useUpdateServiceProgram,
-} from "@/app/_hooks/service-program/useServicePrograms";
-import { useNotification } from "@/app/_features/shared/feedback/NotificationProvider";
+} from "@/features/service-program/hooks/useServicePrograms";
+import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
 
 export default function EditServiceProgramPage() {
   const params = useParams();
@@ -31,7 +31,7 @@ export default function EditServiceProgramPage() {
   const [isSaving, setIsSaving] = useState(false);
 
   const {
-    data: serviceProgram,
+    serviceProgram,
     isPending: isLoadingProgram,
     isError: isProgramError,
   } = useServiceProgram(id!);
