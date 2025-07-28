@@ -67,10 +67,9 @@ public sealed class TechniciansController : ControllerBase
 
             return Ok(result);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, $"{nameof(GetTechnicians)}() - ERROR");
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while retrieving technicians." });
+            throw;
         }
     }
 
@@ -100,10 +99,9 @@ public sealed class TechniciansController : ControllerBase
 
             return Ok(result);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, $"{nameof(GetTechnician)}() - ERROR");
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while retrieving the technician." });
+            throw;
         }
     }
 
@@ -132,10 +130,9 @@ public sealed class TechniciansController : ControllerBase
 
             return CreatedAtAction(nameof(GetTechnician), new { id = technicianId }, technicianId);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, $"{nameof(CreateTechnician)}() - ERROR");
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while creating the technician." });
+            throw;
         }
     }
 
@@ -170,10 +167,9 @@ public sealed class TechniciansController : ControllerBase
 
             return Ok(technicianId);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, $"{nameof(UpdateTechnician)}() - ERROR");
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while updating the technician." });
+            throw;
         }
     }
 
@@ -203,10 +199,9 @@ public sealed class TechniciansController : ControllerBase
 
             return Ok(technicianId);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, $"{nameof(DeactivateTechnician)}() - ERROR");
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while deactivating the technician." });
+            throw;
         }
     }
 }

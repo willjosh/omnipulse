@@ -68,10 +68,9 @@ public sealed class ServiceTasksController : ControllerBase
 
             return Ok(result);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, $"{nameof(GetServiceTasks)}() - ERROR");
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while retrieving service tasks." });
+            throw;
         }
     }
 
@@ -101,10 +100,9 @@ public sealed class ServiceTasksController : ControllerBase
 
             return Ok(result);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, $"{nameof(GetServiceTask)}() - ERROR");
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while retrieving the service task." });
+            throw;
         }
     }
 
@@ -135,10 +133,9 @@ public sealed class ServiceTasksController : ControllerBase
 
             return CreatedAtAction(nameof(GetServiceTask), new { id = serviceTaskId }, serviceTaskId);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, $"{nameof(CreateServiceTask)}() - ERROR");
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while creating the service task." });
+            throw;
         }
     }
 
@@ -175,10 +172,9 @@ public sealed class ServiceTasksController : ControllerBase
 
             return Ok(serviceTaskId);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, $"{nameof(UpdateServiceTask)}() - ERROR");
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while updating the service task." });
+            throw;
         }
     }
 
@@ -208,10 +204,9 @@ public sealed class ServiceTasksController : ControllerBase
 
             return Ok(serviceTaskId);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, $"{nameof(DeleteServiceTask)}() - ERROR");
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while deleting the service task." });
+            throw;
         }
     }
 }

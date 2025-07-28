@@ -74,10 +74,9 @@ public sealed class ServiceProgramsController : ControllerBase
 
             return Ok(result);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, $"{nameof(GetServicePrograms)}() - ERROR");
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while retrieving service programs." });
+            throw;
         }
     }
 
@@ -107,10 +106,9 @@ public sealed class ServiceProgramsController : ControllerBase
 
             return Ok(result);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, $"{nameof(GetServiceProgram)}() - ERROR");
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while retrieving the service program." });
+            throw;
         }
     }
 
@@ -141,10 +139,9 @@ public sealed class ServiceProgramsController : ControllerBase
 
             return CreatedAtAction(nameof(GetServiceProgram), new { id = serviceProgramId }, serviceProgramId);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, $"{nameof(CreateServiceProgram)}() - ERROR");
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while creating the service program." });
+            throw;
         }
     }
 
@@ -181,10 +178,9 @@ public sealed class ServiceProgramsController : ControllerBase
 
             return Ok(serviceProgramId);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, $"{nameof(UpdateServiceProgram)}() - ERROR");
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while updating the service program." });
+            throw;
         }
     }
 
@@ -214,10 +210,9 @@ public sealed class ServiceProgramsController : ControllerBase
 
             return Ok(serviceProgramId);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, $"{nameof(DeleteServiceProgram)}() - ERROR");
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while deleting the service program." });
+            throw;
         }
     }
 
@@ -251,10 +246,9 @@ public sealed class ServiceProgramsController : ControllerBase
 
             return Ok(result);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, $"{nameof(GetServiceProgramVehicles)}() - ERROR");
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while retrieving assigned vehicles for the service program." });
+            throw;
         }
     }
 
@@ -291,10 +285,9 @@ public sealed class ServiceProgramsController : ControllerBase
 
             return Ok(result);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, $"{nameof(AddVehicleToServiceProgram)}() - ERROR");
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while adding the vehicle to the service program." });
+            throw;
         }
     }
 
@@ -328,10 +321,9 @@ public sealed class ServiceProgramsController : ControllerBase
 
             return Ok(result);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            _logger.LogError(ex, $"{nameof(RemoveVehicleFromServiceProgram)}() - ERROR");
-            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while removing the vehicle from the service program." });
+            throw;
         }
     }
 }

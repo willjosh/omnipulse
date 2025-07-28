@@ -1,3 +1,5 @@
+using Api.Middleware.Exceptions;
+
 using Application;
 
 using Domain.Entities;
@@ -16,6 +18,15 @@ builder.Services.AddControllers();
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices();
 builder.Services.AddPersistenceServer(builder.Configuration);
+
+// Exception Handling Services
+builder.Services.AddExceptionHandler<BadRequestExceptionHandler>();
+builder.Services.AddExceptionHandler<EntityNotFoundExceptionHandler>();
+builder.Services.AddExceptionHandler<DuplicateEntityExceptionHandler>();
+builder.Services.AddExceptionHandler<UpdateUserExceptionHandler>();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
 
 // Add and configure Swagger middleware
 builder.Services.AddEndpointsApiExplorer();
@@ -98,9 +109,11 @@ if (app.Environment.IsDevelopment())
 }
 else
 {
-    app.UseExceptionHandler("/error");
+
     app.UseHsts();
 }
+
+app.UseExceptionHandler();
 
 app.UseHttpsRedirection();
 
