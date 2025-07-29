@@ -69,12 +69,13 @@ builder.Services.AddCors(options =>
             .WithOrigins(
                 "https://localhost:3000", // Next.js - Default port
                 "http://localhost:3000",  // Next.js - Default port
-                "https://localhost:3001", // Next.js - Alternate port
-                "http://localhost:3001"   // Next.js - Alternate port
+                                          // "https://localhost:3001", // Next.js - Alternate port
+                                          // "http://localhost:3001",   // Next.js - Alternate port
+                "https://omnipulse-frontend.wonderfulsky-7bfd34c0.australiaeast.azurecontainerapps.io"
             )
             .AllowAnyHeader()
             .AllowAnyMethod()
-            .AllowCredentials() // Can include credentials like cookies, HTTP authentication, or Authorization headers with cross-origin requests
+            .AllowCredentials()
     );
 
     // Use only in development/testing
@@ -117,6 +118,7 @@ app.UseExceptionHandler();
 
 app.UseHttpsRedirection();
 
+app.UseRouting();
 app.UseCors("AllowFrontend");
 
 // app.UseAuthentication();
