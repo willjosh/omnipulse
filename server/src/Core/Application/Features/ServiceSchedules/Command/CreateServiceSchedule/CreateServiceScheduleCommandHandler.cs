@@ -59,8 +59,9 @@ public sealed class CreateServiceScheduleCommandHandler : IRequestHandler<Create
         // Map request to domain entity
         var serviceSchedule = _mapper.Map<ServiceSchedule>(request);
 
-        // Add new service schedule
+        // Add new service schedule and save it first to get the ID
         var newServiceSchedule = await _serviceScheduleRepository.AddAsync(serviceSchedule);
+        await _serviceScheduleRepository.SaveChangesAsync();
 
         // Add XrefServiceScheduleServiceTask for each ServiceTaskID
         var xrefServiceScheduleServiceTasks = request.ServiceTaskIDs

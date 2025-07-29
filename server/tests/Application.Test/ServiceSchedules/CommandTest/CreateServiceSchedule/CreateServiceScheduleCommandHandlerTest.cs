@@ -123,7 +123,7 @@ public class CreateServiceScheduleCommandHandlerTest
         Assert.Equal(expectedEntity.ID, result);
         _mockValidator.Verify(v => v.ValidateAsync(command, It.IsAny<CancellationToken>()), Times.Once);
         _mockProgramRepository.Verify(r => r.ExistsAsync(command.ServiceProgramID), Times.Once);
-        _mockScheduleRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
+        _mockScheduleRepository.Verify(r => r.SaveChangesAsync(), Times.Exactly(2));
     }
 
     [Fact]
