@@ -19,6 +19,12 @@ const SettingsPage = () => {
       icon: Layers,
       path: "/settings/vehicle-groups",
     },
+    {
+      title: "Vehicle Status",
+      description: "Manage vehicle status configurations",
+      icon: Layers,
+      path: "/settings/vehicle-status",
+    },
   ];
 
   return (

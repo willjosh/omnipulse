@@ -1,32 +1,34 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
-import ServiceScheduleHeader from "@/app/_features/service-schedule/components/ServiceScheduleHeader";
+import ServiceScheduleHeader from "@/features/service-schedule/components/ServiceScheduleHeader";
 import ServiceScheduleDetailsForm, {
   ServiceScheduleDetailsFormValues,
-} from "@/app/_features/service-schedule/components/ServiceScheduleDetailsForm";
-import { PrimaryButton, SecondaryButton } from "@/app/_features/shared/button";
+} from "@/features/service-schedule/components/ServiceScheduleDetailsForm";
+import { PrimaryButton, SecondaryButton } from "@/components/ui/Button";
 import {
   useServiceSchedule,
   useUpdateServiceSchedule,
-} from "@/app/_hooks/service-schedule/useServiceSchedules";
-import { useServiceTasks } from "@/app/_hooks/service-task/useServiceTasks";
-import { useVehicles } from "@/app/_hooks/vehicle/useVehicles";
-import { useServicePrograms } from "@/app/_hooks/service-program/useServicePrograms";
-import { BreadcrumbItem } from "@/app/_features/shared/layout/Breadcrumbs";
-import { useNotification } from "@/app/_features/shared/feedback/NotificationProvider";
+} from "@/features/service-schedule/hooks/useServiceSchedules";
+import { useServiceTasks } from "@/features/service-task/hooks/useServiceTasks";
+import { useVehicles } from "@/features/vehicle/hooks/useVehicles";
+import { useServicePrograms } from "@/features/service-program/hooks/useServicePrograms";
+import { BreadcrumbItem } from "@/components/ui/Layout/Breadcrumbs";
+import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
 
 export default function EditServiceSchedulePage() {
   const router = useRouter();
   const params = useParams();
   const id = params.id ? Number(params.id) : undefined;
-  const { data: schedule, isPending, isError } = useServiceSchedule(id!);
+  const { serviceSchedule, isPending, isError } = useServiceSchedule(id!);
   const { mutate: updateServiceSchedule, isPending: isUpdating } =
     useUpdateServiceSchedule();
   const { serviceTasks, isPending: isLoadingTasks } = useServiceTasks({
     PageSize: 100,
   });
-  const { vehicles, isLoadingVehicles } = useVehicles({ PageSize: 100 });
+  const { vehicles, isPending: isLoadingVehicles } = useVehicles({
+    PageSize: 100,
+  });
   const { servicePrograms, isPending: isLoadingPrograms } = useServicePrograms({
     PageSize: 100,
   });
@@ -40,28 +42,30 @@ export default function EditServiceSchedulePage() {
   >({});
 
   useEffect(() => {
-    if (schedule) {
+    if (serviceSchedule) {
       setForm({
-        name: schedule.name,
-        timeIntervalValue: schedule.timeIntervalValue?.toString() || "",
-        timeIntervalUnit: schedule.timeIntervalUnit || "",
-        mileageInterval: schedule.mileageInterval?.toString() || "",
-        timeBufferValue: schedule.timeBufferValue?.toString() || "",
-        timeBufferUnit: schedule.timeBufferUnit || "",
-        mileageBuffer: schedule.mileageBuffer?.toString() || "",
-        firstServiceTimeValue: schedule.firstServiceTimeValue?.toString() || "",
-        firstServiceTimeUnit: schedule.firstServiceTimeUnit || "",
-        firstServiceMileage: schedule.firstServiceMileage?.toString() || "",
-        serviceTaskIDs: schedule.serviceTasks.map(task => task.id),
-        isActive: schedule.isActive,
-        serviceProgramID: schedule.serviceProgramID,
+        name: serviceSchedule.name,
+        timeIntervalValue: serviceSchedule.timeIntervalValue?.toString() || "",
+        timeIntervalUnit: serviceSchedule.timeIntervalUnit || "",
+        mileageInterval: serviceSchedule.mileageInterval?.toString() || "",
+        timeBufferValue: serviceSchedule.timeBufferValue?.toString() || "",
+        timeBufferUnit: serviceSchedule.timeBufferUnit || "",
+        mileageBuffer: serviceSchedule.mileageBuffer?.toString() || "",
+        firstServiceTimeValue:
+          serviceSchedule.firstServiceTimeValue?.toString() || "",
+        firstServiceTimeUnit: serviceSchedule.firstServiceTimeUnit || "",
+        firstServiceMileage:
+          serviceSchedule.firstServiceMileage?.toString() || "",
+        serviceTaskIDs: serviceSchedule.serviceTasks.map(task => task.id),
+        isActive: serviceSchedule.isActive,
+        serviceProgramID: serviceSchedule.serviceProgramID,
       });
     }
-  }, [schedule]);
+  }, [serviceSchedule]);
 
   const breadcrumbs: BreadcrumbItem[] = [
     { label: "Service Schedules", href: "/service-schedules" },
-    { label: schedule?.name || "...", href: `/service-schedules/${id}` },
+    { label: serviceSchedule?.name || "...", href: `/service-schedules/${id}` },
   ];
 
   const validate = () => {
@@ -172,7 +176,6 @@ export default function EditServiceSchedulePage() {
           showServiceProgram={false}
         />
       </div>
-      {/* Footer Actions */}
       <div className="max-w-2xl mx-auto w-full mb-12">
         <hr className="mb-6 border-gray-300" />
         <div className="flex justify-between items-center">

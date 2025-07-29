@@ -1,27 +1,27 @@
 "use client";
 import React, { useState } from "react";
 import { useParams } from "next/navigation";
-import FormContainer from "@/app/_features/shared/form/FormContainer";
-import DetailFieldRow from "@/app/_features/shared/detail/DetailFieldRow";
+import FormContainer from "@/components/ui/Form/FormContainer";
+import DetailFieldRow from "@/components/ui/Detail/DetailFieldRow";
 import {
   useServiceTask,
   useDeleteServiceTask,
-} from "@/app/_hooks/service-task/useServiceTasks";
-import { getServiceTaskCategoryLabel } from "@/app/_utils/serviceTaskEnumHelper";
-import Loading from "@/app/_features/shared/feedback/Loading";
-import EmptyState from "@/app/_features/shared/feedback/EmptyState";
-import ServiceTaskHeader from "@/app/_features/service-task/components/ServiceTaskHeader";
-import PrimaryButton from "@/app/_features/shared/button/PrimaryButton";
-import EditIcon from "@/app/_features/shared/icons/Edit";
+} from "@/features/service-task/hooks/useServiceTasks";
+import { getServiceTaskCategoryLabel } from "@/features/service-task/utils/serviceTaskEnumHelper";
+import Loading from "@/components/ui/Feedback/Loading";
+import EmptyState from "@/components/ui/Feedback/EmptyState";
+import ServiceTaskHeader from "@/features/service-task/components/ServiceTaskHeader";
+import PrimaryButton from "@/components/ui/Button/PrimaryButton";
+import EditIcon from "@/components/ui/Icons/Edit";
 import { useRouter } from "next/navigation";
-import { useNotification } from "@/app/_features/shared/feedback/NotificationProvider";
-import ArchiveIcon from "@/app/_features/shared/icons/Archive";
-import ConfirmModal from "@/app/_features/shared/modal/ConfirmModal";
+import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
+import ArchiveIcon from "@/components/ui/Icons/Archive";
+import ConfirmModal from "@/components/ui/Modal/ConfirmModal";
 
 export default function ServiceTaskDetailPage() {
   const params = useParams();
   const id = params.id ? Number(params.id) : undefined;
-  const { data: task, isPending, isError } = useServiceTask(id!);
+  const { serviceTask, isPending, isError } = useServiceTask(id!);
   const router = useRouter();
   const [isArchiveModalOpen, setArchiveModalOpen] = useState(false);
   const deleteServiceTask = useDeleteServiceTask();
@@ -30,7 +30,7 @@ export default function ServiceTaskDetailPage() {
   if (isPending) {
     return <Loading />;
   }
-  if (isError || !task) {
+  if (isError || !serviceTask) {
     return (
       <EmptyState
         title="Service Task not found"
@@ -57,7 +57,7 @@ export default function ServiceTaskDetailPage() {
   return (
     <div className="min-h-screen mx-auto bg-gray-50">
       <ServiceTaskHeader
-        title={task.name}
+        title={serviceTask.name}
         breadcrumbs={breadcrumbs}
         actions={
           <>
@@ -86,23 +86,26 @@ export default function ServiceTaskDetailPage() {
       />
       <div className="m-4 px-6 pb-12">
         <FormContainer title="Details" className="max-w-2xl mx-auto">
-          <DetailFieldRow label="Name" value={task.name} />
-          <DetailFieldRow label="Description" value={task.description || "-"} />
+          <DetailFieldRow label="Name" value={serviceTask.name} />
+          <DetailFieldRow
+            label="Description"
+            value={serviceTask.description || "-"}
+          />
           <DetailFieldRow
             label="Estimated Labour Hours"
-            value={task.estimatedLabourHours}
+            value={serviceTask.estimatedLabourHours}
           />
           <DetailFieldRow
             label="Estimated Cost"
-            value={`$${(task.estimatedCost ?? 0).toFixed(2)}`}
+            value={`$${(serviceTask.estimatedCost ?? 0).toFixed(2)}`}
           />
           <DetailFieldRow
             label="Category"
-            value={getServiceTaskCategoryLabel(task.categoryEnum)}
+            value={getServiceTaskCategoryLabel(serviceTask.categoryEnum)}
           />
           <DetailFieldRow
             label="Active"
-            value={task.isActive ? "Yes" : "No"}
+            value={serviceTask.isActive ? "Yes" : "No"}
             noBorder
           />
         </FormContainer>

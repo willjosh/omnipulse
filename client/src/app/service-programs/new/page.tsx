@@ -1,13 +1,13 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import ServiceProgramHeader from "@/app/_features/service-program/components/ServiceProgramHeader";
+import ServiceProgramHeader from "@/features/service-program/components/ServiceProgramHeader";
 import ServiceProgramDetailsForm, {
   ServiceProgramDetailsFormValues,
-} from "@/app/_features/service-program/components/ServiceProgramDetailsForm";
-import { PrimaryButton, SecondaryButton } from "@/app/_features/shared/button";
-import { useCreateServiceProgram } from "@/app/_hooks/service-program/useServicePrograms";
-import { useNotification } from "@/app/_features/shared/feedback/NotificationProvider";
+} from "@/features/service-program/components/ServiceProgramDetailsForm";
+import { PrimaryButton, SecondaryButton } from "@/components/ui/Button";
+import { useCreateServiceProgram } from "@/features/service-program/hooks/useServicePrograms";
+import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
 
 const initialForm: ServiceProgramDetailsFormValues = {
   name: "",
@@ -121,7 +121,6 @@ export default function CreateServiceProgramPage() {
           disabled={isSaving || isPending}
         />
       </div>
-      {/* Footer Actions */}
       <div className="max-w-2xl mx-auto w-full mb-12">
         <hr className="mb-6 border-gray-300" />
         <div className="flex justify-between items-center">

@@ -9,19 +9,19 @@ import {
   ComboboxOptions,
   ComboboxOption,
 } from "@headlessui/react";
-import { useVehicles } from "@/app/_hooks/vehicle/useVehicles";
-import { useServiceProgram } from "@/app/_hooks/service-program/useServicePrograms";
+import { useVehicles } from "@/features/vehicle/hooks/useVehicles";
+import { useServiceProgram } from "@/features/service-program/hooks/useServicePrograms";
 import {
   useAddVehicleToServiceProgram,
   useServiceProgramVehicles,
-} from "@/app/_hooks/service-program/useServiceProgramVehicles";
-import { PrimaryButton, SecondaryButton } from "@/app/_features/shared/button";
-import { VehicleWithLabels } from "@/app/_hooks/vehicle/vehicleType";
-import Loading from "@/app/_features/shared/feedback/Loading";
-import EmptyState from "@/app/_features/shared/feedback/EmptyState";
-import ServiceProgramHeader from "@/app/_features/service-program/components/ServiceProgramHeader";
-import FormContainer from "@/app/_features/shared/form/FormContainer";
-import FormField from "@/app/_features/shared/form/FormField";
+} from "@/features/service-program/hooks/useServiceProgramVehicles";
+import { PrimaryButton, SecondaryButton } from "@/components/ui/Button";
+import { VehicleWithLabels } from "@/features/vehicle/types/vehicleType";
+import Loading from "@/components/ui/Feedback/Loading";
+import EmptyState from "@/components/ui/Feedback/EmptyState";
+import ServiceProgramHeader from "@/features/service-program/components/ServiceProgramHeader";
+import FormContainer from "@/components/ui/Form/FormContainer";
+import FormField from "@/components/ui/Form/FormField";
 
 export default function AddVehicleToServiceProgramPage() {
   const params = useParams();
@@ -34,42 +34,33 @@ export default function AddVehicleToServiceProgramPage() {
   );
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch service program details
   const {
-    data: serviceProgram,
+    serviceProgram,
     isPending: isLoadingProgram,
     isError: isProgramError,
   } = useServiceProgram(serviceProgramId!);
 
-  // Fetch all vehicles
-  const { vehicles, isLoadingVehicles } = useVehicles({
+  const { vehicles, isPending: isLoadingVehicles } = useVehicles({
     PageNumber: 1,
     PageSize: 100,
     Search: search,
   });
 
-  // Fetch currently assigned vehicles to check for duplicates
   const {
     serviceProgramVehicles: assignedVehicles,
     isPending: isLoadingAssignedVehicles,
-  } = useServiceProgramVehicles(
-    serviceProgramId!,
-    { PageSize: 1000 }, // Get all assigned vehicles
-  );
+  } = useServiceProgramVehicles(serviceProgramId!, { PageSize: 1000 });
 
   const addVehicleMutation = useAddVehicleToServiceProgram();
 
-  // Reset state when component mounts
   useEffect(() => {
     setSelectedVehicles([]);
     setError(null);
     setSearch("");
   }, []);
 
-  // Get IDs of currently assigned vehicles
   const assignedVehicleIds = assignedVehicles.map(spv => spv.vehicleID);
 
-  // Filter vehicles based on search
   const filteredVehicles = vehicles.filter(
     vehicle =>
       vehicle.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -91,7 +82,6 @@ export default function AddVehicleToServiceProgramPage() {
     }
 
     try {
-      // Assign each selected vehicle
       const assignPromises = selectedVehicles.map(vehicle =>
         addVehicleMutation.mutateAsync({
           serviceProgramID: serviceProgramId!,
@@ -101,7 +91,6 @@ export default function AddVehicleToServiceProgramPage() {
 
       await Promise.all(assignPromises);
 
-      // Navigate back to service program details
       router.push(`/service-programs/${serviceProgramId}`);
     } catch (error) {
       setError("Failed to assign vehicles. Please try again.");
@@ -158,7 +147,6 @@ export default function AddVehicleToServiceProgramPage() {
       />
 
       <div className="mx-auto max-w-4xl px-6 py-8">
-        {/* Error Message */}
         {error && (
           <div className="mb-6 rounded-md bg-red-50 p-4">
             <div className="flex">
@@ -171,7 +159,6 @@ export default function AddVehicleToServiceProgramPage() {
         )}
 
         <FormContainer title="Add Vehicles">
-          {/* Vehicle Combobox */}
           <FormField label="Vehicles">
             <Combobox
               multiple
@@ -273,7 +260,6 @@ export default function AddVehicleToServiceProgramPage() {
                   )}
                 </ComboboxOptions>
               </div>
-              {/* Show selected as chips */}
               <div className="flex flex-wrap gap-2 mt-2">
                 {selectedVehicles.map(vehicle => (
                   <span
@@ -288,7 +274,6 @@ export default function AddVehicleToServiceProgramPage() {
           </FormField>
         </FormContainer>
 
-        {/* Selected Vehicles */}
         {selectedVehicles.length > 0 && (
           <div className="bg-white p-6 rounded-lg shadow-sm mt-6">
             <h3 className="text-lg font-semibold mb-3">
@@ -331,7 +316,6 @@ export default function AddVehicleToServiceProgramPage() {
           </div>
         )}
 
-        {/* Future: Service Reminder Configuration */}
         <div className="bg-white p-6 rounded-lg shadow-sm mt-6">
           <h3 className="text-lg font-semibold mb-2">
             Service Reminder Configuration
@@ -349,7 +333,6 @@ export default function AddVehicleToServiceProgramPage() {
           </div>
         </div>
       </div>
-      {/* Footer Actions */}
       <div className="max-w-4xl mx-auto w-full mb-12">
         <hr className="mb-6 border-gray-300" />
         <div className="flex justify-between items-center">

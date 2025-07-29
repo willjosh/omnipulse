@@ -1,22 +1,22 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
-import ServiceTaskHeader from "@/app/_features/service-task/components/ServiceTaskHeader";
+import ServiceTaskHeader from "@/features/service-task/components/ServiceTaskHeader";
 import ServiceTaskDetailsForm, {
   ServiceTaskDetailsFormValues,
-} from "@/app/_features/service-task/components/ServiceTaskDetailsForm";
-import { PrimaryButton, SecondaryButton } from "@/app/_features/shared/button";
+} from "@/features/service-task/components/ServiceTaskDetailsForm";
+import { PrimaryButton, SecondaryButton } from "@/components/ui/Button";
 import {
   useServiceTask,
   useUpdateServiceTask,
-} from "@/app/_hooks/service-task/useServiceTasks";
-import { useNotification } from "@/app/_features/shared/feedback/NotificationProvider";
+} from "@/features/service-task/hooks/useServiceTasks";
+import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
 
 export default function EditServiceTaskPage() {
   const router = useRouter();
   const params = useParams();
   const id = params.id ? Number(params.id) : undefined;
-  const { data: task, isPending, isError } = useServiceTask(id!);
+  const { serviceTask, isPending, isError } = useServiceTask(id!);
   const { mutate: updateServiceTask, isPending: isUpdating } =
     useUpdateServiceTask();
   const notify = useNotification();
@@ -27,21 +27,21 @@ export default function EditServiceTaskPage() {
   >({});
 
   useEffect(() => {
-    if (task) {
+    if (serviceTask) {
       setForm({
-        name: task.name,
-        description: task.description || "",
-        estimatedLabourHours: task.estimatedLabourHours.toString(),
-        estimatedCost: task.estimatedCost.toString(),
-        category: task.categoryEnum,
-        isActive: task.isActive,
+        name: serviceTask.name,
+        description: serviceTask.description || "",
+        estimatedLabourHours: serviceTask.estimatedLabourHours.toString(),
+        estimatedCost: serviceTask.estimatedCost.toString(),
+        category: serviceTask.categoryEnum,
+        isActive: serviceTask.isActive,
       });
     }
-  }, [task]);
+  }, [serviceTask]);
 
   const breadcrumbs = [
     { label: "Service Tasks", href: "/service-tasks" },
-    { label: task?.name || "...", href: `/service-tasks/${id}` },
+    { label: serviceTask?.name || "...", href: `/service-tasks/${id}` },
   ];
 
   const validate = () => {
@@ -118,7 +118,6 @@ export default function EditServiceTaskPage() {
           showIsActive
         />
       </div>
-      {/* Footer Actions */}
       <div className="max-w-2xl mx-auto w-full mb-12">
         <hr className="mb-6 border-gray-300" />
         <div className="flex justify-between items-center">

@@ -15,6 +15,7 @@ public class UserMappingProfile : Profile
     {
         CreateMap<CreateTechnicianCommand, User>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email))
             .ForMember(dest => dest.MaintenanceHistories, opt => opt.Ignore())
             .ForMember(dest => dest.IssueAttachments, opt => opt.Ignore())
             .ForMember(dest => dest.VehicleAssignments, opt => opt.Ignore())

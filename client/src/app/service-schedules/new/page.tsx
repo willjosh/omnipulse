@@ -1,18 +1,18 @@
 "use client";
 import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import ServiceScheduleHeader from "@/app/_features/service-schedule/components/ServiceScheduleHeader";
+import ServiceScheduleHeader from "@/features/service-schedule/components/ServiceScheduleHeader";
 import ServiceScheduleDetailsForm, {
   ServiceScheduleDetailsFormValues,
-} from "@/app/_features/service-schedule/components/ServiceScheduleDetailsForm";
-import { useServiceTasks } from "@/app/_hooks/service-task/useServiceTasks";
-import { useVehicles } from "@/app/_hooks/vehicle/useVehicles";
-import { useCreateServiceSchedule } from "@/app/_hooks/service-schedule/useServiceSchedules";
-import { useServicePrograms } from "@/app/_hooks/service-program/useServicePrograms";
-import { BreadcrumbItem } from "@/app/_features/shared/layout/Breadcrumbs";
-import Loading from "@/app/_features/shared/feedback/Loading";
-import PrimaryButton from "@/app/_features/shared/button/PrimaryButton";
-import SecondaryButton from "@/app/_features/shared/button/SecondaryButton";
+} from "@/features/service-schedule/components/ServiceScheduleDetailsForm";
+import { useServiceTasks } from "@/features/service-task/hooks/useServiceTasks";
+import { useVehicles } from "@/features/vehicle/hooks/useVehicles";
+import { useCreateServiceSchedule } from "@/features/service-schedule/hooks/useServiceSchedules";
+import { useServicePrograms } from "@/features/service-program/hooks/useServicePrograms";
+import { BreadcrumbItem } from "@/components/ui/Layout/Breadcrumbs";
+import Loading from "@/components/ui/Feedback/Loading";
+import PrimaryButton from "@/components/ui/Button/PrimaryButton";
+import SecondaryButton from "@/components/ui/Button/SecondaryButton";
 
 const initialForm: ServiceScheduleDetailsFormValues = {
   name: "",
@@ -44,14 +44,15 @@ function CreateServiceScheduleForm() {
   const { serviceTasks, isPending: isLoadingTasks } = useServiceTasks({
     PageSize: 100,
   });
-  const { vehicles, isLoadingVehicles } = useVehicles({ PageSize: 100 });
+  const { vehicles, isPending: isLoadingVehicles } = useVehicles({
+    PageSize: 100,
+  });
   const { servicePrograms, isPending: isLoadingPrograms } = useServicePrograms({
     PageSize: 100,
   });
   const { mutate: createServiceSchedule, isPending: isCreating } =
     useCreateServiceSchedule();
 
-  // Pre-fill service program ID if provided in URL
   useEffect(() => {
     if (serviceProgramId) {
       setForm(prev => ({ ...prev, serviceProgramID: serviceProgramId }));
@@ -78,7 +79,6 @@ function CreateServiceScheduleForm() {
       newErrors.serviceTaskIDs = "At least one service task is required.";
     if (!form.serviceProgramID)
       newErrors.serviceProgramID = "Service Program is required.";
-    // Recurrence validation
     const hasTimeRecurrence = form.timeIntervalValue && form.timeIntervalUnit;
     const hasMileageRecurrence = form.mileageInterval;
     if (!hasTimeRecurrence && !hasMileageRecurrence) {
@@ -94,7 +94,6 @@ function CreateServiceScheduleForm() {
   };
 
   const handleCancel = () => {
-    // If we came from a service program page, go back there
     if (serviceProgramId) {
       router.push(`/service-programs/${serviceProgramId}`);
     } else {
@@ -131,7 +130,6 @@ function CreateServiceScheduleForm() {
       onSuccess: () => {
         setForm(initialForm);
         setErrors({});
-        // If we came from a service program page, go back there
         if (serviceProgramId) {
           router.push(`/service-programs/${serviceProgramId}`);
         }
@@ -179,7 +177,6 @@ function CreateServiceScheduleForm() {
           showServiceProgram={!serviceProgramId}
         />
       </div>
-      {/* Footer Actions */}
       <div className="max-w-2xl mx-auto w-full mb-12">
         <hr className="mb-6 border-gray-300" />
         <div className="flex justify-between items-center">

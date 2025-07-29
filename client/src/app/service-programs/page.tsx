@@ -1,18 +1,18 @@
 "use client";
 import React, { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { PrimaryButton } from "../_features/shared/button";
+import { PrimaryButton } from "@/components/ui/Button";
 import { Plus, Trash2 } from "lucide-react";
-import { FilterBar } from "../_features/shared/filter";
-import PaginationControls from "../_features/shared/table/PaginationControls";
-import { DataTable } from "../_features/shared/table";
-import { ConfirmModal } from "../_features/shared/modal";
+import { FilterBar } from "@/components/ui/Filter";
+import PaginationControls from "@/components/ui/Table/PaginationControls";
+import { DataTable } from "@/components/ui/Table";
+import { ConfirmModal } from "@/components/ui/Modal";
 import {
   useServicePrograms,
   useDeleteServiceProgram,
-} from "../_hooks/service-program/useServicePrograms";
-import { ServiceProgram } from "../_hooks/service-program/serviceProgramType";
-import { useNotification } from "../_features/shared/feedback/NotificationProvider";
+} from "@/features/service-program/hooks/useServicePrograms";
+import { ServiceProgram } from "@/features/service-program/types/serviceProgramType";
+import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
 
 export default function ServiceProgramsPage() {
   const router = useRouter();
@@ -20,34 +20,27 @@ export default function ServiceProgramsPage() {
   const { mutate: deleteServiceProgram, isPending: isDeleting } =
     useDeleteServiceProgram();
 
-  // Search state
   const [search, setSearch] = useState("");
 
-  // Confirmation modal state
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
     serviceProgram: ServiceProgram | null;
   }>({ isOpen: false, serviceProgram: null });
 
-  // Pagination state
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  // Reset page to 1 when search changes
   useEffect(() => {
     setPage(1);
   }, [search]);
 
-  // Compose filter object for data fetching (include search)
   const filter = useMemo(
     () => ({ PageNumber: page, PageSize: pageSize, Search: search }),
     [page, pageSize, search],
   );
 
-  // Fetch data
   const { servicePrograms, pagination, isPending } = useServicePrograms(filter);
 
-  // Table columns
   const columns = [
     { key: "name", header: "Name", sortable: true, width: "200px" },
     {
@@ -90,12 +83,10 @@ export default function ServiceProgramsPage() {
     },
   ];
 
-  // Row click handler
   const handleRowClick = (row: ServiceProgram) => {
     router.push(`/service-programs/${row.id}`);
   };
 
-  // Delete handler
   const handleDeleteServiceProgram = async () => {
     if (!confirmModal.serviceProgram) return;
 
@@ -112,7 +103,6 @@ export default function ServiceProgramsPage() {
     });
   };
 
-  // Actions for the table
   const serviceProgramActions = useMemo(
     () => [
       {
@@ -128,7 +118,6 @@ export default function ServiceProgramsPage() {
     [],
   );
 
-  // Empty state
   const emptyState = (
     <div className="text-center py-8">
       <p className="text-gray-500 mb-2">No service programs found.</p>
@@ -141,7 +130,6 @@ export default function ServiceProgramsPage() {
     </div>
   );
 
-  // Selection state (not functional yet)
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const handleSelectItem = (id: string) => {
     setSelectedItems(items =>
@@ -209,7 +197,6 @@ export default function ServiceProgramsPage() {
         fixedLayout={false}
       />
 
-      {/* Confirmation Modal */}
       <ConfirmModal
         isOpen={confirmModal.isOpen}
         onClose={() =>

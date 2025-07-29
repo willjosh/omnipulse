@@ -1,38 +1,33 @@
 "use client";
 import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { DataTable, PaginationControls } from "@/app/_features/shared/table";
-import { PrimaryButton } from "@/app/_features/shared/button";
-import { useServiceSchedules } from "@/app/_hooks/service-schedule/useServiceSchedules";
-import { ServiceScheduleWithLabels } from "@/app/_hooks/service-schedule/serviceScheduleType";
-import { FilterBar } from "@/app/_features/shared/filter";
+import { DataTable, PaginationControls } from "@/components/ui/Table";
+import { PrimaryButton } from "@/components/ui/Button";
+import { useServiceSchedules } from "@/features/service-schedule/hooks/useServiceSchedules";
+import { ServiceScheduleWithLabels } from "@/features/service-schedule/types/serviceScheduleType";
+import { FilterBar } from "@/components/ui/Filter";
 import { Plus } from "lucide-react";
-import { DEFAULT_PAGE_SIZE } from "@/app/_features/shared/table/constants";
+import { DEFAULT_PAGE_SIZE } from "@/components/ui/Table/constants";
 
 export default function ServiceScheduleListPage() {
   const router = useRouter();
 
-  // UI state: search, pagination, etc.
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
 
-  // Reset page to 1 when search changes
   React.useEffect(() => {
     setPage(1);
   }, [search]);
 
-  // Compose filter object for data fetching
   const filter = useMemo(
     () => ({ PageNumber: page, PageSize: pageSize, Search: search }),
     [page, pageSize, search],
   );
 
-  // Fetch data using the filter
   const { serviceSchedules, pagination, isPending } =
     useServiceSchedules(filter);
 
-  // Table columns
   const columns = [
     { key: "name", header: "Name", sortable: true, width: "200px" },
     {
@@ -67,12 +62,10 @@ export default function ServiceScheduleListPage() {
     },
   ];
 
-  // Row click handler
   const handleRowClick = (row: ServiceScheduleWithLabels) => {
     router.push(`/service-schedules/${row.id}`);
   };
 
-  // Empty state
   const emptyState = (
     <div className="text-center py-8">
       <p className="text-gray-500 mb-2">No service schedules found.</p>
@@ -132,8 +125,6 @@ export default function ServiceScheduleListPage() {
         getItemId={item => item.id.toString()}
         showActions={false}
         fixedLayout={false}
-        // Make table take full width
-        // style={{ width: '100%' }}
       />
     </div>
   );

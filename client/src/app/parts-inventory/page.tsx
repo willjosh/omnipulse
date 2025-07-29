@@ -1,5 +1,5 @@
 import React from "react";
-import InventoryList from "../_features/shared/inventory/InventoryList";
+import InventoryList from "../../features/inventory-item/components/InventoryList";
 
 const page = () => {
   return (

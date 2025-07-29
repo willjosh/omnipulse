@@ -2,13 +2,13 @@
 import React from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Edit, ArrowLeft, Trash2 } from "lucide-react";
-import StatusBadge from "@/app/_features/shared/feedback/StatusBadge";
-import LoadingSpinner from "@/app/_features/shared/feedback/LoadingSpinner";
-import EmptyState from "@/app/_features/shared/feedback/EmptyState";
-import DetailFieldRow from "@/app/_features/shared/detail/DetailFieldRow";
-import { useIssue } from "@/app/_hooks/issue/useIssues";
-import { getTimeToResolve } from "@/app/_utils/issueEnumHelper";
-import { useDeleteIssue } from "@/app/_hooks/issue/useIssues";
+import StatusBadge from "@/components/ui/Feedback/StatusBadge";
+import LoadingSpinner from "@/components/ui/Feedback/LoadingSpinner";
+import EmptyState from "@/components/ui/Feedback/EmptyState";
+import DetailFieldRow from "@/components/ui/Detail/DetailFieldRow";
+import { useIssue } from "@/features/issue/hooks/useIssues";
+import { getTimeToResolve } from "@/features/issue/utils/issueEnumHelper";
+import { useDeleteIssue } from "@/features/issue/hooks/useIssues";
 
 const IssueDetailsPage = () => {
   const params = useParams();
@@ -16,7 +16,11 @@ const IssueDetailsPage = () => {
   const id = params?.id ? Number(params.id) : undefined;
   const isValidId = typeof id === "number" && !isNaN(id);
   const { mutate: deleteIssue, isPending: isDeleting } = useDeleteIssue();
-  const { data: issue, isPending, isError } = useIssue(isValidId ? id : 0);
+  const {
+    issue,
+    isPending: isLoadingIssue,
+    isError,
+  } = useIssue(isValidId ? id : 0);
 
   if (!isValidId) {
     return (
@@ -27,7 +31,7 @@ const IssueDetailsPage = () => {
     );
   }
 
-  if (isPending) {
+  if (isLoadingIssue) {
     return (
       <div className="flex justify-center items-center h-96">
         <LoadingSpinner />

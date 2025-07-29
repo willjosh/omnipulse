@@ -1,15 +1,15 @@
 "use client";
 import React, { useState, useMemo } from "react";
-import { IssueListFilters } from "../_features/issue/components/IssueListFilters";
+import { IssueListFilters } from "../../features/issue/config/IssueListFilters";
 import {
   IssueListTable,
   IssueRow,
-} from "../_features/issue/components/IssueListTable";
-import { PaginationControls } from "../_features/shared/table";
-import { useIssues } from "../_hooks/issue/useIssues";
+} from "../../features/issue/components/IssueListTable";
+import { PaginationControls } from "../../components/ui/Table";
+import { useIssues } from "@/features/issue/hooks/useIssues";
 import { useRouter } from "next/navigation";
-import { DEFAULT_PAGE_SIZE } from "@/app/_features/shared/table/constants";
-import { IssueWithLabels } from "../_hooks/issue/issueType";
+import { DEFAULT_PAGE_SIZE } from "@/components/ui/Table/constants";
+import { IssueWithLabels } from "@/features/issue/types/issueType";
 
 export default function IssuesPage() {
   // State for filters and pagination

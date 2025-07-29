@@ -1,25 +1,22 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import IssueHeader from "@/app/_features/issue/components/IssueHeader";
-import IssueDetailsForm from "@/app/_features/issue/components/IssueDetailsForm";
-import FormContainer from "@/app/_features/shared/form/FormContainer";
-import SecondaryButton from "@/app/_features/shared/button/SecondaryButton";
-import PrimaryButton from "@/app/_features/shared/button/PrimaryButton";
-import { useIssue, useUpdateIssue } from "@/app/_hooks/issue/useIssues";
-import { useTechnicians } from "@/app/_hooks/technician/useTechnicians";
+import IssueHeader from "@/features/issue/components/IssueHeader";
+import IssueDetailsForm from "@/features/issue/components/IssueDetailsForm";
+import FormContainer from "@/components/ui/Form/FormContainer";
+import SecondaryButton from "@/components/ui/Button/SecondaryButton";
+import PrimaryButton from "@/components/ui/Button/PrimaryButton";
+import { useIssue, useUpdateIssue } from "@/features/issue/hooks/useIssues";
+import { useTechnicians } from "@/features/technician/hooks/useTechnicians";
 import {
   IssueFormState,
   validateIssueForm,
   mapFormToUpdateIssueCommand,
   emptyIssueFormState,
-} from "@/app/_utils/issueFormUtils";
-import {
-  combineDateAndTime,
-  extractTimeFromISO,
-} from "@/app/_utils/dateTimeUtils";
-import IssueResolutionForm from "@/app/_features/issue/components/IssueResolutionForm";
-import { IssueStatusEnum } from "@/app/_hooks/issue/issueEnum";
+} from "@/features/issue/utils/issueFormUtils";
+import { combineDateAndTime, extractTimeFromISO } from "@/utils/dateTimeUtils";
+import IssueResolutionForm from "@/features/issue/components/IssueResolutionForm";
+import { IssueStatusEnum } from "@/features/issue/types/issueEnum";
 
 export default function EditIssuePage() {
   const router = useRouter();
@@ -28,9 +25,9 @@ export default function EditIssuePage() {
 
   // Fetch issue data
   const issueId = typeof id === "number" && !isNaN(id) ? id : undefined;
-  const { data: issue, isLoading } = useIssue(issueId as number);
+  const { issue, isPending: isLoadingIssue } = useIssue(issueId as number);
   const { technicians } = useTechnicians();
-  const { mutate: updateIssue, isPending } = useUpdateIssue();
+  const { mutate: updateIssue, isPending: isUpdatingIssue } = useUpdateIssue();
 
   // Form state
   const [form, setForm] = useState<IssueFormState>(emptyIssueFormState);
@@ -118,8 +115,8 @@ export default function EditIssuePage() {
             <SecondaryButton onClick={() => router.back()}>
               Cancel
             </SecondaryButton>
-            <PrimaryButton onClick={handleSave} disabled={isPending}>
-              {isPending ? "Saving..." : "Save Issue"}
+            <PrimaryButton onClick={handleSave} disabled={isUpdatingIssue}>
+              {isUpdatingIssue ? "Saving..." : "Save Issue"}
             </PrimaryButton>
           </>
         }
@@ -128,7 +125,7 @@ export default function EditIssuePage() {
         value={form}
         errors={errors}
         onChange={handleFormChange}
-        disabled={isPending || isLoading}
+        disabled={isUpdatingIssue || isLoadingIssue}
         showStatus={true}
         statusEditable={true}
       />
@@ -138,7 +135,7 @@ export default function EditIssuePage() {
           value={form}
           errors={errors}
           onChange={handleFormChange}
-          disabled={isPending || isLoading}
+          disabled={isUpdatingIssue || isLoadingIssue}
           technicians={technicians}
         />
       )}
@@ -190,13 +187,13 @@ export default function EditIssuePage() {
         <div className="flex justify-between items-center">
           <SecondaryButton
             onClick={() => router.back()}
-            /* disabled={isPending} */
+            disabled={isUpdatingIssue}
           >
             Cancel
           </SecondaryButton>
           <div className="flex gap-3">
-            <PrimaryButton onClick={handleSave} disabled={isPending}>
-              {isPending ? "Saving..." : "Save Issue"}
+            <PrimaryButton onClick={handleSave} disabled={isUpdatingIssue}>
+              {isUpdatingIssue ? "Saving..." : "Save Issue"}
             </PrimaryButton>
           </div>
         </div>

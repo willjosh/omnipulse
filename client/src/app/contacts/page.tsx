@@ -1,5 +1,5 @@
 import React from "react";
-import TechnicianList from "../_features/technician/components/TechnicianList";
+import TechnicianList from "@/features/technician/components/TechnicianList";
 
 const ContactsPage = () => {
   return (

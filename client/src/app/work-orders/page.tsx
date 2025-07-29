@@ -20,7 +20,7 @@ import { useRouter } from "next/navigation";
 import { Plus, Filter, Search, Settings, ChevronDown } from "lucide-react";
 import { format } from "date-fns";
 import Link from "next/link";
-import { useWorkOrderListStore } from "@/app/_features/work-order/store/workOrderListStore";
+import { useWorkOrderListStore } from "@/features/work-order/stores/workOrderListStore";
 
 const WorkOrdersPage: React.FC = () => {
   const [status, setStatus] = useState("Open");
