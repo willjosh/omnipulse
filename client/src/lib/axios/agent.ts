@@ -6,7 +6,12 @@ const sleep = (delay: number) => {
   });
 };
 
-export const agent = axios.create({ baseURL: "http://localhost:5100" });
+const baseURL =
+  process.env.NODE_ENV === "production"
+    ? "https://omnipulse-backend.wonderfulsky-7bfd34c0.australiaeast.azurecontainerapps.io"
+    : "http://localhost:5100";
+
+export const agent = axios.create({ baseURL });
 
 agent.interceptors.response.use(async response => {
   try {
