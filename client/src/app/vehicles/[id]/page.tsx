@@ -2,30 +2,29 @@
 import React, { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Edit, ArrowLeft } from "lucide-react";
-import { TabNavigation } from "@/app/_features/shared/tabs";
-import { PrimaryButton, OptionButton } from "@/app/_features/shared/button";
-import { Loading } from "@/app/_features/shared/feedback";
+import { TabNavigation } from "@/components/ui/Tabs";
+import { PrimaryButton, OptionButton } from "@/components/ui/Button";
+import { Loading } from "@/components/ui/Feedback";
 import {
   getStatusDot,
   getStatusColor,
   getVehicleIcon,
-} from "@/app/_utils/vehicleEnumHelper";
-import { useVehicles } from "@/app/_hooks/vehicle/useVehicles";
+} from "@/features/vehicle/utils/vehicleEnumHelper";
+import { useVehicle } from "@/features/vehicle/hooks/useVehicles";
 
 const VehicleDetailsPage = () => {
   const params = useParams();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("details");
 
-  // Extract id from params and use it to fetch vehicle data
   const vehicleId = params.id as string;
-  const { vehicle, isLoadingVehicle } = useVehicles(undefined, vehicleId);
+  const { vehicle, isPending, isError } = useVehicle(vehicleId);
 
-  if (isLoadingVehicle) {
+  if (isPending) {
     return <Loading />;
   }
 
-  if (!vehicle) {
+  if (!vehicle || isError) {
     return (
       <div className="min-h-screen max-w-7xl shadow border-b border-gray-200 bg-gray-50 flex items-center justify-center">
         <div className="text-center">

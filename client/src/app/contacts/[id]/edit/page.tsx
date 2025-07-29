@@ -1,15 +1,15 @@
 "use client";
 import { useParams, useRouter } from "next/navigation";
-import TechnicianFormContainer from "@/app/_features/technician/components/forms/TechnicianFormContainer";
-import { useTechnician } from "@/app/_hooks/technician/useTechnicians";
-import { Loading } from "@/app/_features/shared/feedback";
+import TechnicianFormContainer from "@/features/technician/components/TechnicianFormContainer";
+import { useTechnician } from "@/features/technician/hooks/useTechnicians";
+import { Loading } from "@/components/ui/Feedback";
 
 const EditTechnicianPage = () => {
   const params = useParams();
   const router = useRouter();
   const technicianId = params.id as string;
 
-  const { data: technician, isLoading: isLoadingTechnician } =
+  const { technician, isPending: isLoadingTechnician } =
     useTechnician(technicianId);
 
   if (isLoadingTechnician) {

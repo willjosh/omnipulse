@@ -2,10 +2,10 @@
 import React, { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Edit, ArrowLeft, Mail, Calendar } from "lucide-react";
-import { TabNavigation } from "@/app/_features/shared/tabs";
-import { PrimaryButton, SecondaryButton } from "@/app/_features/shared/button";
-import { Loading } from "@/app/_features/shared/feedback";
-import { useTechnician } from "@/app/_hooks/technician/useTechnicians";
+import { TabNavigation } from "@/components/ui/Tabs";
+import { PrimaryButton } from "@/components/ui/Button";
+import { Loading } from "@/components/ui/Feedback";
+import { useTechnician } from "@/features/technician/hooks/useTechnicians";
 
 const TechnicianProfilePage = () => {
   const params = useParams();
@@ -14,9 +14,9 @@ const TechnicianProfilePage = () => {
 
   // Extract id from params and use it to fetch technician data
   const technicianId = params.id as string;
-  const { data: technician, isLoading, isError } = useTechnician(technicianId);
+  const { technician, isPending, isError } = useTechnician(technicianId);
 
-  if (isLoading) {
+  if (isPending) {
     return <Loading />;
   }
 

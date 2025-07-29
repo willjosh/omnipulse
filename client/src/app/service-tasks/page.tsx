@@ -1,14 +1,14 @@
 "use client";
 import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { DataTable, PaginationControls } from "@/app/_features/shared/table";
-import { PrimaryButton } from "@/app/_features/shared/button";
-import { useServiceTasks } from "@/app/_hooks/service-task/useServiceTasks";
-import { ServiceTaskWithLabels } from "@/app/_hooks/service-task/serviceTaskType";
-import { getServiceTaskCategoryLabel } from "@/app/_utils/serviceTaskEnumHelper";
-import { DEFAULT_PAGE_SIZE } from "@/app/_features/shared/table/constants";
-import { serviceTaskTableColumns } from "@/app/_features/service-task/components/ServiceTaskTableColumns";
-import { FilterBar } from "@/app/_features/shared/filter";
+import { DataTable, PaginationControls } from "@/components/ui/Table";
+import { PrimaryButton } from "@/components/ui/Button";
+import { useServiceTasks } from "@/features/service-task/hooks/useServiceTasks";
+import { ServiceTaskWithLabels } from "@/features/service-task/types/serviceTaskType";
+import { getServiceTaskCategoryLabel } from "@/features/service-task/utils/serviceTaskEnumHelper";
+import { DEFAULT_PAGE_SIZE } from "@/components/ui/Table/constants";
+import { serviceTaskTableColumns } from "@/features/service-task/config/ServiceTaskTableColumns";
+import { FilterBar } from "@/components/ui/Filter";
 import { Plus } from "lucide-react";
 import {
   Listbox,
@@ -17,24 +17,21 @@ import {
   ListboxOption,
 } from "@headlessui/react";
 import { ChevronDown } from "lucide-react";
-import { serviceTaskSortOptions } from "@/app/_utils/serviceTaskOptions";
+import { serviceTaskSortOptions } from "@/features/service-task/config/serviceTaskOptions";
 
 export default function ServiceTaskListPage() {
   const router = useRouter();
 
-  // UI state: search, pagination, etc.
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [sortBy, setSortBy] = useState("Name");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
-  // Reset page to 1 when search changes
   React.useEffect(() => {
     setPage(1);
   }, [search, sortBy, sortOrder]);
 
-  // Compose filter object for data fetching
   const filter = useMemo(
     () => ({
       PageNumber: page,
@@ -46,12 +43,10 @@ export default function ServiceTaskListPage() {
     [page, pageSize, search, sortBy, sortOrder],
   );
 
-  // Fetch data using the filter
   const { serviceTasks, pagination, isPending } = useServiceTasks(filter);
 
   console.log(serviceTasks);
 
-  // Transform data for the table
   const tableData = useMemo(
     () =>
       serviceTasks.map((task: ServiceTaskWithLabels) => ({
@@ -66,7 +61,6 @@ export default function ServiceTaskListPage() {
     [serviceTasks],
   );
 
-  // Pagination handlers
   const handlePreviousPage = () => setPage(p => Math.max(1, p - 1));
   const handleNextPage = () =>
     setPage(p => (pagination && p < pagination.totalPages ? p + 1 : p));
@@ -76,12 +70,10 @@ export default function ServiceTaskListPage() {
     setPage(1);
   };
 
-  // Row click handler
   const handleRowClick = (row: any) => {
     router.push(`/service-tasks/${row.id}`);
   };
 
-  // Empty state
   const emptyState = (
     <div className="text-center py-8">
       <p className="text-gray-500 mb-2">No service tasks found.</p>

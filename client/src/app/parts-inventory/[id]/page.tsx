@@ -2,11 +2,11 @@
 import React, { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Edit, ArrowLeft, Package } from "lucide-react";
-import { TabNavigation } from "@/app/_features/shared/tabs";
-import { PrimaryButton, OptionButton } from "@/app/_features/shared/button";
-import { Loading } from "@/app/_features/shared/feedback";
-import { useInventoryItem } from "@/app/_hooks/inventory-item/useInventoryItems";
-import InventoryModal from "@/app/_features/shared/inventory/InventoryModal";
+import { TabNavigation } from "@/components/ui/Tabs";
+import { PrimaryButton, OptionButton } from "@/components/ui/Button";
+import { Loading } from "@/components/ui/Feedback";
+import { useInventoryItem } from "@/features/inventory-item/hooks/useInventoryItems";
+import InventoryModal from "@/features/inventory-item/components/InventoryModal";
 
 const InventoryItemDetailsPage = () => {
   const params = useParams();
@@ -15,7 +15,7 @@ const InventoryItemDetailsPage = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const inventoryItemId = parseInt(params.id as string);
-  const { data: inventoryItem, isPending: isLoadingInventoryItem } =
+  const { inventoryItem, isPending: isLoadingInventoryItem } =
     useInventoryItem(inventoryItemId);
 
   if (isLoadingInventoryItem) {

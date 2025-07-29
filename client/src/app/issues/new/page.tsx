@@ -1,18 +1,18 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import IssueHeader from "../../_features/issue/components/IssueHeader";
-import IssueDetailsForm from "../../_features/issue/components/IssueDetailsForm";
-import FormContainer from "../../_features/shared/form/FormContainer";
-import SecondaryButton from "../../_features/shared/button/SecondaryButton";
-import PrimaryButton from "../../_features/shared/button/PrimaryButton";
-import { useCreateIssue } from "../../_hooks/issue/useIssues";
+import IssueHeader from "../../../features/issue/components/IssueHeader";
+import IssueDetailsForm from "../../../features/issue/components/IssueDetailsForm";
+import FormContainer from "../../../components/ui/Form/FormContainer";
+import SecondaryButton from "../../../components/ui/Button/SecondaryButton";
+import PrimaryButton from "../../../components/ui/Button/PrimaryButton";
+import { useCreateIssue } from "@/features/issue/hooks/useIssues";
 import {
   IssueFormState,
   validateIssueForm,
   mapFormToCreateIssueCommand,
   emptyIssueFormState,
-} from "../../_utils/issueFormUtils";
+} from "@/features/issue/utils/issueFormUtils";
 
 export default function CreateIssueHeaderOnly() {
   const router = useRouter();

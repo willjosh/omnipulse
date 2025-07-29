@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { VehicleStatusList } from "@/app/_features/shared/vehicle-status";
+import { VehicleStatusList } from "@/features/vehicle-status/components/VehicleStatusList";
 
 const VehicleStatusPage = () => {
   return (

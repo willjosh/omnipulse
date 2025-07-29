@@ -2,8 +2,8 @@
 
 import { Box, Container } from "@mui/material";
 import { notFound, useParams } from "next/navigation";
-import WorkOrderHeader from "@/app/_features/work-order/components/WorkOrderDetailsHeader";
-import { WorkOrderDetailsPanel } from "@/app/_features/work-order/components/WorkOrderDetailsPanel";
+import WorkOrderHeader from "@/features/work-order/components/WorkOrderDetailsHeader";
+import { WorkOrderDetailsPanel } from "@/features/work-order/components/WorkOrderDetailsPanel";
 
 export default function WorkOrderPage() {
   const params = useParams();
