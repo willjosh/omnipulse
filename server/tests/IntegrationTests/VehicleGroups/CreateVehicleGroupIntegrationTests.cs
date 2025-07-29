@@ -9,7 +9,7 @@ using IntegrationTests.Abstractions;
 namespace IntegrationTests.VehicleGroups;
 
 [Trait("TestCategory", "Integration")]
-[Trait("Entity", "Vehicle Group")]
+[Trait("Entity", nameof(VehicleGroup))]
 public class CreateVehicleGroupIntegrationTests : BaseIntegrationTest
 {
     public CreateVehicleGroupIntegrationTests(IntegrationTestWebAppFactory factory) : base(factory) { }

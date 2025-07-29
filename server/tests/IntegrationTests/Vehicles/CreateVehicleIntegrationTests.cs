@@ -11,7 +11,7 @@ using IntegrationTests.Abstractions;
 namespace IntegrationTests.Vehicles;
 
 [Trait("TestCategory", "Integration")]
-[Trait("Entity", "Vehicle")]
+[Trait("Entity", nameof(Vehicle))]
 public class CreateVehicleIntegrationTests : BaseIntegrationTest
 {
     public CreateVehicleIntegrationTests(IntegrationTestWebAppFactory factory) : base(factory) { }

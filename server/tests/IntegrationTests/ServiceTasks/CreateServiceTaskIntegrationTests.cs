@@ -10,7 +10,7 @@ using IntegrationTests.Abstractions;
 namespace IntegrationTests.ServiceTasks;
 
 [Trait("TestCategory", "Integration")]
-[Trait("Entity", "Service Task")]
+[Trait("Entity", nameof(ServiceTask))]
 public class CreateServiceTaskIntegrationTests : BaseIntegrationTest
 {
     public CreateServiceTaskIntegrationTests(IntegrationTestWebAppFactory factory) : base(factory) { }

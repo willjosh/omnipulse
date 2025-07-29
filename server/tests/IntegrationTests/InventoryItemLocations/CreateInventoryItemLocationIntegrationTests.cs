@@ -9,7 +9,7 @@ using IntegrationTests.Abstractions;
 namespace IntegrationTests.InventoryItemLocations;
 
 [Trait("TestCategory", "Integration")]
-[Trait("Entity", "Inventory Item Location")]
+[Trait("Entity", nameof(InventoryItemLocation))]
 public class CreateInventoryItemLocationIntegrationTests : BaseIntegrationTest
 {
     public CreateInventoryItemLocationIntegrationTests(IntegrationTestWebAppFactory factory) : base(factory) { }
