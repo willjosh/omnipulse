@@ -1,6 +1,8 @@
 using Application.Contracts.Logger;
+using Application.Contracts.Services;
 
 using Infrastructure.Logger;
+using Infrastructure.PdfGeneration;
 
 using Microsoft.Extensions.DependencyInjection;
 
@@ -17,6 +19,9 @@ public static class InfrastructureServiceRegistration
     {
         // Register the generic application logger implementation
         services.AddScoped(typeof(IAppLogger<>), typeof(AppLogger<>));
+
+        // Invoice PDF Generation Service
+        services.AddScoped<IInvoicePdfService, HandlebarsPdfGenerator>();
 
         return services;
     }
