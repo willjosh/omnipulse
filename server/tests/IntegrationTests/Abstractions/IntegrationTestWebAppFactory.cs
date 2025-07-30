@@ -42,7 +42,13 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
     /// Initialises the test container database before running tests.
     /// </summary>
     /// <returns>A task that represents the asynchronous initialisation operation.</returns>
-    public Task InitializeAsync() => _dbContainer.StartAsync();
+    public async Task InitializeAsync()
+    {
+        await _dbContainer.StartAsync();
+        using var scope = Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<OmnipulseDatabaseContext>();
+        await dbContext.Database.MigrateAsync();
+    }
 
     /// <summary>
     /// Disposes of the test container database after tests complete.
