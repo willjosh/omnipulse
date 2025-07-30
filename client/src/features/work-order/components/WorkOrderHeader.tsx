@@ -19,7 +19,7 @@ const WorkOrderHeader: React.FC<WorkOrderHeaderProps> = ({
   children,
 }) => (
   <div
-    className={`sticky top-16 z-30 bg-white border-b border-gray-50 shadow-sm w-full ${className}`}
+    className={`sticky top-0 z-30 bg-white border-b border-gray-50 shadow-sm w-full ${className}`}
   >
     <div className="px-6 pt-4 pb-3">
       <Breadcrumbs items={breadcrumbs} className="mb-2" />
