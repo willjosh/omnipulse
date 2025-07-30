@@ -54,7 +54,7 @@ public class GetTechnicianQueryHandlerTest
             IssueAttachments = [],
             VehicleAssignments = [],
             VehicleDocuments = [],
-            VehicleInspections = [],
+            Inspections = [],
         };
 
         _mockUserRepository.Setup(r => r.GetTechnicianByIdAsync(It.IsAny<string>()))

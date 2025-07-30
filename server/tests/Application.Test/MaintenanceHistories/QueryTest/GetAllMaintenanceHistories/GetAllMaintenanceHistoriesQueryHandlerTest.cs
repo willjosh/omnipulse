@@ -100,7 +100,7 @@ public class GetAllMaintenanceHistoriesQueryHandlerTest
             XrefServiceProgramVehicles = [],
             ServiceReminders = [],
             Issues = [],
-            VehicleInspections = []
+            Inspections = []
         };
         var workOrder = new Domain.Entities.WorkOrder
         {
@@ -152,7 +152,7 @@ public class GetAllMaintenanceHistoriesQueryHandlerTest
             Vehicles = [],
             VehicleAssignments = [],
             VehicleDocuments = [],
-            VehicleInspections = [],
+            Inspections = [],
             MaintenanceHistories = [],
             IssueAttachments = []
         };

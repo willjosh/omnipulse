@@ -57,7 +57,7 @@ public class DeactivateTechnicianHandlerTest
             IssueAttachments = [],
             VehicleAssignments = [],
             VehicleDocuments = [],
-            VehicleInspections = [],
+            Inspections = [],
             Vehicles = []
         };
 
@@ -114,7 +114,7 @@ public class DeactivateTechnicianHandlerTest
             IssueAttachments = [],
             VehicleAssignments = [],
             VehicleDocuments = [],
-            VehicleInspections = [],
+            Inspections = [],
             Vehicles = []
         };
 

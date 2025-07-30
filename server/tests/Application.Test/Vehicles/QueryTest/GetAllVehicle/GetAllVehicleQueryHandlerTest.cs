@@ -97,7 +97,7 @@ public class GetAllVehicleQueryHandlerTest
             Vehicles = [],
             VehicleAssignments = [],
             VehicleDocuments = [],
-            VehicleInspections = [],
+            Inspections = [],
             MaintenanceHistories = [],
             IssueAttachments = []
         };
@@ -135,7 +135,7 @@ public class GetAllVehicleQueryHandlerTest
                 XrefServiceProgramVehicles = [],
                 ServiceReminders = [],
                 Issues = [],
-                VehicleInspections = []
+                Inspections = []
             },
             new() {
                 ID = 2,
@@ -168,7 +168,7 @@ public class GetAllVehicleQueryHandlerTest
                 XrefServiceProgramVehicles = [],
                 ServiceReminders = [],
                 Issues = [],
-                VehicleInspections = []
+                Inspections = []
             }
         };
 

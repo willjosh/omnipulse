@@ -67,7 +67,7 @@ public class DeactivateVehicleHandlerTest
             XrefServiceProgramVehicles = [],
             ServiceReminders = [],
             Issues = [],
-            VehicleInspections = []
+            Inspections = []
         };
 
         _mockVehicleRepository.Setup(r => r.GetByIdAsync(DeactivateVehicleCommand.VehicleID)).ReturnsAsync(ReturnedVehicle);
@@ -140,7 +140,7 @@ public class DeactivateVehicleHandlerTest
             XrefServiceProgramVehicles = [],
             ServiceReminders = [],
             Issues = [],
-            VehicleInspections = []
+            Inspections = []
         };
 
         _mockVehicleRepository.Setup(r => r.GetByIdAsync(DeactivateVehicleCommand.VehicleID)).ReturnsAsync(ReturnedVehicle);
@@ -192,7 +192,7 @@ public class DeactivateVehicleHandlerTest
             XrefServiceProgramVehicles = [],
             ServiceReminders = [],
             Issues = [],
-            VehicleInspections = []
+            Inspections = []
         };
 
         _mockVehicleRepository.Setup(r => r.GetByIdAsync(DeactivateVehicleCommand.VehicleID)).ReturnsAsync(ReturnedVehicle);
@@ -245,7 +245,7 @@ public class DeactivateVehicleHandlerTest
             XrefServiceProgramVehicles = [],
             ServiceReminders = [],
             Issues = [],
-            VehicleInspections = []
+            Inspections = []
         };
 
         _mockVehicleRepository.Setup(r => r.GetByIdAsync(DeactivateVehicleCommand.VehicleID)).ReturnsAsync(ReturnedVehicle);

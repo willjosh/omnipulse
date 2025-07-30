@@ -99,7 +99,7 @@ public class GetAllTechnicianQueryHandlerTest
                 IssueAttachments = [],
                 VehicleAssignments = [],
                 VehicleDocuments = [],
-                VehicleInspections = [],
+                Inspections = [],
                 },
             new() {
                 Id = "guid-2",
@@ -115,7 +115,7 @@ public class GetAllTechnicianQueryHandlerTest
                 IssueAttachments = [],
                 VehicleAssignments = [],
                 VehicleDocuments = [],
-                VehicleInspections = [],
+                Inspections = [],
             },
         };
 
