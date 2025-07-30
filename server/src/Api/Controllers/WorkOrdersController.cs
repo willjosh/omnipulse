@@ -1,5 +1,7 @@
 using Application.Features.WorkOrders.Command.CreateWorkOrder;
+using Application.Features.WorkOrders.Query.GetAllWorkOrder;
 using Application.Features.WorkOrders.Query.GetWorkOrderDetail;
+using Application.Models.PaginationModels;
 
 using Domain.Entities;
 
@@ -15,6 +17,7 @@ namespace Api.Controllers;
 /// <remarks>
 /// <b>API Endpoints</b>:
 /// <list type="bullet">
+/// <item><b>GET /api/workorders</b> - <see cref="GetWorkOrders"/> - <see cref="GetAllWorkOrderQuery"/></item>
 /// <item><b>GET /api/workorders/{id}</b> - <see cref="GetWorkOrder"/> - <see cref="GetWorkOrderDetailQuery"/></item>
 /// <item><b>POST /api/workorders</b> - <see cref="CreateWorkOrder"/> - <see cref="CreateWorkOrderCommand"/></item>
 /// </list>
@@ -32,6 +35,38 @@ public sealed class WorkOrdersController : ControllerBase
     {
         _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    }
+
+    /// <summary>
+    /// Retrieves a paginated list of all work orders.
+    /// </summary>
+    /// <param name="parameters">Pagination parameters.</param>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>A paginated result containing work orders.</returns>
+    /// <response code="200">Returns the paginated list of work orders.</response>
+    /// <response code="400">Pagination parameters are invalid.</response>
+    /// <response code="500">Internal server error occurred.</response>
+    [HttpGet]
+    [ProducesResponseType(typeof(PagedResult<GetWorkOrderDetailDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<PagedResult<GetWorkOrderDetailDTO>>> GetWorkOrders(
+        [FromQuery] PaginationParameters parameters,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            _logger.LogInformation($"{nameof(GetWorkOrders)}() - Called");
+
+            var query = new GetAllWorkOrderQuery(parameters);
+            var result = await _mediator.Send(query, cancellationToken);
+
+            return Ok(result);
+        }
+        catch (Exception)
+        {
+            throw;
+        }
     }
 
     /// <summary>
