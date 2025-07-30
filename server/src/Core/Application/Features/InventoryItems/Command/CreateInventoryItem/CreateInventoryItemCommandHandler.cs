@@ -54,12 +54,15 @@ public class CreateInventoryItemCommandHandler : IRequestHandler<CreateInventory
         // add new inventory item
         var newInventoryItem = await _inventoryItemRepository.AddAsync(inventoryItem);
 
-        // add new inventory 
+        // Save changes to get the actual ID
+        await _inventoryItemRepository.SaveChangesAsync();
+
+        // add new inventory using the persisted InventoryItem ID
         var inventory = Domain.Entities.Inventory.CreateDefaultInventory(newInventoryItem.ID, inventoryItem.UnitCost);
         await _inventoryRepository.AddAsync(inventory);
 
-        // save changes
-        await _inventoryItemRepository.SaveChangesAsync();
+        // save the inventory changes
+        await _inventoryRepository.SaveChangesAsync();
 
         // return inventory item ID
         return newInventoryItem.ID;
