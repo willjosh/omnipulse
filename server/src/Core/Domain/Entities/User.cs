@@ -11,12 +11,12 @@ public class User : IdentityUser
     public required DateTime CreatedAt { get; set; }
     public required DateTime UpdatedAt { get; set; }
 
-    // navigation properties…
+    // Navigation Properties
     public required ICollection<MaintenanceHistory> MaintenanceHistories { get; set; } = [];
     public required ICollection<IssueAttachment> IssueAttachments { get; set; } = [];
     public required ICollection<VehicleAssignment> VehicleAssignments { get; set; } = [];
     public required ICollection<VehicleDocument> VehicleDocuments { get; set; } = [];
-    public required ICollection<VehicleInspection> VehicleInspections { get; set; } = [];
+    public required ICollection<Inspection> Inspections { get; set; } = [];
     public required ICollection<Vehicle> Vehicles { get; set; } = [];
 
     public string GetFullName()
