@@ -1,4 +1,4 @@
-name: CI - Backend - Test
+name: CI - Backend
 
 on:
   push:
@@ -33,7 +33,7 @@ jobs:
           if-no-files-found: error
 
   test:
-    name: Test - ${{ matrix.test-category }}
+    name: Test - ${{ matrix.test-category.name }}
     needs: build
     runs-on: ubuntu-latest
     strategy:
@@ -96,6 +96,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: coverage-input
+          pattern: "${{ github.run_id }}-*-test-results"
+
+      - name: Debug - List downloaded files
+        run: find coverage-input -name "*.xml" -type f
 
       - name: Install ReportGenerator
         run: dotnet tool install -g dotnet-reportgenerator-globaltool
