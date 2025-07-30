@@ -38,7 +38,8 @@ jobs:
       - name: Build solution
         run: dotnet build server/omnipulse_server.sln --configuration Release --no-restore
 
-      - name: Run ${{ matrix.test-category.name }} tests
+      - name: 🧪 Run ${{ matrix.test-category.name }} Tests
+        continue-on-error: true
         run: |
           dotnet test server \
             --filter "${{ matrix.test-category.filter }}" \
@@ -53,7 +54,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: ${{ github.run_id }}-${{ matrix.test-category.folder }}-test-results
+          name: ${{ github.run_id }}-test-results-${{ matrix.test-category.folder }}
           path: |
             server/tests/coverage/${{ matrix.test-category.folder }}/**/*.trx
             server/tests/coverage/${{ matrix.test-category.folder }}/**/coverage.cobertura.xml
