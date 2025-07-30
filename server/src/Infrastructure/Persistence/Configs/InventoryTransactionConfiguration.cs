@@ -35,8 +35,7 @@ public class InventoryTransactionConfiguration : IEntityTypeConfiguration<Invent
             .HasDefaultValue(0m);
 
         builder.Property(t => t.PerformedByUserID)
-            .IsRequired()
-            .HasMaxLength(100);
+            .IsRequired();
 
         // Relationships
         builder.HasOne(t => t.Inventory)

@@ -76,15 +76,15 @@ public class InventoryConfiguration : IEntityTypeConfiguration<Inventory>
         // Stock level monitoring indexes
         builder.HasIndex(i => i.NeedsReorder)
             .HasDatabaseName("IX_Inventories_NeedsReorder")
-            .HasFilter("[NeedsReorder] = 1"); // Partial index for better performance
+            .HasFilter("[NeedsReorder] = 1"); // This is valid - comparing to constant
 
         builder.HasIndex(i => new { i.QuantityOnHand, i.MinStockLevel })
             .HasDatabaseName("IX_Inventories_StockLevels");
 
-        // Low stock composite index (frequently used query)
+        // Low stock composite index (FIXED - removed invalid filter)
         builder.HasIndex(i => new { i.QuantityOnHand, i.MinStockLevel, i.InventoryItemID })
-            .HasDatabaseName("IX_Inventories_LowStock")
-            .HasFilter("[QuantityOnHand] <= [MinStockLevel]");
+            .HasDatabaseName("IX_Inventories_LowStock");
+        // Removed: .HasFilter("[QuantityOnHand] <= [MinStockLevel]"); - Invalid column comparison
 
         // Location-based inventory queries
         builder.HasIndex(i => new { i.InventoryItemLocationID, i.InventoryItemID })

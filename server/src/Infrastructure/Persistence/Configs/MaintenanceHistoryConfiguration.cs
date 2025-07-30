@@ -18,9 +18,6 @@ public class MaintenanceHistoryConfiguration : IEntityTypeConfiguration<Maintena
         builder.HasIndex(m => m.CreatedAt);
 
         // Check constraints
-        builder.ToTable(t => t.HasCheckConstraint("CK_MaintenanceHistory_Cost", "Cost >= 0"));
-        builder.ToTable(t => t.HasCheckConstraint("CK_MaintenanceHistory_LabourHours", "LabourHours >= 0"));
-        builder.ToTable(t => t.HasCheckConstraint("CK_MaintenanceHistory_MileageAtService", "MileageAtService >= 0"));
         builder.ToTable(t => t.HasCheckConstraint("CK_MaintenanceHistory_ServiceDate", "ServiceDate >= CreatedAt"));
 
         // Table relationships
