@@ -65,6 +65,7 @@ public class WorkOrderRepository : GenericRepository<WorkOrder>, IWorkOrderRepos
         return await _dbSet
             .Include(wo => wo.Vehicle)
             .Include(wo => wo.User)
+            .Include(wo => wo.WorkOrderLineItems)
             .FirstOrDefaultAsync(wo => wo.ID == workOrderId);
     }
 

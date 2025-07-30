@@ -3,7 +3,6 @@ using Application.Contracts.Persistence;
 using Application.Exceptions;
 using Application.Features.Vehicles.Query.GetAllVehicle;
 using Application.MappingProfiles;
-using Application.Models;
 using Application.Models.PaginationModels;
 
 using AutoMapper;
@@ -133,7 +132,7 @@ public class GetAllVehicleQueryHandlerTest
                 VehicleImages = [],
                 VehicleAssignments = [],
                 VehicleDocuments = [],
-                VehicleServicePrograms = [],
+                XrefServiceProgramVehicles = [],
                 ServiceReminders = [],
                 Issues = [],
                 VehicleInspections = []
@@ -166,7 +165,7 @@ public class GetAllVehicleQueryHandlerTest
                 VehicleImages = [],
                 VehicleAssignments = [],
                 VehicleDocuments = [],
-                VehicleServicePrograms = [],
+                XrefServiceProgramVehicles = [],
                 ServiceReminders = [],
                 Issues = [],
                 VehicleInspections = []

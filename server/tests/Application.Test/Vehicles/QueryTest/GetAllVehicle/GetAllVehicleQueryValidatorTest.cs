@@ -1,10 +1,5 @@
-using System;
-
-using Application.Features.Shared;
 using Application.Features.Vehicles.Query.GetAllVehicle;
-using Application.Models;
-
-using Xunit;
+using Application.Models.PaginationModels;
 
 namespace Application.Test.Vehicles.QueryTest.GetAllVehicle;
 

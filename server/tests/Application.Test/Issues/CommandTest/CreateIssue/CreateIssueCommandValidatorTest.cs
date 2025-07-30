@@ -1,11 +1,6 @@
-using System;
-using System.Linq;
-
 using Application.Features.Issues.Command.CreateIssue;
 
 using Domain.Entities.Enums;
-
-using Xunit;
 
 namespace Application.Test.Issues.CommandTest.CreateIssue;
 
@@ -98,8 +93,8 @@ public class CreateIssueCommandValidatorTest
 
     // CATEGORY VALIDATION TESTS
     [Theory]
-    [InlineData(0)] // Invalid category
-    [InlineData(10)] // Invalid category
+    [InlineData(-1)] // Invalid category
+    [InlineData(9999)] // Invalid category
     public async Task CreateIssueValidator_Should_Fail_When_Category_Is_Invalid(int invalidCategory)
     {
         // Given
@@ -115,8 +110,8 @@ public class CreateIssueCommandValidatorTest
 
     // PRIORITY LEVEL VALIDATION TESTS
     [Theory]
-    [InlineData(0)] // Invalid priority level
-    [InlineData(10)] // Invalid priority level
+    [InlineData(-1)] // Invalid priority level
+    [InlineData(9999)] // Invalid priority level
     public async Task CreateIssueValidator_Should_Fail_When_PriorityLevel_Is_Invalid(int invalidPriorityLevel)
     {
         // Given
@@ -132,8 +127,8 @@ public class CreateIssueCommandValidatorTest
 
     // STATUS VALIDATION TESTS
     [Theory]
-    [InlineData(0)] // Invalid status
-    [InlineData(10)] // Invalid status
+    [InlineData(-1)] // Invalid status
+    [InlineData(9999)] // Invalid status
     public async Task CreateIssueValidator_Should_Fail_When_Status_Is_Invalid(int invalidStatus)
     {
         // Given

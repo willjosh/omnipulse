@@ -1,12 +1,6 @@
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-
 using Application.Features.Issues.Command.UpdateIssue;
 
 using Domain.Entities.Enums;
-
-using Xunit;
 
 namespace Application.Test.Issues.CommandTest.UpdateIssue;
 

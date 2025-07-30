@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
@@ -17,12 +15,14 @@ namespace Application.Features.InventoryItems.Command.CreateInventoryItem;
 public class CreateInventoryItemCommandHandler : IRequestHandler<CreateInventoryItemCommand, int>
 {
     private readonly IInventoryItemRepository _inventoryItemRepository;
+    private readonly IInventoryRepository _inventoryRepository;
     private readonly IValidator<CreateInventoryItemCommand> _validator;
     private readonly IAppLogger<CreateInventoryItemCommandHandler> _logger;
     private readonly IMapper _mapper;
 
     public CreateInventoryItemCommandHandler(
         IInventoryItemRepository inventoryItemRepository,
+        IInventoryRepository inventoryRepository,
         IValidator<CreateInventoryItemCommand> validator,
         IAppLogger<CreateInventoryItemCommandHandler> logger,
         IMapper mapper)
@@ -31,6 +31,7 @@ public class CreateInventoryItemCommandHandler : IRequestHandler<CreateInventory
         _validator = validator;
         _logger = logger;
         _mapper = mapper;
+        _inventoryRepository = inventoryRepository;
     }
 
     public async Task<int> Handle(CreateInventoryItemCommand request, CancellationToken cancellationToken)
@@ -52,6 +53,11 @@ public class CreateInventoryItemCommandHandler : IRequestHandler<CreateInventory
 
         // add new inventory item
         var newInventoryItem = await _inventoryItemRepository.AddAsync(inventoryItem);
+
+        // add new inventory 
+        var inventory = Domain.Entities.Inventory.CreateDefaultInventory(newInventoryItem.ID);
+        _inventoryRepository.AddAsync(inventory);
+
 
         // save changes
         await _inventoryItemRepository.SaveChangesAsync();

@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
@@ -15,8 +12,6 @@ using Domain.Entities.Enums;
 using FluentValidation;
 
 using Moq;
-
-using Xunit;
 
 namespace Application.Test.ServiceTasks.CommandTest.UpdateServiceTask;
 
@@ -81,7 +76,7 @@ public class UpdateServiceTaskCommandHandlerTest
             EstimatedCost = 100.00m,
             Category = ServiceTaskCategoryEnum.CORRECTIVE,
             IsActive = true,
-            ServiceScheduleTasks = [],
+            XrefServiceScheduleServiceTasks = [],
             MaintenanceHistories = [],
             WorkOrderLineItems = []
         };

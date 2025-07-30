@@ -1,0 +1,75 @@
+services:
+  # Client - Dev
+  client-dev:
+    build:
+      context: .
+      dockerfile: ./client/Dockerfile.client.dev
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./client:/client
+      - /client/node_modules
+    networks:
+      - omnipulse-network
+
+  # Server - Dev
+  server-dev:
+    build:
+      context: .
+      dockerfile: ./server/Dockerfile.server.dev
+    ports:
+      - "5100:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__OmnipulseDatabaseConnection=Server=db;Database=OmnipulseDb;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=true;
+    volumes:
+      - ./server:/server
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - omnipulse-network
+
+  # Database - MS SQL Server - https://learn.microsoft.com/en-us/sql/linux/quickstart-install-connect-docker
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest # 2025 image is in preview and unstable as of July 2025
+    platform: linux/amd64 # https://devblogs.microsoft.com/azure-sql/development-with-sql-in-containers-on-macos/#:~:text=warning%20about%20the%20image%20architecture, https://stackoverflow.com/questions/66662820/m1-docker-preview-and-keycloak-images-platform-linux-amd64-does-not-match-th
+    user: root # Needed or SQL Server cannot access .mdf and .ldf (files owned by root) - https://stackoverflow.com/questions/65307784/mssql-container-fails-to-start-when-mapping-volumes-after-upgrading-to-wsl2, https://stackoverflow.com/questions/76616556/sql-server-docker-compose-running-errors
+    environment: # https://learn.microsoft.com/en-us/sql/linux/sql-server-linux-configure-environment-variables#environment-variables
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=${SA_PASSWORD}
+      - MSSQL_PID=Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - omnipulse_sql_data:/var/opt/mssql/data # https://stackoverflow.com/questions/65307784/mssql-container-fails-to-start-when-mapping-volumes-after-upgrading-to-wsl2
+    healthcheck:
+      test: [
+          "CMD",
+          "/opt/mssql-tools18/bin/sqlcmd", # https://github.com/microsoft/mssql-docker/issues/892
+          "-C", # https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-utility#-c
+          "-S",
+          "localhost",
+          "-U",
+          "sa",
+          "-P",
+          "${SA_PASSWORD}",
+          "-Q",
+          "SELECT 1",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - omnipulse-network
+
+volumes:
+  omnipulse_sql_data:
+
+networks:
+  omnipulse-network:
+    driver: bridge

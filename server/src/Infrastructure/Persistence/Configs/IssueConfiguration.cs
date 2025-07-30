@@ -1,5 +1,3 @@
-using System;
-
 using Domain.Entities;
 
 using Microsoft.EntityFrameworkCore;
@@ -32,7 +30,7 @@ public class IssueConfiguration : IEntityTypeConfiguration<Issue>
 
         // Check Constraints
         builder.ToTable(t => t.HasCheckConstraint("CK_Issue_ResolvedDate",
-            "ResolvedDate IS NULL OR ResolvedDate >= CreatedAt"));
+            $"{nameof(Issue.ResolvedDate)} IS NULL OR {nameof(Issue.ResolvedDate)} >= {nameof(Issue.ReportedDate)}"));
 
         builder
             .HasOne(i => i.Vehicle)

@@ -1,9 +1,5 @@
-using System;
-
 using Application.Features.Shared;
-using Application.Models;
-
-using Xunit;
+using Application.Models.PaginationModels;
 
 namespace Application.Test.Pagination;
 

@@ -1,5 +1,3 @@
-using System;
-
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
@@ -15,13 +13,12 @@ using FluentValidation;
 
 using Moq;
 
-using Xunit;
-
 namespace Application.Test.InventoryItems.CommandTest.CreateInventoryItem;
 
 public class CreateInventoryItemCommandHandlerTest
 {
     private readonly CreateInventoryItemCommandHandler _createInventoryItemCommandHandler;
+    private readonly Mock<IInventoryRepository> _mockInventoryRepository;
     private readonly Mock<IInventoryItemRepository> _mockInventoryItemRepository;
     private readonly Mock<IValidator<CreateInventoryItemCommand>> _mockValidator;
     private readonly Mock<IAppLogger<CreateInventoryItemCommandHandler>> _mockLogger;
@@ -30,6 +27,7 @@ public class CreateInventoryItemCommandHandlerTest
     public CreateInventoryItemCommandHandlerTest()
     {
         _mockInventoryItemRepository = new();
+        _mockInventoryRepository = new();
         _mockValidator = new();
         _mockLogger = new();
 
@@ -38,6 +36,7 @@ public class CreateInventoryItemCommandHandlerTest
 
         _createInventoryItemCommandHandler = new(
             _mockInventoryItemRepository.Object,
+            _mockInventoryRepository.Object,
             _mockValidator.Object,
             _mockLogger.Object,
             _mapper
@@ -118,10 +117,28 @@ public class CreateInventoryItemCommandHandlerTest
             WorkOrderLineItems = []
         };
 
+        var expectedInventory = new Inventory()
+        {
+            ID = 1,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+            InventoryItemID = expectedInventoryItem.ID,
+            QuantityOnHand = 0,
+            MinStockLevel = 0,
+            MaxStockLevel = 0,
+            ReorderPoint = 0,
+            LastRestockedDate = null,
+            UnitCost = command.UnitCost ?? 0,
+            InventoryItemLocation = null!,
+            InventoryItem = expectedInventoryItem,
+            InventoryTransactions = []
+        };
+
         _mockInventoryItemRepository.Setup(r => r.IsItemNumberUniqueAsync(command.ItemNumber)).ReturnsAsync(true);
         _mockInventoryItemRepository.Setup(r => r.IsUniversalProductCodeUniqueAsync(command.UniversalProductCode)).ReturnsAsync(true);
         _mockInventoryItemRepository.Setup(r => r.IsManufacturerPartNumberUniqueAsync(command.Manufacturer, command.ManufacturerPartNumber)).ReturnsAsync(true);
         _mockInventoryItemRepository.Setup(r => r.AddAsync(It.IsAny<InventoryItem>())).ReturnsAsync(expectedInventoryItem);
+        _mockInventoryRepository.Setup(r => r.AddAsync(It.IsAny<Inventory>())).ReturnsAsync(expectedInventory);
         _mockInventoryItemRepository.Setup(r => r.SaveChangesAsync()).ReturnsAsync(1);
 
         // When
@@ -134,6 +151,7 @@ public class CreateInventoryItemCommandHandlerTest
         _mockInventoryItemRepository.Verify(r => r.IsUniversalProductCodeUniqueAsync(command.UniversalProductCode), Times.Once);
         _mockInventoryItemRepository.Verify(r => r.IsManufacturerPartNumberUniqueAsync(command.Manufacturer, command.ManufacturerPartNumber), Times.Once);
         _mockInventoryItemRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
+        _mockInventoryRepository.Verify(r => r.AddAsync(It.IsAny<Inventory>()), Times.Once);
     }
 
     [Fact]

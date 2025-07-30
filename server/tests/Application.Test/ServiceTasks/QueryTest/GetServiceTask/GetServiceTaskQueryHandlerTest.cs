@@ -1,6 +1,7 @@
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
+using Application.Features.ServiceTasks.Query;
 using Application.Features.ServiceTasks.Query.GetServiceTask;
 using Application.MappingProfiles;
 
@@ -10,8 +11,6 @@ using Domain.Entities;
 using Domain.Entities.Enums;
 
 using Moq;
-
-using Xunit;
 
 namespace Application.Test.ServiceTasks.QueryTest.GetServiceTask;
 
@@ -53,7 +52,7 @@ public class GetServiceTaskQueryHandlerTest
             EstimatedCost = 85.50m,
             Category = ServiceTaskCategoryEnum.PREVENTIVE,
             IsActive = true,
-            ServiceScheduleTasks = [],
+            XrefServiceScheduleServiceTasks = [],
             MaintenanceHistories = [],
             WorkOrderLineItems = []
         };
@@ -66,7 +65,7 @@ public class GetServiceTaskQueryHandlerTest
 
         // Then
         Assert.NotNull(result);
-        Assert.IsType<GetServiceTaskDTO>(result);
+        Assert.IsType<ServiceTaskDTO>(result);
         Assert.Equal(expectedServiceTask.ID, result.ID);
         Assert.Equal(expectedServiceTask.Name, result.Name);
         Assert.Equal(expectedServiceTask.Description, result.Description);

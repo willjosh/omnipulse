@@ -1,9 +1,6 @@
-using System;
-using System.Linq;
 using System.Linq.Expressions;
 
 using Application.Contracts.Persistence;
-using Application.Models;
 using Application.Models.PaginationModels;
 
 using Domain.Entities;
@@ -286,16 +283,8 @@ public class UserRepository : IUserRepository
 
         var query = technicianUsers.AsQueryable();
 
-        if (!string.IsNullOrWhiteSpace(parameters.Search))
-        {
-            var search = parameters.Search.ToLowerInvariant();
-            query = query.Where(u =>
-                u.FirstName.ToLowerInvariant().Contains(search) ||
-                u.LastName.ToLowerInvariant().Contains(search) ||
-                u.Email!.ToLowerInvariant().Contains(search)
-            );
-        }
-        ;
+        // Apply search filter
+        query = ApplySearchFilter(query, parameters.Search);
 
         // Apply sorting
         query = ApplySorting(query, parameters.SortBy, parameters.SortDescending);
@@ -316,6 +305,19 @@ public class UserRepository : IUserRepository
             PageNumber = parameters.PageNumber,
             PageSize = parameters.PageSize,
         };
+    }
+
+    private static IQueryable<User> ApplySearchFilter(IQueryable<User> query, string? searchText)
+    {
+        if (string.IsNullOrWhiteSpace(searchText)) return query;
+
+        string searchPattern = $"%{searchText.Trim().ToLowerInvariant()}%";
+
+        return query.Where(u =>
+            EF.Functions.Like(u.FirstName, searchPattern) ||
+            EF.Functions.Like(u.LastName, searchPattern) ||
+            EF.Functions.Like(u.Email ?? string.Empty, searchPattern)
+        );
     }
 
     // Helper class for expression conversion

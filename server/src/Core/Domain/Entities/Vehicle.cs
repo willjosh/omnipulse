@@ -1,5 +1,3 @@
-using System;
-
 using Domain.Entities.Enums;
 
 namespace Domain.Entities;
@@ -44,7 +42,7 @@ public class Vehicle : BaseEntity
     public required ICollection<VehicleImage> VehicleImages { get; set; } = [];
     public required ICollection<VehicleAssignment> VehicleAssignments { get; set; } = [];
     public required ICollection<VehicleDocument> VehicleDocuments { get; set; } = [];
-    public required ICollection<VehicleServiceProgram> VehicleServicePrograms { get; set; } = [];
+    public required ICollection<XrefServiceProgramVehicle> XrefServiceProgramVehicles { get; set; } = [];
     public required ICollection<ServiceReminder> ServiceReminders { get; set; } = [];
     public required ICollection<Issue> Issues { get; set; } = [];
     public required ICollection<VehicleInspection> VehicleInspections { get; set; } = [];

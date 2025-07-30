@@ -11,11 +11,16 @@ namespace Application.Features.ServiceSchedules.Command.DeleteServiceSchedule;
 public class DeleteServiceScheduleCommandHandler : IRequestHandler<DeleteServiceScheduleCommand, int>
 {
     private readonly IServiceScheduleRepository _serviceScheduleRepository;
+    private readonly IXrefServiceScheduleServiceTaskRepository _xrefServiceScheduleServiceTaskRepository;
     private readonly IAppLogger<DeleteServiceScheduleCommandHandler> _logger;
 
-    public DeleteServiceScheduleCommandHandler(IServiceScheduleRepository serviceScheduleRepository, IAppLogger<DeleteServiceScheduleCommandHandler> logger)
+    public DeleteServiceScheduleCommandHandler(
+        IServiceScheduleRepository serviceScheduleRepository,
+        IXrefServiceScheduleServiceTaskRepository xrefServiceScheduleServiceTaskRepository,
+        IAppLogger<DeleteServiceScheduleCommandHandler> logger)
     {
         _serviceScheduleRepository = serviceScheduleRepository;
+        _xrefServiceScheduleServiceTaskRepository = xrefServiceScheduleServiceTaskRepository;
         _logger = logger;
     }
 
@@ -29,6 +34,10 @@ public class DeleteServiceScheduleCommandHandler : IRequestHandler<DeleteService
             _logger.LogError($"ServiceSchedule with ID {request.ServiceScheduleID} not found.");
             throw new EntityNotFoundException(typeof(ServiceSchedule).ToString(), "ID", request.ServiceScheduleID.ToString());
         }
+
+        // Remove all xrefs for this schedule before deleting
+        _logger.LogInformation($"Removing all service task links for ServiceSchedule ID: {request.ServiceScheduleID}");
+        await _xrefServiceScheduleServiceTaskRepository.RemoveAllForScheduleAsync(request.ServiceScheduleID);
 
         // Delete ServiceSchedule
         _serviceScheduleRepository.Delete(serviceSchedule);

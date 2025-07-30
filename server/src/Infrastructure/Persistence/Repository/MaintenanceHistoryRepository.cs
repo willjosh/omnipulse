@@ -1,5 +1,4 @@
 using Application.Contracts.Persistence;
-using Application.Models;
 using Application.Models.PaginationModels;
 
 using Domain.Entities;
@@ -49,15 +48,34 @@ public class MaintenanceHistoryRepository : GenericRepository<MaintenanceHistory
         };
     }
 
+    private static IQueryable<MaintenanceHistory> ApplySearchFilter(IQueryable<MaintenanceHistory> query, string? searchText)
+    {
+        // if (string.IsNullOrWhiteSpace(searchText)) return query;
+
+        // string searchPattern = $"%{searchText.Trim().ToLowerInvariant()}%";
+
+        // return query.Where(mh =>
+        //     EF.Functions.Like(mh.Vehicle.Name, searchPattern) ||
+        //     EF.Functions.Like(mh.WorkOrder.Title, searchPattern) ||
+        //     mh.WorkOrderID.ToString().Contains(searchText) ||
+        //     EF.Functions.Like(mh.ServiceTask.Name, searchPattern) ||
+        //     EF.Functions.Like(mh.User.FirstName, searchPattern) ||
+        //     EF.Functions.Like(mh.User.LastName, searchPattern) ||
+        //     EF.Functions.Like(mh.Description ?? string.Empty, searchPattern)
+        // );
+        throw new NotImplementedException("Search functionality is not implemented yet.");
+    }
+
     private IQueryable<MaintenanceHistory> ApplySorting(IQueryable<MaintenanceHistory> query, string? sortBy, bool sortDescending)
     {
-        return sortBy?.ToLowerInvariant() switch
-        {
-            "servicedate" => sortDescending ? query.OrderByDescending(mh => mh.ServiceDate) : query.OrderBy(mh => mh.ServiceDate),
-            "workorderid" => sortDescending ? query.OrderByDescending(mh => mh.WorkOrderID) : query.OrderBy(mh => mh.WorkOrderID),
-            "mileageatservice" => sortDescending ? query.OrderByDescending(mh => mh.MileageAtService) : query.OrderBy(mh => mh.MileageAtService),
-            "createdat" => sortDescending ? query.OrderByDescending(mh => mh.CreatedAt) : query.OrderBy(mh => mh.CreatedAt),
-            _ => query.OrderBy(mh => mh.ID)
-        };
+        // return sortBy?.ToLowerInvariant() switch
+        // {
+        //     "servicedate" => sortDescending ? query.OrderByDescending(mh => mh.ServiceDate) : query.OrderBy(mh => mh.ServiceDate),
+        //     "workorderid" => sortDescending ? query.OrderByDescending(mh => mh.WorkOrderID) : query.OrderBy(mh => mh.WorkOrderID),
+        //     "mileageatservice" => sortDescending ? query.OrderByDescending(mh => mh.MileageAtService) : query.OrderBy(mh => mh.MileageAtService),
+        //     "createdat" => sortDescending ? query.OrderByDescending(mh => mh.CreatedAt) : query.OrderBy(mh => mh.CreatedAt),
+        //     _ => query.OrderBy(mh => mh.ID)
+        // };
+        throw new NotFiniteNumberException("Sorting functionality is not implemented yet.");
     }
 }

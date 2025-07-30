@@ -1,5 +1,3 @@
-using System;
-
 using FluentValidation;
 
 namespace Application.Features.VehicleGroups.Command.UpdateVehicleGroup;

@@ -1,5 +1,3 @@
-using System;
-
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
@@ -11,8 +9,6 @@ using AutoMapper;
 using Domain.Entities;
 
 using Moq;
-
-using Xunit;
 
 namespace Application.Test.Vehicles.CommandTest;
 
@@ -68,7 +64,7 @@ public class DeactivateVehicleHandlerTest
             VehicleImages = [],
             VehicleAssignments = [],
             VehicleDocuments = [],
-            VehicleServicePrograms = [],
+            XrefServiceProgramVehicles = [],
             ServiceReminders = [],
             Issues = [],
             VehicleInspections = []
@@ -141,7 +137,7 @@ public class DeactivateVehicleHandlerTest
             VehicleImages = [],
             VehicleAssignments = [],
             VehicleDocuments = [],
-            VehicleServicePrograms = [],
+            XrefServiceProgramVehicles = [],
             ServiceReminders = [],
             Issues = [],
             VehicleInspections = []
@@ -193,7 +189,7 @@ public class DeactivateVehicleHandlerTest
             VehicleImages = [],
             VehicleAssignments = [],
             VehicleDocuments = [],
-            VehicleServicePrograms = [],
+            XrefServiceProgramVehicles = [],
             ServiceReminders = [],
             Issues = [],
             VehicleInspections = []
@@ -246,7 +242,7 @@ public class DeactivateVehicleHandlerTest
             VehicleImages = [],
             VehicleAssignments = [],
             VehicleDocuments = [],
-            VehicleServicePrograms = [],
+            XrefServiceProgramVehicles = [],
             ServiceReminders = [],
             Issues = [],
             VehicleInspections = []

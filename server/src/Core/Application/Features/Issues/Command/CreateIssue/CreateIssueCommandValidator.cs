@@ -1,5 +1,3 @@
-using System;
-
 using FluentValidation;
 
 namespace Application.Features.Issues.Command.CreateIssue;
@@ -27,20 +25,14 @@ public class CreateIssueCommandValidator : AbstractValidator<CreateIssueCommand>
             .WithMessage("Description must be less than 1000 characters");
 
         RuleFor(p => p.Category)
-            .NotEmpty()
-            .WithMessage("Category is required")
             .IsInEnum()
             .WithMessage("Invalid category selected");
 
         RuleFor(p => p.PriorityLevel)
-            .NotEmpty()
-            .WithMessage("Priority level is required")
             .IsInEnum()
             .WithMessage("Invalid priority level selected");
 
         RuleFor(p => p.Status)
-            .NotEmpty()
-            .WithMessage("Status is required")
             .IsInEnum()
             .WithMessage("Invalid status selected");
     }

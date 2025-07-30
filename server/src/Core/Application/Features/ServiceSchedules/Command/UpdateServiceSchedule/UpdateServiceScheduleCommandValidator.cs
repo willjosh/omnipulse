@@ -1,5 +1,3 @@
-using System;
-
 using Domain.Entities.Enums;
 
 using FluentValidation;
@@ -109,6 +107,10 @@ public sealed class UpdateServiceScheduleCommandValidator : AbstractValidator<Up
         RuleFor(x => x)
             .Must(x => !x.FirstServiceMileage.HasValue || x.MileageInterval.HasValue)
             .WithMessage("First service mileage requires MileageInterval to be set");
+
+        RuleFor(x => x.ServiceTaskIDs)
+            .NotNull().WithMessage("Service task list is required")
+            .NotEmpty().WithMessage("At least one service task must be selected");
     }
 
     private static bool IsTimeBufferValid(UpdateServiceScheduleCommand cmd)

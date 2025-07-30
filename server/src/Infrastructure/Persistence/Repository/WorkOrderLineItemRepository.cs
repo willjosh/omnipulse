@@ -1,5 +1,3 @@
-using System;
-
 using Application.Contracts.Persistence;
 
 using Domain.Entities;

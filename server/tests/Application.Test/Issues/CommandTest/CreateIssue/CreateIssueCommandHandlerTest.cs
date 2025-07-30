@@ -1,5 +1,3 @@
-using System;
-
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
@@ -99,7 +97,7 @@ public class CreateIssueCommandHandlerTest
             VehicleImages = [],
             VehicleAssignments = [],
             VehicleDocuments = [],
-            VehicleServicePrograms = [],
+            XrefServiceProgramVehicles = [],
             ServiceReminders = [],
             Issues = [],
             VehicleInspections = []

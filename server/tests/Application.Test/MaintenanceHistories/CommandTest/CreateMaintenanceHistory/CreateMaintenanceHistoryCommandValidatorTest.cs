@@ -1,9 +1,4 @@
-using System;
-using System.Threading.Tasks;
-
 using Application.Features.MaintenanceHistories.Command.CreateMaintenanceHistory;
-
-using Xunit;
 
 namespace Application.Test.MaintenanceHistories.CommandTest.CreateMaintenanceHistory;
 

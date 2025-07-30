@@ -1,13 +1,17 @@
-using System;
+using Application.Test.ServiceSchedules.CommandTest.CreateServiceSchedule;
+using Application.Test.ServiceSchedules.CommandTest.UpdateServiceSchedule;
 
 using Domain.Entities.Enums;
 
 using FluentValidation;
 
-using Xunit;
-
 namespace Application.Test.ServiceSchedules.CommandTest;
 
+/// <summary>
+/// Base validator test for <see cref="CreateServiceScheduleCommandValidatorTest"/> and <see cref="UpdateServiceScheduleCommandValidatorTest"/>.
+/// </summary>
+/// <typeparam name="TCommand">The type of command to test.</typeparam>
+/// <typeparam name="TValidator">The type of validator to test. Must be <see cref="IValidator{TCommand}"/>.</typeparam>
 public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidator>
     where TValidator : IValidator<TCommand>
 {
@@ -16,6 +20,7 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
     protected abstract TCommand CreateValidCommand(
         int serviceProgramId = 1,
         string name = "5000 km / 6 week service",
+        List<int>? serviceTaskIDs = null,
         int? timeIntervalValue = 6,
         TimeUnitEnum? timeIntervalUnit = TimeUnitEnum.Weeks,
         int? timeBufferValue = 1,
@@ -38,7 +43,7 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
     public async Task Validator_Should_Pass_With_Valid_Command()
     {
         // Arrange
-        var command = CreateValidCommand();
+        var command = CreateValidCommand(serviceTaskIDs: [1]);
 
         // Act
         var result = await Validator.ValidateAsync(command);
@@ -46,6 +51,34 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         // Assert
         Assert.True(result.IsValid);
         Assert.Empty(result.Errors);
+    }
+
+    // [Fact]
+    // public async Task Validator_Should_Fail_When_ServiceTaskIDs_Is_Null()
+    // {
+    //     // Arrange
+    //     var command = CreateValidCommand(serviceTaskIDs: null);
+
+    //     // Act
+    //     var result = await Validator.ValidateAsync(command);
+
+    //     // Assert
+    //     Assert.False(result.IsValid);
+    //     Assert.Contains(result.Errors, e => e.PropertyName == "ServiceTaskIDs");
+    // }
+
+    [Fact]
+    public async Task Validator_Should_Fail_When_ServiceTaskIDs_Is_Empty()
+    {
+        // Arrange
+        var command = CreateValidCommand(serviceTaskIDs: []);
+
+        // Act
+        var result = await Validator.ValidateAsync(command);
+
+        // Assert
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e => e.PropertyName == "ServiceTaskIDs");
     }
 
     [Trait("Category", "ServiceProgramID")]

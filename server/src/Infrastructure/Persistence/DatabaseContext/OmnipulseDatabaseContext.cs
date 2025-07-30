@@ -1,5 +1,3 @@
-using System;
-
 using Domain.Entities;
 
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -37,7 +35,7 @@ public class OmnipulseDatabaseContext(DbContextOptions<OmnipulseDatabaseContext>
     public DbSet<ServiceProgram> ServicePrograms { get; set; }
     public DbSet<ServiceReminder> ServiceReminders { get; set; }
     public DbSet<ServiceSchedule> ServiceSchedules { get; set; }
-    public DbSet<ServiceScheduleTask> ServiceScheduleTasks { get; set; }
+    public DbSet<XrefServiceScheduleServiceTask> XrefServiceScheduleServiceTasks { get; set; }
     public DbSet<ServiceTask> ServiceTasks { get; set; }
     public DbSet<VehicleAlert> VehicleAlerts { get; set; }
     public DbSet<Vehicle> Vehicles { get; set; }
@@ -45,7 +43,7 @@ public class OmnipulseDatabaseContext(DbContextOptions<OmnipulseDatabaseContext>
     public DbSet<VehicleGroup> VehicleGroups { get; set; }
     public DbSet<VehicleImage> VehicleImages { get; set; }
     public DbSet<VehicleInspection> VehicleInspections { get; set; }
-    public DbSet<VehicleServiceProgram> VehicleServicePrograms { get; set; }
+    public DbSet<XrefServiceProgramVehicle> XrefServiceProgramVehicles { get; set; }
     public DbSet<WorkOrder> WorkOrders { get; set; }
     public DbSet<WorkOrderIssue> WorkOrderIssues { get; set; }
     public DbSet<WorkOrderLineItem> WorkOrderLineItems { get; set; }

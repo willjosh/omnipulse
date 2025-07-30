@@ -1,5 +1,3 @@
-using System;
-
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
@@ -13,8 +11,6 @@ using Domain.Entities;
 using FluentValidation;
 
 using Moq;
-
-using Xunit;
 
 namespace Application.Test.Vehicles.CommandTest.UpdateVehicle;
 
@@ -136,7 +132,7 @@ public class UpdateVehicleCommandHandlerTest
             VehicleImages = [],
             VehicleAssignments = [],
             VehicleDocuments = [],
-            VehicleServicePrograms = [],
+            XrefServiceProgramVehicles = [],
             ServiceReminders = [],
             Issues = [],
             VehicleInspections = []

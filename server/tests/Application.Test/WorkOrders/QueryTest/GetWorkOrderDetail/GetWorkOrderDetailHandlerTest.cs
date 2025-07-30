@@ -94,7 +94,7 @@ public class GetWorkOrderDetailHandlerTest
             VehicleImages = [],
             VehicleAssignments = [],
             VehicleDocuments = [],
-            VehicleServicePrograms = [],
+            XrefServiceProgramVehicles = [],
             ServiceReminders = [],
             Issues = [],
             VehicleInspections = []
@@ -166,7 +166,7 @@ public class GetWorkOrderDetailHandlerTest
             EstimatedCost = 100.00m,
             Category = Domain.Entities.Enums.ServiceTaskCategoryEnum.INSPECTION,
             IsActive = true,
-            ServiceScheduleTasks = [],
+            XrefServiceScheduleServiceTasks = [],
             MaintenanceHistories = [],
             WorkOrderLineItems = []
         };

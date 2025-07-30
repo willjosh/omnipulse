@@ -11,7 +11,7 @@ using MediatR;
 
 namespace Application.Features.ServiceTasks.Query.GetAllServiceTask;
 
-public class GetAllServiceTaskQueryHandler : IRequestHandler<GetAllServiceTaskQuery, PagedResult<GetAllServiceTaskDTO>>
+public class GetAllServiceTaskQueryHandler : IRequestHandler<GetAllServiceTaskQuery, PagedResult<ServiceTaskDTO>>
 {
     private readonly IServiceTaskRepository _serviceTaskRepository;
     private readonly IValidator<GetAllServiceTaskQuery> _validator;
@@ -30,7 +30,7 @@ public class GetAllServiceTaskQueryHandler : IRequestHandler<GetAllServiceTaskQu
         _mapper = mapper;
     }
 
-    public async Task<PagedResult<GetAllServiceTaskDTO>> Handle(GetAllServiceTaskQuery request, CancellationToken cancellationToken)
+    public async Task<PagedResult<ServiceTaskDTO>> Handle(GetAllServiceTaskQuery request, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Handling GetAllServiceTaskQuery");
         // validate the request
@@ -46,9 +46,9 @@ public class GetAllServiceTaskQueryHandler : IRequestHandler<GetAllServiceTaskQu
         var result = await _serviceTaskRepository.GetAllServiceTasksPagedAsync(request.Parameters);
 
         // map the service tasks to DTOs
-        var serviceTaskDTOs = _mapper.Map<List<GetAllServiceTaskDTO>>(result.Items);
+        var serviceTaskDTOs = _mapper.Map<List<ServiceTaskDTO>>(result.Items);
 
-        var pagedResult = new PagedResult<GetAllServiceTaskDTO>
+        var pagedResult = new PagedResult<ServiceTaskDTO>
         {
             Items = serviceTaskDTOs,
             TotalCount = result.TotalCount,

@@ -1,5 +1,3 @@
-using System;
-
 using Domain.Entities;
 
 using Microsoft.EntityFrameworkCore;
@@ -29,8 +27,8 @@ public class WorkOrderLineItemConfiguration : IEntityTypeConfiguration<WorkOrder
                .IsRequired(false);
 
         // Configure computed property
-        builder.Property(woli => woli.TotalCost)
-               .HasComputedColumnSql("Quantity * UnitCost");
+        // builder.Property(woli => woli.TotalCost)
+        //        .HasComputedColumnSql("Quantity * UnitCost");
 
         // Regular Indexes
         builder.HasIndex(woli => woli.WorkOrderID);
@@ -52,8 +50,8 @@ public class WorkOrderLineItemConfiguration : IEntityTypeConfiguration<WorkOrder
         builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrderLineItem_HourlyRate",
             "HourlyRate IS NULL OR HourlyRate >= 0"));
 
-        builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrderLineItem_ServicePrice",
-            "ServicePrice IS NULL OR ServicePrice >= 0"));
+        // builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrderLineItem_ServicePrice",
+        //     "ServicePrice IS NULL OR ServicePrice >= 0"));
 
         builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrderLineItem_LaborHours",
             "LaborHours IS NULL OR LaborHours > 0"));

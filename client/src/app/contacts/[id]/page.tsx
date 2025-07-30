@@ -1,0 +1,276 @@
+"use client";
+import React, { useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { Edit, ArrowLeft, Mail, Calendar } from "lucide-react";
+import { TabNavigation } from "@/components/ui/Tabs";
+import { PrimaryButton } from "@/components/ui/Button";
+import { Loading } from "@/components/ui/Feedback";
+import { useTechnician } from "@/features/technician/hooks/useTechnicians";
+
+const TechnicianProfilePage = () => {
+  const params = useParams();
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState("details");
+
+  // Extract id from params and use it to fetch technician data
+  const technicianId = params.id as string;
+  const { technician, isPending, isError } = useTechnician(technicianId);
+
+  if (isPending) {
+    return <Loading />;
+  }
+
+  if (isError || !technician) {
+    return (
+      <div className="min-h-screen max-w-7xl shadow border-b border-gray-200 bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            Technician Not Found
+          </h2>
+          <p className="text-gray-600 mb-4">
+            {"The technician you're looking for doesn't exist."}
+          </p>
+          <PrimaryButton onClick={() => router.push("/contacts")}>
+            Back to Contacts
+          </PrimaryButton>
+        </div>
+      </div>
+    );
+  }
+
+  const tabs = [
+    { key: "details", label: "Details", count: undefined },
+    { key: "assignments", label: "Vehicle Assignments", count: undefined },
+    { key: "workorders", label: "Work Orders", count: undefined },
+    { key: "performance", label: "Performance", count: undefined },
+    { key: "documents", label: "Documents", count: undefined },
+  ];
+
+  const handleEdit = () => {
+    console.log("Edit technician:", technician.id);
+  };
+
+  const handleBack = () => {
+    router.push("/contacts");
+  };
+
+  const getInitials = (firstName: string, lastName: string) => {
+    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
+  const getYearsOfService = (hireDate: string) => {
+    const hired = new Date(hireDate);
+    const now = new Date();
+    const years = now.getFullYear() - hired.getFullYear();
+    const months = now.getMonth() - hired.getMonth();
+
+    if (months < 0 || (months === 0 && now.getDate() < hired.getDate())) {
+      return years - 1;
+    }
+    return years;
+  };
+
+  const renderDetailTab = () => (
+    <div className="grid grid-cols-2 gap-6">
+      <div className="bg-white rounded-3xl border border-gray-200">
+        <div className="p-4 border-b border-gray-200">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-gray-900">
+              Personal Information
+            </h2>
+            <button className="text-sm text-gray-500">All Fields</button>
+          </div>
+        </div>
+        <div className="p-3 space-y-2">
+          <div className="flex justify-between items-center py-3 border-b border-gray-100">
+            <span className="text-sm font-medium text-gray-600">Full Name</span>
+            <span className="text-sm text-gray-900">{`${technician.firstName} ${technician.lastName}`}</span>
+          </div>
+          <div className="flex justify-between items-center py-3 border-b border-gray-100">
+            <span className="text-sm font-medium text-gray-600">
+              First Name
+            </span>
+            <span className="text-sm text-gray-900">
+              {technician.firstName}
+            </span>
+          </div>
+          <div className="flex justify-between items-center py-3 border-b border-gray-100">
+            <span className="text-sm font-medium text-gray-600">Last Name</span>
+            <span className="text-sm text-gray-900">{technician.lastName}</span>
+          </div>
+          <div className="flex justify-between items-center py-3 border-b border-gray-100">
+            <span className="text-sm font-medium text-gray-600">Email</span>
+            <span className="text-sm text-blue-600">{technician.email}</span>
+          </div>
+          <div className="flex justify-between items-center py-3 border-b border-gray-100">
+            <span className="text-sm font-medium text-gray-600">Hire Date</span>
+            <span className="text-sm text-gray-900">
+              {formatDate(technician.hireDate)}
+            </span>
+          </div>
+          <div className="flex justify-between items-center py-3 border-b border-gray-100">
+            <span className="text-sm font-medium text-gray-600">
+              Years of Service
+            </span>
+            <span className="text-sm text-gray-900">
+              {getYearsOfService(technician.hireDate)} years
+            </span>
+          </div>
+          <div className="flex justify-between items-center py-3 border-b border-gray-100">
+            <span className="text-sm font-medium text-gray-600">Status</span>
+            <div className="flex items-center">
+              <div
+                className={`w-2 h-2 rounded-full mr-2 ${
+                  technician.isActive ? "bg-green-500" : "bg-red-500"
+                }`}
+              ></div>
+              <span className="text-sm text-gray-900">
+                {technician.isActive ? "Active" : "Inactive"}
+              </span>
+            </div>
+          </div>
+          <div className="flex justify-between items-center py-3 border-b border-gray-100">
+            <span className="text-sm font-medium text-gray-600">
+              Employee ID
+            </span>
+            <span className="text-sm text-gray-900 font-mono">
+              {technician.id}
+            </span>
+          </div>
+          <div className="flex justify-between items-center py-3 border-b border-gray-100">
+            <span className="text-sm font-medium text-gray-600">
+              Department
+            </span>
+            <span className="text-sm text-gray-900">Maintenance</span>
+          </div>
+          <div className="flex justify-between items-center py-3">
+            <span className="text-sm font-medium text-gray-600">Role</span>
+            <span className="text-sm text-gray-900">Technician</span>
+          </div>
+        </div>
+      </div>
+      <div className="space-y-6">
+        <div className="bg-white rounded-3xl border border-gray-200">
+          <div className="p-4 border-b border-gray-200">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Recent Work Orders
+              </h3>
+              <div className="flex items-center space-x-4 text-sm text-primary hover:text-blue-700">
+                <button>+ Assign Work Order</button>
+                <button>View All</button>
+              </div>
+            </div>
+          </div>
+          <div className="p-4 text-center text-gray-500">
+            <p className="text-sm">No recent work orders</p>
+          </div>
+        </div>
+        <div className="bg-white rounded-3xl border border-gray-200">
+          <div className="p-4 border-b border-gray-200">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Vehicle Assignments
+              </h3>
+              <div className="flex items-center space-x-4 text-sm text-primary hover:text-blue-700">
+                <button>+ Assign Vehicle</button>
+                <button>View All</button>
+              </div>
+            </div>
+          </div>
+          <div className="p-4 text-center text-gray-500">
+            <p className="text-sm">No vehicles currently assigned</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderTab = () => {
+    switch (activeTab) {
+      case "details":
+        return renderDetailTab();
+      case "assignments":
+      case "workorders":
+      case "performance":
+      case "documents":
+      default:
+        return <div>empty</div>;
+    }
+  };
+
+  return (
+    <div className="min-h-screen max-w-7xl mx-auto bg-gray-50">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200 px-8 py-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={handleBack}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <ArrowLeft size={20} className="text-gray-600" />
+            </button>
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 rounded-full text-primary flex items-center justify-center text-white font-semibold text-lg">
+                {getInitials(technician.firstName, technician.lastName)}
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">
+                  {`${technician.firstName} ${technician.lastName}`}
+                </h1>
+                <div className="flex items-center space-x-4 text-sm text-gray-500">
+                  <span className="flex items-center">
+                    <Mail size={14} className="mr-1" />
+                    {technician.email}
+                  </span>
+                  <span className="flex items-center">
+                    <Calendar size={14} className="mr-1" />
+                    Hired {formatDate(technician.hireDate)}
+                  </span>
+                  <span
+                    className={`flex items-center ${technician.isActive ? "text-green-600" : "text-red-600"}`}
+                  >
+                    <div
+                      className={`w-2 h-2 rounded-full mr-1 ${
+                        technician.isActive ? "bg-green-500" : "bg-red-500"
+                      }`}
+                    ></div>
+                    {technician.isActive ? "Active" : "Inactive"}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center space-x-3">
+            <PrimaryButton onClick={handleEdit} className="flex items-center">
+              <Edit size={16} className="mr-2" />
+              Edit Technician
+            </PrimaryButton>
+          </div>
+        </div>
+
+        <div className="mt-6">
+          <TabNavigation
+            tabs={tabs}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+          />
+        </div>
+      </div>
+
+      {/* Only details is rendered */}
+      <div className="px-8 py-6">{renderTab()}</div>
+    </div>
+  );
+};
+
+export default TechnicianProfilePage;

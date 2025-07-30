@@ -1,5 +1,4 @@
 using Application.Contracts.Persistence;
-using Application.Models;
 using Application.Models.PaginationModels;
 
 using Domain.Entities;
@@ -28,17 +27,8 @@ public class ServiceTaskRepository : GenericRepository<ServiceTask>, IServiceTas
     {
         var query = _dbSet.AsQueryable();
 
-        // Apply filtering if search is provided
-        if (!string.IsNullOrWhiteSpace(parameters.Search))
-        {
-            var search = parameters.Search.ToLowerInvariant();
-
-            query = query.Where(st =>
-                st.Name.ToLowerInvariant().Contains(search) ||
-                (st.Description != null && st.Description.ToLowerInvariant().Contains(search)) ||
-                st.Category.ToString().ToLowerInvariant().Contains(search)
-            );
-        }
+        // Apply search filter
+        query = ApplySearchFilter(query, parameters.Search);
 
         // Apply sorting
         query = ApplySorting(query, parameters.SortBy, parameters.SortDescending);
@@ -59,6 +49,19 @@ public class ServiceTaskRepository : GenericRepository<ServiceTask>, IServiceTas
             PageNumber = parameters.PageNumber,
             PageSize = parameters.PageSize
         };
+    }
+
+    private static IQueryable<ServiceTask> ApplySearchFilter(IQueryable<ServiceTask> query, string? searchText)
+    {
+        if (string.IsNullOrWhiteSpace(searchText)) return query;
+
+        string searchPattern = $"%{searchText.Trim().ToLowerInvariant()}%";
+
+        return query.Where(st =>
+            EF.Functions.Like(st.Name, searchPattern) ||
+            EF.Functions.Like(st.Description ?? string.Empty, searchPattern) ||
+            EF.Functions.Like(st.Category.ToString(), searchPattern)
+        );
     }
 
     // Helper method to apply sorting based on parameters

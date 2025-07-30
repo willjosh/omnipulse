@@ -1,17 +1,17 @@
 "use client";
 import { useParams, useRouter } from "next/navigation";
-import VehicleFormContainer from "@/app/_features/vehicle/components/forms/VehicleFormContainer";
-import { useVehicles } from "@/app/_hooks/vehicle/useVehicles";
-import Loading from "@/app/_features/shared/Loading";
+import VehicleFormContainer from "@/features/vehicle/components/VehicleFormContainer";
+import { useVehicle } from "@/features/vehicle/hooks/useVehicles";
+import { Loading } from "@/components/ui/Feedback";
 
 const EditVehiclePage = () => {
   const params = useParams();
   const router = useRouter();
   const vehicleId = params.id as string;
 
-  const { vehicle, isLoadingVehicle } = useVehicles(undefined, vehicleId);
+  const { vehicle, isPending } = useVehicle(vehicleId);
 
-  if (isLoadingVehicle) {
+  if (isPending) {
     return <Loading />;
   }
 

@@ -11,8 +11,6 @@ using Domain.Entities.Enums;
 
 using Moq;
 
-using Xunit;
-
 namespace Application.Test.InventoryItems.QueryTest.GetInventoryItem;
 
 public class GetInventoryItemQueryHandlerTest

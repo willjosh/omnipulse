@@ -1,8 +1,4 @@
-using System;
-
 using Application.Features.VehicleGroups.Command.CreateVehicleGroup;
-
-using Xunit;
 
 namespace Application.Test.VehicleGroups.CommandTest.CreateVehicleGroup;
 

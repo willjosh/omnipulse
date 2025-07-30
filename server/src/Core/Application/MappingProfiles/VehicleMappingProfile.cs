@@ -1,5 +1,3 @@
-using System;
-
 namespace Application.MappingProfiles;
 
 using Application.Features.Vehicles.Command.CreateVehicle;
@@ -29,7 +27,7 @@ public class VehicleMappingProfile : Profile
             .ForMember(dest => dest.VehicleImages, opt => opt.Ignore()) // Navigation collection
             .ForMember(dest => dest.VehicleAssignments, opt => opt.Ignore()) // Navigation collection
             .ForMember(dest => dest.VehicleDocuments, opt => opt.Ignore()) // Navigation collection
-            .ForMember(dest => dest.VehicleServicePrograms, opt => opt.Ignore()) // Navigation collection
+            .ForMember(dest => dest.XrefServiceProgramVehicles, opt => opt.Ignore()) // Navigation collection
             .ForMember(dest => dest.ServiceReminders, opt => opt.Ignore()) // Navigation collection
             .ForMember(dest => dest.Issues, opt => opt.Ignore()) // Navigation collection
             .ForMember(dest => dest.VehicleInspections, opt => opt.Ignore()); // Navigation collection
@@ -42,7 +40,7 @@ public class VehicleMappingProfile : Profile
             .ForMember(dest => dest.VehicleImages, opt => opt.Ignore()) // Navigation collection
             .ForMember(dest => dest.VehicleAssignments, opt => opt.Ignore()) // Navigation collection
             .ForMember(dest => dest.VehicleDocuments, opt => opt.Ignore()) // Navigation collection
-            .ForMember(dest => dest.VehicleServicePrograms, opt => opt.Ignore()) // Navigation collection
+            .ForMember(dest => dest.XrefServiceProgramVehicles, opt => opt.Ignore()) // Navigation collection
             .ForMember(dest => dest.ServiceReminders, opt => opt.Ignore()) // Navigation collection
             .ForMember(dest => dest.Issues, opt => opt.Ignore()) // Navigation collection
             .ForMember(dest => dest.VehicleInspections, opt => opt.Ignore()); // Navigation collection

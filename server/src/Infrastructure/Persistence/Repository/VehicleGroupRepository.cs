@@ -1,7 +1,4 @@
-using System;
-
 using Application.Contracts.Persistence;
-using Application.Models;
 using Application.Models.PaginationModels;
 
 using Domain.Entities;
@@ -20,17 +17,8 @@ public class VehicleGroupRepository : GenericRepository<VehicleGroup>, IVehicleG
     {
         var query = _dbSet.AsNoTracking().AsQueryable();
 
-        if (!string.IsNullOrWhiteSpace(parameters.Search))
-        {
-            var search = parameters.Search.ToLowerInvariant();
-
-            // Look for matches
-            query = query.
-                Where(vg =>
-                    vg.Name.ToLowerInvariant().Contains(search) ||
-                    (vg.Description != null && vg.Description.ToLowerInvariant().Contains(search))
-                );
-        }
+        // Apply search filter
+        query = ApplySearchFilter(query, parameters.Search);
 
         // Apply sorting
         query = ApplySorting(query, parameters.SortBy, parameters.SortDescending);
@@ -51,6 +39,18 @@ public class VehicleGroupRepository : GenericRepository<VehicleGroup>, IVehicleG
             PageNumber = parameters.PageNumber,
             PageSize = parameters.PageSize
         };
+    }
+
+    private static IQueryable<VehicleGroup> ApplySearchFilter(IQueryable<VehicleGroup> query, string? searchText)
+    {
+        if (string.IsNullOrWhiteSpace(searchText)) return query;
+
+        string searchPattern = $"%{searchText.Trim().ToLowerInvariant()}%";
+
+        return query.Where(vg =>
+            EF.Functions.Like(vg.Name, searchPattern) ||
+            EF.Functions.Like(vg.Description ?? string.Empty, searchPattern)
+        );
     }
 
     private IQueryable<VehicleGroup> ApplySorting(IQueryable<VehicleGroup> query, string? sortBy, bool sortDescending)

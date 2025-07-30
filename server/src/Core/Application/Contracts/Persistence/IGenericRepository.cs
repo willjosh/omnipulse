@@ -1,4 +1,3 @@
-using System;
 using System.Linq.Expressions;
 
 using Domain.Entities;
@@ -17,6 +16,13 @@ public interface IGenericRepository<T> where T : BaseEntity
     /// <param name="id">The entity ID.</param>
     /// <returns>The entity if found; otherwise, <c>null</c>.</returns>
     Task<T?> GetByIdAsync(int id);
+
+    /// <summary>
+    /// Retrieves multiple entities by their IDs.
+    /// </summary>
+    /// <param name="ids">The collection of entity IDs to retrieve.</param>
+    /// <returns>A list of entities that exist for the given IDs.</returns>
+    Task<List<T>> GetByIdsAsync(IEnumerable<int> ids);
 
     /// <summary>
     /// Retrieves all entities.

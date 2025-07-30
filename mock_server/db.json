@@ -22,7 +22,7 @@
       "FuelCapacity": 80,
       "FuelType": 2,
       "PurchaseDate": "2021-02-15T00:00:00Z",
-      "PurchasePrice": 48000.0,
+      "PurchasePrice": 48000,
       "Status": 1,
       "Location": "Sydney Depot"
     },
@@ -48,7 +48,7 @@
       "FuelCapacity": 50,
       "FuelType": 2,
       "PurchaseDate": "2020-04-10T00:00:00Z",
-      "PurchasePrice": 27000.0,
+      "PurchasePrice": 27000,
       "Status": 1,
       "Location": "Melbourne Branch"
     },
@@ -74,7 +74,7 @@
       "FuelCapacity": 0,
       "FuelType": 3,
       "PurchaseDate": "2023-07-10T00:00:00Z",
-      "PurchasePrice": 65000.0,
+      "PurchasePrice": 65000,
       "Status": 1,
       "Location": "Brisbane Hub"
     },
@@ -100,7 +100,7 @@
       "FuelCapacity": 76,
       "FuelType": 2,
       "PurchaseDate": "2019-06-01T00:00:00Z",
-      "PurchasePrice": 54000.0,
+      "PurchasePrice": 54000,
       "Status": 2,
       "Location": "Perth Yard"
     },
@@ -126,7 +126,7 @@
       "FuelCapacity": 58,
       "FuelType": 1,
       "PurchaseDate": "2021-09-10T00:00:00Z",
-      "PurchasePrice": 42000.0,
+      "PurchasePrice": 42000,
       "Status": 1,
       "Location": "Adelaide Office"
     },
@@ -152,7 +152,7 @@
       "FuelCapacity": 90,
       "FuelType": 1,
       "PurchaseDate": "2022-08-20T00:00:00Z",
-      "PurchasePrice": 55000.0,
+      "PurchasePrice": 55000,
       "Status": 1,
       "Location": "Sydney Depot"
     },
@@ -178,7 +178,7 @@
       "FuelCapacity": 75,
       "FuelType": 2,
       "PurchaseDate": "2023-03-25T00:00:00Z",
-      "PurchasePrice": 52000.0,
+      "PurchasePrice": 52000,
       "Status": 3,
       "Location": "Melbourne Branch"
     },
@@ -204,7 +204,7 @@
       "FuelCapacity": 59,
       "FuelType": 1,
       "PurchaseDate": "2020-11-15T00:00:00Z",
-      "PurchasePrice": 49000.0,
+      "PurchasePrice": 49000,
       "Status": 1,
       "Location": "Brisbane Hub"
     },
@@ -230,7 +230,7 @@
       "FuelCapacity": 47,
       "FuelType": 4,
       "PurchaseDate": "2024-01-10T00:00:00Z",
-      "PurchasePrice": 32000.0,
+      "PurchasePrice": 32000,
       "Status": 1,
       "Location": "Perth Yard"
     },
@@ -256,7 +256,7 @@
       "FuelCapacity": 80,
       "FuelType": 2,
       "PurchaseDate": "2021-12-05T00:00:00Z",
-      "PurchasePrice": 46000.0,
+      "PurchasePrice": 46000,
       "Status": 4,
       "Location": "Adelaide Office"
     },
@@ -282,7 +282,7 @@
       "FuelCapacity": 0,
       "FuelType": 3,
       "PurchaseDate": "2023-05-20T00:00:00Z",
-      "PurchasePrice": 72000.0,
+      "PurchasePrice": 72000,
       "Status": 1,
       "Location": "Sydney Depot"
     },
@@ -308,7 +308,7 @@
       "FuelCapacity": 90,
       "FuelType": 2,
       "PurchaseDate": "2022-07-12T00:00:00Z",
-      "PurchasePrice": 41000.0,
+      "PurchasePrice": 41000,
       "Status": 1,
       "Location": "Melbourne Branch"
     }
@@ -316,172 +316,182 @@
   "issues": [
     {
       "id": 1,
-      "CreatedAt": "2024-06-01T09:00:00Z",
-      "UpdatedAt": "2024-06-01T10:00:00Z",
-      "VehicleID": 1,
       "IssueNumber": 1001,
-      "ReportedByUserID": "5e6e0ab3-3a11-403e-adb9-7a25fe678936",
-      "ReportedDate": "2024-06-01T09:00:00Z",
+      "VehicleID": 1,
+      "VehicleName": "Fleet Van 1",
       "Title": "Engine oil leak",
       "Description": "Oil spots found under vehicle after parking overnight.",
       "Category": 1,
       "PriorityLevel": 3,
       "Status": 1,
+      "ReportedByUserID": "f6a7b8c9-d0e1-2345-bcda-ef6789012345",
+      "ReportedByUserName": "Sarah Jones",
+      "ReportedDate": "2024-06-01T09:00:00Z",
       "ResolvedDate": null,
       "ResolvedByUserID": null,
+      "ResolvedByUserName": null,
       "ResolutionNotes": null
     },
     {
       "id": 2,
-      "CreatedAt": "2024-05-20T08:30:00Z",
-      "UpdatedAt": "2024-05-21T12:00:00Z",
-      "VehicleID": 2,
       "IssueNumber": 1002,
-      "ReportedByUserID": "952188a4-dc48-4dad-9c7b-c75da50bb241",
-      "ReportedDate": "2024-05-20T08:30:00Z",
+      "VehicleID": 2,
+      "VehicleName": "City Car 2",
       "Title": "Brake pads worn",
       "Description": "Brakes squeal and stopping distance increased.",
       "Category": 3,
       "PriorityLevel": 4,
       "Status": 2,
+      "ReportedByUserID": "952188a4-dc48-4dad-9c7b-c75da50bb241",
+      "ReportedByUserName": "Sarah Wilson",
+      "ReportedDate": "2024-05-20T08:30:00Z",
       "ResolvedDate": null,
       "ResolvedByUserID": null,
+      "ResolvedByUserName": null,
       "ResolutionNotes": null
     },
     {
       "id": 3,
-      "CreatedAt": "2024-06-10T11:00:00Z",
-      "UpdatedAt": "2024-06-11T09:00:00Z",
-      "VehicleID": 3,
       "IssueNumber": 1003,
-      "ReportedByUserID": "f1e2d3c4-b5a6-9870-fedc-ba0987654321",
-      "ReportedDate": "2024-06-10T11:00:00Z",
+      "VehicleID": 3,
+      "VehicleName": "Electric Delivery",
       "Title": "Air conditioning not cooling",
       "Description": "HVAC system blows warm air only.",
       "Category": 7,
       "PriorityLevel": 2,
       "Status": 1,
+      "ReportedByUserID": "f1e2d3c4-b5a6-9870-fedc-ba0987654321",
+      "ReportedByUserName": "Emma Davis",
+      "ReportedDate": "2024-06-10T11:00:00Z",
       "ResolvedDate": null,
       "ResolvedByUserID": null,
+      "ResolvedByUserName": null,
       "ResolutionNotes": null
     },
     {
       "id": 4,
-      "CreatedAt": "2024-01-15T09:00:00Z",
-      "UpdatedAt": "2024-01-16T10:00:00Z",
-      "VehicleID": 4,
       "IssueNumber": 1004,
-      "ReportedByUserID": "242b941b-4c3e-48b8-b4bb-9055b224a7cc",
-      "ReportedDate": "2024-01-15T09:00:00Z",
+      "VehicleID": 4,
+      "VehicleName": "Heavy Duty Truck",
       "Title": "Transmission slipping",
       "Description": "Vehicle hesitates when shifting gears.",
       "Category": 2,
       "PriorityLevel": 3,
       "Status": 2,
+      "ReportedByUserID": "242b941b-4c3e-48b8-b4bb-9055b224a7cc",
+      "ReportedByUserName": "Mike Johnson",
+      "ReportedDate": "2024-01-15T09:00:00Z",
       "ResolvedDate": null,
       "ResolvedByUserID": null,
+      "ResolvedByUserName": null,
       "ResolutionNotes": null
     },
     {
       "id": 5,
-      "CreatedAt": "2024-06-15T10:00:00Z",
-      "UpdatedAt": "2024-06-16T11:00:00Z",
-      "VehicleID": 5,
       "IssueNumber": 1005,
-      "ReportedByUserID": "a9b8c7d6-e5f4-3210-9876-543210fedcba",
-      "ReportedDate": "2024-06-15T10:00:00Z",
+      "VehicleID": 5,
+      "VehicleName": "Family SUV",
       "Title": "Body dent on rear door",
       "Description": "Small dent noticed after parking in public lot.",
       "Category": 5,
       "PriorityLevel": 1,
       "Status": 3,
+      "ReportedByUserID": "a9b8c7d6-e5f4-3210-9876-543210fedcba",
+      "ReportedByUserName": "Chris Lee",
+      "ReportedDate": "2024-06-15T10:00:00Z",
       "ResolvedDate": "2024-06-16T11:00:00Z",
       "ResolvedByUserID": "1a2b3c4d-5e6f-7890-abcd-ef1234567890",
+      "ResolvedByUserName": "Lisa Parker",
       "ResolutionNotes": "Dent repaired by body shop."
     },
     {
       "id": 6,
-      "CreatedAt": "2024-06-05T14:30:00Z",
-      "UpdatedAt": "2024-06-06T15:00:00Z",
-      "VehicleID": 6,
       "IssueNumber": 1006,
-      "ReportedByUserID": "8a1b2c3d-4e5f-6789-abcd-ef0123456789",
-      "ReportedDate": "2024-06-05T14:30:00Z",
+      "VehicleID": 6,
+      "VehicleName": "Service Truck 2",
       "Title": "Electrical system warning",
       "Description": "Dashboard shows electrical system warning intermittently.",
       "Category": 4,
       "PriorityLevel": 2,
       "Status": 1,
+      "ReportedByUserID": "8a1b2c3d-4e5f-6789-abcd-ef0123456789",
+      "ReportedByUserName": "Alex Turner",
+      "ReportedDate": "2024-06-05T14:30:00Z",
       "ResolvedDate": null,
       "ResolvedByUserID": null,
+      "ResolvedByUserName": null,
       "ResolutionNotes": null
     },
     {
       "id": 7,
-      "CreatedAt": "2024-06-12T16:00:00Z",
-      "UpdatedAt": "2024-06-13T09:00:00Z",
-      "VehicleID": 7,
       "IssueNumber": 1007,
-      "ReportedByUserID": "9f8e7d6c-5b4a-3928-1765-432109876543",
-      "ReportedDate": "2024-06-12T16:00:00Z",
+      "VehicleID": 7,
+      "VehicleName": "Compact Van",
       "Title": "Tyre pressure low",
       "Description": "Tyre pressure warning light is on.",
       "Category": 6,
       "PriorityLevel": 1,
       "Status": 4,
+      "ReportedByUserID": "9f8e7d6c-5b4a-3928-1765-432109876543",
+      "ReportedByUserName": "Tom Wilson",
+      "ReportedDate": "2024-06-12T16:00:00Z",
       "ResolvedDate": "2024-06-13T09:00:00Z",
       "ResolvedByUserID": "952188a4-dc48-4dad-9c7b-c75da50bb241",
+      "ResolvedByUserName": "Sarah Wilson",
       "ResolutionNotes": "Tyres inflated to correct pressure."
     },
     {
       "id": 8,
-      "CreatedAt": "2024-05-30T10:30:00Z",
-      "UpdatedAt": "2024-05-31T12:00:00Z",
-      "VehicleID": 8,
       "IssueNumber": 1008,
-      "ReportedByUserID": "f1e2d3c4-b5a6-9870-fedc-ba0987654321",
-      "ReportedDate": "2024-05-30T10:30:00Z",
+      "VehicleID": 8,
+      "VehicleName": "Executive Sedan",
       "Title": "Other: Unusual noise",
       "Description": "Rattling noise from undercarriage at low speeds.",
       "Category": 8,
       "PriorityLevel": 2,
       "Status": 1,
+      "ReportedByUserID": "f1e2d3c4-b5a6-9870-fedc-ba0987654321",
+      "ReportedByUserName": "Emma Davis",
+      "ReportedDate": "2024-05-30T10:30:00Z",
       "ResolvedDate": null,
       "ResolvedByUserID": null,
+      "ResolvedByUserName": null,
       "ResolutionNotes": null
     },
     {
       "id": 9,
-      "CreatedAt": "2024-06-18T12:00:00Z",
-      "UpdatedAt": "2024-06-19T13:00:00Z",
-      "VehicleID": 9,
       "IssueNumber": 1009,
-      "ReportedByUserID": "a9b8c7d6-e5f4-3210-9876-543210fedcba",
-      "ReportedDate": "2024-06-18T12:00:00Z",
+      "VehicleID": 9,
+      "VehicleName": "Hybrid Hatchback",
       "Title": "Hybrid system check required",
       "Description": "Hybrid system maintenance light is on.",
       "Category": 1,
       "PriorityLevel": 3,
       "Status": 2,
+      "ReportedByUserID": "a9b8c7d6-e5f4-3210-9876-543210fedcba",
+      "ReportedByUserName": "Chris Lee",
+      "ReportedDate": "2024-06-18T12:00:00Z",
       "ResolvedDate": null,
       "ResolvedByUserID": null,
+      "ResolvedByUserName": null,
       "ResolutionNotes": null
     },
     {
       "id": 10,
-      "CreatedAt": "2024-06-20T11:15:00Z",
-      "UpdatedAt": "2024-06-21T14:00:00Z",
-      "VehicleID": 11,
       "IssueNumber": 1010,
-      "ReportedByUserID": "1a2b3c4d-5e6f-7890-abcd-ef1234567890",
-      "ReportedDate": "2024-06-20T11:15:00Z",
+      "VehicleID": 11,
+      "VehicleName": "Electric SUV",
       "Title": "Windscreen wiper malfunction",
       "Description": "Wipers do not return to resting position.",
       "Category": 4,
       "PriorityLevel": 1,
       "Status": 5,
+      "ReportedByUserID": "1a2b3c4d-5e6f-7890-abcd-ef1234567890",
+      "ReportedByUserName": "Lisa Parker",
+      "ReportedDate": "2024-06-20T11:15:00Z",
       "ResolvedDate": null,
       "ResolvedByUserID": null,
+      "ResolvedByUserName": null,
       "ResolutionNotes": "Issue cancelled by user request."
     }
   ],
@@ -545,56 +555,22 @@
       "Name": "Group 10",
       "Description": "Pool cars for staff",
       "IsActive": true
+    },
+    {
+      "id": "8a3f",
+      "Name": "Group 11",
+      "Description": "help",
+      "IsActive": true
     }
   ],
   "technicians": [
     {
-      "id": "b1a2c3d4-e5f6-7890-abcd-ef1234567890",
-      "FirstName": "John",
-      "LastName": "Doe",
-      "HireDate": "2020-01-15T00:00:00Z",
+      "id": "d0e1f2a3-b4c5-6789-bcda-ef0123456789",
+      "FirstName": "Ashley",
+      "LastName": "Davis",
+      "HireDate": "2021-08-25T00:00:00Z",
       "IsActive": true,
-      "Email": "john.doe@example.com"
-    },
-    {
-      "id": "a2b3c4d5-e6f7-8901-bcda-ef2345678901",
-      "FirstName": "Jane",
-      "LastName": "Smith",
-      "HireDate": "2019-03-22T00:00:00Z",
-      "IsActive": true,
-      "Email": "jane.smith@example.com"
-    },
-    {
-      "id": "c3d4e5f6-a7b8-9012-cdab-ef3456789012",
-      "FirstName": "Michael",
-      "LastName": "Johnson",
-      "HireDate": "2018-07-10T00:00:00Z",
-      "IsActive": false,
-      "Email": "michael.johnson@example.com"
-    },
-    {
-      "id": "d4e5f6a7-b8c9-0123-dabc-ef4567890123",
-      "FirstName": "Emily",
-      "LastName": "Williams",
-      "HireDate": "2021-11-05T00:00:00Z",
-      "IsActive": true,
-      "Email": "emily.williams@example.com"
-    },
-    {
-      "id": "e5f6a7b8-c9d0-1234-abcd-ef5678901234",
-      "FirstName": "David",
-      "LastName": "Brown",
-      "HireDate": "2017-05-18T00:00:00Z",
-      "IsActive": false,
-      "Email": "david.brown@example.com"
-    },
-    {
-      "id": "f6a7b8c9-d0e1-2345-bcda-ef6789012345",
-      "FirstName": "Sarah",
-      "LastName": "Jones",
-      "HireDate": "2022-02-28T00:00:00Z",
-      "IsActive": true,
-      "Email": "sarah.jones@example.com"
+      "Email": "ashley.davis@example.com"
     },
     {
       "id": "a7b8c9d0-e1f2-3456-cdab-ef7890123456",
@@ -605,12 +581,44 @@
       "Email": "chris.lee@example.com"
     },
     {
+      "id": "e5f6a7b8-c9d0-1234-abcd-ef5678901234",
+      "FirstName": "David",
+      "LastName": "Brown",
+      "HireDate": "2017-05-18T00:00:00Z",
+      "IsActive": false,
+      "Email": "david.brown@example.com"
+    },
+    {
+      "id": "d4e5f6a7-b8c9-0123-dabc-ef4567890123",
+      "FirstName": "Emily",
+      "LastName": "Williams",
+      "HireDate": "2021-11-05T00:00:00Z",
+      "IsActive": true,
+      "Email": "emily.williams@example.com"
+    },
+    {
+      "id": "a2b3c4d5-e6f7-8901-bcda-ef2345678901",
+      "FirstName": "Jane",
+      "LastName": "Smith",
+      "HireDate": "2019-03-22T00:00:00Z",
+      "IsActive": true,
+      "Email": "jane.smith@example.com"
+    },
+    {
       "id": "b8c9d0e1-f2a3-4567-dabc-ef8901234567",
       "FirstName": "Jessica",
       "LastName": "Garcia",
       "HireDate": "2015-12-03T00:00:00Z",
       "IsActive": false,
       "Email": "jessica.garcia@example.com"
+    },
+    {
+      "id": "b1a2c3d4-e5f6-7890-abcd-ef1234567890",
+      "FirstName": "John",
+      "LastName": "Doe",
+      "HireDate": "2020-01-15T00:00:00Z",
+      "IsActive": true,
+      "Email": "john.doe@example.com"
     },
     {
       "id": "c9d0e1f2-a3b4-5678-abcd-ef9012345678",
@@ -621,12 +629,20 @@
       "Email": "matthew.martinez@example.com"
     },
     {
-      "id": "d0e1f2a3-b4c5-6789-bcda-ef0123456789",
-      "FirstName": "Ashley",
-      "LastName": "Davis",
-      "HireDate": "2021-08-25T00:00:00Z",
+      "id": "c3d4e5f6-a7b8-9012-cdab-ef3456789012",
+      "FirstName": "Michael",
+      "LastName": "Johnson",
+      "HireDate": "2018-07-10T00:00:00Z",
+      "IsActive": false,
+      "Email": "michael.johnson@example.com"
+    },
+    {
+      "id": "f6a7b8c9-d0e1-2345-bcda-ef6789012345",
+      "FirstName": "Sarah",
+      "LastName": "Jones",
+      "HireDate": "2022-02-28T00:00:00Z",
       "IsActive": true,
-      "Email": "ashley.davis@example.com"
+      "Email": "sarah.jones@example.com"
     }
   ],
   "inventoryItems": [
@@ -684,7 +700,7 @@
       "Manufacturer": "Castrol",
       "ManufacturerPartNumber": "CAS-TRF-004",
       "UniversalProductCode": "456789012345",
-      "UnitCost": 32.0,
+      "UnitCost": 32,
       "UnitCostMeasurementUnit": 2,
       "Supplier": "LubeMasters",
       "WeightKG": 3.8,
@@ -729,10 +745,10 @@
       "Manufacturer": "Exide",
       "ManufacturerPartNumber": "EXI-BAT-007",
       "UniversalProductCode": "789012345678",
-      "UnitCost": 120.0,
+      "UnitCost": 120,
       "UnitCostMeasurementUnit": 1,
       "Supplier": "PowerSource",
-      "WeightKG": 15.0,
+      "WeightKG": 15,
       "IsActive": true
     },
     {
@@ -759,10 +775,10 @@
       "Manufacturer": "Michelin",
       "ManufacturerPartNumber": "MIC-TIR-009",
       "UniversalProductCode": "901234567890",
-      "UnitCost": 150.0,
+      "UnitCost": 150,
       "UnitCostMeasurementUnit": 1,
       "Supplier": "TireWorld",
-      "WeightKG": 10.0,
+      "WeightKG": 10,
       "IsActive": false
     },
     {
@@ -774,7 +790,7 @@
       "Manufacturer": "Philips",
       "ManufacturerPartNumber": "PHI-HDL-010",
       "UniversalProductCode": "012345678901",
-      "UnitCost": 22.0,
+      "UnitCost": 22,
       "UnitCostMeasurementUnit": 1,
       "Supplier": "LightHouse",
       "WeightKG": 0.2,
@@ -795,8 +811,8 @@
       "id": 2,
       "Name": "Brake Pad Replacement",
       "Description": "Replace front and rear brake pads",
-      "EstimatedLabourHours": 2.0,
-      "EstimatedCost": 150.0,
+      "EstimatedLabourHours": 2,
+      "EstimatedCost": 150,
       "Category": 2,
       "IsActive": true
     },
@@ -805,7 +821,7 @@
       "Name": "Emergency Battery Jump",
       "Description": "Jump start vehicle with dead battery",
       "EstimatedLabourHours": 0.5,
-      "EstimatedCost": 40.0,
+      "EstimatedCost": 40,
       "Category": 3,
       "IsActive": false
     },
@@ -814,7 +830,7 @@
       "Name": "Annual Safety Inspection",
       "Description": "Comprehensive vehicle safety check",
       "EstimatedLabourHours": 2.5,
-      "EstimatedCost": 120.0,
+      "EstimatedCost": 120,
       "Category": 4,
       "IsActive": true
     },
@@ -822,8 +838,8 @@
       "id": 5,
       "Name": "Warranty Repair - Transmission",
       "Description": "Repair transmission under warranty",
-      "EstimatedLabourHours": 4.0,
-      "EstimatedCost": 0.0,
+      "EstimatedLabourHours": 4,
+      "EstimatedCost": 0,
       "Category": 5,
       "IsActive": true
     },
@@ -832,7 +848,7 @@
       "Name": "Coolant Flush",
       "Description": "Flush and replace engine coolant",
       "EstimatedLabourHours": 1.2,
-      "EstimatedCost": 60.0,
+      "EstimatedCost": 60,
       "Category": 1,
       "IsActive": false
     },
@@ -840,8 +856,8 @@
       "id": 7,
       "Name": "Corrective Alignment",
       "Description": "Wheel alignment after uneven tire wear",
-      "EstimatedLabourHours": 1.0,
-      "EstimatedCost": 75.0,
+      "EstimatedLabourHours": 1,
+      "EstimatedCost": 75,
       "Category": 2,
       "IsActive": true
     },
@@ -850,7 +866,7 @@
       "Name": "Emergency Tire Change",
       "Description": "Replace flat tire on roadside",
       "EstimatedLabourHours": 0.8,
-      "EstimatedCost": 55.0,
+      "EstimatedCost": 55,
       "Category": 3,
       "IsActive": true
     },
@@ -859,7 +875,7 @@
       "Name": "Inspection - Emissions",
       "Description": "Check vehicle emissions compliance",
       "EstimatedLabourHours": 1.3,
-      "EstimatedCost": 65.0,
+      "EstimatedCost": 65,
       "Category": 4,
       "IsActive": false
     },
@@ -867,10 +883,683 @@
       "id": 10,
       "Name": "Warranty Repair - Electrical",
       "Description": null,
-      "EstimatedLabourHours": 3.0,
-      "EstimatedCost": 0.0,
+      "EstimatedLabourHours": 3,
+      "EstimatedCost": 0,
       "Category": 5,
       "IsActive": true
+    }
+  ],
+  "user": {
+    "id": "user-123",
+    "firstName": "Sara",
+    "lastName": "Ciskie",
+    "email": "sara.ciskie@ciskiecontracting.com",
+    "userName": "sara.ciskie",
+    "hireDate": "2020-03-15T00:00:00Z",
+    "isActive": true,
+    "createdAt": "2020-03-15T00:00:00Z",
+    "updatedAt": "2024-01-15T10:30:00Z",
+    "roles": ["Fleet Manager", "Administrator"]
+  },
+  "serviceSchedules": [
+    {
+      "id": 1,
+      "ServiceTasks": [1, 6],
+      "ServiceProgramID": 1,
+      "Name": "Time-Based Maintenance",
+      "TimeIntervalValue": 6,
+      "TimeIntervalUnit": 3,
+      "TimeBufferValue": 1,
+      "TimeBufferUnit": 3,
+      "MileageInterval": null,
+      "MileageBuffer": null,
+      "FirstServiceTimeValue": 1,
+      "FirstServiceTimeUnit": 2,
+      "FirstServiceMileage": null,
+      "IsActive": true
+    },
+    {
+      "id": 2,
+      "ServiceTasks": [2, 7],
+      "ServiceProgramID": 2,
+      "Name": "Mileage-Based Maintenance",
+      "TimeIntervalValue": null,
+      "TimeIntervalUnit": null,
+      "TimeBufferValue": null,
+      "TimeBufferUnit": null,
+      "MileageInterval": 10000,
+      "MileageBuffer": 500,
+      "FirstServiceTimeValue": null,
+      "FirstServiceTimeUnit": null,
+      "FirstServiceMileage": 5000,
+      "IsActive": true
+    },
+    {
+      "id": 3,
+      "ServiceTasks": [4],
+      "ServiceProgramID": 3,
+      "Name": "Annual Inspection",
+      "TimeIntervalValue": 1,
+      "TimeIntervalUnit": 2,
+      "TimeBufferValue": 2,
+      "TimeBufferUnit": 3,
+      "MileageInterval": 15000,
+      "MileageBuffer": 1000,
+      "FirstServiceTimeValue": 12,
+      "FirstServiceTimeUnit": 2,
+      "FirstServiceMileage": 10000,
+      "IsActive": false
+    },
+    {
+      "id": 4,
+      "ServiceTasks": [5, 10],
+      "ServiceProgramID": 4,
+      "Name": "Warranty Service",
+      "TimeIntervalValue": 12,
+      "TimeIntervalUnit": 2,
+      "TimeBufferValue": 1,
+      "TimeBufferUnit": 3,
+      "MileageInterval": 20000,
+      "MileageBuffer": 1000,
+      "FirstServiceTimeValue": 6,
+      "FirstServiceTimeUnit": 2,
+      "FirstServiceMileage": 1000,
+      "IsActive": true
+    },
+    {
+      "id": 5,
+      "ServiceTasks": [3, 8],
+      "ServiceProgramID": 5,
+      "Name": "Emergency Services",
+      "TimeIntervalValue": null,
+      "TimeIntervalUnit": null,
+      "TimeBufferValue": null,
+      "TimeBufferUnit": null,
+      "MileageInterval": null,
+      "MileageBuffer": null,
+      "FirstServiceTimeValue": null,
+      "FirstServiceTimeUnit": null,
+      "FirstServiceMileage": null,
+      "IsActive": true
+    },
+    {
+      "id": 6,
+      "ServiceTasks": [1, 2, 4],
+      "ServiceProgramID": 6,
+      "Name": "Comprehensive Hybrid Maintenance",
+      "TimeIntervalValue": 12,
+      "TimeIntervalUnit": 3,
+      "TimeBufferValue": 2,
+      "TimeBufferUnit": 3,
+      "MileageInterval": 15000,
+      "MileageBuffer": 1000,
+      "FirstServiceTimeValue": 6,
+      "FirstServiceTimeUnit": 2,
+      "FirstServiceMileage": 7500,
+      "IsActive": true
+    },
+    {
+      "id": 7,
+      "ServiceTasks": [6],
+      "ServiceProgramID": 7,
+      "Name": "Fluid Check and Top-up",
+      "TimeIntervalValue": 3,
+      "TimeIntervalUnit": 2,
+      "TimeBufferValue": 5,
+      "TimeBufferUnit": 2,
+      "MileageInterval": null,
+      "MileageBuffer": null,
+      "FirstServiceTimeValue": 3,
+      "FirstServiceTimeUnit": 2,
+      "FirstServiceMileage": null,
+      "IsActive": false
+    },
+    {
+      "id": 8,
+      "ServiceTasks": [7],
+      "ServiceProgramID": 8,
+      "Name": "Tire and Alignment Check",
+      "TimeIntervalValue": null,
+      "TimeIntervalUnit": null,
+      "TimeBufferValue": null,
+      "TimeBufferUnit": null,
+      "MileageInterval": 12000,
+      "MileageBuffer": 500,
+      "FirstServiceTimeValue": null,
+      "FirstServiceTimeUnit": null,
+      "FirstServiceMileage": 6000,
+      "IsActive": true
+    },
+    {
+      "id": 9,
+      "ServiceTasks": [1, 2, 4, 6, 7],
+      "ServiceProgramID": 9,
+      "Name": "Full Vehicle Overhaul Schedule",
+      "TimeIntervalValue": 24,
+      "TimeIntervalUnit": 2,
+      "TimeBufferValue": 4,
+      "TimeBufferUnit": 3,
+      "MileageInterval": 50000,
+      "MileageBuffer": 2500,
+      "FirstServiceTimeValue": 24,
+      "FirstServiceTimeUnit": 2,
+      "FirstServiceMileage": 50000,
+      "IsActive": true
+    },
+    {
+      "id": 10,
+      "ServiceTasks": [9],
+      "ServiceProgramID": 10,
+      "Name": "Emissions Test Schedule",
+      "TimeIntervalValue": 2,
+      "TimeIntervalUnit": 2,
+      "TimeBufferValue": 1,
+      "TimeBufferUnit": 3,
+      "MileageInterval": null,
+      "MileageBuffer": null,
+      "FirstServiceTimeValue": 2,
+      "FirstServiceTimeUnit": 2,
+      "FirstServiceMileage": null,
+      "IsActive": false
+    }
+  ],
+  "vehicleStatuses": [
+    {
+      "id": 1,
+      "name": "Active",
+      "color": "green",
+      "isActive": true,
+      "vehicleCount": 0
+    },
+    {
+      "id": 2,
+      "name": "In Shop",
+      "color": "orange",
+      "isActive": true,
+      "vehicleCount": 0
+    },
+    {
+      "id": 3,
+      "name": "Out of Service",
+      "color": "red",
+      "isActive": true,
+      "vehicleCount": 0
+    },
+    {
+      "id": 4,
+      "name": "Inactive",
+      "color": "blue",
+      "isActive": true,
+      "vehicleCount": 0
+    },
+    {
+      "id": 5,
+      "name": "Under Maintenance",
+      "color": "purple",
+      "isActive": true,
+      "vehicleCount": 0
+    }
+  ],
+  "servicePrograms": [
+    {
+      "id": 1,
+      "Name": "Preventive Maintenance",
+      "Description": "Scheduled maintenance to prevent breakdowns.",
+      "IsActive": true,
+      "CreatedAt": "2024-01-01T09:00:00Z",
+      "UpdatedAt": "2024-06-20T10:00:00Z",
+      "serviceSchedules": [
+        {
+          "id": 1,
+          "serviceProgramId": 1,
+          "Name": "Time-Based Maintenance",
+          "TimeIntervalValue": 6,
+          "TimeIntervalUnit": 3,
+          "TimeBufferValue": 1,
+          "TimeBufferUnit": 3,
+          "MileageInterval": null,
+          "MileageBuffer": null,
+          "FirstServiceTimeValue": 1,
+          "FirstServiceTimeUnit": 2,
+          "FirstServiceMileage": null,
+          "IsActive": true,
+          "serviceTasks": [
+            {
+              "id": 1,
+              "Name": "Engine Oil Change",
+              "Description": "Replace engine oil and filter",
+              "EstimatedLabourHours": 1.5,
+              "EstimatedCost": 85.5,
+              "Category": 1,
+              "IsActive": true
+            },
+            {
+              "id": 6,
+              "Name": "Coolant Flush",
+              "Description": "Flush and replace engine coolant",
+              "EstimatedLabourHours": 1.2,
+              "EstimatedCost": 60,
+              "Category": 1,
+              "IsActive": false
+            }
+          ]
+        }
+      ],
+      "assignedVehicles": [1, 6]
+    },
+    {
+      "id": 2,
+      "Name": "Warranty Service",
+      "Description": "Covers repairs under warranty.",
+      "IsActive": true,
+      "CreatedAt": "2023-05-15T08:30:00Z",
+      "UpdatedAt": "2024-06-18T14:00:00Z",
+      "serviceSchedules": [
+        {
+          "id": 4,
+          "serviceProgramId": 4,
+          "Name": "Warranty Service",
+          "TimeIntervalValue": 12,
+          "TimeIntervalUnit": 2,
+          "TimeBufferValue": 1,
+          "TimeBufferUnit": 3,
+          "MileageInterval": 20000,
+          "MileageBuffer": 1000,
+          "FirstServiceTimeValue": 6,
+          "FirstServiceTimeUnit": 2,
+          "FirstServiceMileage": 1000,
+          "IsActive": true,
+          "serviceTasks": [
+            {
+              "id": 5,
+              "Name": "Warranty Repair - Transmission",
+              "Description": "Repair transmission under warranty",
+              "EstimatedLabourHours": 4,
+              "EstimatedCost": 0,
+              "Category": 5,
+              "IsActive": true
+            },
+            {
+              "id": 10,
+              "Name": "Warranty Repair - Electrical",
+              "Description": null,
+              "EstimatedLabourHours": 3,
+              "EstimatedCost": 0,
+              "Category": 5,
+              "IsActive": true
+            }
+          ]
+        }
+      ],
+      "assignedVehicles": [2, 8]
+    },
+    {
+      "id": 3,
+      "Name": "Seasonal Check",
+      "Description": "Inspections before winter and summer.",
+      "IsActive": false,
+      "CreatedAt": "2022-10-01T10:00:00Z",
+      "UpdatedAt": "2023-11-01T09:00:00Z",
+      "serviceSchedules": [
+        {
+          "id": 3,
+          "serviceProgramId": 3,
+          "Name": "Annual Inspection",
+          "TimeIntervalValue": 1,
+          "TimeIntervalUnit": 2,
+          "TimeBufferValue": 2,
+          "TimeBufferUnit": 3,
+          "MileageInterval": 15000,
+          "MileageBuffer": 1000,
+          "FirstServiceTimeValue": 12,
+          "FirstServiceTimeUnit": 2,
+          "FirstServiceMileage": 10000,
+          "IsActive": false,
+          "serviceTasks": [
+            {
+              "id": 4,
+              "Name": "Annual Safety Inspection",
+              "Description": "Comprehensive vehicle safety check",
+              "EstimatedLabourHours": 2.5,
+              "EstimatedCost": 120,
+              "Category": 4,
+              "IsActive": true
+            }
+          ]
+        }
+      ],
+      "assignedVehicles": [3]
+    },
+    {
+      "id": 4,
+      "Name": "Comprehensive Hybrid Maintenance",
+      "Description": "Full maintenance for hybrid vehicles.",
+      "IsActive": true,
+      "CreatedAt": "2023-03-10T11:00:00Z",
+      "UpdatedAt": "2024-06-15T12:00:00Z",
+      "serviceSchedules": [
+        {
+          "id": 6,
+          "serviceProgramId": 6,
+          "Name": "Comprehensive Hybrid Maintenance",
+          "TimeIntervalValue": 12,
+          "TimeIntervalUnit": 3,
+          "TimeBufferValue": 2,
+          "TimeBufferUnit": 3,
+          "MileageInterval": 15000,
+          "MileageBuffer": 1000,
+          "FirstServiceTimeValue": 6,
+          "FirstServiceTimeUnit": 2,
+          "FirstServiceMileage": 7500,
+          "IsActive": true,
+          "serviceTasks": [
+            {
+              "id": 1,
+              "Name": "Engine Oil Change",
+              "Description": "Replace engine oil and filter",
+              "EstimatedLabourHours": 1.5,
+              "EstimatedCost": 85.5,
+              "Category": 1,
+              "IsActive": true
+            },
+            {
+              "id": 2,
+              "Name": "Brake Pad Replacement",
+              "Description": "Replace front and rear brake pads",
+              "EstimatedLabourHours": 2,
+              "EstimatedCost": 150,
+              "Category": 2,
+              "IsActive": true
+            },
+            {
+              "id": 4,
+              "Name": "Annual Safety Inspection",
+              "Description": "Comprehensive vehicle safety check",
+              "EstimatedLabourHours": 2.5,
+              "EstimatedCost": 120,
+              "Category": 4,
+              "IsActive": true
+            }
+          ]
+        }
+      ],
+      "assignedVehicles": [9, 11]
+    },
+    {
+      "id": 5,
+      "Name": "Emergency Services",
+      "Description": "Rapid response for breakdowns and emergencies.",
+      "IsActive": true,
+      "CreatedAt": "2024-02-20T07:30:00Z",
+      "UpdatedAt": "2024-06-19T08:00:00Z",
+      "serviceSchedules": [
+        {
+          "id": 5,
+          "serviceProgramId": 5,
+          "Name": "Emergency Services",
+          "TimeIntervalValue": null,
+          "TimeIntervalUnit": null,
+          "TimeBufferValue": null,
+          "TimeBufferUnit": null,
+          "MileageInterval": null,
+          "MileageBuffer": null,
+          "FirstServiceTimeValue": null,
+          "FirstServiceTimeUnit": null,
+          "FirstServiceMileage": null,
+          "IsActive": true,
+          "serviceTasks": [
+            {
+              "id": 3,
+              "Name": "Emergency Battery Jump",
+              "Description": "Jump start vehicle with dead battery",
+              "EstimatedLabourHours": 0.5,
+              "EstimatedCost": 40,
+              "Category": 3,
+              "IsActive": false
+            },
+            {
+              "id": 8,
+              "Name": "Emergency Tire Change",
+              "Description": "Replace flat tire on roadside",
+              "EstimatedLabourHours": 0.8,
+              "EstimatedCost": 55,
+              "Category": 3,
+              "IsActive": true
+            }
+          ]
+        }
+      ],
+      "assignedVehicles": [4, 7]
+    },
+    {
+      "id": 6,
+      "Name": "Fluid Check and Top-up",
+      "Description": "Routine fluid level checks and top-ups.",
+      "IsActive": false,
+      "CreatedAt": "2022-06-01T09:00:00Z",
+      "UpdatedAt": "2023-12-01T10:00:00Z",
+      "serviceSchedules": [
+        {
+          "id": 7,
+          "serviceProgramId": 7,
+          "Name": "Fluid Check and Top-up",
+          "TimeIntervalValue": 3,
+          "TimeIntervalUnit": 2,
+          "TimeBufferValue": 5,
+          "TimeBufferUnit": 2,
+          "MileageInterval": null,
+          "MileageBuffer": null,
+          "FirstServiceTimeValue": 3,
+          "FirstServiceTimeUnit": 2,
+          "FirstServiceMileage": null,
+          "IsActive": false,
+          "serviceTasks": [
+            {
+              "id": 6,
+              "Name": "Coolant Flush",
+              "Description": "Flush and replace engine coolant",
+              "EstimatedLabourHours": 1.2,
+              "EstimatedCost": 60,
+              "Category": 1,
+              "IsActive": false
+            }
+          ]
+        }
+      ],
+      "assignedVehicles": [5]
+    },
+    {
+      "id": 7,
+      "Name": "Tire and Alignment Check",
+      "Description": "Regular tire and wheel alignment inspections.",
+      "IsActive": true,
+      "CreatedAt": "2023-08-15T10:00:00Z",
+      "UpdatedAt": "2024-06-17T11:00:00Z",
+      "serviceSchedules": [
+        {
+          "id": 8,
+          "serviceProgramId": 8,
+          "Name": "Tire and Alignment Check",
+          "TimeIntervalValue": null,
+          "TimeIntervalUnit": null,
+          "TimeBufferValue": null,
+          "TimeBufferUnit": null,
+          "MileageInterval": 12000,
+          "MileageBuffer": 500,
+          "FirstServiceTimeValue": null,
+          "FirstServiceTimeUnit": null,
+          "FirstServiceMileage": 6000,
+          "IsActive": true,
+          "serviceTasks": [
+            {
+              "id": 7,
+              "Name": "Corrective Alignment",
+              "Description": "Wheel alignment after uneven tire wear",
+              "EstimatedLabourHours": 1,
+              "EstimatedCost": 75,
+              "Category": 2,
+              "IsActive": true
+            }
+          ]
+        }
+      ],
+      "assignedVehicles": [10]
+    },
+    {
+      "id": 8,
+      "Name": "Full Vehicle Overhaul",
+      "Description": "Comprehensive overhaul for high-mileage vehicles.",
+      "IsActive": true,
+      "CreatedAt": "2021-12-01T08:00:00Z",
+      "UpdatedAt": "2024-06-16T09:00:00Z",
+      "serviceSchedules": [
+        {
+          "id": 9,
+          "serviceProgramId": 9,
+          "Name": "Full Vehicle Overhaul Schedule",
+          "TimeIntervalValue": 24,
+          "TimeIntervalUnit": 2,
+          "TimeBufferValue": 4,
+          "TimeBufferUnit": 3,
+          "MileageInterval": 50000,
+          "MileageBuffer": 2500,
+          "FirstServiceTimeValue": 24,
+          "FirstServiceTimeUnit": 2,
+          "FirstServiceMileage": 50000,
+          "IsActive": true,
+          "serviceTasks": [
+            {
+              "id": 1,
+              "Name": "Engine Oil Change",
+              "Description": "Replace engine oil and filter",
+              "EstimatedLabourHours": 1.5,
+              "EstimatedCost": 85.5,
+              "Category": 1,
+              "IsActive": true
+            },
+            {
+              "id": 2,
+              "Name": "Brake Pad Replacement",
+              "Description": "Replace front and rear brake pads",
+              "EstimatedLabourHours": 2,
+              "EstimatedCost": 150,
+              "Category": 2,
+              "IsActive": true
+            },
+            {
+              "id": 4,
+              "Name": "Annual Safety Inspection",
+              "Description": "Comprehensive vehicle safety check",
+              "EstimatedLabourHours": 2.5,
+              "EstimatedCost": 120,
+              "Category": 4,
+              "IsActive": true
+            },
+            {
+              "id": 6,
+              "Name": "Coolant Flush",
+              "Description": "Flush and replace engine coolant",
+              "EstimatedLabourHours": 1.2,
+              "EstimatedCost": 60,
+              "Category": 1,
+              "IsActive": false
+            },
+            {
+              "id": 7,
+              "Name": "Corrective Alignment",
+              "Description": "Wheel alignment after uneven tire wear",
+              "EstimatedLabourHours": 1,
+              "EstimatedCost": 75,
+              "Category": 2,
+              "IsActive": true
+            }
+          ]
+        }
+      ],
+      "assignedVehicles": [8, 12]
+    },
+    {
+      "id": 9,
+      "Name": "Emissions Test Program",
+      "Description": "Scheduled emissions compliance testing.",
+      "IsActive": false,
+      "CreatedAt": "2022-04-10T09:00:00Z",
+      "UpdatedAt": "2023-10-10T10:00:00Z",
+      "serviceSchedules": [
+        {
+          "id": 10,
+          "serviceProgramId": 10,
+          "Name": "Emissions Test Schedule",
+          "TimeIntervalValue": 2,
+          "TimeIntervalUnit": 2,
+          "TimeBufferValue": 1,
+          "TimeBufferUnit": 3,
+          "MileageInterval": null,
+          "MileageBuffer": null,
+          "FirstServiceTimeValue": 2,
+          "FirstServiceTimeUnit": 2,
+          "FirstServiceMileage": null,
+          "IsActive": false,
+          "serviceTasks": [
+            {
+              "id": 9,
+              "Name": "Inspection - Emissions",
+              "Description": "Check vehicle emissions compliance",
+              "EstimatedLabourHours": 1.3,
+              "EstimatedCost": 65,
+              "Category": 4,
+              "IsActive": false
+            }
+          ]
+        }
+      ],
+      "assignedVehicles": [3, 5]
+    },
+    {
+      "id": 10,
+      "Name": "New Vehicle Inspection",
+      "Description": "Initial inspection for newly acquired vehicles.",
+      "IsActive": true,
+      "CreatedAt": "2024-05-01T09:00:00Z",
+      "UpdatedAt": "2024-06-21T10:00:00Z",
+      "serviceSchedules": [
+        {
+          "id": 2,
+          "serviceProgramId": 2,
+          "Name": "Mileage-Based Maintenance",
+          "TimeIntervalValue": null,
+          "TimeIntervalUnit": null,
+          "TimeBufferValue": null,
+          "TimeBufferUnit": null,
+          "MileageInterval": 10000,
+          "MileageBuffer": 500,
+          "FirstServiceTimeValue": null,
+          "FirstServiceTimeUnit": null,
+          "FirstServiceMileage": 5000,
+          "IsActive": true,
+          "serviceTasks": [
+            {
+              "id": 2,
+              "Name": "Brake Pad Replacement",
+              "Description": "Replace front and rear brake pads",
+              "EstimatedLabourHours": 2,
+              "EstimatedCost": 150,
+              "Category": 2,
+              "IsActive": true
+            },
+            {
+              "id": 7,
+              "Name": "Corrective Alignment",
+              "Description": "Wheel alignment after uneven tire wear",
+              "EstimatedLabourHours": 1,
+              "EstimatedCost": 75,
+              "Category": 2,
+              "IsActive": true
+            }
+          ]
+        }
+      ],
+      "assignedVehicles": [2, 9]
     }
   ]
 }

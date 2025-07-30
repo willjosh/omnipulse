@@ -1,10 +1,6 @@
-using System;
-
 using Application.Features.ServiceTasks.Command.UpdateServiceTask;
 
 using Domain.Entities.Enums;
-
-using Xunit;
 
 namespace Application.Test.ServiceTasks.CommandTest.UpdateServiceTask;
 

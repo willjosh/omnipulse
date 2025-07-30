@@ -1,0 +1,65 @@
+name: Deploy to Azure Container Apps
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch: # Allow manual trigger
+
+env:
+  REGISTRY_NAME: omnipulse.azurecr.io
+  RESOURCE_GROUP: Omnipulse
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Login to Azure Container Registry
+        run: az acr login --name omnipulse
+
+      - name: Build and push backend
+        run: |
+          docker build -f server/Dockerfile.server.prod \
+            --platform linux/amd64 \
+            -t omnipulse.azurecr.io/omnipulse-server:v1 \
+            .
+          docker push omnipulse.azurecr.io/omnipulse-server:v1
+
+      - name: Build and push frontend
+        run: |
+          docker build -f client/Dockerfile.client.prod \
+            --platform linux/amd64 \
+            -t omnipulse.azurecr.io/omnipulse-client:v1 \
+            .
+          docker push omnipulse.azurecr.io/omnipulse-client:v1
+
+      - name: Update backend container app
+        run: |
+          az containerapp update \
+            --name omnipulse-backend \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --image omnipulse.azurecr.io/omnipulse-server:v1
+
+      - name: Update frontend container app
+        run: |
+          az containerapp update \
+            --name omnipulse-frontend \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --image omnipulse.azurecr.io/omnipulse-client:v1
+
+      - name: Show deployment URLs
+        run: |
+          echo "🚀 Deployment complete!"
+          echo "Backend: https://omnipulse-backend.wonderfulsky-7bfd34c0.australiaeast.azurecontainerapps.io"
+          echo "Frontend: https://omnipulse-frontend.wonderfulsky-7bfd34c0.australiaeast.azurecontainerapps.io"

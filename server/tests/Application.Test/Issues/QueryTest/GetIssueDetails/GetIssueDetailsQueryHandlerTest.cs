@@ -1,7 +1,3 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
@@ -14,8 +10,6 @@ using Domain.Entities;
 using Domain.Entities.Enums;
 
 using Moq;
-
-using Xunit;
 
 namespace Application.Test.Issues.QueryTest.GetIssueDetails;
 
@@ -84,7 +78,7 @@ public class GetIssueDetailsQueryHandlerTest
             VehicleImages = new List<VehicleImage>(),
             VehicleAssignments = new List<VehicleAssignment>(),
             VehicleDocuments = new List<VehicleDocument>(),
-            VehicleServicePrograms = new List<VehicleServiceProgram>(),
+            XrefServiceProgramVehicles = new List<XrefServiceProgramVehicle>(),
             ServiceReminders = new List<ServiceReminder>(),
             Issues = new List<Issue>(),
             VehicleInspections = new List<VehicleInspection>(),

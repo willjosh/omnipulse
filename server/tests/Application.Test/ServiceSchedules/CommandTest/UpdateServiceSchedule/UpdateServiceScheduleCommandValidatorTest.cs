@@ -1,10 +1,6 @@
-using System;
-
 using Application.Features.ServiceSchedules.Command.UpdateServiceSchedule;
 
 using Domain.Entities.Enums;
-
-using Xunit;
 
 namespace Application.Test.ServiceSchedules.CommandTest.UpdateServiceSchedule;
 
@@ -16,6 +12,7 @@ public class UpdateServiceScheduleCommandValidatorTest
     protected override UpdateServiceScheduleCommand CreateValidCommand(
         int serviceProgramId = 1,
         string name = "5000 km / 6 week service",
+        List<int>? serviceTaskIDs = null,
         int? timeIntervalValue = 6,
         TimeUnitEnum? timeIntervalUnit = TimeUnitEnum.Weeks,
         int? timeBufferValue = 1,
@@ -29,6 +26,7 @@ public class UpdateServiceScheduleCommandValidatorTest
             ServiceScheduleID: 1,
             ServiceProgramID: serviceProgramId,
             Name: name,
+            ServiceTaskIDs: serviceTaskIDs ?? [1],
             TimeIntervalValue: timeIntervalValue,
             TimeIntervalUnit: timeIntervalUnit,
             TimeBufferValue: timeBufferValue,

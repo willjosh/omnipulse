@@ -1,8 +1,3 @@
-using System;
-
-using Application.Contracts.Persistence;
-using Application.Features.FuelLogging.Command.CreateFuelPurchase;
-
 using FluentValidation;
 
 namespace Application.Features.FuelLogging.Command.CreateFuelPurchase;
