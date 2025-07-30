@@ -1,0 +1,186 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Invoice #{{InvoiceNumber}}</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        color: #333;
+      }
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+        border-bottom: 2px solid #4a90e2;
+        padding-bottom: 20px;
+      }
+      .company-info {
+        font-size: 24px;
+        font-weight: bold;
+        color: #4a90e2;
+        margin-bottom: 10px;
+      }
+      .invoice-title {
+        font-size: 18px;
+        color: #666;
+      }
+      .invoice-details {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 30px;
+      }
+      .bill-to {
+        flex: 1;
+      }
+      .invoice-info {
+        flex: 1;
+        text-align: right;
+      }
+      .work-order-details {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+      }
+      .work-order-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+      }
+      .line-items {
+        margin-bottom: 30px;
+      }
+      .line-items table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+      .line-items th {
+        background-color: #4a90e2;
+        color: white;
+        padding: 12px;
+        text-align: left;
+      }
+      .line-items td {
+        padding: 12px;
+        border-bottom: 1px solid #ddd;
+      }
+      .line-items tr:nth-child(even) {
+        background-color: #f8f9fa;
+      }
+      .totals {
+        text-align: right;
+        margin-top: 20px;
+      }
+      .total-row {
+        font-size: 16px;
+        font-weight: bold;
+        padding: 10px 0;
+      }
+      .grand-total {
+        font-size: 20px;
+        color: #4a90e2;
+        border-top: 2px solid #4a90e2;
+        padding-top: 10px;
+      }
+      .footer {
+        margin-top: 40px;
+        text-align: center;
+        color: #666;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <div class="company-info">Omnipulse</div>
+      <div class="invoice-title">INVOICE</div>
+    </div>
+
+    <div class="invoice-details">
+      <div class="bill-to">
+        <h3>Bill To:</h3>
+        <p><strong>{{AssignedToUserName}}</strong></p>
+        <p>Work Order: #{{WorkOrderId}}</p>
+      </div>
+      <div class="invoice-info">
+        <p><strong>Invoice #:</strong> {{InvoiceNumber}}</p>
+        <p><strong>Date:</strong> {{InvoiceDate}}</p>
+        <p><strong>Status:</strong> {{Status}}</p>
+      </div>
+    </div>
+
+    <div class="work-order-details">
+      <h3>Work Order Details</h3>
+      <div class="work-order-grid">
+        <div>
+          <p><strong>Title:</strong> {{Title}}</p>
+          <p><strong>Type:</strong> {{WorkOrderType}}</p>
+          <p><strong>Priority:</strong> {{PriorityLevel}}</p>
+          <p><strong>Description:</strong> {{Description}}</p>
+        </div>
+        <div>
+          <p><strong>Vehicle:</strong> {{VehicleName}}</p>
+          <p><strong>Make/Model:</strong> {{VehicleMake}} {{VehicleModel}}</p>
+          <p><strong>VIN:</strong> {{VehicleVIN}}</p>
+          <p><strong>License:</strong> {{VehicleLicensePlate}}</p>
+        </div>
+      </div>
+      <div class="work-order-grid">
+        <div>
+          <p><strong>Assigned To:</strong> {{AssignedToUserName}}</p>
+          <p><strong>Scheduled Start:</strong> {{ScheduledStartDate}}</p>
+          <p><strong>Actual Start:</strong> {{ActualStartDate}}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="line-items">
+      <h3>Line Items</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Type</th>
+            <th>Quantity</th>
+            <th>Hours</th>
+            <th>Rate/Price</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each WorkOrderLineItems}}
+            <tr>
+              <td>{{Description}}</td>
+              <td>{{ItemType}}</td>
+              <td>{{Quantity}}</td>
+              <td>{{LaborHours}}</td>
+              <td>{{#if
+                  HourlyRate
+                }}${{HourlyRate}}/hr{{else}}${{UnitPrice}}{{/if}}</td>
+              <td>${{TotalCost}}</td>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="totals">
+      <div class="total-row">
+        <span>Labor Cost: ${{TotalLabourCost}}</span>
+      </div>
+      <div class="total-row">
+        <span>Parts Cost: ${{TotalItemCost}}</span>
+      </div>
+      <div class="total-row grand-total">
+        <span>Total: ${{TotalCost}}</span>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>Powered by Omnipulse</p>
+      <p>Generated on: {{GeneratedDate}}</p>
+    </div>
+  </body>
+</html>
