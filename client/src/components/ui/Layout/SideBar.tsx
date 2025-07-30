@@ -34,8 +34,15 @@ const navItems: NavItem[] = [
       { label: "Vehicle Assignment", path: "/vehicles/assignment" },
     ],
   },
-  { label: "Equipment", icon: Wrench },
-  { label: "Inspections", icon: ClipboardCheck },
+  // { label: "Equipment", icon: Wrench },
+  {
+    label: "Inspections",
+    icon: ClipboardCheck,
+    children: [
+      { label: "Inspection History", path: "/inspection-history" },
+      { label: "Forms", path: "/inspection-forms" },
+    ],
+  },
   {
     label: "Issues",
     icon: AlertTriangle,
@@ -66,10 +73,10 @@ const navItems: NavItem[] = [
     ],
   },
   { label: "Contacts", icon: User, path: "/contacts" },
-  { label: "Vendors", icon: Store },
-  { label: "Parts & Inventory", icon: Boxes, path: "/parts-inventory" },
+  // { label: "Vendors", icon: Store },
+  { label: "Parts", icon: Boxes, path: "/parts-inventory" },
   { label: "Fuel & Energy", icon: Fuel },
-  { label: "Places", icon: MapPin },
+  // { label: "Places", icon: MapPin },
   { label: "Documents", icon: FileText },
   { label: "Reports", icon: BarChart },
   { label: "Settings", icon: Settings, path: "/settings" },
@@ -150,9 +157,9 @@ const SideBar = () => {
   };
 
   return (
-    <aside className="w-64 sticky top-16 left-0 h-[calc(100vh-4rem)] bg-white border-r border-[var(--border)] text-sm flex flex-col overflow-y-auto z-30 shrink-0">
+    <aside className="fixed top-16 left-0 w-64 h-[calc(100vh-4rem)] bg-white border-r border-[var(--border)] text-sm flex flex-col overflow-hidden z-30 flex-shrink-0">
       {/* Header */}
-      <div className="px-4 py-5 border-b border-[var(--border)] flex items-center gap-3">
+      <div className="px-4 py-5 border-b border-[var(--border)] flex items-center gap-3 flex-shrink-0">
         <div className="w-9 h-9 rounded-full bg-[var(--primary-color)] flex items-center justify-center text-white font-semibold">
           SC
         </div>

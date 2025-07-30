@@ -5,6 +5,7 @@ import {
   VehicleGroup,
 } from "@/features/vehicle-group/types/vehicleGroupType";
 import { PrimaryButton, SecondaryButton } from "@/components/ui/Button";
+import ModalPortal from "@/components/ui/Modal/ModalPortal";
 
 interface VehicleGroupModalProps {
   isOpen: boolean;
@@ -79,64 +80,69 @@ export const VehicleGroupModal: React.FC<VehicleGroupModalProps> = ({
   const loadingText = mode === "create" ? "Creating..." : "Updating...";
 
   return (
-    <div className="fixed inset-0 backdrop-brightness-50 bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
-        <h2 className="text-lg font-semibold mb-4">{title}</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Group Name *
-              </label>
-              <input
-                type="text"
-                value={formData.name}
-                onChange={e =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-                className="w-full px-3 py-2 border border-[var(--border)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:border-transparent"
-                required
-              />
+    <ModalPortal isOpen={isOpen}>
+      <div className="fixed inset-0 backdrop-brightness-50 bg-opacity-50 flex items-center justify-center z-[100]">
+        <div className="bg-white rounded-lg p-6 w-full max-w-md">
+          <h2 className="text-lg font-semibold mb-4">{title}</h2>
+          <form onSubmit={handleSubmit}>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Group Name *
+                </label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={e =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
+                  className="w-full px-3 py-2 border border-[var(--border)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:border-transparent"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Description
+                </label>
+                <textarea
+                  value={formData.description}
+                  onChange={e =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
+                  rows={3}
+                  className="w-full px-3 py-2 border border-[var(--border)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:border-transparent"
+                />
+              </div>
+
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="isActive"
+                  checked={formData.isActive}
+                  onChange={e =>
+                    setFormData({ ...formData, isActive: e.target.checked })
+                  }
+                  className="h-4 w-4 text-[var(--primary-color)] focus:ring-[var(--primary-color)] border-gray-300 rounded"
+                />
+                <label
+                  htmlFor="isActive"
+                  className="ml-2 text-sm text-gray-700"
+                >
+                  Active
+                </label>
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Description
-              </label>
-              <textarea
-                value={formData.description}
-                onChange={e =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
-                rows={3}
-                className="w-full px-3 py-2 border border-[var(--border)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:border-transparent"
-              />
+
+            <div className="flex justify-end gap-3 mt-6">
+              <SecondaryButton onClick={onClose}>Cancel</SecondaryButton>
+              <PrimaryButton type="submit" disabled={isLoading}>
+                {isLoading ? loadingText : submitText}
+              </PrimaryButton>
             </div>
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id={`isActive-${mode}`}
-                checked={formData.isActive}
-                onChange={e =>
-                  setFormData({ ...formData, isActive: e.target.checked })
-                }
-                className="mr-2"
-              />
-              <label
-                htmlFor={`isActive-${mode}`}
-                className="text-sm text-gray-700"
-              >
-                Active
-              </label>
-            </div>
-          </div>
-          <div className="flex justify-end gap-3 mt-6">
-            <SecondaryButton onClick={onClose}>Cancel</SecondaryButton>
-            <PrimaryButton type="submit" disabled={isLoading}>
-              {isLoading ? loadingText : submitText}
-            </PrimaryButton>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
-    </div>
+    </ModalPortal>
   );
 };
