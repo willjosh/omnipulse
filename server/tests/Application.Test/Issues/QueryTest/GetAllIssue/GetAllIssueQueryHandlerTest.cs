@@ -81,7 +81,8 @@ public class GetAllIssueQueryHandlerTest
             VehicleDocuments = [],
             VehicleInspections = [],
             MaintenanceHistories = [],
-            IssueAttachments = []
+            IssueAttachments = [],
+            InventoryTransactions = []
         };
         var vehicle = new Vehicle
         {
@@ -456,7 +457,8 @@ public class GetAllIssueQueryHandlerTest
             VehicleDocuments = [],
             VehicleInspections = [],
             MaintenanceHistories = [],
-            IssueAttachments = []
+            IssueAttachments = [],
+            InventoryTransactions = []
         };
         var resolver = new User
         {
@@ -472,7 +474,8 @@ public class GetAllIssueQueryHandlerTest
             VehicleDocuments = [],
             VehicleInspections = [],
             MaintenanceHistories = [],
-            IssueAttachments = []
+            IssueAttachments = [],
+            InventoryTransactions = []
         };
         var vehicle = new Vehicle
         {

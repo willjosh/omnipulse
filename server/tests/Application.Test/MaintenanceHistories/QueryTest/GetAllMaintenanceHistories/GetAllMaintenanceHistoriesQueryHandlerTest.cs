@@ -140,7 +140,7 @@ public class GetAllMaintenanceHistoriesQueryHandlerTest
             WorkOrderLineItems = [],
             XrefServiceScheduleServiceTasks = []
         };
-        var user = new Domain.Entities.User
+        var user = new User
         {
             Id = "T1",
             FirstName = "Jane",
@@ -154,7 +154,8 @@ public class GetAllMaintenanceHistoriesQueryHandlerTest
             VehicleDocuments = [],
             VehicleInspections = [],
             MaintenanceHistories = [],
-            IssueAttachments = []
+            IssueAttachments = [],
+            InventoryTransactions = []
         };
 
         var expectedEntities = new List<MaintenanceHistory>
@@ -167,7 +168,6 @@ public class GetAllMaintenanceHistoriesQueryHandlerTest
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 WorkOrder = workOrder,
-                InventoryTransactions = []
             }
         };
         var pagedEntities = new PagedResult<MaintenanceHistory>

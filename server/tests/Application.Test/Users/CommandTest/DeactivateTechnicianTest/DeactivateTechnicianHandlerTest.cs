@@ -58,7 +58,8 @@ public class DeactivateTechnicianHandlerTest
             VehicleAssignments = [],
             VehicleDocuments = [],
             VehicleInspections = [],
-            Vehicles = []
+            Vehicles = [],
+            InventoryTransactions = []
         };
 
         _mockUserRepository.Setup(r => r.GetByIdAsync(command.Id)).ReturnsAsync(expectedUser);
@@ -115,7 +116,8 @@ public class DeactivateTechnicianHandlerTest
             VehicleAssignments = [],
             VehicleDocuments = [],
             VehicleInspections = [],
-            Vehicles = []
+            Vehicles = [],
+            InventoryTransactions = []
         };
 
         _mockUserRepository.Setup(r => r.GetByIdAsync(command.Id)).ReturnsAsync(expectedUser);

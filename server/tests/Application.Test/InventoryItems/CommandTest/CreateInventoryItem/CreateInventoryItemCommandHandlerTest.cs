@@ -51,7 +51,7 @@ public class CreateInventoryItemCommandHandlerTest
         string? manufacturer = "Test Manufacturer",
         string? manufacturerPartNumber = "MPN-001",
         string? universalProductCode = "123456789012",
-        decimal? unitCost = 100.00m,
+        decimal unitCost = 100.00m,
         InventoryItemUnitCostMeasurementUnitEnum? unitCostMeasurementUnit = InventoryItemUnitCostMeasurementUnitEnum.Unit,
         string? supplier = "Test Supplier",
         double? weightKG = 5.5,
@@ -128,7 +128,7 @@ public class CreateInventoryItemCommandHandlerTest
             MaxStockLevel = 0,
             NeedsReorder = false,
             LastRestockedDate = null,
-            UnitCost = command.UnitCost ?? 0,
+            UnitCost = command.UnitCost,
             InventoryItemLocation = null!,
             InventoryItem = expectedInventoryItem,
             InventoryTransactions = []
@@ -208,7 +208,6 @@ public class CreateInventoryItemCommandHandlerTest
             manufacturer: null,
             manufacturerPartNumber: null,
             universalProductCode: null,
-            unitCost: null,
             unitCostMeasurementUnit: null,
             supplier: null,
             weightKG: null

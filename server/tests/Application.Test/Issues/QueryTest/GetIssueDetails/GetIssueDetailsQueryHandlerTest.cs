@@ -51,7 +51,8 @@ public class GetIssueDetailsQueryHandlerTest
             VehicleAssignments = new List<VehicleAssignment>(),
             VehicleDocuments = new List<VehicleDocument>(),
             VehicleInspections = new List<VehicleInspection>(),
-            Vehicles = new List<Vehicle>()
+            Vehicles = new List<Vehicle>(),
+            InventoryTransactions = new List<InventoryTransaction>()
         };
         var expectedVehicle = new Vehicle
         {

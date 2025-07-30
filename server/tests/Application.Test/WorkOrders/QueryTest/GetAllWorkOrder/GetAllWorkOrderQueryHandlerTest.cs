@@ -135,7 +135,8 @@ public class GetAllWorkOrderQueryHandlerTest
             VehicleAssignments = [],
             VehicleDocuments = [],
             VehicleInspections = [],
-            Vehicles = []
+            Vehicles = [],
+            InventoryTransactions = []
         };
     }
 

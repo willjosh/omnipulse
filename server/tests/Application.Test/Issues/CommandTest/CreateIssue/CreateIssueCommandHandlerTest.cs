@@ -120,7 +120,8 @@ public class CreateIssueCommandHandlerTest
             VehicleAssignments = [],
             VehicleDocuments = [],
             VehicleInspections = [],
-            Vehicles = []
+            Vehicles = [],
+            InventoryTransactions = []
         };
     }
 

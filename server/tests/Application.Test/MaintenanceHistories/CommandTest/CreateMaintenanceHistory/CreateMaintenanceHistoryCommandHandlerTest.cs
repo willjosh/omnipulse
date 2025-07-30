@@ -105,7 +105,6 @@ public class CreateMaintenanceHistoryCommandHandlerTest
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
             WorkOrder = null!,
-            InventoryTransactions = []
         };
 
         _mockWorkOrderRepository.Setup(r => r.ExistsAsync(command.WorkOrderID)).ReturnsAsync(true);

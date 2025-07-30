@@ -20,6 +20,8 @@ public class CompleteWorkOrderCommandHandlerTest
 
     private readonly Mock<IWorkOrderRepository> _mockWorkOrderRepository;
     private readonly Mock<IMaintenanceHistoryRepository> _mockMaintenanceHistoryRepository;
+    private readonly Mock<IInventoryRepository> _mockInventoryRepository;
+    private readonly Mock<IInventoryTransactionRepository> _mockInventoryTransactionRepository;
     private readonly Mock<IAppLogger<CompleteWorkOrderCommandHandler>> _mockLogger;
     private readonly CompleteWorkOrderCommandHandler _handler;
 
@@ -27,6 +29,8 @@ public class CompleteWorkOrderCommandHandlerTest
     {
         _mockWorkOrderRepository = new();
         _mockMaintenanceHistoryRepository = new();
+        _mockInventoryRepository = new();
+        _mockInventoryTransactionRepository = new();
         _mockLogger = new();
 
         var config = new MapperConfiguration(cfg =>
@@ -39,6 +43,8 @@ public class CompleteWorkOrderCommandHandlerTest
         _handler = new CompleteWorkOrderCommandHandler(
             _mockWorkOrderRepository.Object,
             _mockMaintenanceHistoryRepository.Object,
+            _mockInventoryRepository.Object,
+            _mockInventoryTransactionRepository.Object,
             _mockLogger.Object,
             mapper
         );
@@ -62,6 +68,7 @@ public class CompleteWorkOrderCommandHandlerTest
             VehicleAssignments = [],
             VehicleDocuments = [],
             VehicleInspections = [],
+            InventoryTransactions = []
         };
     }
 
@@ -96,7 +103,7 @@ public class CompleteWorkOrderCommandHandlerTest
             VehicleImages = [],
             VehicleAssignments = [],
             VehicleDocuments = [],
-            VehicleServicePrograms = [],
+            XrefServiceProgramVehicles = [],
             ServiceReminders = [],
             Issues = [],
             VehicleInspections = []
@@ -140,7 +147,7 @@ public class CompleteWorkOrderCommandHandlerTest
             EstimatedCost = 100.00m,
             Category = Domain.Entities.Enums.ServiceTaskCategoryEnum.INSPECTION,
             IsActive = true,
-            ServiceScheduleTasks = [],
+            XrefServiceScheduleServiceTasks = [],
             MaintenanceHistories = [],
             WorkOrderLineItems = []
         };
@@ -196,7 +203,6 @@ public class CompleteWorkOrderCommandHandlerTest
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
             WorkOrder = workOrder,
-            InventoryTransactions = [],
         };
     }
 
@@ -204,12 +210,15 @@ public class CompleteWorkOrderCommandHandlerTest
     public async Task Handler_Should_Return_WorkOrderID_On_Success()
     {
         // Given 
+        var scheduledCompletionDate = DateTime.UtcNow.AddDays(2);
+        var actualCompletionDate = DateTime.UtcNow.AddDays(3);
+
         var command = new CompleteWorkOrderCommand(1);
         var workOrder = CreateWorkOrder(
             scheduledStartDate: DateTime.UtcNow.AddDays(-1),
             actualStartDate: DateTime.UtcNow.AddDays(1),
-            scheduledCompletionDate: DateTime.UtcNow.AddDays(2),
-            actualCompletionDate: DateTime.UtcNow.AddDays(3)
+            scheduledCompletionDate: scheduledCompletionDate,
+            actualCompletionDate: actualCompletionDate
         );
         var maintenanceHistory = CreateMaintenanceHistory(workOrder);
 
@@ -224,6 +233,8 @@ public class CompleteWorkOrderCommandHandlerTest
         Assert.Equal(workOrder.ID, result);
         Assert.Equal(WorkOrderStatusEnum.COMPLETED, workOrder.Status);
         Assert.NotNull(workOrder.ActualStartDate);
+        Assert.Equal(scheduledCompletionDate, workOrder.ScheduledCompletionDate); // Check scheduled completion
+        Assert.Equal(actualCompletionDate, workOrder.ActualCompletionDate);       // Check actual completion
 
         _mockWorkOrderRepository.Verify(r => r.GetWorkOrderWithDetailsAsync(command.ID), Times.Once);
         _mockMaintenanceHistoryRepository.Verify(r => r.AddAsync(It.IsAny<MaintenanceHistory>()), Times.Once);
