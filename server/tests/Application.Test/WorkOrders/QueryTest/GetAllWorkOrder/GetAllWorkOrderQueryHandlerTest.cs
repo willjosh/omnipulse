@@ -4,7 +4,6 @@ using Application.Exceptions;
 using Application.Features.WorkOrders.Query.GetAllWorkOrder;
 using Application.Features.WorkOrders.Query.GetWorkOrderDetail;
 using Application.MappingProfiles;
-using Application.Models;
 using Application.Models.PaginationModels;
 
 using AutoMapper;
@@ -98,8 +97,8 @@ public class GetAllWorkOrderQueryHandlerTest
             VehicleImages = [],
             VehicleAssignments = [],
             VehicleDocuments = [],
-            VehicleServicePrograms = [],
             ServiceReminders = [],
+            XrefServiceProgramVehicles = [],
             Issues = [],
             VehicleInspections = []
         };
@@ -154,7 +153,7 @@ public class GetAllWorkOrderQueryHandlerTest
             IsActive = true,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
-            ServiceScheduleTasks = [],
+            XrefServiceScheduleServiceTasks = [],
             MaintenanceHistories = [],
             WorkOrderLineItems = []
         };

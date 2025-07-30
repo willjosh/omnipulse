@@ -126,7 +126,7 @@ public class CreateInventoryItemCommandHandlerTest
             QuantityOnHand = 0,
             MinStockLevel = 0,
             MaxStockLevel = 0,
-            ReorderPoint = 0,
+            NeedsReorder = false,
             LastRestockedDate = null,
             UnitCost = command.UnitCost ?? 0,
             InventoryItemLocation = null!,
