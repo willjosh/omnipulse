@@ -2,7 +2,7 @@ namespace Domain.Entities;
 
 public class Inventory : BaseEntity
 {
-    public static Inventory CreateDefaultInventory(int inventoryItemID)
+    public static Inventory CreateDefaultInventory(int inventoryItemID, decimal unitCost)
     {
         return new Inventory
         {
@@ -15,7 +15,7 @@ public class Inventory : BaseEntity
             MaxStockLevel = 0,
             NeedsReorder = false,
             LastRestockedDate = null,
-            UnitCost = 0,
+            UnitCost = unitCost,
             InventoryItemLocation = null!,
             InventoryItem = null!,
             InventoryTransactions = [],

@@ -35,8 +35,7 @@ public class CreateInventoryItemCommandValidator : AbstractValidator<CreateInven
             .MaximumLength(100).WithMessage("Supplier must not exceed 100 characters");
 
         RuleFor(x => x.UnitCost)
-            .GreaterThanOrEqualTo(0).WithMessage("Unit cost must be greater than or equal to 0")
-            .When(x => x.UnitCost.HasValue);
+            .GreaterThanOrEqualTo(0).WithMessage("Unit cost must be greater than or equal to 0");
 
         RuleFor(x => x.UnitCostMeasurementUnit)
             .IsInEnum().WithMessage("Valid unit cost measurement unit is required")

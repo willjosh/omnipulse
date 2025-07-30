@@ -13,8 +13,7 @@ public class MaintenanceHistoryMappingProfile : Profile
     {
         CreateMap<CreateMaintenanceHistoryCommand, MaintenanceHistory>()
             .ForMember(dest => dest.ID, opt => opt.Ignore())
-            .ForMember(dest => dest.WorkOrder, opt => opt.Ignore())
-            .ForMember(dest => dest.InventoryTransactions, opt => opt.Ignore());
+            .ForMember(dest => dest.WorkOrder, opt => opt.Ignore());
 
         CreateMap<MaintenanceHistory, GetAllMaintenanceHistoryDTO>()
             .ForMember(dest => dest.MaintenanceHistoryID, opt => opt.MapFrom(src => src.ID))

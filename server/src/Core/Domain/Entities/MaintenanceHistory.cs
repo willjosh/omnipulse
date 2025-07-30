@@ -8,5 +8,4 @@ public class MaintenanceHistory : BaseEntity
 
     // navigation properties
     public required WorkOrder WorkOrder { get; set; }
-    public required ICollection<InventoryTransaction> InventoryTransactions { get; set; } = [];
 }
