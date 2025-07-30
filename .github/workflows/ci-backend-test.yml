@@ -68,7 +68,7 @@ jobs:
       - name: Install ReportGenerator tool
         run: dotnet tool install -g dotnet-reportgenerator-globaltool
 
-      - name: Generate code coverage report
+      - name: Generate merged code-coverage report
         run: |
           reportgenerator \
             -reports:"server/tests/coverage/**/coverage.cobertura.xml" \
@@ -81,7 +81,7 @@ jobs:
       - name: Create PR comment with coverage and artifact link
         if: github.event_name == 'pull_request'
         run: |
-          echo "# [📊 Backend - Code Coverage Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" > pr-comment.md
+          echo "# [📊 Backend - Code-Coverage Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" > pr-comment.md
           echo "" >> pr-comment.md
           cat server/tests/coverage/report/SummaryGithub.md >> pr-comment.md
 
@@ -93,13 +93,13 @@ jobs:
           path: pr-comment.md
           header: coverage-report
 
-      - name: Upload test results
+      - name: Upload test results & coverage artifacts
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: test-results-${{ github.run_id }}
           path: |
             server/tests/coverage/**/*.trx
-            server/tests/coverage/report/
+            server/tests/coverage/report/**
           retention-days: 30
           if-no-files-found: warn
