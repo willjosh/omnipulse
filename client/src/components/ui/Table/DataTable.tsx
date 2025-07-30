@@ -196,7 +196,7 @@ function DataTable<T>({
         </table>
 
         {data.length === 0 && (
-          <div className="absolute inset-x-0 top-16 bottom-0 flex items-center justify-center">
+          <div className="absolute inset-x-0 top-0 bottom-0 flex items-center justify-center">
             <div className="text-center">
               <div className="text-lg text-gray-500 mb-4">{emptyState}</div>
             </div>

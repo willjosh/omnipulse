@@ -3,7 +3,7 @@ import Breadcrumbs, {
   BreadcrumbItem,
 } from "@/components/ui/Layout/Breadcrumbs";
 
-interface ServiceProgramHeaderProps {
+interface WorkOrderHeaderProps {
   title: string;
   breadcrumbs: BreadcrumbItem[];
   actions?: React.ReactNode;
@@ -11,7 +11,7 @@ interface ServiceProgramHeaderProps {
   children?: React.ReactNode;
 }
 
-const ServiceProgramHeader: React.FC<ServiceProgramHeaderProps> = ({
+const WorkOrderHeader: React.FC<WorkOrderHeaderProps> = ({
   title,
   breadcrumbs,
   actions,
@@ -34,4 +34,4 @@ const ServiceProgramHeader: React.FC<ServiceProgramHeaderProps> = ({
   </div>
 );
 
-export default ServiceProgramHeader;
+export default WorkOrderHeader;
