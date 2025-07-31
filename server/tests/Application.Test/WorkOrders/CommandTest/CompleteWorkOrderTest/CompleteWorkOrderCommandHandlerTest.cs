@@ -67,7 +67,7 @@ public class CompleteWorkOrderCommandHandlerTest
             IssueAttachments = [],
             VehicleAssignments = [],
             VehicleDocuments = [],
-            VehicleInspections = [],
+            Inspections = [],
             InventoryTransactions = []
         };
     }
@@ -106,7 +106,7 @@ public class CompleteWorkOrderCommandHandlerTest
             XrefServiceProgramVehicles = [],
             ServiceReminders = [],
             Issues = [],
-            VehicleInspections = []
+            Inspections = []
         };
     }
 

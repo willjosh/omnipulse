@@ -30,7 +30,7 @@ public class VehicleMappingProfile : Profile
             .ForMember(dest => dest.XrefServiceProgramVehicles, opt => opt.Ignore()) // Navigation collection
             .ForMember(dest => dest.ServiceReminders, opt => opt.Ignore()) // Navigation collection
             .ForMember(dest => dest.Issues, opt => opt.Ignore()) // Navigation collection
-            .ForMember(dest => dest.VehicleInspections, opt => opt.Ignore()); // Navigation collection
+            .ForMember(dest => dest.Inspections, opt => opt.Ignore()); // Navigation collection
 
         CreateMap<UpdateVehicleCommand, Vehicle>()
             .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.VehicleID)) // Map the command's VehicleID to the entity's ID
@@ -43,8 +43,7 @@ public class VehicleMappingProfile : Profile
             .ForMember(dest => dest.XrefServiceProgramVehicles, opt => opt.Ignore()) // Navigation collection
             .ForMember(dest => dest.ServiceReminders, opt => opt.Ignore()) // Navigation collection
             .ForMember(dest => dest.Issues, opt => opt.Ignore()) // Navigation collection
-            .ForMember(dest => dest.VehicleInspections, opt => opt.Ignore()); // Navigation collection
-
+            .ForMember(dest => dest.Inspections, opt => opt.Ignore()); // Navigation collection
 
         CreateMap<Vehicle, GetVehicleDetailsDTO>()
             .ForMember(dest => dest.VehicleGroupName, opt => opt.MapFrom(

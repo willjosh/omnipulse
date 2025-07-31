@@ -79,7 +79,7 @@ public class GetAllIssueQueryHandlerTest
             Vehicles = [],
             VehicleAssignments = [],
             VehicleDocuments = [],
-            VehicleInspections = [],
+            Inspections = [],
             MaintenanceHistories = [],
             IssueAttachments = [],
             InventoryTransactions = []
@@ -114,7 +114,7 @@ public class GetAllIssueQueryHandlerTest
             XrefServiceProgramVehicles = [],
             ServiceReminders = [],
             Issues = [],
-            VehicleInspections = [],
+            Inspections = [],
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
@@ -455,7 +455,7 @@ public class GetAllIssueQueryHandlerTest
             Vehicles = [],
             VehicleAssignments = [],
             VehicleDocuments = [],
-            VehicleInspections = [],
+            Inspections = [],
             MaintenanceHistories = [],
             IssueAttachments = [],
             InventoryTransactions = []
@@ -472,7 +472,7 @@ public class GetAllIssueQueryHandlerTest
             Vehicles = [],
             VehicleAssignments = [],
             VehicleDocuments = [],
-            VehicleInspections = [],
+            Inspections = [],
             MaintenanceHistories = [],
             IssueAttachments = [],
             InventoryTransactions = []
@@ -506,7 +506,7 @@ public class GetAllIssueQueryHandlerTest
             XrefServiceProgramVehicles = [],
             ServiceReminders = [],
             Issues = [],
-            VehicleInspections = [],
+            Inspections = [],
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };

@@ -54,7 +54,7 @@ public class GetTechnicianQueryHandlerTest
             IssueAttachments = [],
             VehicleAssignments = [],
             VehicleDocuments = [],
-            VehicleInspections = [],
+            Inspections = [],
             InventoryTransactions = []
         };
 

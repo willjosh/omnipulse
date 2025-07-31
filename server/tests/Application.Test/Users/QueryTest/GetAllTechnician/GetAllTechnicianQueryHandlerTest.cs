@@ -99,7 +99,7 @@ public class GetAllTechnicianQueryHandlerTest
                 IssueAttachments = [],
                 VehicleAssignments = [],
                 VehicleDocuments = [],
-                VehicleInspections = [],
+                Inspections = [],
                 InventoryTransactions = []
                 },
             new() {
@@ -116,7 +116,7 @@ public class GetAllTechnicianQueryHandlerTest
                 IssueAttachments = [],
                 VehicleAssignments = [],
                 VehicleDocuments = [],
-                VehicleInspections = [],
+                Inspections = [],
                 InventoryTransactions = []
             },
         };

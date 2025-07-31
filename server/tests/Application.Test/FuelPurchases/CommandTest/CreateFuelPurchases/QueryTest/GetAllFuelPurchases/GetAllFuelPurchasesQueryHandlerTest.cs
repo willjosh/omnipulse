@@ -91,7 +91,7 @@ public class GetAllFuelPurchasesQueryHandlerTest
             Vehicles = [],
             VehicleAssignments = [],
             VehicleDocuments = [],
-            VehicleInspections = [],
+            Inspections = [],
             MaintenanceHistories = [],
             IssueAttachments = [],
             InventoryTransactions = []
@@ -139,7 +139,7 @@ public class GetAllFuelPurchasesQueryHandlerTest
             XrefServiceProgramVehicles = [],
             ServiceReminders = [],
             Issues = [],
-            VehicleInspections = []
+            Inspections = []
         };
 
         var vehicleCamry = new Vehicle
@@ -174,7 +174,7 @@ public class GetAllFuelPurchasesQueryHandlerTest
             XrefServiceProgramVehicles = [],
             ServiceReminders = [],
             Issues = [],
-            VehicleInspections = []
+            Inspections = []
         };
 
         // Create FuelPurchases entities (what the repository returns)

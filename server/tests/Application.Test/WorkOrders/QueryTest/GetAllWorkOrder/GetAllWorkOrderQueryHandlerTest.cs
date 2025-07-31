@@ -100,7 +100,7 @@ public class GetAllWorkOrderQueryHandlerTest
             ServiceReminders = [],
             XrefServiceProgramVehicles = [],
             Issues = [],
-            VehicleInspections = []
+            Inspections = []
         };
     }
 
@@ -134,7 +134,7 @@ public class GetAllWorkOrderQueryHandlerTest
             IssueAttachments = [],
             VehicleAssignments = [],
             VehicleDocuments = [],
-            VehicleInspections = [],
+            Inspections = [],
             Vehicles = [],
             InventoryTransactions = []
         };
