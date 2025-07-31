@@ -18,6 +18,11 @@ public class InspectionFormRepository : GenericRepository<InspectionForm>, IInsp
         return !await _dbSet.AnyAsync(x => x.Title.ToLower() == title.ToLower());
     }
 
+    public async Task<bool> IsTitleUniqueAsync(string title, int excludeId)
+    {
+        return !await _dbSet.AnyAsync(x => x.Title.ToLower() == title.ToLower() && x.ID != excludeId);
+    }
+
     public async Task<PagedResult<InspectionForm>> GetAllInspectionFormsPagedAsync(PaginationParameters parameters)
     {
         var query = _dbSet.AsQueryable();
