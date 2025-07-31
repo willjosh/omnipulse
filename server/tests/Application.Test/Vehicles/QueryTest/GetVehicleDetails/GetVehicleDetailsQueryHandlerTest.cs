@@ -52,7 +52,7 @@ public class GetVehicleDetailsQueryHandlerTest
             UpdatedAt = new DateTime(2023, 1, 1, 0, 0, 0, DateTimeKind.Utc),
         };
 
-        var expectedUser = new Domain.Entities.User
+        var expectedUser = new User
         {
             Id = "GUID123",
             FirstName = "John",
@@ -66,7 +66,8 @@ public class GetVehicleDetailsQueryHandlerTest
             VehicleDocuments = [],
             VehicleInspections = [],
             MaintenanceHistories = [],
-            IssueAttachments = []
+            IssueAttachments = [],
+            InventoryTransactions = []
         };
 
         var expectedVehicle = new Vehicle

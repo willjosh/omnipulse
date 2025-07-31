@@ -16,6 +16,8 @@ public record CreateWorkOrderCommand(
     WorkOrderStatusEnum Status,
     DateTime? ScheduledStartDate,
     DateTime? ActualStartDate,
+    DateTime? ScheduledCompletionDate,
+    DateTime? ActualCompletionDate,
     double StartOdometer,
     double? EndOdometer,
     // Issues

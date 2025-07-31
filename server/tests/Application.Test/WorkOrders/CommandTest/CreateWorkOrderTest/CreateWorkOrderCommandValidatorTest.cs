@@ -24,15 +24,24 @@ public class CreateWorkOrderCommandValidatorTest
         WorkOrderStatusEnum status = WorkOrderStatusEnum.ASSIGNED,
         DateTime? scheduledStartDate = null,
         DateTime? actualStartDate = null,
+        DateTime? ScheduledCompletionDate = null,
+        DateTime? ActualCompletionDate = null,
         double startOdometer = 1000.0,
         double? endOdometer = 1010.0,
         List<int>? issueIdList = null,
-        List<CreateWorkOrderLineItemDTO>? workOrderLineItems = null
+        List<CreateWorkOrderLineItemDTO>? workOrderLineItems = null,
+        bool setDefaultDates = false // New parameter
     )
     {
         issueIdList ??= new List<int> { 1, 2, 3 };
-        scheduledStartDate ??= DateTime.UtcNow.AddDays(1);
-        actualStartDate ??= DateTime.UtcNow.AddDays(2);
+
+        bool needsDefaults = scheduledStartDate == null && actualStartDate == null;
+
+        if (needsDefaults || setDefaultDates) // Use new parameter
+        {
+            scheduledStartDate = DateTime.UtcNow.AddDays(1).AddMinutes(10);
+            actualStartDate = DateTime.UtcNow.AddDays(2);
+        }
 
         return new CreateWorkOrderCommand(
             vehicleId,
@@ -44,6 +53,8 @@ public class CreateWorkOrderCommandValidatorTest
             status,
             scheduledStartDate,
             actualStartDate,
+            ScheduledCompletionDate,
+            ActualCompletionDate,
             startOdometer,
             endOdometer,
             issueIdList,
@@ -55,7 +66,7 @@ public class CreateWorkOrderCommandValidatorTest
     public async Task Validator_Should_Pass_With_Valid_Command()
     {
         // Given
-        var command = CreateValidCommand();
+        var command = CreateValidCommand(setDefaultDates: true);
 
         // When
         var result = await _validator.ValidateAsync(command);
@@ -386,5 +397,221 @@ public class CreateWorkOrderCommandValidatorTest
         // Then
         Assert.True(result.IsValid);
         Assert.Empty(result.Errors);
+    }
+
+    [Fact]
+    public async Task Validator_Should_Fail_When_ScheduledCompletionDate_Is_Before_ScheduledStartDate()
+    {
+        // Given
+        var scheduledStartDate = DateTime.UtcNow.AddDays(2);
+        var scheduledCompletionDate = DateTime.UtcNow.AddDays(1); // Before start date
+        var command = CreateValidCommand(
+            scheduledStartDate: scheduledStartDate,
+            ScheduledCompletionDate: scheduledCompletionDate
+        );
+
+        // When
+        var result = await _validator.ValidateAsync(command);
+
+        // Then
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e => e.PropertyName == nameof(CreateWorkOrderCommand.ScheduledCompletionDate));
+        Assert.Contains(result.Errors, e => e.ErrorMessage == "Scheduled Completion Date must be after Scheduled Start Date");
+    }
+
+    [Fact]
+    public async Task Validator_Should_Pass_When_ScheduledCompletionDate_Is_After_ScheduledStartDate()
+    {
+        // Given
+        var scheduledStartDate = DateTime.UtcNow.AddDays(1);
+        var scheduledCompletionDate = DateTime.UtcNow.AddDays(3); // After start date
+        var command = CreateValidCommand(
+            scheduledStartDate: scheduledStartDate,
+            ScheduledCompletionDate: scheduledCompletionDate
+        );
+
+        // When
+        var result = await _validator.ValidateAsync(command);
+
+        // Then
+        Assert.True(result.IsValid);
+        Assert.Empty(result.Errors);
+    }
+
+    [Fact]
+    public async Task Validator_Should_Pass_When_ScheduledCompletionDate_Is_Null()
+    {
+        // Given
+        var command = CreateValidCommand(ScheduledCompletionDate: null);
+
+        // When
+        var result = await _validator.ValidateAsync(command);
+
+        // Then
+        Assert.True(result.IsValid);
+        Assert.Empty(result.Errors);
+    }
+
+    [Fact]
+    public async Task Validator_Should_Fail_When_ActualCompletionDate_Is_Before_ActualStartDate()
+    {
+        // Given
+        var actualStartDate = DateTime.UtcNow.AddDays(2);
+        var actualCompletionDate = DateTime.UtcNow.AddDays(1); // Before actual start date
+        var command = CreateValidCommand(
+            actualStartDate: actualStartDate,
+            ActualCompletionDate: actualCompletionDate
+        );
+
+        // When
+        var result = await _validator.ValidateAsync(command);
+
+        // Then
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e => e.PropertyName == nameof(CreateWorkOrderCommand.ActualCompletionDate));
+        Assert.Contains(result.Errors, e => e.ErrorMessage == "Actual Completion Date must be after Actual Start Date");
+    }
+
+    [Fact]
+    public async Task Validator_Should_Pass_When_ActualCompletionDate_Is_After_ActualStartDate()
+    {
+        // Given
+        var actualStartDate = DateTime.UtcNow.AddDays(1);
+        var actualCompletionDate = DateTime.UtcNow.AddDays(3); // After actual start date
+        var command = CreateValidCommand(
+            actualStartDate: actualStartDate,
+            ActualCompletionDate: actualCompletionDate
+        );
+
+        // When
+        var result = await _validator.ValidateAsync(command);
+
+        // Then
+        Assert.True(result.IsValid);
+        Assert.Empty(result.Errors);
+    }
+
+    [Fact]
+    public async Task Validator_Should_Pass_When_ActualCompletionDate_Is_Null()
+    {
+        // Given
+        var command = CreateValidCommand(ActualCompletionDate: null);
+
+        // When
+        var result = await _validator.ValidateAsync(command);
+
+        // Then
+        Assert.True(result.IsValid);
+        Assert.Empty(result.Errors);
+    }
+
+    [Fact]
+    public async Task Validator_Should_Fail_When_ActualCompletionDate_Is_Before_ScheduledCompletionDate()
+    {
+        // Given
+        var scheduledCompletionDate = DateTime.UtcNow.AddDays(3);
+        var actualCompletionDate = DateTime.UtcNow.AddDays(2); // Before scheduled completion date
+        var command = CreateValidCommand(
+            ScheduledCompletionDate: scheduledCompletionDate,
+            ActualCompletionDate: actualCompletionDate
+        );
+
+        // When
+        var result = await _validator.ValidateAsync(command);
+
+        // Then
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e => e.PropertyName == nameof(CreateWorkOrderCommand.ActualCompletionDate));
+        Assert.Contains(result.Errors, e => e.ErrorMessage == "Actual Completion Date must be greater than or equal to Scheduled Completion Date");
+    }
+
+    [Fact]
+    public async Task Validator_Should_Pass_When_ActualCompletionDate_Equals_ScheduledCompletionDate()
+    {
+        // Given
+        var completionDate = DateTime.UtcNow.AddDays(3);
+        var command = CreateValidCommand(
+            ScheduledCompletionDate: completionDate,
+            ActualCompletionDate: completionDate // Same as scheduled
+        );
+
+        // When
+        var result = await _validator.ValidateAsync(command);
+
+        // Then
+        Assert.True(result.IsValid);
+        Assert.Empty(result.Errors);
+    }
+
+    [Fact]
+    public async Task Validator_Should_Pass_When_ActualCompletionDate_Is_After_ScheduledCompletionDate()
+    {
+        // Given
+        var scheduledCompletionDate = DateTime.UtcNow.AddDays(2);
+        var actualCompletionDate = DateTime.UtcNow.AddDays(4); // After scheduled completion date
+        var command = CreateValidCommand(
+            ScheduledCompletionDate: scheduledCompletionDate,
+            ActualCompletionDate: actualCompletionDate
+        );
+
+        // When
+        var result = await _validator.ValidateAsync(command);
+
+        // Then
+        Assert.True(result.IsValid);
+        Assert.Empty(result.Errors);
+    }
+
+    [Fact]
+    public async Task Validator_Should_Pass_With_Complete_Valid_Date_Chain()
+    {
+        // Given - all dates in correct order
+        var scheduledStart = DateTime.UtcNow.AddDays(1);
+        var actualStart = DateTime.UtcNow.AddDays(2);
+        var scheduledCompletion = DateTime.UtcNow.AddDays(3);
+        var actualCompletion = DateTime.UtcNow.AddDays(4);
+
+        var command = CreateValidCommand(
+            scheduledStartDate: scheduledStart,
+            actualStartDate: actualStart,
+            ScheduledCompletionDate: scheduledCompletion,
+            ActualCompletionDate: actualCompletion
+        );
+
+        // When
+        var result = await _validator.ValidateAsync(command);
+
+        // Then
+        Assert.True(result.IsValid);
+        Assert.Empty(result.Errors);
+    }
+
+    [Fact]
+    public async Task Validator_Should_Fail_With_Multiple_Date_Validation_Errors()
+    {
+        // Given - multiple date validation failures
+        var scheduledStart = DateTime.UtcNow.AddDays(3);
+        var actualStart = DateTime.UtcNow.AddDays(1); // Before scheduled start
+        var scheduledCompletion = DateTime.UtcNow.AddDays(2); // Before scheduled start
+        var actualCompletion = DateTime.UtcNow.AddDays(1); // Before actual start and scheduled completion
+
+        var command = CreateValidCommand(
+            scheduledStartDate: scheduledStart,
+            actualStartDate: actualStart,
+            ScheduledCompletionDate: scheduledCompletion,
+            ActualCompletionDate: actualCompletion
+        );
+
+        // When
+        var result = await _validator.ValidateAsync(command);
+
+        // Then
+        Assert.False(result.IsValid);
+        Assert.True(result.Errors.Count >= 3); // Should have multiple validation errors
+
+        // Check for specific validation errors
+        Assert.Contains(result.Errors, e => e.PropertyName == nameof(CreateWorkOrderCommand.ActualStartDate));
+        Assert.Contains(result.Errors, e => e.PropertyName == nameof(CreateWorkOrderCommand.ScheduledCompletionDate));
+        Assert.Contains(result.Errors, e => e.PropertyName == nameof(CreateWorkOrderCommand.ActualCompletionDate));
     }
 }

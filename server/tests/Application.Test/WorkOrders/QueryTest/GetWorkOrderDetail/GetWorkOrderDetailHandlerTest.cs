@@ -60,6 +60,7 @@ public class GetWorkOrderDetailHandlerTest
             VehicleAssignments = [],
             VehicleDocuments = [],
             VehicleInspections = [],
+            InventoryTransactions = [],
         };
     }
 
@@ -283,9 +284,9 @@ public class GetWorkOrderDetailHandlerTest
         Assert.Equal(1, result.ID);
         Assert.Equal("Test Work Order", result.Title);
         Assert.Equal("This is a test work order", result.Description);
-        Assert.Equal(WorkTypeEnum.SCHEDULED.ToString(), result.WorkOrderType);
-        Assert.Equal(PriorityLevelEnum.CRITICAL.ToString(), result.PriorityLevel);
-        Assert.Equal(WorkOrderStatusEnum.IN_PROGRESS.ToString(), result.Status);
+        Assert.Equal(WorkTypeEnum.SCHEDULED, result.WorkOrderType);
+        Assert.Equal(PriorityLevelEnum.CRITICAL, result.PriorityLevel);
+        Assert.Equal(WorkOrderStatusEnum.IN_PROGRESS, result.Status);
         Assert.Equal(1000, result.StartOdometer);
         Assert.Equal(1, result.VehicleID);
         Assert.Equal("Toyota Corolla", result.VehicleName);

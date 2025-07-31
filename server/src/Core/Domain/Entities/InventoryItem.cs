@@ -11,7 +11,7 @@ public class InventoryItem : BaseEntity
     public string? Manufacturer { get; set; }
     public string? ManufacturerPartNumber { get; set; } // MPNs are unique within a manufacturer
     public string? UniversalProductCode { get; set; } // https://en.wikipedia.org/wiki/Universal_Product_Code We use UPC-A (12 digits)
-    public decimal? UnitCost { get; set; }
+    public required decimal UnitCost { get; set; }
     public InventoryItemUnitCostMeasurementUnitEnum? UnitCostMeasurementUnit { get; set; }
     public string? Supplier { get; set; }
     public double? WeightKG { get; set; }
