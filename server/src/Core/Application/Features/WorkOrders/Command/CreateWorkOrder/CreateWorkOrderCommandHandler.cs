@@ -169,7 +169,6 @@ public class CreateWorkOrderCommandHandler : IRequestHandler<CreateWorkOrderComm
             await CreateWorkOrderIssueAsync(workOrderID, request.IssueIdList);
             _logger.LogInformation($"Created {request.IssueIdList.Count} work order issue relationships");
         }
-
     }
 
     private async Task CreateWorkOrderLineItemsAsync(int workOrderID, List<CreateWorkOrderLineItemDTO> lineItemCommands)

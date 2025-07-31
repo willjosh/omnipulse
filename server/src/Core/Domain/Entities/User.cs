@@ -18,6 +18,7 @@ public class User : IdentityUser
     public required ICollection<VehicleDocument> VehicleDocuments { get; set; } = [];
     public required ICollection<Inspection> Inspections { get; set; } = [];
     public required ICollection<Vehicle> Vehicles { get; set; } = [];
+    public required ICollection<InventoryTransaction> InventoryTransactions { get; set; } = [];
 
     public string GetFullName()
     {

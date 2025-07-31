@@ -46,12 +46,13 @@ public class GetIssueDetailsQueryHandlerTest
             IsActive = true,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
-            MaintenanceHistories = [],
-            IssueAttachments = [],
-            VehicleAssignments = [],
-            VehicleDocuments = [],
-            Inspections = [],
-            Vehicles = []
+            MaintenanceHistories = new List<MaintenanceHistory>(),
+            IssueAttachments = new List<IssueAttachment>(),
+            VehicleAssignments = new List<VehicleAssignment>(),
+            VehicleDocuments = new List<VehicleDocument>(),
+            Inspections = new List<VehicleInspection>(),
+            Vehicles = new List<Vehicle>(),
+            InventoryTransactions = new List<InventoryTransaction>()
         };
         var expectedVehicle = new Vehicle
         {

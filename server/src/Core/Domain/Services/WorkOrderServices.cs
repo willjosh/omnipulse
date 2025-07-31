@@ -23,4 +23,13 @@ public static class WorkOrderDomainExtension
     {
         workOrder.ToList().ForEach(wo => wo.CalculateTotalCost());
     }
+
+    public static bool IsReadyForCompletion(this WorkOrder workOrder)
+    {
+        return workOrder.ActualStartDate != null &&
+            workOrder.ScheduledStartDate != null &&
+            workOrder.ScheduledCompletionDate != null &&
+            workOrder.ActualCompletionDate != null &&
+            workOrder.EndOdometer != null;
+    }
 }

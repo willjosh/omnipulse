@@ -72,30 +72,11 @@ public class CreateMaintenanceHistoryCommandHandler : IRequestHandler<CreateMain
 
     private async Task ValidateBusinessRules(CreateMaintenanceHistoryCommand request, CancellationToken cancellationToken)
     {
-        // validate foreign keys
-        if (!await _vehicleRepository.ExistsAsync(request.VehicleID))
-        {
-            var errorMessage = $"Vehicle ID not found: {request.VehicleID}";
-            _logger.LogError(errorMessage);
-            throw new EntityNotFoundException(typeof(MaintenanceHistory).ToString(), "VehicleID", request.VehicleID.ToString());
-        }
         if (!await _workOrderRepository.ExistsAsync(request.WorkOrderID))
         {
             var errorMessage = $"WorkOrder ID not found: {request.WorkOrderID}";
             _logger.LogError(errorMessage);
             throw new EntityNotFoundException(typeof(MaintenanceHistory).ToString(), "WorkOrderID", request.WorkOrderID.ToString());
-        }
-        if (!await _serviceTaskRepository.ExistsAsync(request.ServiceTaskID))
-        {
-            var errorMessage = $"ServiceTask ID not found: {request.ServiceTaskID}";
-            _logger.LogError(errorMessage);
-            throw new EntityNotFoundException(typeof(MaintenanceHistory).ToString(), "ServiceTaskID", request.ServiceTaskID.ToString());
-        }
-        if (!await _userRepository.ExistsAsync(request.TechnicianID))
-        {
-            var errorMessage = $"Technician ID not found: {request.TechnicianID}";
-            _logger.LogError(errorMessage);
-            throw new EntityNotFoundException(typeof(MaintenanceHistory).ToString(), "TechnicianID", request.TechnicianID);
         }
     }
 }

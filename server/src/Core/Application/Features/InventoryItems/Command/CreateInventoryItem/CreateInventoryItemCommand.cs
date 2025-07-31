@@ -12,7 +12,7 @@ public record CreateInventoryItemCommand(
     string? Manufacturer,
     string? ManufacturerPartNumber,
     string? UniversalProductCode,
-    decimal? UnitCost,
+    decimal UnitCost,
     InventoryItemUnitCostMeasurementUnitEnum? UnitCostMeasurementUnit,
     string? Supplier,
     double? WeightKG,

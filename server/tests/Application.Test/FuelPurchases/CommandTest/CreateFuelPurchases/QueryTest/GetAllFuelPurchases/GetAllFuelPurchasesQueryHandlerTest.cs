@@ -93,7 +93,8 @@ public class GetAllFuelPurchasesQueryHandlerTest
             VehicleDocuments = [],
             Inspections = [],
             MaintenanceHistories = [],
-            IssueAttachments = []
+            IssueAttachments = [],
+            InventoryTransactions = []
         };
 
         var vehicleGroup = new VehicleGroup

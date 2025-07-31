@@ -120,6 +120,7 @@ public class UpdateTechnicianCommandHandlerTest
             VehicleDocuments = [],
             Inspections = [],
             Vehicles = [],
+            InventoryTransactions = []
         };
 
         _mockUserRepository.Setup(r => r.GetByIdAsync(command.Id))

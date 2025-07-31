@@ -46,6 +46,8 @@ public static class PersistenceServerRegistration
         services.AddScoped<IInspectionFormItemRepository, InspectionFormItemRepository>();
         services.AddScoped<IInspectionRepository, InspectionRepository>();
         services.AddScoped<IInspectionPassFailItemRepository, InspectionPassFailItemRepository>();
+        services.AddScoped<IInventoryRepository, InventoryRepository>();
+        services.AddScoped<IInventoryTransactionRepository, InventoryTransactionRepository>();
         services.AddScoped<IIssueRepository, IssueRepository>();
         services.AddScoped<IMaintenanceHistoryRepository, MaintenanceHistoryRepository>();
         services.AddScoped<IServiceProgramRepository, ServiceProgramRepository>();

@@ -141,7 +141,8 @@ public class UpdateIssueCommandHandlerTest
             VehicleAssignments = [],
             VehicleDocuments = [],
             Inspections = [],
-            Vehicles = []
+            Vehicles = [],
+            InventoryTransactions = [],
         };
     }
 
