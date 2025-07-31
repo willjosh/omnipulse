@@ -13,7 +13,7 @@ public class InspectionFormConfiguration : IEntityTypeConfiguration<InspectionFo
         builder.HasKey(f => f.ID);
 
         // String Length Constraints
-        builder.Property(f => f.Title).HasMaxLength(100);
+        builder.Property(f => f.Title).HasMaxLength(200);
         builder.Property(f => f.Description).HasMaxLength(1000);
 
         // Regular Indexes

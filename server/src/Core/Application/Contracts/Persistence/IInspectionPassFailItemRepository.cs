@@ -30,7 +30,7 @@ public interface IInspectionPassFailItemRepository
     void Delete(InspectionPassFailItem entity);
 
     /// <summary>Deletes a <see cref="InspectionPassFailItem"/> using its composite key.</summary>
-    void DeleteByCompositeKey(int inspectionId, int inspectionFormItemId);
+    Task DeleteByCompositeKeyAsync(int inspectionId, int inspectionFormItemId);
 
     /// <summary>Persists all changes made in the context to the database.</summary>
     Task<int> SaveChangesAsync();

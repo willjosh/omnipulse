@@ -51,7 +51,7 @@ public class InspectionPassFailItemRepository : IInspectionPassFailItemRepositor
         _dbSet.Remove(entity);
     }
 
-    public async void DeleteByCompositeKey(int inspectionId, int inspectionFormItemId)
+    public async Task DeleteByCompositeKeyAsync(int inspectionId, int inspectionFormItemId)
     {
         var entity = await GetByCompositeKeyAsync(inspectionId, inspectionFormItemId);
         if (entity != null)
