@@ -1,5 +1,7 @@
 using Application.Features.InspectionForms.Command.CreateInspectionForm;
 using Application.Features.InspectionForms.Command.UpdateInspectionForm;
+using Application.Features.InspectionForms.Query;
+using Application.Features.InspectionForms.Query.GetInspectionForm;
 
 using Domain.Entities;
 
@@ -15,6 +17,7 @@ namespace Api.Controllers;
 /// <remarks>
 /// <b>API Endpoints</b>:
 /// <list type="bullet">
+/// <item><b>GET /api/inspectionforms/{id}</b> - <see cref="GetInspectionForm"/> - <see cref="GetInspectionFormQuery"/></item>
 /// <item><b>POST /api/inspectionforms</b> - <see cref="CreateInspectionForm"/> - <see cref="CreateInspectionFormCommand"/></item>
 /// <item><b>PUT /api/inspectionforms/{id}</b> - <see cref="UpdateInspectionForm"/> - <see cref="UpdateInspectionFormCommand"/></item>
 /// </list>
@@ -34,10 +37,36 @@ public sealed class InspectionFormsController : ControllerBase
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
+    /// <summary>
+    /// Retrieves detailed information about a specific inspection form by its ID.
+    /// </summary>
+    /// <param name="id">The ID of the <see cref="InspectionForm"/> to retrieve.</param>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>The <see cref="InspectionForm"/> details.</returns>
+    /// <response code="200">Inspection form retrieved successfully.</response>
+    /// <response code="404">Inspection form with the specified ID was not found.</response>
+    /// <response code="500">Internal server error occurred.</response>
     [HttpGet("{id:int}")]
-    public ActionResult GetInspectionForm(int id)
+    [ProducesResponseType(typeof(InspectionFormDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<InspectionFormDTO>> GetInspectionForm(
+        int id,
+        CancellationToken cancellationToken)
     {
-        return NotImplemented("GetInspectionForm endpoint not yet implemented");
+        try
+        {
+            _logger.LogInformation($"{nameof(GetInspectionForm)}() - Called");
+
+            var query = new GetInspectionFormQuery(id);
+            var inspectionFormDto = await _mediator.Send(query, cancellationToken);
+
+            return Ok(inspectionFormDto);
+        }
+        catch (Exception)
+        {
+            throw;
+        }
     }
 
     private static ActionResult NotImplemented(string message)
