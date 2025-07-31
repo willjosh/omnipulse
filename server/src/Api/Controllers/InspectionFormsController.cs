@@ -1,4 +1,5 @@
 using Application.Features.InspectionForms.Command.CreateInspectionForm;
+using Application.Features.InspectionForms.Command.DeactivateInspectionForm;
 using Application.Features.InspectionForms.Command.UpdateInspectionForm;
 using Application.Features.InspectionForms.Query;
 using Application.Features.InspectionForms.Query.GetAllInspectionForm;
@@ -23,6 +24,7 @@ namespace Api.Controllers;
 /// <item><b>GET /api/inspectionforms/{id}</b> - <see cref="GetInspectionForm"/> - <see cref="GetInspectionFormQuery"/></item>
 /// <item><b>POST /api/inspectionforms</b> - <see cref="CreateInspectionForm"/> - <see cref="CreateInspectionFormCommand"/></item>
 /// <item><b>PUT /api/inspectionforms/{id}</b> - <see cref="UpdateInspectionForm"/> - <see cref="UpdateInspectionFormCommand"/></item>
+/// <item><b>PATCH /api/inspectionforms/{id}/deactivate</b> - <see cref="DeactivateInspectionForm"/> - <see cref="DeactivateInspectionFormCommand"/></item>
 /// </list>
 /// </remarks>
 [ApiController]
@@ -169,6 +171,41 @@ public sealed class InspectionFormsController : ControllerBase
             var inspectionFormId = await _mediator.Send(command with { InspectionFormID = id }, cancellationToken);
 
             return Ok(inspectionFormId);
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Deactivates an existing <see cref="InspectionForm"/> form by setting <see cref="InspectionForm.IsActive"/> to false.
+    /// This preserves <see cref="Inspection"/> history while making the form unavailable for new inspections.
+    /// </summary>
+    /// <param name="id">The ID of the <see cref="InspectionForm"/> to deactivate.</param>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>The ID of the deactivated <see cref="InspectionForm"/>.</returns>
+    /// <response code="200">Inspection form deactivated successfully. Returns the inspection form ID.</response>
+    /// <response code="400">Request is invalid, inspection form is already inactive, or validation failed.</response>
+    /// <response code="404">Inspection form with the specified ID was not found.</response>
+    /// <response code="500">Internal server error occurred.</response>
+    [HttpPatch("{id:int}/deactivate")]
+    [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<int>> DeactivateInspectionForm(
+        int id,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            _logger.LogInformation($"{nameof(DeactivateInspectionForm)}() - Called");
+
+            var command = new DeactivateInspectionFormCommand(id);
+            var deactivatedInspectionFormId = await _mediator.Send(command, cancellationToken);
+
+            return Ok(deactivatedInspectionFormId);
         }
         catch (Exception)
         {
