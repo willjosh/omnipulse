@@ -244,7 +244,7 @@ public sealed class InspectionFormsController : ControllerBase
 
             var inspectionFormItemId = await _mediator.Send(command with { InspectionFormID = id }, cancellationToken);
 
-            return CreatedAtAction(nameof(GetInspectionForm), new { id = inspectionFormItemId }, inspectionFormItemId);
+            return CreatedAtAction(nameof(GetInspectionForm), new { id = command.InspectionFormID }, inspectionFormItemId);
         }
         catch (Exception)
         {
