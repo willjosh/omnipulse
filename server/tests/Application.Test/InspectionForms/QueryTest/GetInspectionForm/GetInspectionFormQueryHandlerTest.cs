@@ -37,7 +37,7 @@ public class GetInspectionFormQueryHandlerTest
     private static InspectionForm CreateInspectionFormEntity(
         int id = 1,
         string title = $"Test {nameof(InspectionForm)} Title",
-        string? description = $"est {nameof(InspectionForm)} Description",
+        string? description = $"Test {nameof(InspectionForm)} Description",
         bool isActive = true,
         int inspectionCount = 5,
         int inspectionFormItemCount = 12)
