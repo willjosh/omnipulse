@@ -59,7 +59,7 @@ public class GetWorkOrderDetailHandlerTest
             IssueAttachments = [],
             VehicleAssignments = [],
             VehicleDocuments = [],
-            VehicleInspections = [],
+            Inspections = [],
             InventoryTransactions = [],
         };
     }
@@ -98,7 +98,7 @@ public class GetWorkOrderDetailHandlerTest
             XrefServiceProgramVehicles = [],
             ServiceReminders = [],
             Issues = [],
-            VehicleInspections = []
+            Inspections = []
         };
     }
 

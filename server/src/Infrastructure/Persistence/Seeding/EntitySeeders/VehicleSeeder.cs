@@ -67,7 +67,7 @@ public class VehicleSeeder : IEntitySeeder
                 XrefServiceProgramVehicles = [],
                 ServiceReminders = [],
                 Issues = [],
-                VehicleInspections = [],
+                Inspections = [],
                 CreatedAt = now,
                 UpdatedAt = now
             });

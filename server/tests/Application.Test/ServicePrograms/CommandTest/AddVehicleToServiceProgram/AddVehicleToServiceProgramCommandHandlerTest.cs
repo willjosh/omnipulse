@@ -98,7 +98,7 @@ public class AddVehicleToServiceProgramCommandHandlerTest
         XrefServiceProgramVehicles = [],
         ServiceReminders = [],
         Issues = [],
-        VehicleInspections = []
+        Inspections = []
     };
 
     [Fact]

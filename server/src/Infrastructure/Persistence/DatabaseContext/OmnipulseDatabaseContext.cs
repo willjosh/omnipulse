@@ -18,11 +18,11 @@ namespace Persistence.DatabaseContext;
 /// </remarks>
 public class OmnipulseDatabaseContext(DbContextOptions<OmnipulseDatabaseContext> options) : IdentityDbContext<User>(options)
 {
-    public DbSet<CheckListItem> ChecklistItems { get; set; }
     public DbSet<FuelPurchase> FuelPurchases { get; set; }
-    public DbSet<InspectionAttachment> InspectionAttachments { get; set; }
-    public DbSet<InspectionChecklistResponse> InspectionChecklistResponses { get; set; }
-    public DbSet<InspectionType> InspectionTypes { get; set; }
+    public DbSet<Inspection> Inspections { get; set; }
+    public DbSet<InspectionForm> InspectionForms { get; set; }
+    public DbSet<InspectionFormItem> InspectionFormItems { get; set; }
+    public DbSet<InspectionPassFailItem> InspectionPassFailItems { get; set; }
     public DbSet<Inventory> Inventories { get; set; }
     public DbSet<InventoryItem> InventoryItems { get; set; }
     public DbSet<InventoryItemLocation> InventoryItemLocations { get; set; }
@@ -42,7 +42,6 @@ public class OmnipulseDatabaseContext(DbContextOptions<OmnipulseDatabaseContext>
     public DbSet<VehicleDocument> VehicleDocuments { get; set; }
     public DbSet<VehicleGroup> VehicleGroups { get; set; }
     public DbSet<VehicleImage> VehicleImages { get; set; }
-    public DbSet<VehicleInspection> VehicleInspections { get; set; }
     public DbSet<XrefServiceProgramVehicle> XrefServiceProgramVehicles { get; set; }
     public DbSet<WorkOrder> WorkOrders { get; set; }
     public DbSet<WorkOrderIssue> WorkOrderIssues { get; set; }

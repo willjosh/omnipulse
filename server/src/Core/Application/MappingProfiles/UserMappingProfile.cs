@@ -20,7 +20,7 @@ public class UserMappingProfile : Profile
             .ForMember(dest => dest.IssueAttachments, opt => opt.Ignore())
             .ForMember(dest => dest.VehicleAssignments, opt => opt.Ignore())
             .ForMember(dest => dest.VehicleDocuments, opt => opt.Ignore())
-            .ForMember(dest => dest.VehicleInspections, opt => opt.Ignore())
+            .ForMember(dest => dest.Inspections, opt => opt.Ignore())
             .ForMember(dest => dest.Vehicles, opt => opt.Ignore());
 
         CreateMap<UpdateTechnicianCommand, User>()
@@ -29,7 +29,7 @@ public class UserMappingProfile : Profile
             .ForMember(dest => dest.IssueAttachments, opt => opt.Ignore())
             .ForMember(dest => dest.VehicleAssignments, opt => opt.Ignore())
             .ForMember(dest => dest.VehicleDocuments, opt => opt.Ignore())
-            .ForMember(dest => dest.VehicleInspections, opt => opt.Ignore())
+            .ForMember(dest => dest.Inspections, opt => opt.Ignore())
             .ForMember(dest => dest.Vehicles, opt => opt.Ignore());
 
         CreateMap<User, GetAllTechnicianDTO>()
