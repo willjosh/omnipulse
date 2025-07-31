@@ -26,7 +26,11 @@ const TabNavigation: React.FC<TabNavigationProps> = ({
           {tabs.map(tab => (
             <button
               key={tab.key}
-              onClick={() => onTabChange(tab.key)}
+              type="button"
+              onClick={e => {
+                e.preventDefault();
+                onTabChange(tab.key);
+              }}
               className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
                 activeTab === tab.key
                   ? "border-blue-500 text-blue-600"
