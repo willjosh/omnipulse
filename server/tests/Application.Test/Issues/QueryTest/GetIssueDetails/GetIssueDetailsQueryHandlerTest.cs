@@ -50,7 +50,7 @@ public class GetIssueDetailsQueryHandlerTest
             IssueAttachments = new List<IssueAttachment>(),
             VehicleAssignments = new List<VehicleAssignment>(),
             VehicleDocuments = new List<VehicleDocument>(),
-            Inspections = new List<VehicleInspection>(),
+            Inspections = new List<Inspection>(),
             Vehicles = new List<Vehicle>(),
             InventoryTransactions = new List<InventoryTransaction>()
         };

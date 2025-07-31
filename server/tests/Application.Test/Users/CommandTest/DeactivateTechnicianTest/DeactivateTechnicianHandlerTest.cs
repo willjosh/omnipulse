@@ -58,7 +58,7 @@ public class DeactivateTechnicianHandlerTest
             VehicleAssignments = [],
             VehicleDocuments = [],
             Inspections = [],
-            Vehicles = []
+            Vehicles = [],
             InventoryTransactions = []
         };
 
