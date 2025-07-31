@@ -39,12 +39,3 @@ public class Inspection : BaseEntity
     /// <summary>The <see cref="User"/> (technician) who performed the inspection.</summary>
     public required User User { get; set; }
 }
-
-// operator makes inspection form
-// query -> create inspection form
-// query -> create checklistItems
-// checklistItems
-// technician can make vehicle inspection
-// query ->  make all the checklist respone -> vehicle inspection
-// creates checklist response
-// vehicle inspection
