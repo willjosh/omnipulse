@@ -1,7 +1,9 @@
 using Application.Features.InspectionForms.Command.CreateInspectionForm;
 using Application.Features.InspectionForms.Command.UpdateInspectionForm;
 using Application.Features.InspectionForms.Query;
+using Application.Features.InspectionForms.Query.GetAllInspectionForm;
 using Application.Features.InspectionForms.Query.GetInspectionForm;
+using Application.Models.PaginationModels;
 
 using Domain.Entities;
 
@@ -17,6 +19,7 @@ namespace Api.Controllers;
 /// <remarks>
 /// <b>API Endpoints</b>:
 /// <list type="bullet">
+/// <item><b>GET /api/inspectionforms</b> - <see cref="GetAllInspectionForms"/> - <see cref="GetAllInspectionFormQuery"/></item>
 /// <item><b>GET /api/inspectionforms/{id}</b> - <see cref="GetInspectionForm"/> - <see cref="GetInspectionFormQuery"/></item>
 /// <item><b>POST /api/inspectionforms</b> - <see cref="CreateInspectionForm"/> - <see cref="CreateInspectionFormCommand"/></item>
 /// <item><b>PUT /api/inspectionforms/{id}</b> - <see cref="UpdateInspectionForm"/> - <see cref="UpdateInspectionFormCommand"/></item>
@@ -35,6 +38,38 @@ public sealed class InspectionFormsController : ControllerBase
     {
         _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    }
+
+    /// <summary>
+    /// Retrieves a paginated list of all inspection forms with optional filtering and sorting.
+    /// </summary>
+    /// <param name="parameters">Pagination parameters.</param>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>A paginated list of inspection forms.</returns>
+    /// <response code="200">Inspection forms retrieved successfully.</response>
+    /// <response code="400">Request parameters are invalid or validation failed.</response>
+    /// <response code="500">Internal server error occurred.</response>
+    [HttpGet]
+    [ProducesResponseType(typeof(PagedResult<InspectionFormDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<PagedResult<InspectionFormDTO>>> GetAllInspectionForms(
+        [FromQuery] PaginationParameters parameters,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            _logger.LogInformation($"{nameof(GetAllInspectionForms)}() - Called");
+
+            var query = new GetAllInspectionFormQuery(parameters);
+            var result = await _mediator.Send(query, cancellationToken);
+
+            return Ok(result);
+        }
+        catch (Exception)
+        {
+            throw;
+        }
     }
 
     /// <summary>
@@ -67,14 +102,6 @@ public sealed class InspectionFormsController : ControllerBase
         {
             throw;
         }
-    }
-
-    private static ActionResult NotImplemented(string message)
-    {
-        return new ObjectResult(new { error = message })
-        {
-            StatusCode = StatusCodes.Status501NotImplemented
-        };
     }
 
     /// <summary>
