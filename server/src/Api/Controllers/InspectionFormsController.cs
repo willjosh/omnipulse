@@ -1,3 +1,4 @@
+using Application.Features.InspectionFormItems.Command.CreateInspectionFormItem;
 using Application.Features.InspectionForms.Command.CreateInspectionForm;
 using Application.Features.InspectionForms.Command.DeactivateInspectionForm;
 using Application.Features.InspectionForms.Command.UpdateInspectionForm;
@@ -25,6 +26,7 @@ namespace Api.Controllers;
 /// <item><b>POST /api/inspectionforms</b> - <see cref="CreateInspectionForm"/> - <see cref="CreateInspectionFormCommand"/></item>
 /// <item><b>PUT /api/inspectionforms/{id}</b> - <see cref="UpdateInspectionForm"/> - <see cref="UpdateInspectionFormCommand"/></item>
 /// <item><b>PATCH /api/inspectionforms/{id}/deactivate</b> - <see cref="DeactivateInspectionForm"/> - <see cref="DeactivateInspectionFormCommand"/></item>
+/// <item><b>POST /api/inspectionforms/{id}/items</b> - <see cref="CreateInspectionFormItem"/> - <see cref="CreateInspectionFormItemCommand"/></item>
 /// </list>
 /// </remarks>
 [ApiController]
@@ -206,6 +208,43 @@ public sealed class InspectionFormsController : ControllerBase
             var deactivatedInspectionFormId = await _mediator.Send(command, cancellationToken);
 
             return Ok(deactivatedInspectionFormId);
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="InspectionFormItem"/> for a specific <see cref="InspectionForm"/>.
+    /// </summary>
+    /// <param name="id">The ID of the <see cref="InspectionForm"/> to add the <see cref="InspectionFormItem"/> to.</param>
+    /// <param name="command">The inspection form item creation command containing the item details.</param>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>The ID of the newly created inspection form item.</returns>
+    /// <response code="201"><see cref="InspectionFormItem"/> created successfully. Returns the <see cref="InspectionFormItem"/> ID.</response>
+    /// <response code="400">Request data is invalid, validation failed, or inspection form is inactive.</response>
+    /// <response code="404">The specified inspection form was not found.</response>
+    /// <response code="500">Internal server error occurred.</response>
+    [HttpPost("{id:int}/items")]
+    [ProducesResponseType(typeof(int), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<int>> CreateInspectionFormItem(
+        int id,
+        [FromBody] CreateInspectionFormItemCommand command,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            _logger.LogInformation($"{nameof(CreateInspectionFormItem)}() - Called");
+
+            if (id != command.InspectionFormID) return BadRequest($"{nameof(CreateInspectionFormItem)}() - Route ID and body ID mismatch.");
+
+            var inspectionFormItemId = await _mediator.Send(command with { InspectionFormID = id }, cancellationToken);
+
+            return CreatedAtAction(nameof(GetInspectionForm), new { id = inspectionFormItemId }, inspectionFormItemId);
         }
         catch (Exception)
         {
