@@ -14,6 +14,7 @@ public class InspectionFormItem : BaseEntity
 
     public required string ItemLabel { get; set; }
     public string? ItemDescription { get; set; }
+    public string? ItemInstructions { get; set; }
     public required bool IsRequired { get; set; } = true;
 
     /// <summary>The type of expected input for this checklist item (currently only Pass/Fail is supported).</summary>

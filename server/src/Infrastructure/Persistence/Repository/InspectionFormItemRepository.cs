@@ -47,7 +47,8 @@ public class InspectionFormItemRepository : GenericRepository<InspectionFormItem
 
         return query.Where(i =>
             EF.Functions.Like(i.ItemLabel, searchPattern) ||
-            EF.Functions.Like(i.ItemDescription ?? string.Empty, searchPattern)
+            EF.Functions.Like(i.ItemDescription ?? string.Empty, searchPattern) ||
+            EF.Functions.Like(i.ItemInstructions ?? string.Empty, searchPattern)
         );
     }
 

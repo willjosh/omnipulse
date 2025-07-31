@@ -15,6 +15,7 @@ public class InspectionFormItemConfiguration : IEntityTypeConfiguration<Inspecti
         // String Length Constraints
         builder.Property(fi => fi.ItemLabel).HasMaxLength(200);
         builder.Property(fi => fi.ItemDescription).HasMaxLength(500);
+        builder.Property(fi => fi.ItemInstructions).HasMaxLength(4000);
 
         // Regular Indexes
         builder.HasIndex(fi => fi.InspectionFormID);
