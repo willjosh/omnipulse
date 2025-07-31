@@ -1,6 +1,7 @@
 using Application.Features.InspectionForms.Command.CreateInspectionForm;
 using Application.Features.InspectionForms.Command.UpdateInspectionForm;
 using Application.Features.InspectionForms.Query;
+using Application.Features.InspectionForms.Query.GetAllInspectionForm;
 
 using AutoMapper;
 
@@ -28,7 +29,7 @@ public class InspectionFormMappingProfile : Profile
             .ForMember(dest => dest.Inspections, opt => opt.Ignore()) // Navigation Collection
             .ForMember(dest => dest.InspectionFormItems, opt => opt.Ignore()); // Navigation Collection
 
-        // GetInspectionForm
+        // GetInspectionForm & GetAllInspectionForm
         CreateMap<InspectionForm, InspectionFormDTO>(MemberList.Destination)
             .ForMember(dest => dest.InspectionCount, opt => opt.Ignore()) // Set manually in handler
             .ForMember(dest => dest.InspectionFormItemCount, opt => opt.Ignore()); // Set manually in handler
