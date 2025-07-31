@@ -39,6 +39,8 @@ export interface WorkOrderDetailsFormValues {
   // Scheduling
   scheduledStartDate?: string | null;
   actualStartDate?: string | null;
+  scheduledCompletionDate?: string | null;
+  actualCompletionDate?: string | null;
 
   // Odometer
   startOdometer: number;
@@ -141,6 +143,9 @@ const WorkOrderDetailsForm: React.FC<WorkOrderDetailsFormProps> = ({
   // Local state for time selection
   const [scheduledStartTime, setScheduledStartTime] = useState<string>("");
   const [actualStartTime, setActualStartTime] = useState<string>("");
+  const [scheduledCompletionTime, setScheduledCompletionTime] =
+    useState<string>("");
+  const [actualCompletionTime, setActualCompletionTime] = useState<string>("");
 
   // Prefill times when dates change
   useEffect(() => {
@@ -150,6 +155,16 @@ const WorkOrderDetailsForm: React.FC<WorkOrderDetailsFormProps> = ({
   useEffect(() => {
     setActualStartTime(extractTimeFromISO(value.actualStartDate));
   }, [value.actualStartDate]);
+
+  useEffect(() => {
+    setScheduledCompletionTime(
+      extractTimeFromISO(value.scheduledCompletionDate),
+    );
+  }, [value.scheduledCompletionDate]);
+
+  useEffect(() => {
+    setActualCompletionTime(extractTimeFromISO(value.actualCompletionDate));
+  }, [value.actualCompletionDate]);
 
   return (
     <FormContainer title="Details" className="mt-6 max-w-4xl mx-auto w-full">
@@ -629,6 +644,127 @@ const WorkOrderDetailsForm: React.FC<WorkOrderDetailsFormProps> = ({
                       newValue,
                     );
                     onChange("actualStartDate", iso);
+                  }
+                }}
+                renderInput={params => (
+                  <TextField
+                    {...params}
+                    placeholder="Select time"
+                    size="small"
+                  />
+                )}
+                disabled={disabled}
+                ListboxProps={{ style: { maxHeight: 200, overflowY: "auto" } }}
+              />
+            </div>
+          </div>
+        </FormField>
+      </div>
+
+      {/* Expected Completion Date and Actual Completion Date */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <FormField
+          label="Expected Completion Date"
+          error={errors.scheduledCompletionDate}
+        >
+          <div className="flex">
+            <div className="w-1/2 mr-2">
+              <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <DatePicker
+                  value={
+                    value.scheduledCompletionDate &&
+                    !isNaN(new Date(value.scheduledCompletionDate).getTime())
+                      ? new Date(value.scheduledCompletionDate)
+                      : null
+                  }
+                  onChange={date => {
+                    let newTime = scheduledCompletionTime;
+                    if (!newTime) {
+                      newTime = timeOptions[0];
+                      setScheduledCompletionTime(newTime);
+                    }
+                    const iso = combineDateAndTime(
+                      date ? date.toISOString() : "",
+                      newTime,
+                    );
+                    onChange("scheduledCompletionDate", iso);
+                  }}
+                  slotProps={{ textField: { size: "small" } }}
+                  disabled={disabled}
+                />
+              </LocalizationProvider>
+            </div>
+            <div className="w-1/2">
+              <Autocomplete
+                options={timeOptions}
+                value={scheduledCompletionTime}
+                onChange={(_e, newValue) => {
+                  setScheduledCompletionTime(newValue || "");
+                  if (value.scheduledCompletionDate && newValue) {
+                    const iso = combineDateAndTime(
+                      value.scheduledCompletionDate,
+                      newValue,
+                    );
+                    onChange("scheduledCompletionDate", iso);
+                  }
+                }}
+                renderInput={params => (
+                  <TextField
+                    {...params}
+                    placeholder="Select time"
+                    size="small"
+                  />
+                )}
+                disabled={disabled}
+                ListboxProps={{ style: { maxHeight: 200, overflowY: "auto" } }}
+              />
+            </div>
+          </div>
+        </FormField>
+
+        <FormField
+          label="Actual Completion Date"
+          error={errors.actualCompletionDate}
+        >
+          <div className="flex">
+            <div className="w-1/2 mr-2">
+              <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <DatePicker
+                  value={
+                    value.actualCompletionDate &&
+                    !isNaN(new Date(value.actualCompletionDate).getTime())
+                      ? new Date(value.actualCompletionDate)
+                      : null
+                  }
+                  onChange={date => {
+                    let newTime = actualCompletionTime;
+                    if (!newTime) {
+                      newTime = timeOptions[0];
+                      setActualCompletionTime(newTime);
+                    }
+                    const iso = combineDateAndTime(
+                      date ? date.toISOString() : "",
+                      newTime,
+                    );
+                    onChange("actualCompletionDate", iso);
+                  }}
+                  slotProps={{ textField: { size: "small" } }}
+                  disabled={disabled}
+                />
+              </LocalizationProvider>
+            </div>
+            <div className="w-1/2">
+              <Autocomplete
+                options={timeOptions}
+                value={actualCompletionTime}
+                onChange={(_e, newValue) => {
+                  setActualCompletionTime(newValue || "");
+                  if (value.actualCompletionDate && newValue) {
+                    const iso = combineDateAndTime(
+                      value.actualCompletionDate,
+                      newValue,
+                    );
+                    onChange("actualCompletionDate", iso);
                   }
                 }}
                 renderInput={params => (
