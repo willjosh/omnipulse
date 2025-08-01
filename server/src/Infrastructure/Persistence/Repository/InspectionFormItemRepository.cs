@@ -68,9 +68,9 @@ public class InspectionFormItemRepository : GenericRepository<InspectionFormItem
             "isrequired" => sortDescending
                 ? query.OrderByDescending(i => i.IsRequired)
                 : query.OrderBy(i => i.IsRequired),
-            "inspectionformid" => sortDescending
-                ? query.OrderByDescending(i => i.InspectionFormID)
-                : query.OrderBy(i => i.InspectionFormID),
+            "id" => sortDescending
+                ? query.OrderByDescending(i => i.ID)
+                : query.OrderBy(i => i.ID),
             "inspectionformitemtypeenum" => sortDescending
                 ? query.OrderByDescending(i => i.InspectionFormItemTypeEnum)
                 : query.OrderBy(i => i.InspectionFormItemTypeEnum),
@@ -116,5 +116,38 @@ public class InspectionFormItemRepository : GenericRepository<InspectionFormItem
     public async Task<int> CountRequiredItemsByFormIdAsync(int inspectionFormId)
     {
         return await _dbSet.CountAsync(i => i.InspectionFormID == inspectionFormId && i.IsRequired);
+    }
+
+    public async Task<List<InspectionFormItem>> GetAllByInspectionFormIdAsync(int inspectionFormId)
+    {
+        return await _dbSet
+            .Where(item => item.InspectionFormID == inspectionFormId)
+            .OrderBy(item => item.CreatedAt)
+            .ToListAsync();
+    }
+
+    public async Task<PagedResult<InspectionFormItem>> GetAllByInspectionFormIdPagedAsync(int inspectionFormId, PaginationParameters parameters)
+    {
+        var query = _dbSet.Where(i => i.InspectionFormID == inspectionFormId);
+
+        // Apply search filter
+        query = ApplySearchFilter(query, parameters.Search);
+
+        // Apply sorting
+        query = ApplySorting(query, parameters.SortBy, parameters.SortDescending);
+
+        var totalCount = await query.CountAsync();
+        var items = await query
+            .Skip((parameters.PageNumber - 1) * parameters.PageSize)
+            .Take(parameters.PageSize)
+            .ToListAsync();
+
+        return new PagedResult<InspectionFormItem>
+        {
+            Items = items,
+            TotalCount = totalCount,
+            PageNumber = parameters.PageNumber,
+            PageSize = parameters.PageSize
+        };
     }
 }
