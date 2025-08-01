@@ -229,38 +229,38 @@ namespace Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Inventories",
-                columns: table => new
-                {
-                    ID = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    InventoryItemID = table.Column<int>(type: "int", nullable: false),
-                    InventoryItemLocationID = table.Column<int>(type: "int", nullable: false),
-                    QuantityOnHand = table.Column<int>(type: "int", nullable: false),
-                    MinStockLevel = table.Column<int>(type: "int", nullable: false),
-                    MaxStockLevel = table.Column<int>(type: "int", nullable: false),
-                    ReorderPoint = table.Column<int>(type: "int", nullable: false),
-                    LastRestockedDate = table.Column<int>(type: "int", nullable: false),
-                    UnitCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Inventories", x => x.ID);
-                    table.ForeignKey(
-                        name: "FK_Inventories_InventoryItemLocations_InventoryItemLocationID",
-                        column: x => x.InventoryItemLocationID,
-                        principalTable: "InventoryItemLocations",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Inventories_InventoryItems_InventoryItemID",
-                        column: x => x.InventoryItemID,
-                        principalTable: "InventoryItems",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Restrict);
-                });
+            name: "Inventories",
+            columns: table => new
+            {
+                ID = table.Column<int>(type: "int", nullable: false)
+                    .Annotation("SqlServer:Identity", "1, 1"),
+                InventoryItemID = table.Column<int>(type: "int", nullable: false),
+                InventoryItemLocationID = table.Column<int>(type: "int", nullable: false),
+                QuantityOnHand = table.Column<int>(type: "int", nullable: false),
+                MinStockLevel = table.Column<int>(type: "int", nullable: false),
+                MaxStockLevel = table.Column<int>(type: "int", nullable: false),
+                ReorderPoint = table.Column<int>(type: "int", nullable: false),
+                LastRestockedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                UnitCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+            },
+            constraints: table =>
+            {
+                table.PrimaryKey("PK_Inventories", x => x.ID);
+                table.ForeignKey(
+                    name: "FK_Inventories_InventoryItemLocations_InventoryItemLocationID",
+                    column: x => x.InventoryItemLocationID,
+                    principalTable: "InventoryItemLocations",
+                    principalColumn: "ID",
+                    onDelete: ReferentialAction.Cascade);
+                table.ForeignKey(
+                    name: "FK_Inventories_InventoryItems_InventoryItemID",
+                    column: x => x.InventoryItemID,
+                    principalTable: "InventoryItems",
+                    principalColumn: "ID",
+                    onDelete: ReferentialAction.Restrict);
+            });
 
             migrationBuilder.CreateTable(
                 name: "ServiceSchedules",
