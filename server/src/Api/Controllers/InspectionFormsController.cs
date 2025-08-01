@@ -223,17 +223,20 @@ public sealed class InspectionFormsController : ControllerBase
     /// Retrieves all <see cref="InspectionFormItem"/> for a specific <see cref="InspectionForm"/>.
     /// </summary>
     /// <param name="id">The ID of the <see cref="InspectionForm"/> to get items for.</param>
+    /// <param name="parameters"><see cref="PaginationParameters"/>.</param>
     /// <param name="cancellationToken">Cancellation token for the operation.</param>
     /// <returns>A list of <see cref="InspectionFormItem"/> for the specified inspection form.</returns>
     /// <response code="200">Inspection form items retrieved successfully.</response>
     /// <response code="404">The specified inspection form was not found.</response>
     /// <response code="500">Internal server error occurred.</response>
     [HttpGet("{id:int}/items")]
-    [ProducesResponseType(typeof(List<GetAllInspectionFormItemDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PagedResult<GetAllInspectionFormItemDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<List<GetAllInspectionFormItemDTO>>> GetAllInspectionFormItems(
+    public async Task<ActionResult<PagedResult<GetAllInspectionFormItemDTO>>> GetAllInspectionFormItems(
         int id,
+        [FromQuery] PaginationParameters parameters,
         CancellationToken cancellationToken)
     {
         try
@@ -241,7 +244,7 @@ public sealed class InspectionFormsController : ControllerBase
             _logger.LogInformation("{Method}() - Called with InspectionForm ID: {InspectionFormID}",
                 nameof(GetAllInspectionFormItems), id);
 
-            var query = new GetAllInspectionFormItemQuery(id);
+            var query = new GetAllInspectionFormItemQuery(id, parameters);
             var inspectionFormItems = await _mediator.Send(query, cancellationToken);
 
             return Ok(inspectionFormItems);
