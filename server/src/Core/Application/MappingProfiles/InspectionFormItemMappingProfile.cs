@@ -1,4 +1,5 @@
 using Application.Features.InspectionFormItems.Command.CreateInspectionFormItem;
+using Application.Features.InspectionFormItems.Command.UpdateInspectionFormItem;
 
 using AutoMapper;
 
@@ -19,5 +20,13 @@ public class InspectionFormItemMappingProfile : Profile
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore()) // Set by BaseEntity
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore()) // Set by BaseEntity
             .ForMember(dest => dest.InspectionForm, opt => opt.Ignore()); // Navigation Property
+
+        // UpdateInspectionFormItem
+        CreateMap<UpdateInspectionFormItemCommand, InspectionFormItem>(MemberList.Destination)
+            .ForMember(dest => dest.ID, opt => opt.Ignore()) // Should not be updated
+            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore()) // Should not be updated
+            .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore()) // Set by BaseEntity
+            .ForMember(dest => dest.InspectionForm, opt => opt.Ignore()) // Navigation property
+            .ForMember(dest => dest.InspectionFormItemTypeEnum, opt => opt.Ignore()); // Cannot be updated to maintain data integrity
     }
 }
