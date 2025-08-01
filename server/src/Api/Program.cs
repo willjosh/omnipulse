@@ -7,6 +7,7 @@ using Domain.Entities;
 using Infrastructure;
 
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
 using Persistence;
@@ -106,7 +107,8 @@ if (app.Environment.IsDevelopment())
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-    await omnipulseDbContext.Database.EnsureCreatedAsync(); // Triggers UseAsyncSeeding()
+    await omnipulseDbContext.Database.MigrateAsync();
+    // await omnipulseDbContext.Database.EnsureCreatedAsync(); // Triggers UseAsyncSeeding()
 }
 else
 {

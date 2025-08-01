@@ -1,6 +1,7 @@
 using System;
 
 using Application.Features.Inventory.Command.CreateInventory;
+using Application.Features.Inventory.Query;
 
 using AutoMapper;
 
@@ -20,5 +21,10 @@ public class InventoryMappingProfile : Profile
            .ForMember(dest => dest.InventoryTransactions, opt => opt.Ignore())
            .ForMember(dest => dest.InventoryItem, opt => opt.Ignore())
            .ForMember(dest => dest.InventoryItemLocation, opt => opt.Ignore());
+
+        CreateMap<Inventory, GetAllInventoryDTO>()
+            .ForMember(dest => dest.InventoryItemName, opt => opt.MapFrom(src => src.InventoryItem != null ? src.InventoryItem.ItemName : string.Empty))
+            .ForMember(dest => dest.LocationName, opt => opt.MapFrom(src => src.InventoryItemLocation != null ? src.InventoryItemLocation.LocationName : string.Empty))
+            .ForMember(dest => dest.LastRestockedDate, opt => opt.MapFrom(src => src.LastRestockedDate.HasValue ? src.LastRestockedDate.Value.ToString("yyyy-MM-dd") : "N/A"));
     }
 }

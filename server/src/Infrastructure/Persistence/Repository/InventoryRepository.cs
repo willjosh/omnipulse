@@ -1,4 +1,5 @@
 using Application.Contracts.Persistence;
+using Application.Models.PaginationModels;
 
 using Domain.Entities;
 
@@ -12,6 +13,11 @@ public class InventoryRepository : GenericRepository<Inventory>, IInventoryRepos
 {
     public InventoryRepository(OmnipulseDatabaseContext context) : base(context)
     {
+    }
+
+    public PagedResult<Inventory> GetAllInventoriesPagedAsync(PaginationParameters parameters)
+    {
+        throw new NotImplementedException();
     }
 
     public async Task<Inventory?> GetInventoryByItemIDAsync(int id)

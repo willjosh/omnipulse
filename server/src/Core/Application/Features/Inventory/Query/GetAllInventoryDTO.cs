@@ -2,7 +2,7 @@ namespace Application.Features.Inventory.Query;
 
 public class GetAllInventoryDTO
 {
-    public required int InventoryItemID { get; set; }
+    public required string InventoryItemName { get; set; }
     public required string LocationName { get; set; }
     public required string QuantityOnHand { get; set; }
     public required int MinStockLevel { get; set; }
