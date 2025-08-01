@@ -1,4 +1,8 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
@@ -22,6 +26,7 @@ public class GetAllWorkOrderQueryHandler : IRequestHandler<GetAllWorkOrderQuery,
 {
     private readonly IWorkOrderRepository _workOrderRepository;
     private readonly IWorkOrderLineItemRepository _workOrderLineItemRepository;
+    private readonly IWorkOrderIssueRepository _workOrderIssueRepository;
     private readonly IAppLogger<GetAllWorkOrderQueryHandler> _logger;
     private readonly IMapper _mapper;
     private readonly IValidator<GetAllWorkOrderQuery> _validator;
@@ -29,6 +34,7 @@ public class GetAllWorkOrderQueryHandler : IRequestHandler<GetAllWorkOrderQuery,
     public GetAllWorkOrderQueryHandler(
         IWorkOrderRepository workOrderRepository,
         IWorkOrderLineItemRepository workOrderLineItemRepository,
+        IWorkOrderIssueRepository workOrderIssueRepository,
         IAppLogger<GetAllWorkOrderQueryHandler> logger,
         IMapper mapper,
         IValidator<GetAllWorkOrderQuery> validator
@@ -36,6 +42,7 @@ public class GetAllWorkOrderQueryHandler : IRequestHandler<GetAllWorkOrderQuery,
     {
         _workOrderRepository = workOrderRepository;
         _workOrderLineItemRepository = workOrderLineItemRepository;
+        _workOrderIssueRepository = workOrderIssueRepository;
         _logger = logger;
         _mapper = mapper;
         _validator = validator;
@@ -71,11 +78,20 @@ public class GetAllWorkOrderQueryHandler : IRequestHandler<GetAllWorkOrderQuery,
         var workOrderIds = result.Items.Select(wo => wo.ID).ToList();
         var allLineItems = await _workOrderLineItemRepository.GetByWorkOrderIdsAsync(workOrderIds);
 
+        // Fetch all issues for these work orders
+        var allWorkOrderIssues = await _workOrderIssueRepository.GetByWorkOrderIDsAsync(workOrderIds);
+
         // Group line items by WorkOrder ID for efficient lookup
         var lineItemsLookup = allLineItems.GroupBy(li => li.WorkOrderID).ToDictionary(g => g.Key, g => g.ToList());
 
+        // Group issues by WorkOrder ID for efficient lookup
+        var issuesLookup = allWorkOrderIssues
+            .GroupBy(woi => woi.WorkOrderID)
+            .ToDictionary(g => g.Key, g => g.Select(woi => woi.IssueID).ToList());
+
         // Map the work orders to DTOs
-        var workOrderDtos = result.Items.Select(workOrder => CreateWorkOrderDetailDto(workOrder, lineItemsLookup)).ToList();
+        var workOrderDtos = result.Items.Select(workOrder =>
+            CreateWorkOrderDetailDto(workOrder, lineItemsLookup, issuesLookup)).ToList();
 
         return new PagedResult<GetWorkOrderDetailDTO>
         {
@@ -86,7 +102,10 @@ public class GetAllWorkOrderQueryHandler : IRequestHandler<GetAllWorkOrderQuery,
         };
     }
 
-    private GetWorkOrderDetailDTO CreateWorkOrderDetailDto(WorkOrder workOrder, Dictionary<int, List<Domain.Entities.WorkOrderLineItem>> lineItemsLookup)
+    private GetWorkOrderDetailDTO CreateWorkOrderDetailDto(
+        WorkOrder workOrder,
+        Dictionary<int, List<Domain.Entities.WorkOrderLineItem>> lineItemsLookup,
+        Dictionary<int, List<int>> issuesLookup)
     {
         // Get line items for this work order (or empty list if none)
         var lineItems = lineItemsLookup.TryGetValue(workOrder.ID, out var items) ? items : new List<Domain.Entities.WorkOrderLineItem>();
@@ -111,6 +130,9 @@ public class GetAllWorkOrderQueryHandler : IRequestHandler<GetAllWorkOrderQuery,
         workOrderDetailDto.TotalLaborCost = workOrderLineItemTotals.TotalLaborCost;
         workOrderDetailDto.TotalItemCost = workOrderLineItemTotals.TotalItemCost;
         workOrderDetailDto.TotalCost = workOrderLineItemTotals.TotalCost;
+
+        // Set IssueIDs from lookup
+        workOrderDetailDto.IssueIDs = issuesLookup.TryGetValue(workOrder.ID, out var ids) ? ids : new List<int>();
 
         return workOrderDetailDto;
     }
