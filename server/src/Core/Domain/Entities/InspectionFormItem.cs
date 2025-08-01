@@ -20,6 +20,9 @@ public class InspectionFormItem : BaseEntity
     /// <summary>The type of expected input for this checklist item (currently only Pass/Fail is supported).</summary>
     public required InspectionFormItemTypeEnum InspectionFormItemTypeEnum { get; set; } = InspectionFormItemTypeEnum.PassFail;
 
+    /// <summary><c>false</c> = soft-deleted</summary>
+    public required bool IsActive { get; set; } = true;
+
     // Navigation Properties
 
     /// <summary>The parent <see cref="InspectionForm"/> that contains this checklist item.</summary>
