@@ -1,6 +1,4 @@
 using Application.Features.Inspections.Command.CreateInspection;
-using Application.Features.Inspections.Query.GetAllInspection;
-using Application.Features.Inspections.Query.GetInspection;
 
 using AutoMapper;
 
@@ -23,6 +21,7 @@ public class InspectionMappingProfile : Profile
             .ForMember(dest => dest.User, opt => opt.Ignore()) // Navigation Property
             .ForMember(dest => dest.InspectionPassFailItems, opt => opt.Ignore()); // Navigation Property
 
+        // TODO: Uncomment when Query features are implemented
         // CreateMap<Inspection, GetAllInspectionDTO>()
         //     .ForMember(dest => dest.VehicleName, opt => opt.MapFrom(src => src.Vehicle != null ? src.Vehicle.Name : null))
         //     .ForMember(dest => dest.TechnicianName, opt => opt.MapFrom(src => src.User != null ? $"{src.User.FirstName} {src.User.LastName}" : null))
@@ -46,4 +45,4 @@ public class InspectionMappingProfile : Profile
         //     .ForMember(dest => dest.IsRequired, opt => opt.MapFrom(src => src.InspectionFormItem.IsRequired))
         //     .ForMember(dest => dest.InspectionFormItemType, opt => opt.MapFrom(src => src.InspectionFormItem.InspectionFormItemTypeEnum));
     }
-}
+} 

@@ -1,6 +1,4 @@
 using Application.Features.Inspections.Command.CreateInspection;
-using Application.Features.Inspections.Query.GetAllInspection;
-using Application.Features.Inspections.Query.GetInspection;
 using Application.Models.PaginationModels;
 
 using Domain.Entities;
