@@ -10,6 +10,9 @@ public class WorkOrderLineItemDetailDTO
     public required LineItemTypeEnum ItemType { get; set; }
     public required int Quantity { get; set; }
     public string? Description { get; set; }
+    public double? LaborHours { get; set; }
+    public decimal? UnitPrice { get; set; }
+    public decimal? HourlyRate { get; set; }
 
     // Inventory Item Fields 
     public int? InventoryItemID { get; set; }
@@ -19,7 +22,7 @@ public class WorkOrderLineItemDetailDTO
     public required string AssignedToUserID { get; set; }
     public required string AssignedToUserName { get; set; }
 
-    // Cost
+    // Total Cost
     public required decimal SubTotal { get; set; }
     public required decimal LaborCost { get; set; }
     public required decimal ItemCost { get; set; }
