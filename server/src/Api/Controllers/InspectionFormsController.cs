@@ -1,4 +1,5 @@
 using Application.Features.InspectionFormItems.Command.CreateInspectionFormItem;
+using Application.Features.InspectionFormItems.Command.DeactivateInspectionFormItem;
 using Application.Features.InspectionFormItems.Command.UpdateInspectionFormItem;
 using Application.Features.InspectionFormItems.Query.GetAllInspectionFormItem;
 using Application.Features.InspectionForms.Command.CreateInspectionForm;
@@ -18,7 +19,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Api.Controllers;
 
 /// <summary>
-/// Controller for <see cref="InspectionForm"/>
+/// Controller for <see cref="InspectionForm"/> and <see cref="InspectionFormItem"/>
 /// </summary>
 /// <remarks>
 /// <b>API Endpoints</b>:
@@ -31,6 +32,7 @@ namespace Api.Controllers;
 /// <item><b>GET /api/inspectionforms/{id}/items</b> - <see cref="GetAllInspectionFormItems"/> - <see cref="GetAllInspectionFormItemQuery"/></item>
 /// <item><b>POST /api/inspectionforms/{id}/items</b> - <see cref="CreateInspectionFormItem"/> - <see cref="CreateInspectionFormItemCommand"/></item>
 /// <item><b>PUT /api/inspectionforms/{id}/items/{itemId}</b> - <see cref="UpdateInspectionFormItem"/> - <see cref="UpdateInspectionFormItemCommand"/></item>
+/// <item><b>PATCH /api/inspectionforms/{id}/items/{itemId}/deactivate</b> - <see cref="DeactivateInspectionFormItem"/> - <see cref="DeactivateInspectionFormItemCommand"/></item>
 /// </list>
 /// </remarks>
 [ApiController]
@@ -326,6 +328,43 @@ public sealed class InspectionFormsController : ControllerBase
             var inspectionFormItemId = await _mediator.Send(command, cancellationToken);
 
             return Ok(inspectionFormItemId);
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Deactivates an existing <see cref="InspectionFormItem"/> by setting <see cref="InspectionFormItem.IsActive"/> to false.
+    /// </summary>
+    /// <param name="id">The ID of the <see cref="InspectionForm"/> that contains the item.</param>
+    /// <param name="itemId">The ID of the <see cref="InspectionFormItem"/> to deactivate.</param>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>The ID of the deactivated <see cref="InspectionFormItem"/>.</returns>
+    /// <response code="200">Inspection form item deactivated successfully. Returns the inspection form item ID.</response>
+    /// <response code="400">Request is invalid, inspection form item is already inactive, or validation failed.</response>
+    /// <response code="404">Inspection form item with the specified ID was not found.</response>
+    /// <response code="500">Internal server error occurred.</response>
+    [HttpPatch("{id:int}/items/{itemId:int}/deactivate")]
+    [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<int>> DeactivateInspectionFormItem(
+        int id,
+        int itemId,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            _logger.LogInformation("{Method}() - Called with InspectionForm ID: {InspectionFormID}, Item ID: {ItemID}",
+                nameof(DeactivateInspectionFormItem), id, itemId);
+
+            var command = new DeactivateInspectionFormItemCommand(itemId);
+            var deactivatedInspectionFormItemId = await _mediator.Send(command, cancellationToken);
+
+            return Ok(deactivatedInspectionFormItemId);
         }
         catch (Exception)
         {
