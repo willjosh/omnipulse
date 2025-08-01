@@ -68,9 +68,9 @@ public class InspectionFormItemRepository : GenericRepository<InspectionFormItem
             "isrequired" => sortDescending
                 ? query.OrderByDescending(i => i.IsRequired)
                 : query.OrderBy(i => i.IsRequired),
-            "inspectionformid" => sortDescending
-                ? query.OrderByDescending(i => i.InspectionFormID)
-                : query.OrderBy(i => i.InspectionFormID),
+            "id" => sortDescending
+                ? query.OrderByDescending(i => i.ID)
+                : query.OrderBy(i => i.ID),
             "inspectionformitemtypeenum" => sortDescending
                 ? query.OrderByDescending(i => i.InspectionFormItemTypeEnum)
                 : query.OrderBy(i => i.InspectionFormItemTypeEnum),
@@ -128,41 +128,15 @@ public class InspectionFormItemRepository : GenericRepository<InspectionFormItem
 
     public async Task<PagedResult<InspectionFormItem>> GetAllByInspectionFormIdPagedAsync(int inspectionFormId, PaginationParameters parameters)
     {
-        var query = _dbSet.Where(item => item.InspectionFormID == inspectionFormId);
+        var query = _dbSet.Where(i => i.InspectionFormID == inspectionFormId);
 
-        // Apply search filter if provided
-        if (!string.IsNullOrEmpty(parameters.Search))
-        {
-            var searchTerm = parameters.Search.ToLower();
-            query = query.Where(item =>
-                item.ItemLabel.ToLower().Contains(searchTerm) ||
-                (item.ItemDescription != null && item.ItemDescription.ToLower().Contains(searchTerm)) ||
-                (item.ItemInstructions != null && item.ItemInstructions.ToLower().Contains(searchTerm)));
-        }
+        // Apply search filter
+        query = ApplySearchFilter(query, parameters.Search);
 
         // Apply sorting
-        if (!string.IsNullOrEmpty(parameters.SortBy))
-        {
-            query = parameters.SortBy.ToLower() switch
-            {
-                "itemlabel" => parameters.SortDescending ? query.OrderByDescending(x => x.ItemLabel) : query.OrderBy(x => x.ItemLabel),
-                "itemdescription" => parameters.SortDescending ? query.OrderByDescending(x => x.ItemDescription) : query.OrderBy(x => x.ItemDescription),
-                "itemtypeenum" => parameters.SortDescending ? query.OrderByDescending(x => x.InspectionFormItemTypeEnum) : query.OrderBy(x => x.InspectionFormItemTypeEnum),
-                "isrequired" => parameters.SortDescending ? query.OrderByDescending(x => x.IsRequired) : query.OrderBy(x => x.IsRequired),
-                "createdat" => parameters.SortDescending ? query.OrderByDescending(x => x.CreatedAt) : query.OrderBy(x => x.CreatedAt),
-                "updatedat" => parameters.SortDescending ? query.OrderByDescending(x => x.UpdatedAt) : query.OrderBy(x => x.UpdatedAt),
-                _ => query.OrderBy(x => x.CreatedAt) // Default sort
-            };
-        }
-        else
-        {
-            query = query.OrderBy(x => x.CreatedAt); // Default sort
-        }
+        query = ApplySorting(query, parameters.SortBy, parameters.SortDescending);
 
-        // Get total count
         var totalCount = await query.CountAsync();
-
-        // Apply pagination
         var items = await query
             .Skip((parameters.PageNumber - 1) * parameters.PageSize)
             .Take(parameters.PageSize)
