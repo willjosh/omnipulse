@@ -279,9 +279,10 @@ public class UserRepository : IUserRepository
 
     public async Task<PagedResult<User>> GetAllTechnicianPagedAsync(PaginationParameters parameters)
     {
-        var technicianUsers = await _userManager.GetUsersInRoleAsync("TECHNICIAN");
-
-        var query = technicianUsers.AsQueryable();
+        // Start with the EF query directly
+        var query = _userManager.Users
+            .Join(_context.UserRoles, u => u.Id, ur => ur.UserId, (u, ur) => new { User = u, ur.RoleId })
+            .Join(_context.Roles.Where(r => r.Name == "TECHNICIAN"), x => x.RoleId, r => r.Id, (x, r) => x.User);
 
         // Apply search filter
         query = ApplySearchFilter(query, parameters.Search);
@@ -289,7 +290,7 @@ public class UserRepository : IUserRepository
         // Apply sorting
         query = ApplySorting(query, parameters.SortBy, parameters.SortDescending);
 
-        // Get total count before pagination
+        // Get total count before pagination (this will work now!)
         var totalCount = await query.CountAsync();
 
         // Apply pagination
