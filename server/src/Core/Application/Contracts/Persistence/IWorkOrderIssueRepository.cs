@@ -9,4 +9,5 @@ public interface IWorkOrderIssueRepository
     Task<bool> ExistsAsync(int id);
     Task<int> SaveChangesAsync();
     Task<IEnumerable<WorkOrderIssue>> AddRangeAsync(IEnumerable<WorkOrderIssue> entities);
+    Task DeleteByWorkOrderIdAsync(int workOrderId);
 }

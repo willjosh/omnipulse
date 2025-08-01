@@ -1,6 +1,7 @@
 using Application.Features.WorkOrders.Command.CompleteWorkOrder;
 using Application.Features.WorkOrders.Command.CreateWorkOrder;
 using Application.Features.WorkOrders.Command.DeleteWorkOrder;
+using Application.Features.WorkOrders.Command.UpdateWorkOrder;
 using Application.Features.WorkOrders.Query.GetAllWorkOrder;
 using Application.Features.WorkOrders.Query.GetWorkOrderDetail;
 using Application.Models.PaginationModels;
@@ -197,6 +198,44 @@ public sealed class WorkOrdersController : ControllerBase
 
             var command = new DeleteWorkOrderCommand(id);
             var workOrderId = await _mediator.Send(command, cancellationToken);
+
+            return Ok(workOrderId);
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Updates an existing work order.
+    /// </summary>
+    /// <param name="id">The ID of the work order to update.</param>
+    /// <param name="command">The work order update command containing the new work order information.</param>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>The ID of the updated work order.</returns>
+    /// <response code="200">Work order updated successfully. Returns the work order ID.</response>
+    /// <response code="400">Request data is invalid or validation failed.</response>
+    /// <response code="404">Work order, vehicle, user, issue, inventory item, or service task not found.</response>
+    /// <response code="500">Internal server error occurred.</response>
+    [HttpPut("{id:int}")]
+    [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<int>> UpdateWorkOrder(
+        int id,
+        [FromBody] UpdateWorkOrderCommand command,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            _logger.LogInformation($"{nameof(UpdateWorkOrder)}() - Called");
+
+            if (id != command.WorkOrderID)
+                return ValidationProblem($"{nameof(UpdateWorkOrder)} - Route ID and body ID mismatch.");
+
+            var workOrderId = await _mediator.Send(command with { WorkOrderID = id }, cancellationToken);
 
             return Ok(workOrderId);
         }
