@@ -1,5 +1,6 @@
 using Application.Features.InspectionFormItems.Command.CreateInspectionFormItem;
 using Application.Features.InspectionFormItems.Command.UpdateInspectionFormItem;
+using Application.Features.InspectionFormItems.Query.GetAllInspectionFormItem;
 
 using AutoMapper;
 
@@ -8,7 +9,7 @@ using Domain.Entities;
 namespace Application.MappingProfiles;
 
 /// <summary>
-/// AutoMapper profile for mapping InspectionFormItem-related commands and queries.
+/// AutoMapper profile for mapping <see cref="InspectionFormItem"/>-related commands and queries.
 /// </summary>
 public class InspectionFormItemMappingProfile : Profile
 {
@@ -29,5 +30,8 @@ public class InspectionFormItemMappingProfile : Profile
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore()) // Set by BaseEntity
             .ForMember(dest => dest.InspectionForm, opt => opt.Ignore()) // Navigation property
             .ForMember(dest => dest.InspectionFormItemTypeEnum, opt => opt.Ignore()); // Cannot be updated to maintain data integrity
+
+        // GetAllInspectionFormItem
+        CreateMap<InspectionFormItem, GetAllInspectionFormItemDTO>(MemberList.Destination);
     }
 }
