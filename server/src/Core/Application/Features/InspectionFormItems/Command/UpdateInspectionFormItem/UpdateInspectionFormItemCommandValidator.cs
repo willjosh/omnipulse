@@ -18,9 +18,6 @@ public sealed class UpdateInspectionFormItemCommandValidator : AbstractValidator
             .GreaterThan(0)
             .WithMessage($"{nameof(UpdateInspectionFormItemCommand.InspectionFormItemID)} must be a positive integer");
 
-        RuleFor(x => x.InspectionFormID)
-            .GreaterThan(0)
-            .WithMessage($"{nameof(UpdateInspectionFormItemCommand.InspectionFormID)} must be a positive integer");
 
         RuleFor(x => x.ItemLabel)
             .NotEmpty()

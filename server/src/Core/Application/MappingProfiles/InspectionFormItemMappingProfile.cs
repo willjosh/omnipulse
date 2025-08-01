@@ -24,6 +24,7 @@ public class InspectionFormItemMappingProfile : Profile
         // UpdateInspectionFormItem
         CreateMap<UpdateInspectionFormItemCommand, InspectionFormItem>(MemberList.Destination)
             .ForMember(dest => dest.ID, opt => opt.Ignore()) // Should not be updated
+            .ForMember(dest => dest.InspectionFormID, opt => opt.Ignore()) // Cannot be updated - items belong to one form permanently
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore()) // Should not be updated
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore()) // Set by BaseEntity
             .ForMember(dest => dest.InspectionForm, opt => opt.Ignore()) // Navigation property

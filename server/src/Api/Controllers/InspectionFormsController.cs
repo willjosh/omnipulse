@@ -281,9 +281,6 @@ public sealed class InspectionFormsController : ControllerBase
         {
             _logger.LogInformation($"{nameof(UpdateInspectionFormItem)}() - Called with InspectionForm ID: {id}, Item ID: {itemId}");
 
-            if (id != command.InspectionFormID)
-                return BadRequest("The inspection form ID in the URL does not match the ID in the request body.");
-
             if (itemId != command.InspectionFormItemID)
                 return BadRequest("The inspection form item ID in the URL does not match the ID in the request body.");
 

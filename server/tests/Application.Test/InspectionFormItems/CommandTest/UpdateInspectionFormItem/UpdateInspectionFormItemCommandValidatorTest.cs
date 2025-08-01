@@ -1,7 +1,5 @@
 using Application.Features.InspectionFormItems.Command.UpdateInspectionFormItem;
 
-using Domain.Entities.Enums;
-
 namespace Application.Test.InspectionFormItems.CommandTest.UpdateInspectionFormItem;
 
 public class UpdateInspectionFormItemCommandValidatorTest
@@ -15,11 +13,10 @@ public class UpdateInspectionFormItemCommandValidatorTest
 
     private static UpdateInspectionFormItemCommand CreateValidCommand(
         int inspectionFormItemID = 1,
-        int inspectionFormID = 1,
         string itemLabel = "Updated Engine Oil Check",
         string? itemDescription = "Updated description",
         string? itemInstructions = "Updated instructions",
-        bool isRequired = true) => new(inspectionFormItemID, inspectionFormID, itemLabel, itemDescription, itemInstructions, isRequired);
+        bool isRequired = true) => new(inspectionFormItemID, itemLabel, itemDescription, itemInstructions, isRequired);
 
     [Theory]
     [InlineData(0)]
@@ -39,30 +36,13 @@ public class UpdateInspectionFormItemCommandValidatorTest
     }
 
     [Theory]
-    [InlineData(0)]
-    [InlineData(-1)]
-    [InlineData(-100)]
-    public async Task Validator_Should_Fail_When_InspectionFormID_Is_Invalid(int invalidInspectionFormID)
-    {
-        // Arrange
-        var command = CreateValidCommand() with { InspectionFormID = invalidInspectionFormID };
-
-        // Act
-        var result = await _validator.ValidateAsync(command);
-
-        // Assert
-        Assert.False(result.IsValid);
-        Assert.Contains(result.Errors, e => e.PropertyName == nameof(UpdateInspectionFormItemCommand.InspectionFormID));
-    }
-
-    [Theory]
     [InlineData(1)]
     [InlineData(100)]
     [InlineData(9999)]
-    public async Task Validator_Should_Pass_When_IDs_Are_Valid(int validID)
+    public async Task Validator_Should_Pass_When_InspectionFormItemID_Is_Valid(int validID)
     {
         // Arrange
-        var command = CreateValidCommand() with { InspectionFormItemID = validID, InspectionFormID = validID };
+        var command = CreateValidCommand() with { InspectionFormItemID = validID };
 
         // Act
         var result = await _validator.ValidateAsync(command);
@@ -216,7 +196,6 @@ public class UpdateInspectionFormItemCommandValidatorTest
         Assert.True(result.IsValid);
     }
 
-
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
@@ -238,7 +217,6 @@ public class UpdateInspectionFormItemCommandValidatorTest
         // Arrange
         var command = CreateValidCommand(
             inspectionFormItemID: 1,
-            inspectionFormID: 1,
             itemLabel: "Updated Brake Check",
             itemDescription: "Updated brake fluid level check",
             itemInstructions: "Updated instructions for checking brake fluid",
@@ -258,7 +236,6 @@ public class UpdateInspectionFormItemCommandValidatorTest
         // Arrange
         var command = CreateValidCommand(
             inspectionFormItemID: -1, // Invalid ID
-            inspectionFormID: -1, // Invalid ID
             itemLabel: "", // Empty label
             itemDescription: new string('x', ItemDescriptionMaxLength + 1), // Too long description
             itemInstructions: new string('x', ItemInstructionsMaxLength + 1)); // Too long instructions
@@ -268,9 +245,8 @@ public class UpdateInspectionFormItemCommandValidatorTest
 
         // Assert
         Assert.False(result.IsValid);
-        Assert.True(result.Errors.Count >= 5); // At least 5 errors
+        Assert.True(result.Errors.Count >= 4); // At least 4 errors
         Assert.Contains(result.Errors, e => e.PropertyName == nameof(UpdateInspectionFormItemCommand.InspectionFormItemID));
-        Assert.Contains(result.Errors, e => e.PropertyName == nameof(UpdateInspectionFormItemCommand.InspectionFormID));
         Assert.Contains(result.Errors, e => e.PropertyName == nameof(UpdateInspectionFormItemCommand.ItemLabel));
         Assert.Contains(result.Errors, e => e.PropertyName == nameof(UpdateInspectionFormItemCommand.ItemDescription));
         Assert.Contains(result.Errors, e => e.PropertyName == nameof(UpdateInspectionFormItemCommand.ItemInstructions));

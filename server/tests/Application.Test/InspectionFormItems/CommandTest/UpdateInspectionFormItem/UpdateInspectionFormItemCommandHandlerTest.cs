@@ -45,11 +45,10 @@ public class UpdateInspectionFormItemCommandHandlerTest
 
     private static UpdateInspectionFormItemCommand CreateValidCommand(
         int inspectionFormItemID = 1,
-        int inspectionFormID = 1,
         string itemLabel = "Updated Engine Oil Check",
         string? itemDescription = "Updated description",
         string? itemInstructions = "Updated instructions",
-        bool isRequired = true) => new(inspectionFormItemID, inspectionFormID, itemLabel, itemDescription, itemInstructions, isRequired);
+        bool isRequired = true) => new(inspectionFormItemID, itemLabel, itemDescription, itemInstructions, isRequired);
 
     private static InspectionForm CreateInspectionFormEntity(
         int id = 1,
@@ -168,50 +167,6 @@ public class UpdateInspectionFormItemCommandHandlerTest
     }
 
     [Fact]
-    public async Task Handler_Should_Throw_EntityNotFoundException_When_Moving_To_NonExistent_InspectionForm()
-    {
-        // Arrange
-        var command = CreateValidCommand(inspectionFormID: 2); // Different form ID
-        SetupValidValidation(command);
-        var existingItem = CreateInspectionFormItemEntity(inspectionFormID: 1); // Original form ID
-
-        _mockInspectionFormItemRepository.Setup(r => r.GetByIdAsync(command.InspectionFormItemID))
-            .ReturnsAsync(existingItem);
-        _mockInspectionFormRepository.Setup(r => r.GetByIdAsync(command.InspectionFormID))
-            .ReturnsAsync((InspectionForm?)null); // New form doesn't exist
-
-        // Act & Assert
-        var exception = await Assert.ThrowsAsync<EntityNotFoundException>(() =>
-            _commandHandler.Handle(command, CancellationToken.None));
-
-        Assert.Equal(nameof(InspectionForm), exception.EntityName);
-        Assert.Equal(nameof(InspectionForm.ID), exception.PropertyName);
-        Assert.Equal(command.InspectionFormID.ToString(), exception.PropertyValue);
-    }
-
-    [Fact]
-    public async Task Handler_Should_Throw_BadRequestException_When_Moving_To_Inactive_InspectionForm()
-    {
-        // Arrange
-        var command = CreateValidCommand(inspectionFormID: 2); // Different form ID
-        SetupValidValidation(command);
-        var existingItem = CreateInspectionFormItemEntity(inspectionFormID: 1); // Original form ID
-        var inactiveInspectionForm = CreateInspectionFormEntity(id: 2, isActive: false); // Inactive target form
-
-        _mockInspectionFormItemRepository.Setup(r => r.GetByIdAsync(command.InspectionFormItemID))
-            .ReturnsAsync(existingItem);
-        _mockInspectionFormRepository.Setup(r => r.GetByIdAsync(command.InspectionFormID))
-            .ReturnsAsync(inactiveInspectionForm);
-
-        // Act & Assert
-        var exception = await Assert.ThrowsAsync<BadRequestException>(() =>
-            _commandHandler.Handle(command, CancellationToken.None));
-
-        Assert.Contains("Cannot move item to inactive", exception.Message);
-        Assert.Contains(command.InspectionFormID.ToString(), exception.Message);
-    }
-
-    [Fact]
     public async Task Handler_Should_Throw_BadRequestException_When_Current_InspectionForm_Is_Inactive()
     {
         // Arrange
@@ -234,36 +189,11 @@ public class UpdateInspectionFormItemCommandHandlerTest
     }
 
     [Fact]
-    public async Task Handler_Should_Allow_Moving_Item_To_Different_Active_InspectionForm()
-    {
-        // Arrange
-        var command = CreateValidCommand(inspectionFormID: 2); // Different form ID
-        SetupValidValidation(command);
-        var existingItem = CreateInspectionFormItemEntity(inspectionFormID: 1); // Original form ID
-        var newInspectionForm = CreateInspectionFormEntity(id: 2, isActive: true); // Active target form
-
-        _mockInspectionFormItemRepository.Setup(r => r.GetByIdAsync(command.InspectionFormItemID))
-            .ReturnsAsync(existingItem);
-        _mockInspectionFormRepository.Setup(r => r.GetByIdAsync(command.InspectionFormID))
-            .ReturnsAsync(newInspectionForm);
-        _mockInspectionFormItemRepository.Setup(r => r.SaveChangesAsync()).ReturnsAsync(1);
-
-        // Act
-        var result = await _commandHandler.Handle(command, CancellationToken.None);
-
-        // Assert
-        Assert.Equal(existingItem.ID, result);
-        Assert.Equal(command.InspectionFormID, existingItem.InspectionFormID); // Verify form ID was updated
-        _mockInspectionFormRepository.Verify(r => r.GetByIdAsync(command.InspectionFormID), Times.Once);
-    }
-
-    [Fact]
     public async Task Handler_Should_Update_All_Properties_Correctly()
     {
         // Arrange
         var command = CreateValidCommand(
             inspectionFormItemID: 1,
-            inspectionFormID: 1,
             itemLabel: "Updated Brake Check",
             itemDescription: "Updated brake description",
             itemInstructions: "Updated brake instructions",
@@ -289,6 +219,8 @@ public class UpdateInspectionFormItemCommandHandlerTest
         Assert.Equal(command.IsRequired, existingItem.IsRequired);
         // Verify that InspectionFormItemTypeEnum was NOT changed (should remain original value)
         Assert.Equal(InspectionFormItemTypeEnum.PassFail, existingItem.InspectionFormItemTypeEnum);
+        // Verify that InspectionFormID was NOT changed (items belong to one form permanently)
+        Assert.Equal(1, existingItem.InspectionFormID);
         // Verify that ID and timestamps are not changed by mapping
         Assert.Equal(1, existingItem.ID);
         Assert.Equal(FixedDate, existingItem.CreatedAt);
@@ -327,9 +259,9 @@ public class UpdateInspectionFormItemCommandHandlerTest
     public async Task Handler_Should_Work_With_Different_IDs(int inspectionFormItemID, int inspectionFormID)
     {
         // Arrange
-        var command = CreateValidCommand(inspectionFormItemID: inspectionFormItemID, inspectionFormID: inspectionFormID);
-        SetupValidValidation(command);
+        var command = CreateValidCommand(inspectionFormItemID: inspectionFormItemID);
         var existingItem = CreateInspectionFormItemEntity(id: inspectionFormItemID, inspectionFormID: inspectionFormID);
+        SetupValidValidation(command);
         var inspectionForm = CreateInspectionFormEntity(id: inspectionFormID);
 
         _mockInspectionFormItemRepository.Setup(r => r.GetByIdAsync(inspectionFormItemID))
