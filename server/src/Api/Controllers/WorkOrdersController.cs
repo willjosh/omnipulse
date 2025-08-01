@@ -1,5 +1,6 @@
 using Application.Features.WorkOrders.Command.CompleteWorkOrder;
 using Application.Features.WorkOrders.Command.CreateWorkOrder;
+using Application.Features.WorkOrders.Command.DeleteWorkOrder;
 using Application.Features.WorkOrders.Query.GetAllWorkOrder;
 using Application.Features.WorkOrders.Query.GetWorkOrderDetail;
 using Application.Models.PaginationModels;
@@ -22,6 +23,7 @@ namespace Api.Controllers;
 /// <item><b>GET /api/workorders/{id}</b> - <see cref="GetWorkOrder"/> - <see cref="GetWorkOrderDetailQuery"/></item>
 /// <item><b>POST /api/workorders</b> - <see cref="CreateWorkOrder"/> - <see cref="CreateWorkOrderCommand"/></item>
 /// <item><b>PATCH /api/workorders/{id}/complete</b> - <see cref="CompleteWorkOrder"/> - <see cref="CompleteWorkOrderCommand"/></item>
+/// <item><b>DELETE /api/workorders/{id}</b> - <see cref="DeleteWorkOrder"/> - <see cref="DeleteWorkOrderCommand"/></item>
 /// </list>
 /// </remarks>
 [ApiController]
@@ -162,6 +164,38 @@ public sealed class WorkOrdersController : ControllerBase
             _logger.LogInformation($"{nameof(CompleteWorkOrder)}() - Called for WorkOrder ID: {id}");
 
             var command = new CompleteWorkOrderCommand(id);
+            var workOrderId = await _mediator.Send(command, cancellationToken);
+
+            return Ok(workOrderId);
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Deletes a work order.
+    /// </summary>
+    /// <param name="id">The ID of the work order to delete.</param>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>The ID of the deleted work order.</returns>
+    /// <response code="200">Work order deleted successfully. Returns the work order ID.</response>
+    /// <response code="404">Work order not found.</response>
+    /// <response code="500">Internal server error occurred.</response>
+    [HttpDelete("{id:int}")]
+    [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<int>> DeleteWorkOrder(
+        int id,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            _logger.LogInformation($"{nameof(DeleteWorkOrder)}() - Called");
+
+            var command = new DeleteWorkOrderCommand(id);
             var workOrderId = await _mediator.Send(command, cancellationToken);
 
             return Ok(workOrderId);
