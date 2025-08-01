@@ -19,7 +19,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Api.Controllers;
 
 /// <summary>
-/// Controller for <see cref="InspectionForm"/>
+/// Controller for <see cref="InspectionForm"/> and <see cref="InspectionFormItem"/>
 /// </summary>
 /// <remarks>
 /// <b>API Endpoints</b>:

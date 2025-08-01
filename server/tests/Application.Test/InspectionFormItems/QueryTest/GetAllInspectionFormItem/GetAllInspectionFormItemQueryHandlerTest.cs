@@ -92,6 +92,7 @@ public class GetAllInspectionFormItemQueryHandlerTest
                 ItemInstructions = $"Instructions for item {i}",
                 InspectionFormItemTypeEnum = InspectionFormItemTypeEnum.PassFail,
                 IsRequired = i % 2 == 1, // Alternate required/optional
+                IsActive = true,
                 CreatedAt = FixedDate.AddMinutes(i),
                 UpdatedAt = FixedDate.AddMinutes(i + 10),
                 InspectionForm = null!
