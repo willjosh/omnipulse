@@ -17,4 +17,6 @@ public interface IInspectionFormItemRepository : IGenericRepository<InspectionFo
     // Statistics methods
     Task<int> CountItemsByFormIdAsync(int inspectionFormId);
     Task<int> CountRequiredItemsByFormIdAsync(int inspectionFormId);
+    Task<List<InspectionFormItem>> GetAllByInspectionFormIdAsync(int inspectionFormId);
+    Task<PagedResult<InspectionFormItem>> GetAllByInspectionFormIdPagedAsync(int inspectionFormId, PaginationParameters parameters);
 }
