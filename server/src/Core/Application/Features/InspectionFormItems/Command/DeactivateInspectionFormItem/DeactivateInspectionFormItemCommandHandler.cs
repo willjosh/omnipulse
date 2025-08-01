@@ -49,7 +49,7 @@ public class DeactivateInspectionFormItemCommandHandler : IRequestHandler<Deacti
         }
 
         // Validate business rules before soft deletion
-        ValidateBusinessRuleAsync(targetInspectionFormItem);
+        ValidateBusinessRules(targetInspectionFormItem);
 
         // Soft delete by setting IsActive to false
         targetInspectionFormItem.IsActive = false;
@@ -64,7 +64,7 @@ public class DeactivateInspectionFormItemCommandHandler : IRequestHandler<Deacti
         return request.InspectionFormItemID;
     }
 
-    private void ValidateBusinessRuleAsync(InspectionFormItem inspectionFormItem)
+    private void ValidateBusinessRules(InspectionFormItem inspectionFormItem)
     {
         // Check if the item is already inactive (already deactivated)
         if (!inspectionFormItem.IsActive)
