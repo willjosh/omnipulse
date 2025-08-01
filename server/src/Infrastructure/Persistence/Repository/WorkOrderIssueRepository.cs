@@ -42,4 +42,14 @@ public class WorkOrderIssueRepository : IWorkOrderIssueRepository
             _dbSet.RemoveRange(issues);
         }
     }
+
+    public async Task<IEnumerable<WorkOrderIssue>> GetByWorkOrderIDAsync(int workOrderId)
+    {
+        return await _dbSet.Where(i => i.WorkOrderID == workOrderId).ToListAsync();
+    }
+
+    public async Task<IEnumerable<WorkOrderIssue>> GetByWorkOrderIDsAsync(IEnumerable<int> workOrderIds)
+    {
+        return await _dbSet.Where(i => workOrderIds.Contains(i.WorkOrderID)).ToListAsync();
+    }
 }
