@@ -290,7 +290,7 @@ public class UserRepository : IUserRepository
         // Apply sorting
         query = ApplySorting(query, parameters.SortBy, parameters.SortDescending);
 
-        // Get total count before pagination (this will work now!)
+        // Get total count before pagination
         var totalCount = await query.CountAsync();
 
         // Apply pagination
