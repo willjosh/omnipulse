@@ -49,7 +49,7 @@ public class DeactivateInspectionFormCommandHandler : IRequestHandler<Deactivate
         }
 
         // Validate business rules before soft deletion
-        await ValidateBusinessRuleAsync(targetInspectionForm);
+        ValidateBusinessRuleAsync(targetInspectionForm);
 
         // Soft delete by setting IsActive to false (preserves inspection history)
         targetInspectionForm.IsActive = false;
@@ -64,7 +64,7 @@ public class DeactivateInspectionFormCommandHandler : IRequestHandler<Deactivate
         return request.InspectionFormID;
     }
 
-    private async Task ValidateBusinessRuleAsync(InspectionForm inspectionForm)
+    private void ValidateBusinessRuleAsync(InspectionForm inspectionForm)
     {
         // Check if the form is already inactive (already deactivated)
         if (!inspectionForm.IsActive)
@@ -76,7 +76,5 @@ public class DeactivateInspectionFormCommandHandler : IRequestHandler<Deactivate
 
         // Note: We allow deactivation even if there are associated inspections
         // This preserves inspection history while making the form unavailable for new inspections
-
-        await Task.CompletedTask; // To avoid CS1998 warning
     }
 }
