@@ -78,6 +78,7 @@ public static class PersistenceServerRegistration
         services.AddScoped<XrefServiceProgramVehicleSeeder>();
         services.AddScoped<InspectionFormSeeder>();
         services.AddScoped<InspectionFormItemSeeder>();
+        services.AddScoped<InspectionSeeder>();
 
         return services;
     }
