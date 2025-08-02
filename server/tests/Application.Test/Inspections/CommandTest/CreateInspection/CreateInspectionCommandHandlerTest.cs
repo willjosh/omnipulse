@@ -112,7 +112,7 @@ public class CreateInspectionCommandHandlerTest
             .ReturnsAsync(inspectionForm);
         _mockVehicleRepository.Setup(r => r.GetByIdAsync(command.VehicleID))
             .ReturnsAsync(vehicle);
-        _mockUserRepository.Setup(r => r.GetByIdAsync(command.TechnicianID))
+        _mockUserRepository.Setup(r => r.GetTechnicianByIdAsync(command.TechnicianID))
             .ReturnsAsync(technician);
     }
 
@@ -280,7 +280,7 @@ public class CreateInspectionCommandHandlerTest
         _mockInspectionFormRepository.Verify(r => r.GetByIdAsync(command.InspectionFormID), Times.Once);
         _mockInspectionFormRepository.Verify(r => r.GetInspectionFormWithItemsAsync(command.InspectionFormID), Times.Once);
         _mockVehicleRepository.Verify(r => r.GetByIdAsync(command.VehicleID), Times.Once);
-        _mockUserRepository.Verify(r => r.GetByIdAsync(command.TechnicianID), Times.Once);
+        _mockUserRepository.Verify(r => r.GetTechnicianByIdAsync(command.TechnicianID), Times.Once);
         _mockInspectionRepository.Verify(r => r.AddAsync(It.IsAny<Inspection>()), Times.Once);
         _mockInspectionRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
@@ -368,7 +368,7 @@ public class CreateInspectionCommandHandlerTest
             .ReturnsAsync(inspectionForm);
         _mockVehicleRepository.Setup(r => r.GetByIdAsync(command.VehicleID))
             .ReturnsAsync(vehicle);
-        _mockUserRepository.Setup(r => r.GetByIdAsync(command.TechnicianID))
+        _mockUserRepository.Setup(r => r.GetTechnicianByIdAsync(command.TechnicianID))
             .ReturnsAsync((User?)null);
 
         // Act & Assert
@@ -380,7 +380,7 @@ public class CreateInspectionCommandHandlerTest
         _mockValidator.Verify(v => v.ValidateAsync(command, CancellationToken.None), Times.Once);
         _mockInspectionFormRepository.Verify(r => r.GetByIdAsync(command.InspectionFormID), Times.Once);
         _mockVehicleRepository.Verify(r => r.GetByIdAsync(command.VehicleID), Times.Once);
-        _mockUserRepository.Verify(r => r.GetByIdAsync(command.TechnicianID), Times.Once);
+        _mockUserRepository.Verify(r => r.GetTechnicianByIdAsync(command.TechnicianID), Times.Once);
         _mockInspectionRepository.Verify(r => r.AddAsync(It.IsAny<Inspection>()), Times.Never);
         _mockInspectionRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
     }
