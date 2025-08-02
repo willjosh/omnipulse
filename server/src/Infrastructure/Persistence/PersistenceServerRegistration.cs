@@ -79,6 +79,7 @@ public static class PersistenceServerRegistration
         services.AddScoped<InspectionFormSeeder>();
         services.AddScoped<InspectionFormItemSeeder>();
         services.AddScoped<InspectionSeeder>();
+        services.AddScoped<WorkOrderSeeder>();
 
         return services;
     }
