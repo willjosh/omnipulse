@@ -1,4 +1,5 @@
 using Application.Features.Inspections.Command.CreateInspection;
+using Application.Features.Inspections.Query.GetAllInspection;
 using Application.Features.Inspections.Query.GetInspection;
 
 using AutoMapper;
@@ -28,6 +29,15 @@ public class InspectionMappingProfile : Profile
             .ForMember(dest => dest.Technician, opt => opt.MapFrom(src => src.User))
             .ForMember(dest => dest.InspectionForm, opt => opt.MapFrom(src => src.InspectionForm))
             .ForMember(dest => dest.InspectionItems, opt => opt.MapFrom(src => src.InspectionPassFailItems));
+
+        // GetAllInspection query mapping
+        CreateMap<Inspection, GetAllInspectionDTO>(MemberList.Destination)
+            .ForMember(dest => dest.VehicleName, opt => opt.MapFrom(src => src.Vehicle != null ? src.Vehicle.Name : string.Empty))
+            .ForMember(dest => dest.TechnicianName, opt => opt.MapFrom(src => src.User != null ? $"{src.User.FirstName} {src.User.LastName}" : string.Empty))
+            .ForMember(dest => dest.InspectionFormName, opt => opt.MapFrom(src => src.InspectionForm != null ? src.InspectionForm.Title : string.Empty))
+            .ForMember(dest => dest.InspectionItemsCount, opt => opt.MapFrom(src => src.InspectionPassFailItems != null ? src.InspectionPassFailItems.Count : 0))
+            .ForMember(dest => dest.PassedItemsCount, opt => opt.MapFrom(src => src.InspectionPassFailItems != null ? src.InspectionPassFailItems.Count(i => i.Passed) : 0))
+            .ForMember(dest => dest.FailedItemsCount, opt => opt.MapFrom(src => src.InspectionPassFailItems != null ? src.InspectionPassFailItems.Count(i => !i.Passed) : 0));
 
         // Related entity mappings
         CreateMap<Vehicle, VehicleInfoDTO>(MemberList.Destination);

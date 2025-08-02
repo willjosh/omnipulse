@@ -19,8 +19,8 @@ public class InspectionFormDTO
     /// <example>true</example>
     public required bool IsActive { get; set; }
 
-    public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public required DateTime CreatedAt { get; set; }
+    public required DateTime UpdatedAt { get; set; }
 
     /// <summary>Number of <see cref="Inspection"/> that have used this inspection form.</summary>
     public int InspectionCount { get; set; }

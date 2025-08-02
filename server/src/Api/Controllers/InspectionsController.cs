@@ -1,4 +1,5 @@
 using Application.Features.Inspections.Command.CreateInspection;
+using Application.Features.Inspections.Query.GetAllInspection;
 using Application.Features.Inspections.Query.GetInspection;
 using Application.Models.PaginationModels;
 
@@ -45,28 +46,28 @@ public sealed class InspectionsController : ControllerBase
     /// <response code="200">Inspections retrieved successfully.</response>
     /// <response code="400">Request parameters are invalid or validation failed.</response>
     /// <response code="500">Internal server error occurred.</response>
-    // [HttpGet]
-    // [ProducesResponseType(typeof(PagedResult<GetAllInspectionDTO>), StatusCodes.Status200OK)]
-    // [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    // [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    // public async Task<ActionResult<PagedResult<GetAllInspectionDTO>>> GetAllInspections(
-    //     [FromQuery] PaginationParameters parameters,
-    //     CancellationToken cancellationToken)
-    // {
-    //     try
-    //     {
-    //         _logger.LogInformation($"{nameof(GetAllInspections)}() - Called");
+    [HttpGet]
+    [ProducesResponseType(typeof(PagedResult<GetAllInspectionDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<PagedResult<GetAllInspectionDTO>>> GetAllInspections(
+        [FromQuery] PaginationParameters parameters,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            _logger.LogInformation($"{nameof(GetAllInspections)}() - Called");
 
-    //         var query = new GetAllInspectionQuery(parameters);
-    //         var result = await _mediator.Send(query, cancellationToken);
+            var query = new GetAllInspectionQuery(parameters);
+            var result = await _mediator.Send(query, cancellationToken);
 
-    //         return Ok(result);
-    //     }
-    //     catch (Exception)
-    //     {
-    //         throw;
-    //     }
-    // }
+            return Ok(result);
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
 
     /// <summary>
     /// Retrieves detailed information about a specific inspection by its ID.

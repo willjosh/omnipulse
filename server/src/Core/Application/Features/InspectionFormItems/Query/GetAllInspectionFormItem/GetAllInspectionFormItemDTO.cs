@@ -25,6 +25,6 @@ public class GetAllInspectionFormItemDTO
 
     public required bool IsRequired { get; set; }
     public required InspectionFormItemTypeEnum InspectionFormItemTypeEnum { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public required DateTime CreatedAt { get; set; }
+    public required DateTime UpdatedAt { get; set; }
 }
