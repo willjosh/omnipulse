@@ -46,6 +46,7 @@ public static class SeedingExtensions
             context.GetService<InspectionFormItemSeeder>(),
             context.GetService<InspectionSeeder>(),
             context.GetService<WorkOrderSeeder>(),
+            context.GetService<WorkOrderLineItemSeeder>(),
         ];
     }
 }
