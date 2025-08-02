@@ -83,6 +83,7 @@ public class CreateInspectionFormItemCommandHandlerTest
             ItemInstructions = "Test instructions",
             InspectionFormItemTypeEnum = InspectionFormItemTypeEnum.PassFail,
             IsRequired = true,
+            IsActive = true,
             CreatedAt = FixedDate,
             UpdatedAt = FixedDate,
             InspectionForm = null! // Required property

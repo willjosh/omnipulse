@@ -82,6 +82,7 @@ public class UpdateInspectionFormItemCommandHandlerTest
             ItemInstructions = "Original instructions",
             InspectionFormItemTypeEnum = InspectionFormItemTypeEnum.PassFail,
             IsRequired = true,
+            IsActive = true,
             CreatedAt = FixedDate,
             UpdatedAt = FixedDate,
             InspectionForm = null!

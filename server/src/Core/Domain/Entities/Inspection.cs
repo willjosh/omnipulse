@@ -5,10 +5,11 @@ namespace Domain.Entities;
 /// <summary>
 /// Represents an inspection performed by a technician on a specific vehicle, based on a predefined <see cref="InspectionForm"/> checklist.
 /// Stores inspection metadata and associated checklist results.
+/// Contains snapshot fields to preserve historical accuracy even if the original inspection form template changes.
 /// </summary>
 public class Inspection : BaseEntity
 {
-    // FKs
+    // ===== FKs =====
     /// <summary>The ID of the <see cref="InspectionForm"/> used as the template for this inspection.</summary>
     public required int InspectionFormID { get; set; }
     /// <summary>The ID of the <see cref="Vehicle"/> being inspected.</summary>
@@ -25,7 +26,14 @@ public class Inspection : BaseEntity
     public required VehicleConditionEnum VehicleCondition { get; set; }
     public string? Notes { get; set; }
 
-    // Navigation Properties
+    // ===== InspectionForm - Immutable Snapshots =====
+
+    /// <summary>Snapshot of the inspection form title at the time of inspection.</summary>
+    public required string SnapshotFormTitle { get; set; }
+    /// <summary>Snapshot of the inspection form description at the time of inspection.</summary>
+    public string? SnapshotFormDescription { get; set; }
+
+    // ===== Navigation Properties =====
 
     /// <summary>The <see cref="InspectionForm"/> used for this inspection.</summary>
     public required InspectionForm InspectionForm { get; set; }

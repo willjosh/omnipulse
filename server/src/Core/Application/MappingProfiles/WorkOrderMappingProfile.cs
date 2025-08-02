@@ -1,4 +1,5 @@
 using Application.Features.WorkOrders.Command.CreateWorkOrder;
+using Application.Features.WorkOrders.Command.UpdateWorkOrder;
 using Application.Features.WorkOrders.Query.GetWorkOrderDetail;
 
 using AutoMapper;
@@ -12,6 +13,17 @@ public class WorkOrderMappingProfile : Profile
     public WorkOrderMappingProfile()
     {
         CreateMap<CreateWorkOrderCommand, WorkOrder>()
+            .ForMember(dest => dest.ID, opt => opt.Ignore())
+            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+            .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+            .ForMember(dest => dest.Vehicle, opt => opt.Ignore())
+            .ForMember(dest => dest.User, opt => opt.Ignore())
+            .ForMember(dest => dest.MaintenanceHistories, opt => opt.Ignore())
+            .ForMember(dest => dest.WorkOrderLineItems, opt => opt.Ignore())
+            .ForMember(dest => dest.Invoices, opt => opt.Ignore())
+            .ForMember(dest => dest.InventoryTransactions, opt => opt.Ignore());
+
+        CreateMap<UpdateWorkOrderCommand, WorkOrder>()
             .ForMember(dest => dest.ID, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())

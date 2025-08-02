@@ -21,6 +21,7 @@ public class GetAllWorkOrderQueryHandlerTest
 {
     private readonly Mock<IWorkOrderRepository> _mockWorkOrderRepository;
     private readonly Mock<IWorkOrderLineItemRepository> _mockWorkOrderLineItemRepository;
+    private readonly Mock<IWorkOrderIssueRepository> _mockWorkOrderIssueRepository;
     private readonly Mock<IAppLogger<GetAllWorkOrderQueryHandler>> _mockLogger;
     private readonly Mock<IValidator<GetAllWorkOrderQuery>> _mockValidator;
     private readonly GetAllWorkOrderQueryHandler _handler;
@@ -29,6 +30,7 @@ public class GetAllWorkOrderQueryHandlerTest
     {
         _mockWorkOrderRepository = new();
         _mockWorkOrderLineItemRepository = new();
+        _mockWorkOrderIssueRepository = new Mock<IWorkOrderIssueRepository>();
         _mockLogger = new();
         _mockValidator = new Mock<IValidator<GetAllWorkOrderQuery>>();
 
@@ -42,6 +44,7 @@ public class GetAllWorkOrderQueryHandlerTest
         _handler = new GetAllWorkOrderQueryHandler(
             _mockWorkOrderRepository.Object,
             _mockWorkOrderLineItemRepository.Object,
+            _mockWorkOrderIssueRepository.Object,
             _mockLogger.Object,
             mapper,
             _mockValidator.Object
@@ -306,11 +309,22 @@ public class GetAllWorkOrderQueryHandlerTest
             PageSize = 5
         };
 
+        // Mock issues for each work order
+        var workOrderIssues = new List<WorkOrderIssue>
+        {
+            new WorkOrderIssue { WorkOrderID = 1, IssueID = 101, Issue = null!, WorkOrder = null! },
+            new WorkOrderIssue { WorkOrderID = 1, IssueID = 102, Issue = null!, WorkOrder = null! },
+            new WorkOrderIssue { WorkOrderID = 2, IssueID = 201, Issue = null!, WorkOrder = null! }
+        };
+
         _mockWorkOrderRepository.Setup(r => r.GetAllWorkOrderPagedAsync(parameters))
-                                .ReturnsAsync(pagedWorkOrders);
+                            .ReturnsAsync(pagedWorkOrders);
 
         _mockWorkOrderLineItemRepository.Setup(r => r.GetByWorkOrderIdsAsync(It.IsAny<List<int>>()))
-                                        .ReturnsAsync(lineItems);
+                                    .ReturnsAsync(lineItems);
+
+        _mockWorkOrderIssueRepository.Setup(r => r.GetByWorkOrderIDsAsync(It.IsAny<List<int>>()))
+                                .ReturnsAsync(workOrderIssues);
 
         // When
         var result = await _handler.Handle(query, CancellationToken.None);
@@ -351,6 +365,14 @@ public class GetAllWorkOrderQueryHandlerTest
         Assert.Equal(150.00m, firstWorkOrder.TotalLaborCost);
         Assert.Equal(40.00m, firstWorkOrder.TotalItemCost);
 
+        // Check IssueIDs
+        Assert.NotNull(firstWorkOrder.IssueIDs);
+        Assert.Equal(new List<int> { 101, 102 }, firstWorkOrder.IssueIDs);
+
+        var secondWorkOrder = result.Items[1];
+        Assert.NotNull(secondWorkOrder.IssueIDs);
+        Assert.Equal(new List<int> { 201 }, secondWorkOrder.IssueIDs);
+
         // Verify line item details
         var laborLineItem = firstWorkOrder.WorkOrderLineItems.First(li => li.ItemType == LineItemTypeEnum.LABOR);
         Assert.Equal(1, laborLineItem.ID);
@@ -379,6 +401,7 @@ public class GetAllWorkOrderQueryHandlerTest
         _mockValidator.Verify(v => v.Validate(query), Times.Once);
         _mockWorkOrderRepository.Verify(r => r.GetAllWorkOrderPagedAsync(parameters), Times.Once);
         _mockWorkOrderLineItemRepository.Verify(r => r.GetByWorkOrderIdsAsync(It.IsAny<List<int>>()), Times.Once);
+        _mockWorkOrderIssueRepository.Verify(r => r.GetByWorkOrderIDsAsync(It.IsAny<List<int>>()), Times.Once);
     }
 
     [Fact]

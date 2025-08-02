@@ -6,4 +6,5 @@ public interface IWorkOrderLineItemRepository : IGenericRepository<WorkOrderLine
 {
     Task<List<WorkOrderLineItem>> GetByWorkOrderIdAsync(int workOrderId);
     Task<List<WorkOrderLineItem>> GetByWorkOrderIdsAsync(List<int> workOrderIds);
+    Task DeleteByWorkOrderIdAsync(int workOrderId);
 }
