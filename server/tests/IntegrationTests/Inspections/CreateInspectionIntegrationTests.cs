@@ -66,18 +66,52 @@ public sealed class CreateInspectionIntegrationTests : BaseIntegrationTest
             .FirstOrDefaultAsync(i => i.ID == inspectionId);
 
         inspection.Should().NotBeNull();
-        inspection!.TechnicianID.Should().Be(command.TechnicianID);
+
+        // ===== BaseEntity Fields =====
+        inspection.ID.Should().Be(inspectionId);
+        inspection.CreatedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(5));
+        inspection.UpdatedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(5));
+
+        // ===== FKs =====
+        inspection.InspectionFormID.Should().Be(command.InspectionFormID);
         inspection.VehicleID.Should().Be(command.VehicleID);
-        inspection.Notes.Should().Be(command.Notes);
-        inspection.VehicleCondition.Should().Be(command.VehicleCondition);
+        inspection.TechnicianID.Should().Be(command.TechnicianID);
+
+        // ===== Timestamps =====
+        inspection.InspectionStartTime.Should().Be(command.InspectionStartTime);
+        inspection.InspectionEndTime.Should().Be(command.InspectionEndTime);
+
+        // ===== Vehicle Data =====
         inspection.OdometerReading.Should().Be(command.OdometerReading);
+        inspection.VehicleCondition.Should().Be(command.VehicleCondition);
+
+        // ===== Notes =====
+        inspection.Notes.Should().Be(command.Notes);
+
+        // ===== Snapshot Fields =====
+        inspection.SnapshotFormTitle.Should().Be(form.Title);
+        inspection.SnapshotFormDescription.Should().Be(form.Description);
 
         inspection.InspectionPassFailItems.Should().HaveCount(command.InspectionItems.Count);
         foreach (var submittedItem in command.InspectionItems)
         {
             var item = inspection.InspectionPassFailItems.First(i => i.InspectionFormItemID == submittedItem.InspectionFormItemID);
+
+            // ===== Composite PK =====
+            item.InspectionFormItemID.Should().BeGreaterThan(0);
+            item.InspectionID.Should().Be(inspection.ID);
+
+            // ===== Item Technician Response =====
             item.Passed.Should().Be(submittedItem.Passed);
             item.Comment.Should().Be(submittedItem.Comment);
+
+            // ===== Snapshot Fields =====
+            var originalFormItem = formItems.First(fi => fi.ID == submittedItem.InspectionFormItemID);
+            item.SnapshotItemLabel.Should().Be(originalFormItem.ItemLabel);
+            item.SnapshotItemDescription.Should().Be(originalFormItem.ItemDescription);
+            item.SnapshotItemInstructions.Should().Be(originalFormItem.ItemInstructions);
+            item.SnapshotIsRequired.Should().Be(originalFormItem.IsRequired);
+            item.SnapshotInspectionFormItemTypeEnum.Should().Be(originalFormItem.InspectionFormItemTypeEnum);
         }
     }
 
