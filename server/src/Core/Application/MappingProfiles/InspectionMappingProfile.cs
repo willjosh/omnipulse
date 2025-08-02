@@ -45,4 +45,4 @@ public class InspectionMappingProfile : Profile
         //     .ForMember(dest => dest.IsRequired, opt => opt.MapFrom(src => src.InspectionFormItem.IsRequired))
         //     .ForMember(dest => dest.InspectionFormItemType, opt => opt.MapFrom(src => src.InspectionFormItem.InspectionFormItemTypeEnum));
     }
-} 
+}
