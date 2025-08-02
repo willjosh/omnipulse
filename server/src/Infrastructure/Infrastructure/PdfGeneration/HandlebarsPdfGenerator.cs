@@ -64,13 +64,25 @@ public class HandlebarsPdfGenerator : IInvoicePdfService
     /// <returns>PDF as byte array</returns>
     private static async Task<byte[]> GeneratePdfFromHtmlAsync(string htmlContent)
     {
-        // Download Chromium if not already downloaded
-        await new BrowserFetcher().DownloadAsync();
+        // Use system-installed Chromium
+        var executablePath = Environment.GetEnvironmentVariable("PUPPETEER_EXECUTABLE_PATH") ?? "/usr/bin/chromium-browser";
 
-        // Launch browser
+        // Launch browser with system Chromium
         using var browser = await Puppeteer.LaunchAsync(new LaunchOptions
         {
-            Headless = true
+            Headless = true,
+            ExecutablePath = executablePath,
+            Args =
+            [
+                "--no-sandbox",
+                "--disable-setuid-sandbox",
+                "--disable-dev-shm-usage",
+                "--disable-gpu",
+                "--no-first-run",
+                "--no-zygote",
+                "--single-process",
+                "--disable-extensions"
+            ]
         });
 
         // Initialise a page

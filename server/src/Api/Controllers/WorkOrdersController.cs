@@ -1,3 +1,4 @@
+using Application.Contracts.Services;
 using Application.Features.WorkOrders.Command.CompleteWorkOrder;
 using Application.Features.WorkOrders.Command.CreateWorkOrder;
 using Application.Features.WorkOrders.Command.DeleteWorkOrder;
@@ -278,6 +279,94 @@ public sealed class WorkOrdersController : ControllerBase
         }
         catch (Exception)
         {
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// TEST ENDPOINT: Generates a PDF invoice with hard-coded test data.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>PDF invoice as a file download.</returns>
+    /// <response code="200">Returns the PDF invoice.</response>
+    /// <response code="500">Internal server error occurred.</response>
+    [HttpGet("test-invoice.pdf")]
+    [Produces("application/pdf")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetTestInvoicePdf(CancellationToken cancellationToken)
+    {
+        try
+        {
+            _logger.LogInformation($"{nameof(GetTestInvoicePdf)}() - Called");
+
+            // Create hard-coded test data
+            var testInvoiceData = new GetWorkOrderInvoicePdfDTO
+            {
+                WorkOrderID = 999,
+                WorkOrderTitle = "Test Work Order - Oil Change",
+                WorkOrderDescription = "Complete oil change and filter replacement for test vehicle",
+                WorkOrderType = "SCHEDULED",
+                WorkOrderPriorityLevel = "MEDIUM",
+                ScheduledStartDate = DateTime.UtcNow.AddDays(-1),
+                ActualStartDate = DateTime.UtcNow.AddDays(-1).AddHours(2),
+                VehicleName = "Test Vehicle 001",
+                VehicleMake = "Toyota",
+                VehicleModel = "Camry",
+                VehicleVIN = "1HGBH41JXMN109186",
+                VehicleLicensePlate = "TEST123",
+                AssignedToUserName = "John Doe",
+                WorkOrderLineItems = new List<WorkOrderLineItemInvoicePdfDTO>
+                {
+                    new()
+                    {
+                        ID = 1,
+                        WorkOrderID = 999,
+                        ServiceTaskID = 1,
+                        ServiceTaskName = "Oil Change",
+                        ItemType = "LABOR",
+                        Quantity = 1,
+                        TotalCost = 75.00m,
+                        InventoryItemID = null,
+                        Description = "Oil change labor",
+                        LaborHours = 1.5m,
+                        UnitPrice = 50.00m,
+                        HourlyRate = 50.00m
+                    },
+                    new()
+                    {
+                        ID = 2,
+                        WorkOrderID = 999,
+                        ServiceTaskID = 2,
+                        ServiceTaskName = "Oil Filter Replacement",
+                        ItemType = "PART",
+                        Quantity = 1,
+                        TotalCost = 25.00m,
+                        InventoryItemID = 1,
+                        Description = "Oil filter",
+                        LaborHours = null,
+                        UnitPrice = 25.00m,
+                        HourlyRate = null
+                    }
+                },
+                TotalLabourCost = 75.00m,
+                TotalItemCost = 25.00m,
+                TotalCost = 100.00m,
+                InvoiceNumber = "INV-20241201-999",
+                InvoiceDate = DateTime.UtcNow
+            };
+
+            // Get PDF service directly and generate PDF
+            var pdfService = HttpContext.RequestServices.GetRequiredService<IInvoicePdfService>();
+            var pdfBytes = await pdfService.GenerateInvoicePdfAsync(testInvoiceData);
+
+            // Return PDF as file download
+            var fileName = "test-invoice.pdf";
+            return File(pdfBytes, "application/pdf", fileName);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error generating test PDF invoice");
             throw;
         }
     }
