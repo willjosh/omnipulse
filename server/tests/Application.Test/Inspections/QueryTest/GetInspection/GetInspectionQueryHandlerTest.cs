@@ -207,10 +207,10 @@ public class GetInspectionQueryHandlerTest
 
         // Assert
         _mockLogger.Verify(
-            x => x.LogInformation(It.Is<string>(s => s.Contains("Handling GetInspectionQuery for ID: 1"))),
+            x => x.LogInformation(It.Is<string>(s => s.Contains("Handling GetInspectionQuery(1)"))),
             Times.Once);
         _mockLogger.Verify(
-            x => x.LogInformation(It.Is<string>(s => s.Contains("Retrieved inspection details for ID: 1"))),
+            x => x.LogInformation(It.Is<string>(s => s.Contains("Returning InspectionDTO for InspectionID: 1"))),
             Times.Once);
     }
 
@@ -230,7 +230,7 @@ public class GetInspectionQueryHandlerTest
         );
 
         _mockLogger.Verify(
-            x => x.LogError(It.Is<string>(s => s.Contains("Inspection not found: 999"))),
+            x => x.LogError(It.Is<string>(s => s.Contains("Inspection with ID 999 not found."))),
             Times.Once);
     }
 
