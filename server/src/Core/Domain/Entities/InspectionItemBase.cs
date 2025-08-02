@@ -1,3 +1,5 @@
+using Domain.Entities.Enums;
+
 namespace Domain.Entities;
 
 /// <summary>
@@ -6,7 +8,7 @@ namespace Domain.Entities;
 /// </summary>
 public abstract class InspectionItemBase
 {
-    // Composite PK
+    // ===== Composite PK =====
     /// <summary>The ID of the <see cref="Inspection"/> this item belongs to.</summary>
     public required int InspectionID { get; set; }
     /// <summary>The ID of the inspection form checklist item (<see cref="InspectionFormItem"/>) being responded to.</summary>
@@ -15,7 +17,14 @@ public abstract class InspectionItemBase
     /// <summary>Optional comment provided by the technician for this item.</summary>
     public string? Comment { get; set; }
 
-    // Navigation Properties
+    // ===== InspectionFormItem Snapshots =====
+    public required string SnapshotItemLabel { get; set; }
+    public string? SnapshotItemDescription { get; set; }
+    public string? SnapshotItemInstructions { get; set; }
+    public required bool SnapshotIsRequired { get; set; }
+    public required InspectionFormItemTypeEnum SnapshotInspectionFormItemTypeEnum { get; set; }
+
+    // ===== Navigation Properties =====
     public required Inspection Inspection { get; set; }
     public required InspectionFormItem InspectionFormItem { get; set; }
     // public required ICollection<Document> Documents { get; set; } = []; // TODO: File Attachments (photos, etc), 1:N Relationship
