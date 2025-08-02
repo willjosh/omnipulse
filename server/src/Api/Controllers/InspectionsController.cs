@@ -1,4 +1,5 @@
 using Application.Features.Inspections.Command.CreateInspection;
+using Application.Features.Inspections.Query.GetInspection;
 using Application.Models.PaginationModels;
 
 using Domain.Entities;
@@ -76,28 +77,28 @@ public sealed class InspectionsController : ControllerBase
     /// <response code="200">Inspection retrieved successfully.</response>
     /// <response code="404">Inspection with the specified ID was not found.</response>
     /// <response code="500">Internal server error occurred.</response>
-    // [HttpGet("{id:int}")]
-    // [ProducesResponseType(typeof(InspectionDTO), StatusCodes.Status200OK)]
-    // [ProducesResponseType(StatusCodes.Status404NotFound)]
-    // [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    // public async Task<ActionResult<InspectionDTO>> GetInspection(
-    //     int id,
-    //     CancellationToken cancellationToken)
-    // {
-    //     try
-    //     {
-    //         _logger.LogInformation($"{nameof(GetInspection)}() - Called");
+    [HttpGet("{id:int}")]
+    [ProducesResponseType(typeof(InspectionDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<InspectionDTO>> GetInspection(
+        int id,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            _logger.LogInformation($"{nameof(GetInspection)}() - Called");
 
-    //         var query = new GetInspectionQuery(id);
-    //         var inspectionDto = await _mediator.Send(query, cancellationToken);
+            var query = new GetInspectionQuery(id);
+            var inspectionDto = await _mediator.Send(query, cancellationToken);
 
-    //         return Ok(inspectionDto);
-    //     }
-    //     catch (Exception)
-    //     {
-    //         throw;
-    //     }
-    // }
+            return Ok(inspectionDto);
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
 
     /// <summary>
     /// Creates a new inspection performed by a technician on a vehicle.
