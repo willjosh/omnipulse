@@ -11,6 +11,9 @@ export interface WorkOrderLineItem {
   itemType: LineItemTypeEnum;
   quantity: number;
   description?: string | null;
+  laborHours?: number | null;
+  unitPrice?: number | null;
+  hourlyRate?: number | null;
   inventoryItemID?: number | null;
   inventoryItemName: string;
   assignedToUserID: string;
@@ -27,6 +30,18 @@ export interface WorkOrderLineItemWithLabels
   itemType: number;
   itemTypeLabel: string;
   itemTypeEnum: LineItemTypeEnum;
+}
+
+export interface CreateWorkOrderLineItem {
+  inventoryItemID?: number | null;
+  serviceTaskID: number;
+  assignedToUserID?: string | null;
+  itemType: LineItemTypeEnum;
+  description?: string | null;
+  quantity: number;
+  unitPrice?: number | null;
+  hourlyRate?: number | null;
+  laborHours?: number | null;
 }
 
 export interface WorkOrder {
@@ -48,6 +63,7 @@ export interface WorkOrder {
   assignedToUserID: string;
   assignedToUserName: string;
   workOrderLineItems: WorkOrderLineItem[];
+  issueIDs: number[];
 }
 
 export interface WorkOrderWithLabels
@@ -77,10 +93,12 @@ export interface CreateWorkOrderCommand {
   status: WorkOrderStatusEnum;
   scheduledStartDate?: string | null;
   actualStartDate?: string | null;
+  scheduledCompletionDate?: string | null;
+  actualCompletionDate?: string | null;
   startOdometer: number;
   endOdometer?: number | null;
   issueIdList?: number[] | null;
-  workOrderLineItems?: WorkOrderLineItem[] | null;
+  workOrderLineItems?: CreateWorkOrderLineItem[] | null;
 }
 
 export interface UpdateWorkOrderCommand extends CreateWorkOrderCommand {

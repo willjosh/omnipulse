@@ -1,14 +1,17 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
 import WorkOrderHeader from "@/features/work-order/components/WorkOrderHeader";
 import WorkOrderDetailsForm from "@/features/work-order/components/WorkOrderDetailsForm";
 import WorkOrderIssuesForm from "@/features/work-order/components/WorkOrderIssuesForm";
 import WorkOrderLineItemsForm from "@/features/work-order/components/WorkOrderLineItemsForm";
 import SecondaryButton from "@/components/ui/Button/SecondaryButton";
 import PrimaryButton from "@/components/ui/Button/PrimaryButton";
-import { useCreateWorkOrder } from "@/features/work-order/hooks/useWorkOrders";
+import {
+  useWorkOrder,
+  useUpdateWorkOrder,
+} from "@/features/work-order/hooks/useWorkOrders";
 import { CreateWorkOrderLineItem } from "@/features/work-order/types/workOrderType";
 import {
   WorkOrderFormState,
@@ -18,8 +21,10 @@ import {
 } from "@/features/work-order/utils/workOrderFormUtils";
 import { BreadcrumbItem } from "@/components/ui/Layout/Breadcrumbs";
 
-export default function NewWorkOrderPage() {
+export default function EditWorkOrderPage() {
   const router = useRouter();
+  const params = useParams();
+  const workOrderId = Number(params.id);
 
   // Form state
   const [form, setForm] = useState<WorkOrderFormState>({
@@ -28,8 +33,46 @@ export default function NewWorkOrderPage() {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [resetKey, setResetKey] = useState(0);
 
-  // Create work order mutation
-  const { mutate: createWorkOrder, isPending } = useCreateWorkOrder();
+  // Fetch work order data
+  const { workOrder, isPending: isLoading } = useWorkOrder(workOrderId);
+
+  // Update work order mutation
+  const { mutate: updateWorkOrder, isPending: isUpdating } =
+    useUpdateWorkOrder();
+
+  // Load work order data into form when data is available
+  useEffect(() => {
+    if (workOrder) {
+      const formData: WorkOrderFormState = {
+        title: workOrder.title,
+        description: workOrder.description,
+        vehicleID: workOrder.vehicleID,
+        workOrderType: workOrder.workOrderTypeEnum,
+        priorityLevel: workOrder.priorityLevelEnum,
+        status: workOrder.statusEnum,
+        assignedToUserID: workOrder.assignedToUserID,
+        scheduledStartDate: workOrder.scheduledStartDate,
+        actualStartDate: workOrder.actualStartDate,
+        scheduledCompletionDate: null, // TODO: Add to WorkOrderWithLabels if needed
+        actualCompletionDate: null, // TODO: Add to WorkOrderWithLabels if needed
+        startOdometer: workOrder.startOdometer,
+        endOdometer: workOrder.endOdometer,
+        issueIdList: workOrder.issueIDs,
+        workOrderLineItems: workOrder.workOrderLineItems.map(item => ({
+          itemType: item.itemTypeEnum,
+          quantity: item.quantity,
+          description: item.description,
+          inventoryItemID: item.inventoryItemID,
+          assignedToUserID: item.assignedToUserID,
+          serviceTaskID: item.serviceTaskID,
+          unitPrice: item.unitPrice,
+          hourlyRate: item.hourlyRate,
+          laborHours: item.laborHours,
+        })) as CreateWorkOrderLineItem[],
+      };
+      setForm(formData);
+    }
+  }, [workOrder]);
 
   // Validation
   const validate = () => {
@@ -48,46 +91,47 @@ export default function NewWorkOrderPage() {
   };
 
   // Convert form state to CreateWorkOrderCommand
-  const toCreateWorkOrderCommand = () => mapFormToCreateWorkOrderCommand(form);
+  const toUpdateWorkOrderCommand = () => ({
+    workOrderID: workOrderId,
+    ...mapFormToCreateWorkOrderCommand(form),
+  });
 
   // Save Work Order handler
   const handleSave = () => {
     if (!validate()) return;
-    createWorkOrder(toCreateWorkOrderCommand(), {
+    updateWorkOrder(toUpdateWorkOrderCommand(), {
       onSuccess: () => {
-        router.push("/work-orders");
+        router.push(`/work-orders/${workOrderId}`);
       },
     });
   };
 
-  // Save & Add Another handler
-  const handleSaveAndAddAnother = () => {
-    if (!validate()) return;
-    createWorkOrder(toCreateWorkOrderCommand(), {
-      onSuccess: () => {
-        setForm(emptyWorkOrderFormState);
-        setErrors({});
-        setResetKey(k => k + 1);
-      },
-    });
-  };
+  // Handle loading and error states
+  if (isLoading) {
+    return <div>Loading work order...</div>;
+  }
+
+  if (!workOrder) {
+    return <div>Work order not found</div>;
+  }
 
   const breadcrumbs: BreadcrumbItem[] = [
     { label: "Work Orders", href: "/work-orders" },
+    { label: workOrder.title, href: `/work-orders/${workOrderId}` },
   ];
 
   return (
     <div>
       <WorkOrderHeader
-        title="New Work Order"
+        title={`Edit Work Order - ${workOrder.title}`}
         breadcrumbs={breadcrumbs}
         actions={
           <>
             <SecondaryButton onClick={() => router.back()}>
               Cancel
             </SecondaryButton>
-            <PrimaryButton onClick={handleSave} disabled={isPending}>
-              {isPending ? "Saving..." : "Save Work Order"}
+            <PrimaryButton onClick={handleSave} disabled={isUpdating}>
+              {isUpdating ? "Saving..." : "Save Changes"}
             </PrimaryButton>
           </>
         }
@@ -97,16 +141,16 @@ export default function NewWorkOrderPage() {
         value={form}
         errors={errors}
         onChange={handleFormChange}
-        disabled={isPending}
-        showStatus={false}
-        statusEditable={false}
+        disabled={isUpdating}
+        showStatus={true}
+        statusEditable={true}
       />
 
       <WorkOrderIssuesForm
         value={{ issueIdList: form.issueIdList }}
         errors={errors}
         onChange={handleFormChange}
-        disabled={isPending}
+        disabled={isUpdating}
         vehicleID={form.vehicleID}
       />
 
@@ -115,7 +159,7 @@ export default function NewWorkOrderPage() {
         value={{ workOrderLineItems: form.workOrderLineItems }}
         errors={errors}
         onChange={handleFormChange}
-        disabled={isPending}
+        disabled={isUpdating}
       />
 
       {/* Footer Actions */}
@@ -126,14 +170,8 @@ export default function NewWorkOrderPage() {
             Cancel
           </SecondaryButton>
           <div className="flex gap-3">
-            <SecondaryButton
-              onClick={handleSaveAndAddAnother}
-              disabled={isPending}
-            >
-              {isPending ? "Saving..." : "Save & Add Another"}
-            </SecondaryButton>
-            <PrimaryButton onClick={handleSave} disabled={isPending}>
-              {isPending ? "Saving..." : "Save Work Order"}
+            <PrimaryButton onClick={handleSave} disabled={isUpdating}>
+              {isUpdating ? "Saving..." : "Save Changes"}
             </PrimaryButton>
           </div>
         </div>
