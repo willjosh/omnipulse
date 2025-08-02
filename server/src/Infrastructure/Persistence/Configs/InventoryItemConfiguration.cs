@@ -26,6 +26,10 @@ public class InventoryItemConfiguration : IEntityTypeConfiguration<InventoryItem
             .IsRequired()
             .HasDefaultValue(true);
 
+        builder.Property(i => i.UnitCost)
+            .IsRequired().
+            HasPrecision(18, 2);
+
         // Optional string properties with length constraints
         builder.Property(i => i.Description).HasMaxLength(500);
         builder.Property(i => i.Manufacturer).HasMaxLength(100);
@@ -33,7 +37,7 @@ public class InventoryItemConfiguration : IEntityTypeConfiguration<InventoryItem
         builder.Property(i => i.UniversalProductCode).HasMaxLength(12); // UPC-A: 12 digits
         builder.Property(i => i.Supplier).HasMaxLength(100);
 
-        builder.Property(i => i.UnitCost).HasPrecision(18, 2);
+
 
         // Configure enum properties
         builder.Property(i => i.Category).HasConversion<int>();

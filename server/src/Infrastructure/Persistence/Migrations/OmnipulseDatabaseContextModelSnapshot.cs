@@ -301,37 +301,96 @@ namespace Persistence.Migrations
                     b.Property<int>("InventoryItemID")
                         .HasColumnType("int");
 
-                    b.Property<int>("InventoryItemLocationID")
+                    b.Property<int?>("InventoryItemLocationID")
                         .HasColumnType("int");
 
-                    b.Property<int>("LastRestockedDate")
-                        .HasColumnType("int");
+                    b.Property<DateTime?>("LastRestockedDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("MaxStockLevel")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.Property<int>("MinStockLevel")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<bool>("NeedsReorder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<int>("QuantityOnHand")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ReorderPoint")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.Property<decimal>("UnitCost")
-                        .HasColumnType("decimal(18,2)");
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("ID");
 
-                    b.HasIndex("InventoryItemID");
+                    b.HasIndex("CreatedAt")
+                        .HasDatabaseName("IX_Inventories_CreatedAt");
 
-                    b.HasIndex("InventoryItemLocationID");
+                    b.HasIndex("InventoryItemID")
+                        .HasDatabaseName("IX_Inventories_InventoryItemID");
 
-                    b.ToTable("Inventories");
+                    b.HasIndex("InventoryItemLocationID")
+                        .HasDatabaseName("IX_Inventories_InventoryItemLocationID");
+
+                    b.HasIndex("LastRestockedDate")
+                        .HasDatabaseName("IX_Inventories_LastRestockedDate");
+
+                    b.HasIndex("NeedsReorder")
+                        .HasDatabaseName("IX_Inventories_NeedsReorder")
+                        .HasFilter("[NeedsReorder] = 1");
+
+                    b.HasIndex("UnitCost")
+                        .HasDatabaseName("IX_Inventories_UnitCost");
+
+                    b.HasIndex("UpdatedAt")
+                        .HasDatabaseName("IX_Inventories_UpdatedAt");
+
+                    b.HasIndex("InventoryItemID", "UnitCost")
+                        .HasDatabaseName("IX_Inventories_Item_Cost");
+
+                    b.HasIndex("InventoryItemLocationID", "InventoryItemID")
+                        .HasDatabaseName("IX_Inventories_Location_Item");
+
+                    b.HasIndex("InventoryItemLocationID", "QuantityOnHand")
+                        .HasDatabaseName("IX_Inventories_Location_Stock");
+
+                    b.HasIndex("LastRestockedDate", "InventoryItemID")
+                        .HasDatabaseName("IX_Inventories_RestockDate_Item");
+
+                    b.HasIndex("QuantityOnHand", "MinStockLevel")
+                        .HasDatabaseName("IX_Inventories_StockLevels");
+
+                    b.HasIndex("InventoryItemID", "LastRestockedDate", "QuantityOnHand")
+                        .HasDatabaseName("IX_Inventories_ItemPerformance");
+
+                    b.HasIndex("InventoryItemLocationID", "QuantityOnHand", "UnitCost")
+                        .HasDatabaseName("IX_Inventories_LocationSummary");
+
+                    b.HasIndex("QuantityOnHand", "MinStockLevel", "InventoryItemID")
+                        .HasDatabaseName("IX_Inventories_LowStock");
+
+                    b.HasIndex("QuantityOnHand", "UnitCost", "InventoryItemID")
+                        .HasDatabaseName("IX_Inventories_ValueAnalysis");
+
+                    b.HasIndex("UpdatedAt", "QuantityOnHand", "InventoryItemID")
+                        .HasDatabaseName("IX_Inventories_StockMovement");
+
+                    b.ToTable("Inventories", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.InventoryItem", b =>
@@ -379,7 +438,7 @@ namespace Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<decimal?>("UnitCost")
+                    b.Property<decimal>("UnitCost")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
@@ -490,47 +549,68 @@ namespace Persistence.Migrations
                     b.Property<int>("InventoryID")
                         .HasColumnType("int");
 
-                    b.Property<int>("MaintenanceHistoryID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("PerformedByUserID")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ReferenceNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.Property<decimal>("TotalCost")
-                        .HasColumnType("decimal(18,2)");
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<int>("TransactionType")
                         .HasColumnType("int");
 
                     b.Property<decimal>("UnitCost")
-                        .HasColumnType("decimal(18,2)");
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int?>("WorkOrderID")
                         .HasColumnType("int");
 
                     b.HasKey("ID");
 
-                    b.HasIndex("InventoryID");
+                    b.HasIndex("CreatedAt")
+                        .HasDatabaseName("IX_InventoryTransactions_CreatedAt");
 
-                    b.HasIndex("MaintenanceHistoryID");
+                    b.HasIndex("InventoryID")
+                        .HasDatabaseName("IX_InventoryTransactions_InventoryID");
+
+                    b.HasIndex("PerformedByUserID")
+                        .HasDatabaseName("IX_InventoryTransactions_PerformedByUserID");
+
+                    b.HasIndex("TransactionType")
+                        .HasDatabaseName("IX_InventoryTransactions_TransactionType");
+
+                    b.HasIndex("UpdatedAt")
+                        .HasDatabaseName("IX_InventoryTransactions_UpdatedAt");
+
+                    b.HasIndex("UserId");
 
                     b.HasIndex("WorkOrderID");
 
-                    b.ToTable("InventoryTransactions");
+                    b.ToTable("InventoryTransactions", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_InventoryTransaction_Quantity_Positive", "[Quantity] > 0");
+
+                            t.HasCheckConstraint("CK_InventoryTransaction_TotalCost_NonNegative", "[TotalCost] >= 0");
+
+                            t.HasCheckConstraint("CK_InventoryTransaction_UnitCost_NonNegative", "[UnitCost] >= 0");
+                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.Invoice", b =>
@@ -671,7 +751,7 @@ namespace Persistence.Migrations
 
                     b.ToTable("Issues", null, t =>
                         {
-                            t.HasCheckConstraint("CK_Issue_ResolvedDate", "ResolvedDate IS NULL OR ResolvedDate >= CreatedAt");
+                            t.HasCheckConstraint("CK_Issue_ResolvedDate", "ResolvedDate IS NULL OR ResolvedDate >= ReportedDate");
                         });
                 });
 
@@ -782,44 +862,23 @@ namespace Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
-                    b.Property<decimal>("Cost")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<double>("LabourHours")
-                        .HasColumnType("float");
 
                     b.Property<double>("MileageAtService")
                         .HasColumnType("float");
 
-                    b.Property<string>("Notes")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
                     b.Property<DateTime>("ServiceDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("ServiceTaskID")
+                    b.Property<int?>("ServiceTaskID")
                         .HasColumnType("int");
-
-                    b.Property<string>("TechnicianID")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("VehicleID")
-                        .HasColumnType("int");
 
                     b.Property<int>("WorkOrderID")
                         .HasColumnType("int");
@@ -835,11 +894,7 @@ namespace Persistence.Migrations
 
                     b.HasIndex("ServiceTaskID");
 
-                    b.HasIndex("TechnicianID");
-
                     b.HasIndex("UserId");
-
-                    b.HasIndex("VehicleID");
 
                     b.HasIndex("WorkOrderID");
 
@@ -847,12 +902,6 @@ namespace Persistence.Migrations
 
                     b.ToTable("MaintenanceHistories", null, t =>
                         {
-                            t.HasCheckConstraint("CK_MaintenanceHistory_Cost", "Cost >= 0");
-
-                            t.HasCheckConstraint("CK_MaintenanceHistory_LabourHours", "LabourHours >= 0");
-
-                            t.HasCheckConstraint("CK_MaintenanceHistory_MileageAtService", "MileageAtService >= 0");
-
                             t.HasCheckConstraint("CK_MaintenanceHistory_ServiceDate", "ServiceDate >= CreatedAt");
                         });
                 });
@@ -1475,7 +1524,6 @@ namespace Persistence.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("UserId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("VehicleID")
@@ -1738,6 +1786,9 @@ namespace Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
+                    b.Property<DateTime?>("ActualCompletionDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime?>("ActualStartDate")
                         .HasColumnType("datetime2");
 
@@ -1757,6 +1808,9 @@ namespace Persistence.Migrations
 
                     b.Property<int>("PriorityLevel")
                         .HasColumnType("int");
+
+                    b.Property<DateTime?>("ScheduledCompletionDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("ScheduledStartDate")
                         .HasColumnType("datetime2");
@@ -1786,6 +1840,8 @@ namespace Persistence.Migrations
 
                     b.HasKey("ID");
 
+                    b.HasIndex("ActualCompletionDate");
+
                     b.HasIndex("ActualStartDate");
 
                     b.HasIndex("AssignedToUserID");
@@ -1793,6 +1849,8 @@ namespace Persistence.Migrations
                     b.HasIndex("CreatedAt");
 
                     b.HasIndex("PriorityLevel");
+
+                    b.HasIndex("ScheduledCompletionDate");
 
                     b.HasIndex("ScheduledStartDate");
 
@@ -1814,6 +1872,8 @@ namespace Persistence.Migrations
 
                     b.ToTable("WorkOrders", null, t =>
                         {
+                            t.HasCheckConstraint("CK_WorkOrder_CompletionDates", "ActualCompletionDate IS NULL OR ScheduledCompletionDate IS NULL OR ActualCompletionDate >= ScheduledCompletionDate");
+
                             t.HasCheckConstraint("CK_WorkOrder_Dates", "ActualStartDate IS NULL OR ScheduledStartDate IS NULL OR ActualStartDate >= ScheduledStartDate");
 
                             t.HasCheckConstraint("CK_WorkOrder_EndOdometer", "EndOdometer IS NULL OR EndOdometer >= StartOdometer");
@@ -1935,17 +1995,11 @@ namespace Persistence.Migrations
                     b.Property<DateTime>("AddedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("ServiceProgramID", "VehicleID");
 
                     b.HasIndex("AddedAt");
 
                     b.HasIndex("ServiceProgramID");
-
-                    b.HasIndex("UserId");
 
                     b.HasIndex("VehicleID");
 
@@ -2198,8 +2252,7 @@ namespace Persistence.Migrations
                     b.HasOne("Domain.Entities.InventoryItemLocation", "InventoryItemLocation")
                         .WithMany("Inventories")
                         .HasForeignKey("InventoryItemLocationID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("InventoryItem");
 
@@ -2214,11 +2267,15 @@ namespace Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.MaintenanceHistory", "MaintenanceHistory")
-                        .WithMany("InventoryTransactions")
-                        .HasForeignKey("MaintenanceHistoryID")
-                        .OnDelete(DeleteBehavior.Cascade)
+                    b.HasOne("Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("PerformedByUserID")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("Domain.Entities.User", null)
+                        .WithMany("InventoryTransactions")
+                        .HasForeignKey("UserId");
 
                     b.HasOne("Domain.Entities.WorkOrder", null)
                         .WithMany("InventoryTransactions")
@@ -2226,7 +2283,7 @@ namespace Persistence.Migrations
 
                     b.Navigation("Inventory");
 
-                    b.Navigation("MaintenanceHistory");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Domain.Entities.Invoice", b =>
@@ -2322,21 +2379,13 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.MaintenanceHistory", b =>
                 {
-                    b.HasOne("Domain.Entities.ServiceTask", "ServiceTask")
+                    b.HasOne("Domain.Entities.ServiceTask", null)
                         .WithMany("MaintenanceHistories")
-                        .HasForeignKey("ServiceTaskID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ServiceTaskID");
 
-                    b.HasOne("Domain.Entities.User", "User")
+                    b.HasOne("Domain.Entities.User", null)
                         .WithMany("MaintenanceHistories")
                         .HasForeignKey("UserId");
-
-                    b.HasOne("Domain.Entities.Vehicle", "Vehicle")
-                        .WithMany()
-                        .HasForeignKey("VehicleID")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
 
                     b.HasOne("Domain.Entities.WorkOrder", "WorkOrder")
                         .WithMany()
@@ -2347,12 +2396,6 @@ namespace Persistence.Migrations
                     b.HasOne("Domain.Entities.WorkOrder", null)
                         .WithMany("MaintenanceHistories")
                         .HasForeignKey("WorkOrderID1");
-
-                    b.Navigation("ServiceTask");
-
-                    b.Navigation("User");
-
-                    b.Navigation("Vehicle");
 
                     b.Navigation("WorkOrder");
                 });
@@ -2427,9 +2470,7 @@ namespace Persistence.Migrations
                 {
                     b.HasOne("Domain.Entities.User", "User")
                         .WithMany("VehicleAssignments")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserId");
 
                     b.HasOne("Domain.Entities.Vehicle", "Vehicle")
                         .WithMany("VehicleAssignments")
@@ -2594,12 +2635,6 @@ namespace Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Domain.Entities.Vehicle", "Vehicle")
                         .WithMany("XrefServiceProgramVehicles")
                         .HasForeignKey("VehicleID")
@@ -2607,8 +2642,6 @@ namespace Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("ServiceProgram");
-
-                    b.Navigation("User");
 
                     b.Navigation("Vehicle");
                 });
@@ -2712,11 +2745,6 @@ namespace Persistence.Migrations
                     b.Navigation("IssueAttachments");
                 });
 
-            modelBuilder.Entity("Domain.Entities.MaintenanceHistory", b =>
-                {
-                    b.Navigation("InventoryTransactions");
-                });
-
             modelBuilder.Entity("Domain.Entities.ServiceProgram", b =>
                 {
                     b.Navigation("ServiceSchedules");
@@ -2745,6 +2773,8 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.User", b =>
                 {
+                    b.Navigation("InventoryTransactions");
+
                     b.Navigation("IssueAttachments");
 
                     b.Navigation("MaintenanceHistories");

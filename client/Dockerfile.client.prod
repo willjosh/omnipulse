@@ -12,7 +12,7 @@ FROM base AS builder
 WORKDIR /app
 COPY client/ .
 COPY --from=deps /app/node_modules ./node_modules
-RUN npm run build --no-lint
+RUN npm run build -- --no-lint
 
 # Production image
 FROM base AS runner
@@ -26,7 +26,6 @@ RUN adduser --system --uid 1001 nextjs
 # Copy the standalone output
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/public ./public
 
 USER nextjs
 

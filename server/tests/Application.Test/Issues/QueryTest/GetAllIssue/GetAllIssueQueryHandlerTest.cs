@@ -79,9 +79,10 @@ public class GetAllIssueQueryHandlerTest
             Vehicles = [],
             VehicleAssignments = [],
             VehicleDocuments = [],
-            VehicleInspections = [],
+            Inspections = [],
             MaintenanceHistories = [],
-            IssueAttachments = []
+            IssueAttachments = [],
+            InventoryTransactions = []
         };
         var vehicle = new Vehicle
         {
@@ -113,7 +114,7 @@ public class GetAllIssueQueryHandlerTest
             XrefServiceProgramVehicles = [],
             ServiceReminders = [],
             Issues = [],
-            VehicleInspections = [],
+            Inspections = [],
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
@@ -454,9 +455,10 @@ public class GetAllIssueQueryHandlerTest
             Vehicles = [],
             VehicleAssignments = [],
             VehicleDocuments = [],
-            VehicleInspections = [],
+            Inspections = [],
             MaintenanceHistories = [],
-            IssueAttachments = []
+            IssueAttachments = [],
+            InventoryTransactions = []
         };
         var resolver = new User
         {
@@ -470,9 +472,10 @@ public class GetAllIssueQueryHandlerTest
             Vehicles = [],
             VehicleAssignments = [],
             VehicleDocuments = [],
-            VehicleInspections = [],
+            Inspections = [],
             MaintenanceHistories = [],
-            IssueAttachments = []
+            IssueAttachments = [],
+            InventoryTransactions = []
         };
         var vehicle = new Vehicle
         {
@@ -503,7 +506,7 @@ public class GetAllIssueQueryHandlerTest
             XrefServiceProgramVehicles = [],
             ServiceReminders = [],
             Issues = [],
-            VehicleInspections = [],
+            Inspections = [],
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };

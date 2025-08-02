@@ -1,0 +1,110 @@
+name: CI - Backend
+
+on:
+  push:
+    paths: ["server/**"]
+  pull_request:
+    paths: ["server/**"]
+
+jobs:
+  test:
+    name: Test - ${{ matrix.test-category.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test-category:
+          - name: "Unit"
+            filter: "TestCategory!=Integration&TestCategory!=Functional"
+            folder: "unit"
+          - name: "Integration"
+            filter: "TestCategory=Integration"
+            folder: "integration"
+          - name: "Functional"
+            filter: "TestCategory=Functional"
+            folder: "functional"
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Restore dependencies
+        run: dotnet restore server/omnipulse_server.sln
+
+      - name: Build solution
+        run: dotnet build server/omnipulse_server.sln --configuration Release --no-restore
+
+      - name: 🧪 Run ${{ matrix.test-category.name }} Tests
+        continue-on-error: true
+        run: |
+          dotnet test server \
+            --filter "${{ matrix.test-category.filter }}" \
+            --configuration Release \
+            --no-build \
+            --verbosity normal \
+            --collect:"XPlat Code Coverage" \
+            --logger:"trx;LogFileName=test-results-${{ matrix.test-category.folder }}.trx" \
+            --results-directory server/tests/coverage/${{ matrix.test-category.folder }}
+
+      - name: Upload ${{ matrix.test-category.name }} test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ${{ github.run_id }}-test-results-${{ matrix.test-category.folder }}
+          path: |
+            server/tests/coverage/${{ matrix.test-category.folder }}/**/*.trx
+            server/tests/coverage/${{ matrix.test-category.folder }}/**/coverage.cobertura.xml
+          retention-days: 30
+          if-no-files-found: warn
+
+  coverage:
+    name: Coverage
+    needs: test
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Download all coverage artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: coverage-input
+
+      - name: Install ReportGenerator
+        run: dotnet tool install -g dotnet-reportgenerator-globaltool
+
+      - name: Generate merged code-coverage report
+        run: |
+          reportgenerator \
+            -reports:"coverage-input/**/coverage.cobertura.xml" \
+            -targetdir:"coverage-report" \
+            -reporttypes:"Html,MarkdownSummaryGithub,Cobertura"
+
+      - name: Append to Job Summary
+        run: cat coverage-report/SummaryGithub.md >> $GITHUB_STEP_SUMMARY
+
+      - name: Create PR comment with coverage and artifact link
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "# [📊 Backend - Code-Coverage Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" > pr-comment.md
+          echo "" >> pr-comment.md
+          cat coverage-report/SummaryGithub.md >> pr-comment.md
+
+      - name: Post sticky PR comment
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          recreate: true
+          path: pr-comment.md
+          header: coverage-report
+
+      - name: Upload merged coverage artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ${{ github.run_id }}-coverage-report
+          path: coverage-report/**
+          retention-days: 30
+          if-no-files-found: warn

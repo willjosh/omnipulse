@@ -121,7 +121,7 @@ public class UpdateIssueCommandHandlerTest
             XrefServiceProgramVehicles = [],
             ServiceReminders = [],
             Issues = [],
-            VehicleInspections = []
+            Inspections = []
         };
     }
 
@@ -140,8 +140,9 @@ public class UpdateIssueCommandHandlerTest
             IssueAttachments = [],
             VehicleAssignments = [],
             VehicleDocuments = [],
-            VehicleInspections = [],
-            Vehicles = []
+            Inspections = [],
+            Vehicles = [],
+            InventoryTransactions = [],
         };
     }
 

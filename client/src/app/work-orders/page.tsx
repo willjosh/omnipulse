@@ -1,201 +1,156 @@
 "use client";
 
-import React, { useState } from "react";
-import {
-  Box,
-  Button,
-  Typography,
-  IconButton,
-  Tabs,
-  Tab,
-  TextField,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  Divider,
-  TableBody,
-} from "@mui/material";
+import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Filter, Search, Settings, ChevronDown } from "lucide-react";
-import { format } from "date-fns";
-import Link from "next/link";
-import { useWorkOrderListStore } from "@/features/work-order/stores/workOrderListStore";
+import { DataTable, PaginationControls } from "@/components/ui/Table";
+import { PrimaryButton } from "@/components/ui/Button";
+import { FilterBar } from "@/components/ui/Filter";
+import { Plus } from "lucide-react";
+import { useWorkOrders } from "@/features/work-order/hooks/useWorkOrders";
+import { WorkOrderWithLabels } from "@/features/work-order/types/workOrderType";
+import { DEFAULT_PAGE_SIZE } from "@/components/ui/Table/constants";
+import { workOrderTableColumns } from "@/features/work-order/config/workOrderTableColumns";
 
-const WorkOrdersPage: React.FC = () => {
-  const [status, setStatus] = useState("Open");
-
-  const handleStatusChange = (_: any, newValue: string) => {
-    setStatus(newValue);
-  };
-
-  const { workOrders } = useWorkOrderListStore();
-
+export default function WorkOrdersPage() {
   const router = useRouter();
 
-  const filteredOrders =
-    status === "All"
-      ? workOrders
-      : workOrders.filter(order => order.data.details.status === status);
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+  const [sortBy, setSortBy] = useState("Title");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+
+  React.useEffect(() => {
+    setPage(1);
+  }, [search, sortBy, sortOrder]);
+
+  const filter = useMemo(
+    () => ({
+      PageNumber: page,
+      PageSize: pageSize,
+      Search: search,
+      SortBy: sortBy,
+      SortDescending: sortOrder === "desc",
+    }),
+    [page, pageSize, search, sortBy, sortOrder],
+  );
+
+  const { workOrders, pagination, isPending } = useWorkOrders(filter);
+
+  const tableData = useMemo(
+    () =>
+      workOrders.map((workOrder: WorkOrderWithLabels) => ({
+        id: workOrder.id.toString(),
+        title: workOrder.title,
+        vehicleName: workOrder.vehicleName,
+        workOrderTypeLabel: workOrder.workOrderTypeLabel,
+        priorityLevelLabel: workOrder.priorityLevelLabel,
+        statusLabel: workOrder.statusLabel,
+        assignedToUserName: workOrder.assignedToUserName,
+        scheduledStartDate: workOrder.scheduledStartDate || "Not scheduled",
+        actualStartDate: workOrder.actualStartDate || "Not started",
+        startOdometer: workOrder.startOdometer,
+        endOdometer: workOrder.endOdometer || "—",
+        totalCost: workOrder.totalCost
+          ? `$${workOrder.totalCost.toFixed(2)}`
+          : "—",
+        totalLaborCost: workOrder.totalLaborCost
+          ? `$${workOrder.totalLaborCost.toFixed(2)}`
+          : "—",
+        totalItemCost: workOrder.totalItemCost
+          ? `$${workOrder.totalItemCost.toFixed(2)}`
+          : "—",
+        description: workOrder.description || "—",
+      })),
+    [workOrders],
+  );
+
+  const handlePreviousPage = () => setPage(p => Math.max(1, p - 1));
+  const handleNextPage = () =>
+    setPage(p => (pagination && p < pagination.totalPages ? p + 1 : p));
+  const handlePageChange = (p: number) => setPage(p);
+  const handlePageSizeChange = (size: number) => {
+    setPageSize(size);
+    setPage(1);
+  };
+
+  const handleRowClick = (row: any) => {
+    router.push(`/work-orders/${row.id}`);
+  };
+
+  const emptyState = (
+    <div className="text-center py-8">
+      <p className="text-gray-500 mb-2">No work orders found.</p>
+      <p className="text-gray-400 mb-4">
+        Work Orders are used to plan and complete service needed for a
+        particular vehicle.
+      </p>
+      <button
+        onClick={() => setSearch("")}
+        className="text-blue-600 hover:text-blue-800 text-sm"
+      >
+        Clear search
+      </button>
+    </div>
+  );
 
   return (
-    <Box p={0}>
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        px={2}
-      >
-        <Typography variant="h5" fontWeight="bold">
-          Work Orders
-        </Typography>
-        <Box display="flex" gap={1}>
-          <Button
-            variant="contained"
-            startIcon={<Plus />}
-            component={Link}
-            href="/work-orders/new"
-          >
-            ADD WORK ORDER
-          </Button>
-          <IconButton>
-            <Settings />
-          </IconButton>
-        </Box>
-      </Box>
-      <Tabs
-        value={status}
-        onChange={handleStatusChange}
-        textColor="primary"
-        indicatorColor="primary"
-      >
-        <Tab label="ALL" value="All" />
-        <Tab label="OPEN" value="Open" />
-        <Tab label="PENDING" value="Pending" />
-        <Tab label="COMPLETED" value="Completed" />
-      </Tabs>
-      <Box display="flex" alignItems="center" gap={1} mt={2}>
-        <TextField
-          size="small"
-          placeholder="Search"
-          variant="outlined"
-          sx={{ borderRadius: 5, background: "#fff", width: 250, ml: 2 }}
-          InputProps={{ sx: { borderRadius: "50px" } }}
+    <div className="p-6 w-full max-w-none min-h-screen">
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-semibold text-gray-900">Work Orders</h1>
+        <PrimaryButton onClick={() => router.push("/work-orders/new")}>
+          <div className="flex items-center justify-center">
+            <Plus className="w-5 h-5" />
+            <span className="ml-2 flex items-center">Add Work Order</span>
+          </div>
+        </PrimaryButton>
+      </div>
+
+      <div className="flex items-center justify-between mb-6">
+        <FilterBar
+          searchValue={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search work orders"
+          onFilterChange={() => {}}
         />
-        {["Status", "Vehicle", "Vehicle Group", "Service Tasks"].map(label => (
-          <Button
-            key={label}
-            variant="outlined"
-            endIcon={<ChevronDown size={16} />}
-            sx={{
-              borderRadius: 5,
-              textTransform: "none",
-              background: "#f5f5f5",
-            }}
-          >
-            {label}
-          </Button>
-        ))}
-        <Button
-          variant="outlined"
-          startIcon={<Filter />}
-          sx={{ borderRadius: 5 }}
-        >
-          Filters
-        </Button>
-      </Box>
-      <Divider sx={{ mt: 1 }} />
-      <Box overflow="auto" height="70vh">
-        <Table>
-          <TableHead>
-            <TableRow sx={{ whiteSpace: "nowrap" }}>
-              <TableCell>Vehicle</TableCell>
-              <TableCell>Number</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Repair Priority Class</TableCell>
-              <TableCell>Service Tasks</TableCell>
-              <TableCell>Resolved Issues</TableCell>
-              <TableCell>Issue Date</TableCell>
-              <TableCell>Expected Completion Date</TableCell>
-              <TableCell>Assigned To</TableCell>
-              <TableCell>Watchers</TableCell>
-              <TableCell>Operator</TableCell>
-              <TableCell>Total Cost</TableCell>
-              <TableCell>Labels</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {filteredOrders.map(order => {
-              const d = order.data;
-
-              return (
-                <TableRow
-                  key={order.id}
-                  hover
-                  sx={{
-                    cursor: "pointer",
-                    "&:hover": { backgroundColor: "#f0f0f0" },
-                  }}
-                  onClick={() => router.push(`/work-orders/${order.id}`)}
-                >
-                  <TableCell>{d.details.vehicleId}</TableCell>
-                  <TableCell>#{order.number}</TableCell>
-                  <TableCell>{d.details.status}</TableCell>
-                  <TableCell>{d.details.repairPriorityClass}</TableCell>
-                  <TableCell>—</TableCell>
-                  <TableCell>—</TableCell>
-                  <TableCell>
-                    {d.scheduling.issueDate
-                      ? format(new Date(d.scheduling.issueDate), "MM/dd/yyyy")
-                      : "—"}
-                  </TableCell>
-                  <TableCell>
-                    {d.scheduling.expectedCompletionDate
-                      ? format(
-                          new Date(d.scheduling.expectedCompletionDate),
-                          "MM/dd/yyyy",
-                        )
-                      : "—"}
-                  </TableCell>
-                  <TableCell>{d.details.assignedTo || "—"}</TableCell>
-                  <TableCell>1 watcher</TableCell>
-                  <TableCell>Jacob Silva</TableCell>
-                  <TableCell>RM0.00</TableCell>
-                  <TableCell>{d.details.labels || "—"}</TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-        {filteredOrders.length === 0 && (
-          <Box
-            display="flex"
-            flexDirection="column"
-            alignItems="center"
-            justifyContent="center"
-            mt={10}
-          >
-            <Search size={64} color="#1976d2" />
-            <Typography variant="body1" mt={2}>
-              No results to show.
-            </Typography>
-            <Typography variant="body2" mb={3}>
-              Work Orders are used to plan and complete service needed for a
-              particular vehicle.
-            </Typography>
-            <Button
-              variant="contained"
-              startIcon={<Plus />}
-              component={Link}
-              href="/work-orders/new"
-            >
-              ADD WORK ORDER
-            </Button>
-          </Box>
+        {pagination && (
+          <PaginationControls
+            currentPage={pagination.pageNumber}
+            totalPages={pagination.totalPages}
+            totalItems={pagination.totalCount}
+            itemsPerPage={pagination.pageSize}
+            onPreviousPage={handlePreviousPage}
+            onNextPage={handleNextPage}
+            onPageChange={handlePageChange}
+            onPageSizeChange={handlePageSizeChange}
+            className="ml-auto"
+          />
         )}
-      </Box>
-    </Box>
-  );
-};
+      </div>
 
-export default WorkOrdersPage;
+      <DataTable
+        columns={workOrderTableColumns}
+        data={tableData}
+        selectedItems={[]}
+        onSelectItem={() => {}}
+        onSelectAll={() => {}}
+        getItemId={item => item.id}
+        loading={isPending}
+        showActions={false}
+        emptyState={emptyState}
+        onRowClick={handleRowClick}
+        fixedLayout={false}
+        onSort={key => {
+          if (sortBy === key) {
+            setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+          } else {
+            setSortBy(key);
+            setSortOrder("asc");
+          }
+        }}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+      />
+    </div>
+  );
+}

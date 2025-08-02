@@ -17,6 +17,7 @@ public class GetWorkOrderDetailHandlerTest
 {
     private readonly Mock<IWorkOrderRepository> _mockWorkOrderRepository;
     private readonly Mock<IWorkOrderLineItemRepository> _mockWorkOrderLineItemRepository;
+    private readonly Mock<IWorkOrderIssueRepository> _mockWorkOrderIssueRepository;
     private readonly Mock<IAppLogger<GetWorkOrderQueryHandler>> _mockLogger;
     private readonly IMapper _mapper;
     private readonly GetWorkOrderQueryHandler _handler;
@@ -25,6 +26,7 @@ public class GetWorkOrderDetailHandlerTest
     {
         _mockWorkOrderRepository = new Mock<IWorkOrderRepository>();
         _mockWorkOrderLineItemRepository = new Mock<IWorkOrderLineItemRepository>();
+        _mockWorkOrderIssueRepository = new Mock<IWorkOrderIssueRepository>();
         _mockLogger = new Mock<IAppLogger<GetWorkOrderQueryHandler>>();
 
         var config = new MapperConfiguration(cfg =>
@@ -37,6 +39,7 @@ public class GetWorkOrderDetailHandlerTest
         _handler = new GetWorkOrderQueryHandler(
             _mockWorkOrderRepository.Object,
             _mockWorkOrderLineItemRepository.Object,
+            _mockWorkOrderIssueRepository.Object,
             _mockLogger.Object,
             _mapper
         );
@@ -59,7 +62,8 @@ public class GetWorkOrderDetailHandlerTest
             IssueAttachments = [],
             VehicleAssignments = [],
             VehicleDocuments = [],
-            VehicleInspections = [],
+            Inspections = [],
+            InventoryTransactions = [],
         };
     }
 
@@ -97,7 +101,7 @@ public class GetWorkOrderDetailHandlerTest
             XrefServiceProgramVehicles = [],
             ServiceReminders = [],
             Issues = [],
-            VehicleInspections = []
+            Inspections = []
         };
     }
 
@@ -269,10 +273,19 @@ public class GetWorkOrderDetailHandlerTest
         var lineItems = new List<WorkOrderLineItem>();
         var query = new GetWorkOrderDetailQuery(1);
 
+        // Mock issues for this work order
+        var workOrderIssues = new List<WorkOrderIssue>
+        {
+            new WorkOrderIssue { WorkOrderID = 1, IssueID = 101, Issue = null!, WorkOrder = null! },
+            new WorkOrderIssue { WorkOrderID = 1, IssueID = 102, Issue = null!, WorkOrder = null! }
+        };
+
         _mockWorkOrderRepository.Setup(r => r.GetWorkOrderWithDetailsAsync(It.IsAny<int>()))
             .ReturnsAsync(workOrder);
         _mockWorkOrderLineItemRepository.Setup(r => r.GetByWorkOrderIdAsync(It.IsAny<int>()))
             .ReturnsAsync(lineItems);
+        _mockWorkOrderIssueRepository.Setup(r => r.GetByWorkOrderIDAsync(It.IsAny<int>()))
+            .ReturnsAsync(workOrderIssues);
 
         // When
         var result = await _handler.Handle(query, CancellationToken.None);
@@ -283,9 +296,9 @@ public class GetWorkOrderDetailHandlerTest
         Assert.Equal(1, result.ID);
         Assert.Equal("Test Work Order", result.Title);
         Assert.Equal("This is a test work order", result.Description);
-        Assert.Equal(WorkTypeEnum.SCHEDULED.ToString(), result.WorkOrderType);
-        Assert.Equal(PriorityLevelEnum.CRITICAL.ToString(), result.PriorityLevel);
-        Assert.Equal(WorkOrderStatusEnum.IN_PROGRESS.ToString(), result.Status);
+        Assert.Equal(WorkTypeEnum.SCHEDULED, result.WorkOrderType);
+        Assert.Equal(PriorityLevelEnum.CRITICAL, result.PriorityLevel);
+        Assert.Equal(WorkOrderStatusEnum.IN_PROGRESS, result.Status);
         Assert.Equal(1000, result.StartOdometer);
         Assert.Equal(1, result.VehicleID);
         Assert.Equal("Toyota Corolla", result.VehicleName);
@@ -294,9 +307,14 @@ public class GetWorkOrderDetailHandlerTest
         Assert.NotNull(result.WorkOrderLineItems);
         Assert.Empty(result.WorkOrderLineItems);
 
+        // Assert IssueIDs
+        Assert.NotNull(result.IssueIDs);
+        Assert.Equal(new List<int> { 101, 102 }, result.IssueIDs);
+
         // Verify repository calls
         _mockWorkOrderRepository.Verify(r => r.GetWorkOrderWithDetailsAsync(1), Times.Once);
         _mockWorkOrderLineItemRepository.Verify(r => r.GetByWorkOrderIdAsync(1), Times.Once);
+        _mockWorkOrderIssueRepository.Verify(r => r.GetByWorkOrderIDAsync(1), Times.Once);
     }
 
     [Fact]

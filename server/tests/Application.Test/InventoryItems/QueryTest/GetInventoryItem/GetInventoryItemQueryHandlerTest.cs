@@ -105,7 +105,7 @@ public class GetInventoryItemQueryHandlerTest
             Manufacturer = null,
             ManufacturerPartNumber = null,
             UniversalProductCode = null,
-            UnitCost = null,
+            UnitCost = 0.00m,
             UnitCostMeasurementUnit = null,
             Supplier = null,
             WeightKG = null,
@@ -131,7 +131,6 @@ public class GetInventoryItemQueryHandlerTest
         Assert.Null(result.Manufacturer);
         Assert.Null(result.ManufacturerPartNumber);
         Assert.Null(result.UniversalProductCode);
-        Assert.Null(result.UnitCost);
         Assert.Null(result.UnitCostMeasurementUnit);
         Assert.Null(result.Supplier);
         Assert.Null(result.WeightKG);

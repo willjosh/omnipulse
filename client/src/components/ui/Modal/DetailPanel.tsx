@@ -19,7 +19,7 @@ const DetailPanel: React.FC<DetailPanelProps> = ({
 }) => {
   return (
     <div
-      className={`fixed inset-0 z-40 flex ${open ? "" : "pointer-events-none"}`}
+      className={`fixed inset-0 z-[100] flex ${open ? "" : "pointer-events-none"}`}
       aria-hidden={!open}
     >
       {/* Overlay */}
