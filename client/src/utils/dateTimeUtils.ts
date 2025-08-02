@@ -31,7 +31,13 @@ export function extractTimeFromISO(
   if (!isoString) return "";
   const date = new Date(isoString);
   if (isNaN(date.getTime())) return "";
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  return `${hours}:${minutes}`;
+
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+
+  // Convert to 12-hour format
+  const displayHours = hours % 12 || 12;
+  const ampm = hours < 12 ? "am" : "pm";
+
+  return `${displayHours}:${minutes.toString().padStart(2, "0")}${ampm}`;
 }
