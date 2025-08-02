@@ -34,6 +34,7 @@ public class InspectionMappingProfile : Profile
         CreateMap<Inspection, GetAllInspectionDTO>(MemberList.Destination)
             .ForMember(dest => dest.VehicleName, opt => opt.MapFrom(src => src.Vehicle != null ? src.Vehicle.Name : string.Empty))
             .ForMember(dest => dest.TechnicianName, opt => opt.MapFrom(src => src.User != null ? $"{src.User.FirstName} {src.User.LastName}" : string.Empty))
+            .ForMember(dest => dest.InspectionFormName, opt => opt.MapFrom(src => src.InspectionForm != null ? src.InspectionForm.Title : string.Empty))
             .ForMember(dest => dest.InspectionItemsCount, opt => opt.MapFrom(src => src.InspectionPassFailItems != null ? src.InspectionPassFailItems.Count : 0))
             .ForMember(dest => dest.PassedItemsCount, opt => opt.MapFrom(src => src.InspectionPassFailItems != null ? src.InspectionPassFailItems.Count(i => i.Passed) : 0))
             .ForMember(dest => dest.FailedItemsCount, opt => opt.MapFrom(src => src.InspectionPassFailItems != null ? src.InspectionPassFailItems.Count(i => !i.Passed) : 0));
