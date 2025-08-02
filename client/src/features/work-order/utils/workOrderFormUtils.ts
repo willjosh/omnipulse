@@ -25,7 +25,7 @@ export const emptyWorkOrderFormState: WorkOrderFormState = {
   actualStartDate: null,
   scheduledCompletionDate: null,
   actualCompletionDate: null,
-  startOdometer: 0,
+  startOdometer: null,
   endOdometer: null,
   issueIdList: [],
   workOrderLineItems: [],
@@ -48,13 +48,17 @@ export const validateWorkOrderForm = (
     errors.assignedToUserID = "Assigned To is required";
   }
 
-  if (form.startOdometer < 0) {
+  if (form.startOdometer === null || form.startOdometer === undefined) {
+    errors.startOdometer = "Start odometer is required";
+  } else if (form.startOdometer < 0) {
     errors.startOdometer = "Start odometer must be a positive number";
   }
 
   if (
     form.endOdometer !== null &&
     form.endOdometer !== undefined &&
+    form.startOdometer !== null &&
+    form.startOdometer !== undefined &&
     form.endOdometer < form.startOdometer
   ) {
     errors.endOdometer = "End odometer cannot be less than start odometer";
@@ -106,7 +110,7 @@ export const mapFormToCreateWorkOrderCommand = (
     actualStartDate: form.actualStartDate,
     scheduledCompletionDate: form.scheduledCompletionDate,
     actualCompletionDate: form.actualCompletionDate,
-    startOdometer: form.startOdometer,
+    startOdometer: form.startOdometer || 0,
     endOdometer: form.endOdometer,
     issueIdList: form.issueIdList.length > 0 ? form.issueIdList : null,
     workOrderLineItems:

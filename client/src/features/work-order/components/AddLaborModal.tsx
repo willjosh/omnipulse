@@ -34,8 +34,8 @@ const AddLaborModal: React.FC<AddLaborModalProps> = ({
   const [assignedToUserID, setAssignedToUserID] = useState(
     initialValues.assignedToUserID || "",
   );
-  const [laborHours, setLaborHours] = useState(initialValues.laborHours || 1);
-  const [hourlyRate, setHourlyRate] = useState(initialValues.hourlyRate || 0);
+  const [laborHours, setLaborHours] = useState(initialValues.laborHours || "");
+  const [hourlyRate, setHourlyRate] = useState(initialValues.hourlyRate || "");
   const [technicianSearch, setTechnicianSearch] = useState("");
 
   const { technicians, isPending: isLoadingTechnicians } = useTechnicians({
@@ -67,18 +67,25 @@ const AddLaborModal: React.FC<AddLaborModalProps> = ({
     technicianOptions.find(t => t.value === assignedToUserID) || null;
 
   const handleSave = () => {
-    if (!assignedToUserID || laborHours <= 0 || hourlyRate <= 0) {
+    const laborHoursNum = typeof laborHours === "number" ? laborHours : 0;
+    const hourlyRateNum = typeof hourlyRate === "number" ? hourlyRate : 0;
+
+    if (!assignedToUserID || laborHoursNum <= 0 || hourlyRateNum <= 0) {
       return; // Validation
     }
 
-    onSave({ assignedToUserID, laborHours, hourlyRate });
+    onSave({
+      assignedToUserID,
+      laborHours: laborHoursNum,
+      hourlyRate: hourlyRateNum,
+    });
     onClose();
   };
 
   const handleClose = () => {
     setAssignedToUserID(initialValues.assignedToUserID || "");
-    setLaborHours(initialValues.laborHours || 1);
-    setHourlyRate(initialValues.hourlyRate || 0);
+    setLaborHours(initialValues.laborHours || "");
+    setHourlyRate(initialValues.hourlyRate || "");
     setTechnicianSearch("");
     onClose();
   };
@@ -194,8 +201,10 @@ const AddLaborModal: React.FC<AddLaborModalProps> = ({
                 type="number"
                 min={0}
                 step={0.1}
-                value={laborHours}
-                onChange={e => setLaborHours(Number(e.target.value))}
+                value={laborHours || ""}
+                onChange={e =>
+                  setLaborHours(e.target.value ? Number(e.target.value) : "")
+                }
                 placeholder="Enter labor hours"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
               />
@@ -207,22 +216,27 @@ const AddLaborModal: React.FC<AddLaborModalProps> = ({
                 type="number"
                 min={0}
                 step={0.01}
-                value={hourlyRate}
-                onChange={e => setHourlyRate(Number(e.target.value))}
+                value={hourlyRate || ""}
+                onChange={e =>
+                  setHourlyRate(e.target.value ? Number(e.target.value) : "")
+                }
                 placeholder="Enter hourly rate"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
               />
             </FormField>
 
             {/* Total Cost Preview */}
-            {laborHours > 0 && hourlyRate > 0 && (
-              <div className="bg-blue-50 p-3 rounded-lg">
-                <div className="text-sm text-blue-800">
-                  <span className="font-medium">Total Labor Cost:</span> $
-                  {(laborHours * hourlyRate).toFixed(2)}
+            {typeof laborHours === "number" &&
+              typeof hourlyRate === "number" &&
+              laborHours > 0 &&
+              hourlyRate > 0 && (
+                <div className="bg-blue-50 p-3 rounded-lg">
+                  <div className="text-sm text-blue-800">
+                    <span className="font-medium">Total Labor Cost:</span> $
+                    {(laborHours * hourlyRate).toFixed(2)}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
           </div>
 
           {/* Footer */}
@@ -237,7 +251,11 @@ const AddLaborModal: React.FC<AddLaborModalProps> = ({
               <button
                 onClick={handleSave}
                 disabled={
-                  !assignedToUserID || laborHours <= 0 || hourlyRate <= 0
+                  !assignedToUserID ||
+                  typeof laborHours !== "number" ||
+                  laborHours <= 0 ||
+                  typeof hourlyRate !== "number" ||
+                  hourlyRate <= 0
                 }
                 className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >

@@ -35,8 +35,8 @@ const AddPartModal: React.FC<AddPartModalProps> = ({
   const [inventoryItemID, setInventoryItemID] = useState(
     initialValues.inventoryItemID || 0,
   );
-  const [quantity, setQuantity] = useState(initialValues.quantity || 1);
-  const [unitPrice, setUnitPrice] = useState(initialValues.unitPrice || 0);
+  const [quantity, setQuantity] = useState(initialValues.quantity || "");
+  const [unitPrice, setUnitPrice] = useState(initialValues.unitPrice || "");
   const [inventoryItemSearch, setInventoryItemSearch] = useState("");
 
   const { inventoryItems, isPending: isLoadingInventoryItems } =
@@ -68,18 +68,21 @@ const AddPartModal: React.FC<AddPartModalProps> = ({
     inventoryItemOptions.find(item => item.value === inventoryItemID) || null;
 
   const handleSave = () => {
-    if (!inventoryItemID || quantity <= 0 || unitPrice <= 0) {
+    const quantityNum = typeof quantity === "number" ? quantity : 0;
+    const unitPriceNum = typeof unitPrice === "number" ? unitPrice : 0;
+
+    if (!inventoryItemID || quantityNum <= 0 || unitPriceNum <= 0) {
       return; // Validation
     }
 
-    onSave({ inventoryItemID, quantity, unitPrice });
+    onSave({ inventoryItemID, quantity: quantityNum, unitPrice: unitPriceNum });
     onClose();
   };
 
   const handleClose = () => {
     setInventoryItemID(initialValues.inventoryItemID || 0);
-    setQuantity(initialValues.quantity || 1);
-    setUnitPrice(initialValues.unitPrice || 0);
+    setQuantity(initialValues.quantity || "");
+    setUnitPrice(initialValues.unitPrice || "");
     setInventoryItemSearch("");
     onClose();
   };
@@ -204,8 +207,10 @@ const AddPartModal: React.FC<AddPartModalProps> = ({
                 type="number"
                 min={1}
                 step={1}
-                value={quantity}
-                onChange={e => setQuantity(Number(e.target.value))}
+                value={quantity || ""}
+                onChange={e =>
+                  setQuantity(e.target.value ? Number(e.target.value) : "")
+                }
                 placeholder="Enter quantity"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
               />
@@ -217,22 +222,27 @@ const AddPartModal: React.FC<AddPartModalProps> = ({
                 type="number"
                 min={0}
                 step={0.01}
-                value={unitPrice}
-                onChange={e => setUnitPrice(Number(e.target.value))}
+                value={unitPrice || ""}
+                onChange={e =>
+                  setUnitPrice(e.target.value ? Number(e.target.value) : "")
+                }
                 placeholder="Enter unit cost"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
               />
             </FormField>
 
             {/* Total Cost Preview */}
-            {quantity > 0 && unitPrice > 0 && (
-              <div className="bg-blue-50 p-3 rounded-lg">
-                <div className="text-sm text-blue-800">
-                  <span className="font-medium">Total Part Cost:</span> $
-                  {(quantity * unitPrice).toFixed(2)}
+            {typeof quantity === "number" &&
+              typeof unitPrice === "number" &&
+              quantity > 0 &&
+              unitPrice > 0 && (
+                <div className="bg-blue-50 p-3 rounded-lg">
+                  <div className="text-sm text-blue-800">
+                    <span className="font-medium">Total Part Cost:</span> $
+                    {(quantity * unitPrice).toFixed(2)}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
           </div>
 
           {/* Footer */}
@@ -246,7 +256,13 @@ const AddPartModal: React.FC<AddPartModalProps> = ({
               </button>
               <button
                 onClick={handleSave}
-                disabled={!inventoryItemID || quantity <= 0 || unitPrice <= 0}
+                disabled={
+                  !inventoryItemID ||
+                  typeof quantity !== "number" ||
+                  quantity <= 0 ||
+                  typeof unitPrice !== "number" ||
+                  unitPrice <= 0
+                }
                 className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Add Part
