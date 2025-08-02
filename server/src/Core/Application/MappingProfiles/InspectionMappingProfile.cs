@@ -1,4 +1,5 @@
 using Application.Features.Inspections.Command.CreateInspection;
+using Application.Features.Inspections.Query.GetInspection;
 
 using AutoMapper;
 
@@ -21,28 +22,22 @@ public class InspectionMappingProfile : Profile
             .ForMember(dest => dest.User, opt => opt.Ignore()) // Navigation Property
             .ForMember(dest => dest.InspectionPassFailItems, opt => opt.Ignore()); // Navigation Property
 
-        // TODO: Uncomment when Query features are implemented
-        // CreateMap<Inspection, GetAllInspectionDTO>()
-        //     .ForMember(dest => dest.VehicleName, opt => opt.MapFrom(src => src.Vehicle != null ? src.Vehicle.Name : null))
-        //     .ForMember(dest => dest.TechnicianName, opt => opt.MapFrom(src => src.User != null ? $"{src.User.FirstName} {src.User.LastName}" : null))
-        //     .ForMember(dest => dest.TotalInspectionItems, opt => opt.MapFrom(src => src.InspectionPassFailItems.Count))
-        //     .ForMember(dest => dest.PassedItems, opt => opt.MapFrom(src => src.InspectionPassFailItems.Count(i => i.Passed)))
-        //     .ForMember(dest => dest.FailedItems, opt => opt.MapFrom(src => src.InspectionPassFailItems.Count(i => !i.Passed)));
+        // Query mappings
+        CreateMap<Inspection, InspectionDTO>(MemberList.Destination)
+            .ForMember(dest => dest.Vehicle, opt => opt.MapFrom(src => src.Vehicle))
+            .ForMember(dest => dest.Technician, opt => opt.MapFrom(src => src.User))
+            .ForMember(dest => dest.InspectionForm, opt => opt.MapFrom(src => src.InspectionForm))
+            .ForMember(dest => dest.InspectionItems, opt => opt.MapFrom(src => src.InspectionPassFailItems));
 
-        // CreateMap<Inspection, InspectionDTO>()
-        //     .ForMember(dest => dest.Vehicle, opt => opt.MapFrom(src => src.Vehicle))
-        //     .ForMember(dest => dest.Technician, opt => opt.MapFrom(src => src.User))
-        //     .ForMember(dest => dest.InspectionForm, opt => opt.MapFrom(src => src.InspectionForm))
-        //     .ForMember(dest => dest.InspectionItems, opt => opt.MapFrom(src => src.InspectionPassFailItems));
-
-        // CreateMap<Vehicle, VehicleInfoDTO>();
-        // CreateMap<User, TechnicianInfoDTO>();
-        // CreateMap<InspectionForm, InspectionFormInfoDTO>();
-        // CreateMap<InspectionPassFailItem, InspectionItemDTO>()
-        //     .ForMember(dest => dest.ItemLabel, opt => opt.MapFrom(src => src.InspectionFormItem.ItemLabel))
-        //     .ForMember(dest => dest.ItemDescription, opt => opt.MapFrom(src => src.InspectionFormItem.ItemDescription))
-        //     .ForMember(dest => dest.ItemInstructions, opt => opt.MapFrom(src => src.InspectionFormItem.ItemInstructions))
-        //     .ForMember(dest => dest.IsRequired, opt => opt.MapFrom(src => src.InspectionFormItem.IsRequired))
-        //     .ForMember(dest => dest.InspectionFormItemType, opt => opt.MapFrom(src => src.InspectionFormItem.InspectionFormItemTypeEnum));
+        // Related entity mappings
+        CreateMap<Vehicle, VehicleInfoDTO>(MemberList.Destination);
+        CreateMap<User, TechnicianInfoDTO>(MemberList.Destination);
+        CreateMap<InspectionForm, InspectionFormInfoDTO>(MemberList.Destination);
+        CreateMap<InspectionPassFailItem, InspectionItemDTO>(MemberList.Destination)
+            .ForMember(dest => dest.SnapshotItemLabel, opt => opt.MapFrom(src => src.SnapshotItemLabel))
+            .ForMember(dest => dest.SnapshotItemDescription, opt => opt.MapFrom(src => src.SnapshotItemDescription))
+            .ForMember(dest => dest.SnapshotItemInstructions, opt => opt.MapFrom(src => src.SnapshotItemInstructions))
+            .ForMember(dest => dest.SnapshotIsRequired, opt => opt.MapFrom(src => src.SnapshotIsRequired))
+            .ForMember(dest => dest.SnapshotInspectionFormItemType, opt => opt.MapFrom(src => src.SnapshotInspectionFormItemTypeEnum));
     }
 }
