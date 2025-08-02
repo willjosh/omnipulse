@@ -145,7 +145,7 @@ public class CreateInspectionCommandHandler : IRequestHandler<CreateInspectionCo
         }
 
         // Check if technician exists
-        var technician = await _userRepository.GetByIdAsync(request.TechnicianID);
+        var technician = await _userRepository.GetTechnicianByIdAsync(request.TechnicianID);
         if (technician == null)
         {
             var errorMessage = $"Technician not found: {request.TechnicianID}";
