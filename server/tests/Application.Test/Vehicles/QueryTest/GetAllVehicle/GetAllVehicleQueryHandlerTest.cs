@@ -85,7 +85,7 @@ public class GetAllVehicleQueryHandlerTest
             UpdatedAt = DateTime.UtcNow
         };
 
-        var user = new Domain.Entities.User
+        var user = new User
         {
             Id = "GUID123",
             FirstName = "John",
@@ -97,9 +97,10 @@ public class GetAllVehicleQueryHandlerTest
             Vehicles = [],
             VehicleAssignments = [],
             VehicleDocuments = [],
-            VehicleInspections = [],
+            Inspections = [],
             MaintenanceHistories = [],
-            IssueAttachments = []
+            IssueAttachments = [],
+            InventoryTransactions = []
         };
 
         var expectedVehicleEntities = new List<Vehicle>
@@ -135,7 +136,7 @@ public class GetAllVehicleQueryHandlerTest
                 XrefServiceProgramVehicles = [],
                 ServiceReminders = [],
                 Issues = [],
-                VehicleInspections = []
+                Inspections = []
             },
             new() {
                 ID = 2,
@@ -168,7 +169,7 @@ public class GetAllVehicleQueryHandlerTest
                 XrefServiceProgramVehicles = [],
                 ServiceReminders = [],
                 Issues = [],
-                VehicleInspections = []
+                Inspections = []
             }
         };
 

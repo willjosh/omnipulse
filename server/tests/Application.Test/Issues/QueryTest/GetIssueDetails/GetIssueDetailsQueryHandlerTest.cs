@@ -50,8 +50,9 @@ public class GetIssueDetailsQueryHandlerTest
             IssueAttachments = new List<IssueAttachment>(),
             VehicleAssignments = new List<VehicleAssignment>(),
             VehicleDocuments = new List<VehicleDocument>(),
-            VehicleInspections = new List<VehicleInspection>(),
-            Vehicles = new List<Vehicle>()
+            Inspections = new List<Inspection>(),
+            Vehicles = new List<Vehicle>(),
+            InventoryTransactions = new List<InventoryTransaction>()
         };
         var expectedVehicle = new Vehicle
         {
@@ -75,13 +76,13 @@ public class GetIssueDetailsQueryHandlerTest
             Status = VehicleStatusEnum.ACTIVE,
             Location = "TestLocation",
             VehicleGroup = new VehicleGroup { ID = 1, Name = "Group1", Description = "", IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-            VehicleImages = new List<VehicleImage>(),
-            VehicleAssignments = new List<VehicleAssignment>(),
-            VehicleDocuments = new List<VehicleDocument>(),
-            XrefServiceProgramVehicles = new List<XrefServiceProgramVehicle>(),
-            ServiceReminders = new List<ServiceReminder>(),
-            Issues = new List<Issue>(),
-            VehicleInspections = new List<VehicleInspection>(),
+            VehicleImages = [],
+            VehicleAssignments = [],
+            VehicleDocuments = [],
+            XrefServiceProgramVehicles = [],
+            ServiceReminders = [],
+            Issues = [],
+            Inspections = [],
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
@@ -100,8 +101,8 @@ public class GetIssueDetailsQueryHandlerTest
             ReportedByUser = expectedUser,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
-            IssueAttachments = new List<IssueAttachment>(),
-            IssueAssignments = new List<IssueAssignment>()
+            IssueAttachments = [],
+            IssueAssignments = []
         };
         _mockIssueRepository.Setup(r => r.GetIssueWithDetailsAsync(query.IssueID))
             .ReturnsAsync(expectedIssue);

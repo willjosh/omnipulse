@@ -16,17 +16,20 @@ public class GetWorkOrderQueryHandler : IRequestHandler<GetWorkOrderDetailQuery,
 {
     private readonly IWorkOrderRepository _workOrderRepository;
     private readonly IWorkOrderLineItemRepository _workOrderLineItemRepository;
+    private readonly IWorkOrderIssueRepository _workOrderIssueRepository;
     private readonly IAppLogger<GetWorkOrderQueryHandler> _logger;
     private readonly IMapper _mapper;
 
     public GetWorkOrderQueryHandler(
         IWorkOrderRepository workOrderRepository,
         IWorkOrderLineItemRepository workOrderLineItemRepository,
+        IWorkOrderIssueRepository workOrderIssueRepository,
         IAppLogger<GetWorkOrderQueryHandler> logger,
         IMapper mapper)
     {
         _workOrderRepository = workOrderRepository;
         _workOrderLineItemRepository = workOrderLineItemRepository;
+        _workOrderIssueRepository = workOrderIssueRepository;
         _logger = logger;
         _mapper = mapper;
     }
@@ -42,6 +45,7 @@ public class GetWorkOrderQueryHandler : IRequestHandler<GetWorkOrderDetailQuery,
             throw new EntityNotFoundException(typeof(WorkOrder).ToString(), "WorkOrderID", request.ID.ToString());
         }
 
+        var workOrderIssues = await _workOrderIssueRepository.GetByWorkOrderIDAsync(request.ID);
         var workOrderLineItems = await _workOrderLineItemRepository.GetByWorkOrderIdAsync(request.ID);
 
         var lineItems = workOrderLineItems ?? new List<Domain.Entities.WorkOrderLineItem>();
@@ -66,6 +70,7 @@ public class GetWorkOrderQueryHandler : IRequestHandler<GetWorkOrderDetailQuery,
         workOrderDetailDto.TotalLaborCost = workOrderLineItemTotals.TotalLaborCost;
         workOrderDetailDto.TotalItemCost = workOrderLineItemTotals.TotalItemCost;
         workOrderDetailDto.TotalCost = workOrderLineItemTotals.TotalCost;
+        workOrderDetailDto.IssueIDs = [.. workOrderIssues.Select(woi => woi.IssueID)];
 
         _logger.LogInformation("Successfully retrieved WorkOrder with ID {WorkOrderId}", request.ID);
         return workOrderDetailDto;

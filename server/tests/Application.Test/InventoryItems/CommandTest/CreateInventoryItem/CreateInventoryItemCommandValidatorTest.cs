@@ -1,5 +1,6 @@
 using Application.Features.InventoryItems.Command.CreateInventoryItem;
 
+using Domain.Entities;
 using Domain.Entities.Enums;
 
 namespace Application.Test.InventoryItems.CommandTest.CreateInventoryItem;
@@ -21,7 +22,7 @@ public class CreateInventoryItemCommandValidatorTest
         string? manufacturer = "Test Manufacturer",
         string? manufacturerPartNumber = "MPN-001",
         string? universalProductCode = "123456789012",
-        decimal? unitCost = 100.00m,
+        decimal unitCost = 100.00m,
         InventoryItemUnitCostMeasurementUnitEnum? unitCostMeasurementUnit = InventoryItemUnitCostMeasurementUnitEnum.Unit,
         string? supplier = "Test Supplier",
         double? weightKG = 5.5,
@@ -99,7 +100,6 @@ public class CreateInventoryItemCommandValidatorTest
             manufacturer: null,
             manufacturerPartNumber: null,
             universalProductCode: null,
-            unitCost: null,
             unitCostMeasurementUnit: null,
             supplier: null,
             weightKG: null

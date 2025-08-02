@@ -23,17 +23,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white overflow-hidden`}
       >
         <Providers>
           <NotificationProvider>
             <NavBar />
-            <div className="flex w-screen max-w-screen">
-              <SideBar />
-              <div className="flex-1 sm:w-[70%] md:w-[60%] lg:w-[50%]">
-                {children}
-              </div>
-            </div>
+            <SideBar />
+            <main className="fixed top-16 left-64 right-0 bottom-0 overflow-auto">
+              {children}
+            </main>
           </NotificationProvider>
         </Providers>
       </body>

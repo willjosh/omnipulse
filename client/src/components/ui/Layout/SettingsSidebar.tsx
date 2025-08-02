@@ -45,7 +45,7 @@ const SettingsSidebar = () => {
   };
 
   return (
-    <aside className="w-64 sticky top-16 left-0 h-[calc(100vh-4rem)] bg-white border-r border-[var(--border)] text-sm flex flex-col overflow-y-auto z-30 shrink-0">
+    <aside className="fixed top-16 left-0 w-64 h-[calc(100vh-4rem)] bg-white border-r border-[var(--border)] text-sm flex flex-col overflow-hidden z-30 flex-shrink-0">
       {/* Header */}
       <div className="px-4 py-5 border-b border-[var(--border)]">
         <button

@@ -52,7 +52,7 @@ public class GetVehicleDetailsQueryHandlerTest
             UpdatedAt = new DateTime(2023, 1, 1, 0, 0, 0, DateTimeKind.Utc),
         };
 
-        var expectedUser = new Domain.Entities.User
+        var expectedUser = new User
         {
             Id = "GUID123",
             FirstName = "John",
@@ -64,9 +64,10 @@ public class GetVehicleDetailsQueryHandlerTest
             Vehicles = [],
             VehicleAssignments = [],
             VehicleDocuments = [],
-            VehicleInspections = [],
+            Inspections = [],
             MaintenanceHistories = [],
-            IssueAttachments = []
+            IssueAttachments = [],
+            InventoryTransactions = []
         };
 
         var expectedVehicle = new Vehicle
@@ -101,7 +102,7 @@ public class GetVehicleDetailsQueryHandlerTest
             XrefServiceProgramVehicles = [],
             ServiceReminders = [],
             Issues = [],
-            VehicleInspections = []
+            Inspections = []
         };
 
         // Setup the mock to return the vehicle with navigation properties loaded
@@ -186,7 +187,7 @@ public class GetVehicleDetailsQueryHandlerTest
             XrefServiceProgramVehicles = [],
             ServiceReminders = [],
             Issues = [],
-            VehicleInspections = []
+            Inspections = []
         };
 
         // Setup the mock to return the vehicle with navigation properties loaded

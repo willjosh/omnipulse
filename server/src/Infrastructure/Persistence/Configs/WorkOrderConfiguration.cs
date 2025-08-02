@@ -24,6 +24,8 @@ public class WorkOrderConfiguration : IEntityTypeConfiguration<WorkOrder>
         builder.HasIndex(wo => wo.WorkOrderType);
         builder.HasIndex(wo => wo.ScheduledStartDate);
         builder.HasIndex(wo => wo.ActualStartDate);
+        builder.HasIndex(wo => wo.ScheduledCompletionDate);
+        builder.HasIndex(wo => wo.ActualCompletionDate);
         builder.HasIndex(wo => wo.CreatedAt);
 
         // Composite indexes for common queries
@@ -45,6 +47,8 @@ public class WorkOrderConfiguration : IEntityTypeConfiguration<WorkOrder>
             "EndOdometer IS NULL OR EndOdometer >= StartOdometer"));
         builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrder_Dates",
             "ActualStartDate IS NULL OR ScheduledStartDate IS NULL OR ActualStartDate >= ScheduledStartDate"));
+        builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrder_CompletionDates",
+            "ActualCompletionDate IS NULL OR ScheduledCompletionDate IS NULL OR ActualCompletionDate >= ScheduledCompletionDate"));
 
         // Table Relationships
         builder

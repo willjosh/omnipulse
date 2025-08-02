@@ -129,7 +129,7 @@ public class GetAllServiceProgramVehicleQueryHandlerTest
             XrefServiceProgramVehicles = [],
             ServiceReminders = [],
             Issues = [],
-            VehicleInspections = []
+            Inspections = []
         };
     }
 
@@ -159,7 +159,7 @@ public class GetAllServiceProgramVehicleQueryHandlerTest
             //     IssueAttachments = [],
             //     VehicleAssignments = [],
             //     VehicleDocuments = [],
-            //     VehicleInspections = [],
+            //     Inspections = [],
             //     Vehicles = []
             // }
         };

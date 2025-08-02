@@ -1,0 +1,51 @@
+export const workOrderTableColumns = [
+  { key: "title", header: "Title", width: "250px", sortable: true },
+  { key: "vehicleName", header: "Vehicle", width: "200px", sortable: true },
+  { key: "workOrderTypeLabel", header: "Type", width: "120px", sortable: true },
+  {
+    key: "priorityLevelLabel",
+    header: "Priority",
+    width: "100px",
+    sortable: true,
+  },
+  { key: "statusLabel", header: "Status", width: "120px", sortable: true },
+  {
+    key: "assignedToUserName",
+    header: "Assigned To",
+    width: "150px",
+    sortable: true,
+  },
+  {
+    key: "scheduledStartDate",
+    header: "Scheduled Start",
+    width: "150px",
+    sortable: true,
+  },
+  {
+    key: "actualStartDate",
+    header: "Actual Start",
+    width: "150px",
+    sortable: true,
+  },
+  {
+    key: "startOdometer",
+    header: "Start Odometer",
+    width: "120px",
+    sortable: true,
+  },
+  {
+    key: "endOdometer",
+    header: "End Odometer",
+    width: "120px",
+    sortable: true,
+  },
+  { key: "totalCost", header: "Total Cost", width: "100px", sortable: true },
+  {
+    key: "totalLaborCost",
+    header: "Labor Cost",
+    width: "100px",
+    sortable: true,
+  },
+  { key: "totalItemCost", header: "Item Cost", width: "100px", sortable: true },
+  { key: "description", header: "Description", width: "200px" },
+];

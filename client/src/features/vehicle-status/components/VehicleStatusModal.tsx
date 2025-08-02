@@ -7,6 +7,7 @@ import {
   VehicleStatus,
 } from "../types/vehicleStatusType";
 import { PrimaryButton, SecondaryButton } from "@/components/ui/Button";
+import ModalPortal from "@/components/ui/Modal/ModalPortal";
 
 interface VehicleStatusModalProps {
   isOpen: boolean;
@@ -183,109 +184,86 @@ const VehicleStatusModal: React.FC<VehicleStatusModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="fixed inset-0 backdrop-brightness-50" onClick={onClose} />
-      <div className="relative bg-white rounded-lg p-6 max-w-md mx-4 shadow-xl border border-gray-200 w-full">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          {mode === "create"
-            ? "Create New Vehicle Status"
-            : "Edit Vehicle Status"}
-        </h3>
+    <ModalPortal isOpen={isOpen}>
+      <div className="fixed inset-0 backdrop-brightness-50 bg-opacity-50 flex items-center justify-center z-[100]">
+        <div className="bg-white rounded-lg p-6 w-full max-w-md">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            {mode === "create"
+              ? "Create Vehicle Status"
+              : "Edit Vehicle Status"}
+          </h3>
+          <form onSubmit={handleSubmit}>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Status Name *
+                </label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={e => handleInputChange("name", e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:border-transparent ${
+                    getFieldError("name")
+                      ? "border-red-500"
+                      : "border-[var(--border)]"
+                  }`}
+                  required
+                />
+                {getFieldError("name") && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {getFieldError("name")}
+                  </p>
+                )}
+              </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Name Field */}
-          <div>
-            <label
-              htmlFor="statusName"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Status Name *
-            </label>
-            <input
-              type="text"
-              id="statusName"
-              value={formData.name}
-              onChange={e => handleInputChange("name", e.target.value)}
-              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                getFieldError("name") ? "border-red-500" : "border-gray-300"
-              }`}
-              placeholder="Enter status name"
-              maxLength={50}
-            />
-            {getFieldError("name") && (
-              <p className="mt-1 text-sm text-red-600">
-                {getFieldError("name")}
-              </p>
-            )}
-          </div>
-
-          {/* Color Field */}
-          <div>
-            <label
-              htmlFor="statusColor"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Color *
-            </label>
-            <select
-              id="statusColor"
-              value={formData.color}
-              onChange={e => handleInputChange("color", e.target.value)}
-              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                getFieldError("color") ? "border-red-500" : "border-gray-300"
-              }`}
-            >
-              <option value="">Select a color</option>
-              {PREDEFINED_COLORS.map(color => (
-                <option key={color.value} value={color.value}>
-                  {color.label} ({color.value})
-                </option>
-              ))}
-            </select>
-            {getFieldError("color") && (
-              <p className="mt-1 text-sm text-red-600">
-                {getFieldError("color")}
-              </p>
-            )}
-          </div>
-
-          {/* Color Preview */}
-          {formData.color && (
-            <div className="mt-3">
-              <p className="text-sm font-medium text-gray-700 mb-2">Preview:</p>
-              <span
-                className={`inline-flex px-3 py-1 text-sm font-medium rounded-full ${
-                  PREDEFINED_COLORS.find(c => c.value === formData.color)
-                    ?.colorClass || "bg-gray-100 text-gray-800"
-                }`}
-              >
-                {formData.name || "Status Name"}
-              </span>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Color *
+                </label>
+                <div className="grid grid-cols-5 gap-2">
+                  {PREDEFINED_COLORS.map(color => (
+                    <button
+                      key={color.value}
+                      type="button"
+                      onClick={() => handleInputChange("color", color.value)}
+                      className={`p-2 rounded-md border-2 transition-all ${
+                        formData.color === color.value
+                          ? "border-[var(--primary-color)] ring-2 ring-[var(--primary-color)] ring-opacity-50"
+                          : "border-gray-200 hover:border-gray-300"
+                      }`}
+                    >
+                      <div
+                        className={`w-full h-8 rounded ${color.colorClass} flex items-center justify-center text-xs font-medium`}
+                      >
+                        {color.label}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+                {getFieldError("color") && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {getFieldError("color")}
+                  </p>
+                )}
+              </div>
             </div>
-          )}
 
-          {/* Action Buttons */}
-          <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
-            <SecondaryButton
-              type="button"
-              onClick={onClose}
-              disabled={isLoading}
-            >
-              Cancel
-            </SecondaryButton>
-            <PrimaryButton type="submit" disabled={isLoading}>
-              {isLoading
-                ? mode === "create"
-                  ? "Creating..."
-                  : "Updating..."
-                : mode === "create"
-                  ? "Create Status"
-                  : "Update Status"}
-            </PrimaryButton>
-          </div>
-        </form>
+            <div className="flex justify-end gap-3 mt-6">
+              <SecondaryButton onClick={onClose}>Cancel</SecondaryButton>
+              <PrimaryButton type="submit" disabled={isLoading}>
+                {isLoading
+                  ? mode === "create"
+                    ? "Creating..."
+                    : "Updating..."
+                  : mode === "create"
+                    ? "Create"
+                    : "Update"}
+              </PrimaryButton>
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
+    </ModalPortal>
   );
 };
 

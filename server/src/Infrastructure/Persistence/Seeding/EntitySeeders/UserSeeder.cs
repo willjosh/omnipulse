@@ -55,8 +55,9 @@ public class UserSeeder : IEntitySeeder
                 IssueAttachments = [],
                 VehicleAssignments = [],
                 VehicleDocuments = [],
-                VehicleInspections = [],
-                Vehicles = []
+                Inspections = [],
+                Vehicles = [],
+                InventoryTransactions = [],
             });
         }
 
