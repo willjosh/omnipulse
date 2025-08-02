@@ -76,8 +76,8 @@ public class GetWorkOrderInvoicePdfQueryHandlerTest
         var exception = await Assert.ThrowsAsync<EntityNotFoundException>(
             () => _queryHandler.Handle(query, CancellationToken.None));
 
-        Assert.Equal(typeof(WorkOrder).ToString(), exception.EntityName);
-        Assert.Equal("WorkOrderID", exception.PropertyName);
+        Assert.Equal(nameof(WorkOrder), exception.EntityName);
+        Assert.Equal(nameof(GetWorkOrderInvoicePdfQuery.WorkOrderId), exception.PropertyName);
         Assert.Equal(workOrderId.ToString(), exception.PropertyValue);
     }
 
@@ -130,7 +130,7 @@ public class GetWorkOrderInvoicePdfQueryHandlerTest
                 XrefServiceProgramVehicles = [],
                 ServiceReminders = [],
                 Issues = [],
-                VehicleInspections = []
+                Inspections = []
             },
             User = new User
             {
@@ -148,7 +148,8 @@ public class GetWorkOrderInvoicePdfQueryHandlerTest
                 IssueAttachments = [],
                 VehicleAssignments = [],
                 VehicleDocuments = [],
-                VehicleInspections = []
+                Inspections = [],
+                InventoryTransactions = []
             },
             WorkOrderLineItems = [],
             MaintenanceHistories = [],
