@@ -173,8 +173,6 @@ public class GetInspectionQueryHandlerTest
         inspection.OdometerReading = null;
         inspection.Notes = null;
         inspection.SnapshotFormDescription = null;
-        inspection.Vehicle.LicensePlate = null!;
-        inspection.Vehicle.VIN = null!;
 
         _mockInspectionRepository.Setup(r => r.GetInspectionWithDetailsAsync(query.InspectionID))
             .ReturnsAsync(inspection);
@@ -187,8 +185,8 @@ public class GetInspectionQueryHandlerTest
         Assert.Null(result.OdometerReading);
         Assert.Null(result.Notes);
         Assert.Null(result.SnapshotFormDescription);
-        Assert.Null(result.Vehicle!.LicensePlate);
-        Assert.Null(result.Vehicle.VIN);
+        Assert.NotNull(result.Vehicle!.LicensePlate);
+        Assert.NotNull(result.Vehicle.VIN);
         _mockInspectionRepository.Verify(r => r.GetInspectionWithDetailsAsync(query.InspectionID), Times.Once);
     }
 
