@@ -399,12 +399,36 @@ const WorkOrderLineItemForm: React.FC<WorkOrderLineItemFormProps> = ({
                         <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
                           ${lineItem.hourlyRate || 0}/hr
                         </td>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900 relative">
                           $
                           {(
                             (lineItem.hourlyRate || 0) *
                             (lineItem.laborHours || 0)
                           ).toFixed(2)}
+                          <button
+                            type="button"
+                            onClick={e => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setIsAddLaborModalOpen(true);
+                            }}
+                            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
+                            disabled={disabled}
+                          >
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                              />
+                            </svg>
+                          </button>
                         </td>
                       </tr>
                     </tbody>
@@ -475,11 +499,35 @@ const WorkOrderLineItemForm: React.FC<WorkOrderLineItemFormProps> = ({
                         <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
                           ${lineItem.unitPrice || 0}
                         </td>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900 relative">
                           $
                           {(
                             (lineItem.unitPrice || 0) * lineItem.quantity
                           ).toFixed(2)}
+                          <button
+                            type="button"
+                            onClick={e => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setIsAddPartModalOpen(true);
+                            }}
+                            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
+                            disabled={disabled}
+                          >
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                              />
+                            </svg>
+                          </button>
                         </td>
                       </tr>
                     </tbody>
