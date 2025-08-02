@@ -11,6 +11,9 @@ export interface WorkOrderLineItem {
   itemType: LineItemTypeEnum;
   quantity: number;
   description?: string | null;
+  laborHours?: number | null;
+  unitPrice?: number | null;
+  hourlyRate?: number | null;
   inventoryItemID?: number | null;
   inventoryItemName: string;
   assignedToUserID: string;
@@ -60,6 +63,7 @@ export interface WorkOrder {
   assignedToUserID: string;
   assignedToUserName: string;
   workOrderLineItems: WorkOrderLineItem[];
+  issueIDs: number[];
 }
 
 export interface WorkOrderWithLabels

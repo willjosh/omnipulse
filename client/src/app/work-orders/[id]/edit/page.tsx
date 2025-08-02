@@ -57,7 +57,7 @@ export default function EditWorkOrderPage() {
         actualCompletionDate: null, // TODO: Add to WorkOrderWithLabels if needed
         startOdometer: workOrder.startOdometer,
         endOdometer: workOrder.endOdometer,
-        issueIdList: [], // TODO: Map from workOrder.issues if available
+        issueIdList: workOrder.issueIDs,
         workOrderLineItems: workOrder.workOrderLineItems.map(item => ({
           itemType: item.itemTypeEnum,
           quantity: item.quantity,
@@ -65,9 +65,9 @@ export default function EditWorkOrderPage() {
           inventoryItemID: item.inventoryItemID,
           assignedToUserID: item.assignedToUserID,
           serviceTaskID: item.serviceTaskID,
-          unitPrice: item.itemCost / item.quantity, // Calculate unit price from total cost
-          hourlyRate: item.laborCost / (item.quantity || 1), // Calculate hourly rate from total cost
-          laborHours: null, // TODO: Add to WorkOrderLineItemWithLabels if needed
+          unitPrice: item.unitPrice,
+          hourlyRate: item.hourlyRate,
+          laborHours: item.laborHours,
         })) as CreateWorkOrderLineItem[],
       };
       setForm(formData);
