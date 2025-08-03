@@ -1,6 +1,9 @@
+using Application.Contracts.JwtService;
 using Application.Contracts.Logger;
+using Application.Contracts.UserServices;
 
 using Infrastructure.Logger;
+using Infrastructure.Services;
 
 using Microsoft.Extensions.DependencyInjection;
 
@@ -17,6 +20,8 @@ public static class InfrastructureServiceRegistration
     {
         // Register the generic application logger implementation
         services.AddScoped(typeof(IAppLogger<>), typeof(AppLogger<>));
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddScoped<IJwtService, JwtService>();
 
         return services;
     }
