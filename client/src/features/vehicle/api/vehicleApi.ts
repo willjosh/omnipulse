@@ -7,27 +7,24 @@ import {
   UpdateVehicleCommand,
 } from "../types/vehicleType";
 import {
-  VehicleTypeEnum,
-  VehicleStatusEnum,
-  FuelTypeEnum,
-} from "../types/vehicleEnum";
-import {
   getVehicleTypeLabel,
   getStatusLabel,
   getFuelTypeLabel,
-} from "@/features/vehicle/utils/vehicleEnumHelper";
+} from "../utils/vehicleEnumHelper";
+import { VehicleGroup } from "@/features/vehicle-group/types/vehicleGroupType";
+import { Technician } from "@/features/technician/types/technicianType";
 
 export const convertVehicleData = (vehicle: Vehicle): VehicleWithLabels => ({
   ...vehicle,
   vehicleType: vehicle.vehicleType as number,
   vehicleTypeLabel: getVehicleTypeLabel(vehicle.vehicleType),
-  vehicleTypeEnum: vehicle.vehicleType as VehicleTypeEnum,
   status: vehicle.status as number,
   statusLabel: getStatusLabel(vehicle.status),
-  statusEnum: vehicle.status as VehicleStatusEnum,
   fuelType: vehicle.fuelType as number,
   fuelTypeLabel: getFuelTypeLabel(vehicle.fuelType),
-  fuelTypeEnum: vehicle.fuelType as FuelTypeEnum,
+  vehicleTypeEnum: vehicle.vehicleType,
+  statusEnum: vehicle.status,
+  fuelTypeEnum: vehicle.fuelType,
 });
 
 export const vehicleApi = {
@@ -75,5 +72,31 @@ export const vehicleApi = {
   deactivateVehicle: async (id: string) => {
     const { data } = await agent.patch(`/api/Vehicles/${id}/deactivate`);
     return data;
+  },
+
+  getVehicleGroups: async () => {
+    const { data } = await agent.get<{
+      items: VehicleGroup[];
+      totalCount: number;
+      pageNumber: number;
+      pageSize: number;
+      totalPages: number;
+      hasPreviousPage: boolean;
+      hasNextPage: boolean;
+    }>("/api/vehiclegroups?PageSize=100");
+    return data.items.filter(group => group.isActive);
+  },
+
+  getTechnicians: async () => {
+    const { data } = await agent.get<{
+      items: Technician[];
+      totalCount: number;
+      pageNumber: number;
+      pageSize: number;
+      totalPages: number;
+      hasPreviousPage: boolean;
+      hasNextPage: boolean;
+    }>("/api/technicians?PageSize=100");
+    return data.items.filter(tech => tech.isActive);
   },
 };
