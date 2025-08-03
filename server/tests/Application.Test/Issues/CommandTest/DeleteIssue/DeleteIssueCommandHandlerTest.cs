@@ -40,7 +40,6 @@ public class DeleteIssueCommandHandlerTest
             Status = Domain.Entities.Enums.IssueStatusEnum.IN_PROGRESS,
             VehicleID = 1,
             ReportedByUserID = "user1",
-            IssueNumber = 1001,
             IssueAttachments = [],
             IssueAssignments = [],
             Vehicle = null!,
