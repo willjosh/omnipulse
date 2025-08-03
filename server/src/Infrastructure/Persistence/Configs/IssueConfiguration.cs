@@ -27,6 +27,7 @@ public class IssueConfiguration : IEntityTypeConfiguration<Issue>
         builder.HasIndex(i => i.PriorityLevel);
         builder.HasIndex(i => i.Category);
         builder.HasIndex(i => i.CreatedAt);
+        builder.HasIndex(i => i.InspectionID);
 
         // Check Constraints
         builder.ToTable(t => t.HasCheckConstraint("CK_Issue_ResolvedDate",

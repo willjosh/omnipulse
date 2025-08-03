@@ -237,6 +237,7 @@ public class CreateInspectionCommandHandler : IRequestHandler<CreateInspectionCo
                     Category = DetermineIssueCategory(failedItem.SnapshotItemLabel, failedItem.SnapshotItemDescription),
                     PriorityLevel = DeterminePriorityLevel(failedItem.SnapshotIsRequired),
                     Status = IssueStatusEnum.OPEN,
+                    InspectionID = inspection.ID,
                     Vehicle = vehicle,
                     ReportedByUser = technician,
                     IssueAttachments = [],

@@ -51,4 +51,7 @@ public class GetIssueDetailsDTO
 
     /// <example>Mike Johnson</example>
     public string? ResolvedByUserName { get; set; }
+
+    /// <example>1</example>
+    public int? InspectionID { get; set; }
 }

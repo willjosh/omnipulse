@@ -16,6 +16,8 @@ public class Issue : BaseEntity
     public string? ResolvedByUserID { get; set; }
     public string? ResolutionNotes { get; set; }
 
+    public int? InspectionID { get; set; }
+
     // Navigation Properties
     public required ICollection<IssueAttachment> IssueAttachments { get; set; } = [];
     public required ICollection<IssueAssignment> IssueAssignments { get; set; } = [];
