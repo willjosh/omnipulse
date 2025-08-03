@@ -10,6 +10,7 @@ using Domain.Entities;
 
 using MediatR;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
@@ -31,6 +32,7 @@ namespace Api.Controllers;
 [Route("api/[controller]")]
 [Consumes("application/json")]
 [Produces("application/json")]
+[Authorize]
 public sealed class WorkOrdersController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -55,6 +57,7 @@ public sealed class WorkOrdersController : ControllerBase
     [ProducesResponseType(typeof(PagedResult<GetWorkOrderDetailDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Authorize(Policy = "AllRoles")]
     public async Task<ActionResult<PagedResult<GetWorkOrderDetailDTO>>> GetWorkOrders(
         [FromQuery] PaginationParameters parameters,
         CancellationToken cancellationToken)
@@ -87,6 +90,7 @@ public sealed class WorkOrdersController : ControllerBase
     [ProducesResponseType(typeof(GetWorkOrderDetailDTO), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Authorize(Policy = "AllRoles")]
     public async Task<ActionResult<GetWorkOrderDetailDTO>> GetWorkOrder(
         int id,
         CancellationToken cancellationToken)
@@ -121,6 +125,7 @@ public sealed class WorkOrdersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Authorize(Policy = "FleetManager")]
     public async Task<ActionResult<int>> CreateWorkOrder(
         [FromBody] CreateWorkOrderCommand command,
         CancellationToken cancellationToken)
@@ -156,6 +161,7 @@ public sealed class WorkOrdersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Authorize(Policy = "AllRoles")]
     public async Task<ActionResult<int>> CompleteWorkOrder(
         int id,
         CancellationToken cancellationToken)
@@ -188,6 +194,7 @@ public sealed class WorkOrdersController : ControllerBase
     [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Authorize(Policy = "FleetManager")]
     public async Task<ActionResult<int>> DeleteWorkOrder(
         int id,
         CancellationToken cancellationToken)
@@ -223,6 +230,7 @@ public sealed class WorkOrdersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Authorize(Policy = "FleetManager")]
     public async Task<ActionResult<int>> UpdateWorkOrder(
         int id,
         [FromBody] UpdateWorkOrderCommand command,

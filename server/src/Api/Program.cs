@@ -50,6 +50,16 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+builder.Services.AddAuthorization(options =>
+{
+    // Fleet-specific policies
+    options.AddPolicy("AllRoles", policy =>
+        policy.RequireRole("FleetManager", "Technician"));
+
+    options.AddPolicy("FleetManager", policy =>
+        policy.RequireRole("FleetManager"));
+});
+
 // Identity Options
 builder.Services.Configure<IdentityOptions>(options =>
 {
@@ -80,6 +90,7 @@ builder.Services.AddProblemDetails();
 
 // Add and configure Swagger middleware
 builder.Services.AddEndpointsApiExplorer();
+// Replace your existing AddSwaggerGen with this:
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
@@ -94,10 +105,35 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 
-    // Group by controller/tag
+    // 🔐 JWT Authentication Support
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your token.",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+
+    // Your existing configuration
     c.TagActionsBy(api => [api.GroupName ?? api.ActionDescriptor.RouteValues["controller"]]);
 
-    // Include XML documentation comments from all XML files (excluding test/coverage files)
     var xmlFiles = Directory.GetFiles(AppContext.BaseDirectory, "*.xml")
         .Where(file =>
             !file.Contains("Test") &&
