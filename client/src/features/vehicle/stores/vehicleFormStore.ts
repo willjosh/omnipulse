@@ -10,6 +10,8 @@ import {
   FuelTypeEnum,
   VehicleStatusEnum,
 } from "@/features/vehicle/types/vehicleEnum";
+import { VehicleGroup } from "@/features/vehicle-group/types/vehicleGroupType";
+import { Technician } from "@/features/technician/types/technicianType";
 
 interface VehicleFormData {
   // Basic vehicle information
@@ -39,17 +41,7 @@ interface VehicleFormData {
 
   // Financial data
   purchaseDate: string;
-  purchasePrice: number;
-}
-
-interface VehicleGroup {
-  id: number;
-  name: string;
-}
-
-interface Technician {
-  id: string;
-  name: string;
+  purchasePrice: number | null;
 }
 
 interface VehicleFormStore {
@@ -108,7 +100,7 @@ const createEmptyFormData = (): VehicleFormData => ({
   fuelCapacity: null,
   location: "",
   purchaseDate: "",
-  purchasePrice: 0,
+  purchasePrice: null,
 });
 
 // Mapping function from API Vehicle to form data
@@ -183,11 +175,22 @@ const validateFormData = (
     errors.trim = "Trim is required";
   }
 
+  if (!formData.type) {
+    errors.type = "Vehicle type is required";
+  }
+
+  if (!formData.fuelType) {
+    errors.fuelType = "Fuel type is required";
+  }
+
+  if (!formData.status) {
+    errors.status = "Status is required";
+  }
+
   if (formData.vehicleGroupID === 0) {
     errors.vehicleGroupID = "Vehicle group is required";
   }
 
-  // Updated validation for nullable numeric fields
   if (formData.mileage !== null && formData.mileage < 0) {
     errors.mileage = "Mileage cannot be negative";
   }
@@ -208,7 +211,7 @@ const validateFormData = (
     errors.purchaseDate = "Purchase date is required";
   }
 
-  if (formData.purchasePrice < 0) {
+  if (formData.purchasePrice !== null && formData.purchasePrice < 0) {
     errors.purchasePrice = "Purchase price cannot be negative";
   }
 
@@ -228,12 +231,11 @@ export const useVehicleFormStore = create<VehicleFormStore>()(
     vehicleGroups: [],
     technicians: [],
 
-    // Update actions with dirty tracking
     updateFormData: data =>
       set(state => ({
         formData: { ...state.formData, ...data },
         isDirty: true,
-        validationErrors: {}, // Clear errors on update
+        validationErrors: {},
       })),
 
     setShowValidation: show => set({ showValidation: show }),
@@ -287,7 +289,6 @@ export const useVehicleFormStore = create<VehicleFormStore>()(
       return Object.keys(errors).length === 0;
     },
 
-    // Data transformation methods - updated to handle nullable values
     toCreateCommand: (): CreateVehicleCommand => {
       const { formData } = get();
       return {
@@ -306,8 +307,8 @@ export const useVehicleFormStore = create<VehicleFormStore>()(
         fuelCapacity: formData.fuelCapacity ?? 0,
         fuelType: formData.fuelType,
         purchaseDate: formData.purchaseDate,
-        purchasePrice: formData.purchasePrice,
-        vehicleStatus: formData.status,
+        purchasePrice: formData.purchasePrice ?? 0,
+        status: formData.status,
         location: formData.location,
         assignedTechnicianID: formData.assignedTechnicianID,
       };
@@ -336,8 +337,8 @@ export const useVehicleFormStore = create<VehicleFormStore>()(
         fuelCapacity: formData.fuelCapacity ?? 0,
         fuelType: formData.fuelType,
         purchaseDate: formData.purchaseDate,
-        purchasePrice: formData.purchasePrice,
-        vehicleStatus: formData.status,
+        purchasePrice: formData.purchasePrice ?? 0,
+        status: formData.status,
         location: formData.location,
         assignedTechnicianID: formData.assignedTechnicianID,
       };

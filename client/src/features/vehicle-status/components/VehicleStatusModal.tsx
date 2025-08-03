@@ -102,7 +102,6 @@ const VehicleStatusModal: React.FC<VehicleStatusModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
-      // Initialize form based on mode
       if (mode === "edit" && vehicleStatus) {
         setFormData({ name: vehicleStatus.name, color: vehicleStatus.color });
       } else if (mode === "create") {
@@ -171,7 +170,6 @@ const VehicleStatusModal: React.FC<VehicleStatusModalProps> = ({
 
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: undefined }));
     }
