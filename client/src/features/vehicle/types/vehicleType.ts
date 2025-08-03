@@ -59,7 +59,7 @@ export interface CreateVehicleCommand {
   fuelType: FuelTypeEnum;
   purchaseDate: string;
   purchasePrice: number;
-  vehicleStatus: VehicleStatusEnum;
+  status: VehicleStatusEnum;
   location: string;
   assignedTechnicianID?: string | null;
 }
@@ -82,7 +82,7 @@ export interface UpdateVehicleCommand {
   fuelType: FuelTypeEnum;
   purchaseDate: string;
   purchasePrice: number;
-  vehicleStatus: VehicleStatusEnum;
+  status: VehicleStatusEnum;
   location: string;
   assignedTechnicianID?: string | null;
 }

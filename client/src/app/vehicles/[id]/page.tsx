@@ -9,6 +9,9 @@ import {
   getStatusDot,
   getStatusColor,
   getVehicleIcon,
+  getVehicleTypeLabel,
+  getStatusLabel,
+  getFuelTypeLabel,
 } from "@/features/vehicle/utils/vehicleEnumHelper";
 import { useVehicle } from "@/features/vehicle/hooks/useVehicles";
 
@@ -93,12 +96,14 @@ const VehicleDetailsPage = () => {
               <div
                 className={`w-2 h-2 rounded-full mr-2 ${getStatusDot(vehicle.status)}`}
               ></div>
-              <span className="text-sm text-gray-900">{vehicle.status}</span>
+              <span className="text-sm text-gray-900">
+                {getStatusLabel(vehicle.status)}
+              </span>
             </div>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
             <span className="text-sm font-medium text-gray-600">Group</span>
-            <span className="text-sm text-blue-600">
+            <span className="text-sm text-gray-900">
               {vehicle.vehicleGroupName}
             </span>
           </div>
@@ -106,13 +111,13 @@ const VehicleDetailsPage = () => {
             <span className="text-sm font-medium text-gray-600">
               Assigned Technician
             </span>
-            <span className="text-sm text-gray-500">
+            <span className="text-sm text-gray-900">
               {vehicle.assignedTechnicianName || "Unassigned"}
             </span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
             <span className="text-sm font-medium text-gray-600">Type</span>
-            <span className="text-sm text-blue-600">
+            <span className="text-sm text-gray-900">
               {vehicle.vehicleTypeLabel}
             </span>
           </div>
@@ -143,28 +148,28 @@ const VehicleDetailsPage = () => {
               License Plate Expiration
             </span>
             <span className="text-sm text-gray-900">
-              {vehicle.licensePlateExpirationDate}
+              {vehicle.licensePlateExpirationDate.split("T")[0]}
             </span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
             <span className="text-sm font-medium text-gray-600">Year</span>
-            <span className="text-sm text-gray-500">{vehicle.year}</span>
+            <span className="text-sm text-gray-900">{vehicle.year}</span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
             <span className="text-sm font-medium text-gray-600">Make</span>
-            <span className="text-sm text-gray-500">{vehicle.make}</span>
+            <span className="text-sm text-gray-900">{vehicle.make}</span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
             <span className="text-sm font-medium text-gray-600">Model</span>
-            <span className="text-sm text-gray-500">{vehicle.model}</span>
+            <span className="text-sm text-gray-900">{vehicle.model}</span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
             <span className="text-sm font-medium text-gray-600">Trim</span>
-            <span className="text-sm text-gray-500">{vehicle.trim || "—"}</span>
+            <span className="text-sm text-gray-900">{vehicle.trim || "—"}</span>
           </div>
           <div className="flex justify-between items-center py-3">
             <span className="text-sm font-medium text-gray-600">Location</span>
-            <span className="text-sm text-gray-500">
+            <span className="text-sm text-gray-900">
               {vehicle.location || "—"}
             </span>
           </div>
@@ -229,7 +234,7 @@ const VehicleDetailsPage = () => {
           <div className="flex justify-between items-center py-3">
             <span className="text-sm font-medium text-gray-600">Fuel Type</span>
             <span className="text-sm text-gray-900">
-              {vehicle.fuelType || "—"}
+              {vehicle.fuelType ? getFuelTypeLabel(vehicle.fuelType) : "—"}
             </span>
           </div>
         </div>
@@ -245,7 +250,9 @@ const VehicleDetailsPage = () => {
             <span className="text-sm font-medium text-gray-600">
               Vehicle Type
             </span>
-            <span className="text-sm text-gray-900">{vehicle.vehicleType}</span>
+            <span className="text-sm text-gray-900">
+              {getVehicleTypeLabel(vehicle.vehicleType)}
+            </span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
             <span className="text-sm font-medium text-gray-600">
@@ -278,7 +285,7 @@ const VehicleDetailsPage = () => {
               Purchase Date
             </span>
             <span className="text-sm text-gray-900">
-              {vehicle.purchaseDate || "—"}
+              {vehicle.purchaseDate.split("T")[0] || "—"}
             </span>
           </div>
           <div className="flex justify-between items-center py-3">
@@ -400,8 +407,9 @@ const VehicleDetailsPage = () => {
                   {vehicle.name}
                 </h1>
                 <p className="text-gray-600 mb-2">
-                  {vehicle.vehicleType} • {vehicle.year} {vehicle.make}{" "}
-                  {vehicle.model} • {vehicle.vin} • {vehicle.licensePlate}
+                  {getVehicleTypeLabel(vehicle.vehicleType)} • {vehicle.year}{" "}
+                  {vehicle.make} {vehicle.model} • {vehicle.vin} •{" "}
+                  {vehicle.licensePlate}
                 </p>
                 <div className="flex items-center space-x-4 text-sm">
                   <span className="text-gray-600">
@@ -413,7 +421,7 @@ const VehicleDetailsPage = () => {
                     <div
                       className={`w-1.5 h-1.5 rounded-full mr-1.5 ${getStatusDot(vehicle.status)}`}
                     ></div>
-                    {vehicle.status}
+                    {getStatusLabel(vehicle.status)}
                   </div>
                   <span className="text-gray-600">
                     {vehicle.vehicleGroupName}
