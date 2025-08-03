@@ -8,9 +8,6 @@ public class GetAllIssueDTO
     public int ID { get; set; }
 
     /// <example>1</example>
-    public required int IssueNumber { get; set; }
-
-    /// <example>1</example>
     public required int VehicleID { get; set; }
 
     /// <example>BYD K9 MAL‑315</example>

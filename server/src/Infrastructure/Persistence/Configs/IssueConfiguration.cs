@@ -17,9 +17,6 @@ public class IssueConfiguration : IEntityTypeConfiguration<Issue>
         builder.Property(i => i.Description).HasMaxLength(1000);
         builder.Property(i => i.ResolutionNotes).HasMaxLength(1000);
 
-        // Unique Constraints
-        builder.HasIndex(i => i.IssueNumber).IsUnique();
-
         // Regular Indexes (for performance)
         builder.HasIndex(i => i.VehicleID);
         builder.HasIndex(i => i.ReportedByUserID);
@@ -27,6 +24,7 @@ public class IssueConfiguration : IEntityTypeConfiguration<Issue>
         builder.HasIndex(i => i.PriorityLevel);
         builder.HasIndex(i => i.Category);
         builder.HasIndex(i => i.CreatedAt);
+        builder.HasIndex(i => i.InspectionID);
 
         // Check Constraints
         builder.ToTable(t => t.HasCheckConstraint("CK_Issue_ResolvedDate",

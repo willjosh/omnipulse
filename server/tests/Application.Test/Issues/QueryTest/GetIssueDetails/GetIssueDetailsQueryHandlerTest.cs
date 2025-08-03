@@ -89,7 +89,6 @@ public class GetIssueDetailsQueryHandlerTest
         var expectedIssue = new Issue
         {
             ID = 1,
-            IssueNumber = 1001,
             Title = "Engine Noise",
             Description = "Strange noise from engine",
             Status = IssueStatusEnum.OPEN,
@@ -112,7 +111,6 @@ public class GetIssueDetailsQueryHandlerTest
         Assert.NotNull(result);
         Assert.IsType<GetIssueDetailsDTO>(result);
         Assert.Equal(1, result.ID);
-        Assert.Equal(1001, result.IssueNumber);
         Assert.Equal("Engine Noise", result.Title);
         Assert.Equal("Strange noise from engine", result.Description);
         Assert.Equal(IssueStatusEnum.OPEN, result.Status);

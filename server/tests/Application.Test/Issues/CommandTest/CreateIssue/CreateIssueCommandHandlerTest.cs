@@ -139,7 +139,6 @@ public class CreateIssueCommandHandlerTest
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
             VehicleID = command.VehicleID,
-            IssueNumber = 1001, // Auto-generated in real scenario
             ReportedByUserID = command.ReportedByUserID,
             ReportedDate = new(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
             Title = command.Title,

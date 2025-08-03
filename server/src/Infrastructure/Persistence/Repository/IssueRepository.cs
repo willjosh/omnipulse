@@ -63,7 +63,7 @@ public class IssueRepository : GenericRepository<Issue>, IIssueRepository
         return query.Where(i =>
             EF.Functions.Like(i.Title, searchPattern) ||
             EF.Functions.Like(i.Description ?? string.Empty, searchPattern) ||
-            EF.Functions.Like(i.IssueNumber.ToString(), searchPattern)
+            EF.Functions.Like(i.ID.ToString(), searchPattern)
         );
     }
 

@@ -23,6 +23,7 @@ public class CreateInspectionCommandHandlerTest
     private readonly Mock<IInspectionFormRepository> _mockInspectionFormRepository;
     private readonly Mock<IVehicleRepository> _mockVehicleRepository;
     private readonly Mock<IUserRepository> _mockUserRepository;
+    private readonly Mock<IIssueRepository> _mockIssueRepository;
     private readonly Mock<IValidator<CreateInspectionCommand>> _mockValidator;
     private readonly Mock<IAppLogger<CreateInspectionCommandHandler>> _mockLogger;
     private readonly IMapper _mapper;
@@ -38,6 +39,7 @@ public class CreateInspectionCommandHandlerTest
         _mockInspectionFormRepository = new();
         _mockVehicleRepository = new();
         _mockUserRepository = new();
+        _mockIssueRepository = new();
         _mockValidator = new();
         _mockLogger = new();
 
@@ -49,6 +51,7 @@ public class CreateInspectionCommandHandlerTest
             _mockInspectionFormRepository.Object,
             _mockVehicleRepository.Object,
             _mockUserRepository.Object,
+            _mockIssueRepository.Object,
             _mockValidator.Object,
             _mockLogger.Object,
             _mapper
@@ -72,6 +75,37 @@ public class CreateInspectionCommandHandlerTest
             new(2, true, "Test comment for item 2"),
             new(3, true, "Test comment for item 3")
         ];
+
+        return new CreateInspectionCommand(
+            inspectionFormId,
+            vehicleId,
+            technicianId,
+            inspectionStartTime ?? FixedStartTime,
+            inspectionEndTime ?? FixedEndTime,
+            odometerReading,
+            vehicleCondition,
+            notes,
+            items
+        );
+    }
+
+    private static CreateInspectionCommand CreateValidCommandWithFailedItems(
+        int inspectionFormId = 1,
+        int vehicleId = 1,
+        string technicianId = "1b6ed760-b26c-4800-8e86-c888d002b9c1",
+        DateTime? inspectionStartTime = null,
+        DateTime? inspectionEndTime = null,
+        double? odometerReading = 50000.0,
+        VehicleConditionEnum vehicleCondition = VehicleConditionEnum.Excellent,
+        string? notes = "Test inspection notes")
+    {
+        var items = new List<CreateInspectionPassFailItemCommand>
+        {
+            new(1, true, "Test comment for passed item 1"),
+            new(2, false, "Test comment for failed item 1"), // Failed item
+            new(3, true, "Test comment for passed item 2"),
+            new(4, false, "Test comment for failed item 2")  // Failed item
+        };
 
         return new CreateInspectionCommand(
             inspectionFormId,
@@ -114,6 +148,12 @@ public class CreateInspectionCommandHandlerTest
             .ReturnsAsync(vehicle);
         _mockUserRepository.Setup(r => r.GetTechnicianByIdAsync(command.TechnicianID))
             .ReturnsAsync(technician);
+
+        // Setup issue repository mocks
+        _mockIssueRepository.Setup(r => r.AddAsync(It.IsAny<Issue>()))
+            .ReturnsAsync((Issue issue) => issue);
+        _mockIssueRepository.Setup(r => r.SaveChangesAsync())
+            .ReturnsAsync(1);
     }
 
     private static InspectionForm CreateMockInspectionForm(bool isActive = true)
@@ -168,6 +208,20 @@ public class CreateInspectionCommandHandlerTest
                 ItemDescription = "Test Description 3",
                 ItemInstructions = "Test Instructions 3",
                 IsRequired = true,
+                IsActive = true,
+                InspectionFormItemTypeEnum = InspectionFormItemTypeEnum.PassFail,
+                CreatedAt = FixedCreatedTime,
+                UpdatedAt = FixedCreatedTime,
+                InspectionForm = inspectionForm
+            },
+            new()
+            {
+                ID = 4,
+                InspectionFormID = 1,
+                ItemLabel = "Test Item 4",
+                ItemDescription = "Test Description 4",
+                ItemInstructions = "Test Instructions 4",
+                IsRequired = false,
                 IsActive = true,
                 InspectionFormItemTypeEnum = InspectionFormItemTypeEnum.PassFail,
                 CreatedAt = FixedCreatedTime,
@@ -241,7 +295,7 @@ public class CreateInspectionCommandHandlerTest
     public async Task Handle_Should_Return_InspectionID_On_Success()
     {
         // Arrange
-        var command = CreateValidCommand();
+        var command = CreateValidCommandWithFailedItems();
         SetupValidValidation(command);
         SetupSuccessfulEntityRetrieval(command);
 

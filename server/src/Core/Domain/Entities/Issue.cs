@@ -4,7 +4,6 @@ using Domain.Entities.Enums;
 public class Issue : BaseEntity
 {
     public required int VehicleID { get; set; }
-    public required int IssueNumber { get; set; }
     public required string ReportedByUserID { get; set; }
     public DateTime? ReportedDate { get; set; } = DateTime.UtcNow;
     public required string Title { get; set; }
@@ -15,6 +14,8 @@ public class Issue : BaseEntity
     public DateTime? ResolvedDate { get; set; }
     public string? ResolvedByUserID { get; set; }
     public string? ResolutionNotes { get; set; }
+
+    public int? InspectionID { get; set; }
 
     // Navigation Properties
     public required ICollection<IssueAttachment> IssueAttachments { get; set; } = [];
