@@ -61,7 +61,6 @@ public class IssueSeeder : IEntitySeeder
             {
                 ID = 0,
                 VehicleID = vehicleId,
-                IssueNumber = i + 1,
                 Title = $"Issue {i} Title",
                 Description = $"Issue {i} Description.",
                 Category = (IssueCategoryEnum)((i - 1) % Enum.GetValues<IssueCategoryEnum>().Length),

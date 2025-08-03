@@ -227,7 +227,6 @@ public class CreateInspectionCommandHandler : IRequestHandler<CreateInspectionCo
                     CreatedAt = currentTime,
                     UpdatedAt = currentTime,
                     VehicleID = inspection.VehicleID,
-                    IssueNumber = 0, // Will be set by DB (same as ID)
                     ReportedByUserID = inspection.TechnicianID,
                     ReportedDate = currentTime,
                     Title = $"Inspection Failed: {failedItem.SnapshotItemLabel}",
