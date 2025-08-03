@@ -16,6 +16,7 @@ import {
 } from "../types/inventoryItemEnum";
 import { X } from "lucide-react";
 import { PrimaryButton, SecondaryButton } from "@/components/ui/Button";
+import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
 import ModalPortal from "@/components/ui/Modal/ModalPortal";
 
 interface InventoryModalProps {
@@ -31,6 +32,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
   mode,
   item,
 }) => {
+  const notify = useNotification();
   const [formData, setFormData] = useState({
     itemNumber: "",
     itemName: "",
@@ -49,7 +51,6 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
   const createInventoryMutation = useCreateInventoryItem();
   const updateInventoryMutation = useUpdateInventoryItem();
 
-  // Pre-fill form for edit mode or reset for create mode
   useEffect(() => {
     if (mode === "edit" && item) {
       setFormData({
@@ -69,7 +70,6 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
         isActive: item.isActive ?? true,
       });
     } else if (mode === "create") {
-      // Reset form for create mode
       setFormData({
         itemNumber: "",
         itemName: "",
@@ -95,7 +95,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
     e.preventDefault();
 
     if (!formData.itemNumber.trim() || !formData.itemName.trim()) {
-      alert("Item Number and Item Name are required");
+      notify("Item Number and Item Name are required", "error");
       return;
     }
 
@@ -103,28 +103,55 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
       if (mode === "create") {
         const createCommand: CreateInventoryItemCommand = formData;
         await createInventoryMutation.mutateAsync(createCommand);
+        notify("Inventory item created successfully!", "success");
       } else {
         const updateCommand: UpdateInventoryItemCommand = {
           inventoryItemID: item!.id,
           ...formData,
         };
         await updateInventoryMutation.mutateAsync(updateCommand);
+        notify("Inventory item updated successfully!", "success");
       }
 
       onClose();
-    } catch (error) {
+    } catch (error: any) {
       console.error(
         `Error ${mode === "create" ? "creating" : "updating"} inventory item:`,
         error,
       );
-      alert(
-        `Failed to ${mode === "create" ? "create" : "update"} inventory item. Please try again.`,
-      );
+
+      let errorMessage =
+        mode === "create"
+          ? "Failed to create inventory item. Please check your input and try again."
+          : "Failed to update inventory item. Please check your input and try again.";
+
+      if (error?.response?.data) {
+        const errorData = error.response.data;
+
+        if (errorData.errors && typeof errorData.errors === "object") {
+          const validationMessages = [];
+          for (const [field, messages] of Object.entries(errorData.errors)) {
+            if (Array.isArray(messages)) {
+              validationMessages.push(...messages);
+            } else if (typeof messages === "string") {
+              validationMessages.push(messages);
+            }
+          }
+          if (validationMessages.length > 0) {
+            errorMessage = validationMessages.join(" ");
+          }
+        } else if (errorData.message) {
+          errorMessage = errorData.message;
+        } else if (errorData.title) {
+          errorMessage = errorData.detail || errorData.title;
+        }
+      }
+
+      notify(errorMessage, "error");
     }
   };
 
   const handleClose = () => {
-    // Reset form when closing in create mode
     if (mode === "create") {
       setFormData({
         itemNumber: "",
@@ -141,6 +168,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
         isActive: true,
       });
     }
+
     onClose();
   };
 

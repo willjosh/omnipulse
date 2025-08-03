@@ -13,15 +13,18 @@ import {
   useVehicles,
   useCreateVehicle,
   useUpdateVehicle,
+  useVehicleGroups,
+  useTechnicians,
 } from "@/features/vehicle/hooks/useVehicles";
 import { Vehicle } from "@/features/vehicle/types/vehicleType";
 import {
   VehicleTypeEnum,
   FuelTypeEnum,
-  VehicleStatusEnum,
 } from "@/features/vehicle/types/vehicleEnum";
+import { getVehicleStatusOptions } from "@/features/vehicle/utils/vehicleEnumHelper";
 import PrimaryButton from "@/components/ui/Button/PrimaryButton";
 import SecondaryButton from "@/components/ui/Button/SecondaryButton";
+import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
 
 interface VehicleFormProps {
   mode: "create" | "edit";
@@ -54,12 +57,7 @@ const getFuelTypeOptions = () => [
   { value: FuelTypeEnum.OTHER, label: "Other" },
 ];
 
-const getStatusOptions = () => [
-  { value: VehicleStatusEnum.ACTIVE, label: "Active" },
-  { value: VehicleStatusEnum.MAINTENANCE, label: "Maintenance" },
-  { value: VehicleStatusEnum.OUT_OF_SERVICE, label: "Out of Service" },
-  { value: VehicleStatusEnum.INACTIVE, label: "Inactive" },
-];
+// Note: Vehicle status options are currently hardcoded in vehicleEnumHelper.ts
 
 const VehicleForm: React.FC<VehicleFormProps> = ({
   mode,
@@ -69,29 +67,29 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
 }) => {
   const router = useRouter();
   const params = useParams();
+  const notify = useNotification();
 
-  // Use selector hooks for better performance
   const formData = useVehicleFormData();
   const formMode = useVehicleFormMode();
   const { showValidation, validationErrors, isFormValid } =
     useVehicleFormValidation();
   const { isLoading, isDirty, vehicleId } = useVehicleFormStatus();
-  const { vehicleGroups, technicians } = useVehicleFormReferenceData();
 
-  // Use the new hooks directly
   const { mutateAsync: createVehicle, isPending: isCreating } =
     useCreateVehicle();
   const { mutateAsync: updateVehicle, isPending: isUpdating } =
     useUpdateVehicle();
 
-  // Store actions
+  const { vehicleGroups: apiVehicleGroups, isPending: isLoadingGroups } =
+    useVehicleGroups();
+  const { technicians: apiTechnicians, isPending: isLoadingTechnicians } =
+    useTechnicians();
+
   const {
     updateFormData,
     setShowValidation,
     setValidationErrors,
     setLoading,
-    setVehicleGroups,
-    setTechnicians,
     resetForm,
     initializeForEdit,
     initializeForCreate,
@@ -100,7 +98,6 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
     toUpdateCommand,
   } = useVehicleFormStore();
 
-  // form initialization based on mode
   useEffect(() => {
     if (mode === "create") {
       initializeForCreate();
@@ -121,26 +118,6 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
     router,
   ]);
 
-  useEffect(() => {
-    // Mock data
-    const mockGroups = [
-      { id: 1, name: "Fleet A - Operations" },
-      { id: 2, name: "Fleet B - Maintenance" },
-      { id: 3, name: "Fleet C - Executive" },
-      { id: 4, name: "Fleet D - Emergency" },
-    ];
-
-    const mockTechnicians = [
-      { id: "tech-1", name: "John Smith" },
-      { id: "tech-2", name: "Sarah Johnson" },
-      { id: "tech-3", name: "Mike Davis" },
-      { id: "tech-4", name: "Emily Brown" },
-    ];
-
-    setVehicleGroups(mockGroups);
-    setTechnicians(mockTechnicians);
-  }, [setVehicleGroups, setTechnicians]);
-
   const handleInputChange = (field: string, value: any) => {
     updateFormData({ [field]: value });
   };
@@ -158,7 +135,6 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
       setLoading(true);
 
       if (onSave) {
-        // If there is an onSave callback provided, use it
         const commandData =
           formMode === "create" ? toCreateCommand() : toUpdateCommand();
         await onSave(commandData);
@@ -166,28 +142,53 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
         if (formMode === "create") {
           const commandData = toCreateCommand();
           await createVehicle(commandData);
-          console.log("Vehicle created successfully:", commandData);
+          notify("Vehicle created successfully!", "success");
         } else {
           const commandData = toUpdateCommand();
           await updateVehicle(commandData);
           console.log("Vehicle updated successfully:", commandData);
+          notify("Vehicle updated successfully!", "success");
         }
       }
 
       resetForm();
       router.push("/vehicles");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving vehicle:", error);
-      // Show error message to the user
-      setValidationErrors({
-        general: "Failed to save vehicle. Please try again.",
-      });
+
+      let errorMessage =
+        formMode === "create"
+          ? "Failed to create vehicle. Please check your input and try again."
+          : "Failed to update vehicle. Please check your input and try again.";
+
+      if (error?.response?.data) {
+        const errorData = error.response.data;
+
+        if (errorData.errors && typeof errorData.errors === "object") {
+          const validationMessages = [];
+          for (const [field, messages] of Object.entries(errorData.errors)) {
+            if (Array.isArray(messages)) {
+              validationMessages.push(...messages);
+            } else if (typeof messages === "string") {
+              validationMessages.push(messages);
+            }
+          }
+          if (validationMessages.length > 0) {
+            errorMessage = validationMessages.join(" ");
+          }
+        } else if (errorData.message) {
+          errorMessage = errorData.message;
+        } else if (errorData.title) {
+          errorMessage = errorData.detail || errorData.title;
+        }
+      }
+
+      notify(errorMessage, "error");
     } finally {
       setLoading(false);
     }
   };
 
-  // Update loading state to include mutation loading states
   const isSaving = isLoading || isCreating || isUpdating;
 
   const handleCancel = () => {
@@ -230,12 +231,6 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
             You have unsaved changes
           </p>
         )}
-        {/* Show error message if there's an error */}
-        {validationErrors.general && (
-          <p className="text-sm text-red-600 mt-1">
-            {validationErrors.general}
-          </p>
-        )}
       </div>
 
       {/* Form */}
@@ -252,9 +247,9 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               <div>
                 <label
                   htmlFor="vehicleName"
-                  className="block text-sm font-medium text-gray-700 mb-2"
+                  className="block text-md font-medium text-gray-700 mb-2"
                 >
-                  Vehicle Name *
+                  Vehicle Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -281,9 +276,9 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               <div>
                 <label
                   htmlFor="year"
-                  className="block text-sm font-medium text-gray-700 mb-2"
+                  className="block text-md font-medium text-gray-700 mb-2"
                 >
-                  Year *
+                  Year <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
@@ -309,9 +304,9 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               <div>
                 <label
                   htmlFor="make"
-                  className="block text-sm font-medium text-gray-700 mb-2"
+                  className="block text-md font-medium text-gray-700 mb-2"
                 >
-                  Make *
+                  Make <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -334,9 +329,9 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               <div>
                 <label
                   htmlFor="model"
-                  className="block text-sm font-medium text-gray-700 mb-2"
+                  className="block text-md font-medium text-gray-700 mb-2"
                 >
-                  Model *
+                  Model <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -361,9 +356,9 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               <div>
                 <label
                   htmlFor="trim"
-                  className="block text-sm font-medium text-gray-700 mb-2"
+                  className="block text-md font-medium text-gray-700 mb-2"
                 >
-                  Trim *
+                  Trim <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -386,9 +381,9 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               <div>
                 <label
                   htmlFor="vin"
-                  className="block text-sm font-medium text-gray-700 mb-2"
+                  className="block text-md font-medium text-gray-700 mb-2"
                 >
-                  VIN *
+                  VIN <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -416,9 +411,9 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               <div>
                 <label
                   htmlFor="type"
-                  className="block text-sm font-medium text-gray-700 mb-2"
+                  className="block text-md font-medium text-gray-700 mb-2"
                 >
-                  Vehicle Type *
+                  Vehicle Type <span className="text-red-500">*</span>
                 </label>
                 <select
                   id="type"
@@ -448,9 +443,9 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               <div>
                 <label
                   htmlFor="fuelType"
-                  className="block text-sm font-medium text-gray-700 mb-2"
+                  className="block text-md font-medium text-gray-700 mb-2"
                 >
-                  Fuel Type *
+                  Fuel Type <span className="text-red-500">*</span>
                 </label>
                 <select
                   id="fuelType"
@@ -482,9 +477,9 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               <div>
                 <label
                   htmlFor="status"
-                  className="block text-sm font-medium text-gray-700 mb-2"
+                  className="block text-md font-medium text-gray-700 mb-2"
                 >
-                  Status *
+                  Status <span className="text-red-500">*</span>
                 </label>
                 <select
                   id="status"
@@ -498,7 +493,8 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                       : "border-gray-300"
                   }`}
                 >
-                  {getStatusOptions().map(option => (
+                  <option value="">Select status</option>
+                  {getVehicleStatusOptions().map(option => (
                     <option key={option.value} value={option.value}>
                       {option.label}
                     </option>
@@ -524,9 +520,9 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               <div>
                 <label
                   htmlFor="licensePlate"
-                  className="block text-sm font-medium text-gray-700 mb-2"
+                  className="block text-md font-medium text-gray-700 mb-2"
                 >
-                  License Plate *
+                  License Plate <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -556,14 +552,19 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               <div>
                 <label
                   htmlFor="licensePlateExpirationDate"
-                  className="block text-sm font-medium text-gray-700 mb-2"
+                  className="block text-md font-medium text-gray-700 mb-2"
                 >
-                  License Plate Expiration Date *
+                  License Plate Expiration Date{" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="date"
                   id="licensePlateExpirationDate"
-                  value={formData.licensePlateExpirationDate}
+                  value={
+                    formData.licensePlateExpirationDate
+                      ? formData.licensePlateExpirationDate.split("T")[0]
+                      : ""
+                  }
                   onChange={e =>
                     handleInputChange(
                       "licensePlateExpirationDate",
@@ -587,16 +588,18 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               <div>
                 <label
                   htmlFor="vehicleGroupID"
-                  className="block text-sm font-medium text-gray-700 mb-2"
+                  className="block text-md font-medium text-gray-700 mb-2"
                 >
-                  Vehicle Group *
+                  Vehicle Group <span className="text-red-500">*</span>
                 </label>
                 <select
                   id="vehicleGroupID"
                   value={formData.vehicleGroupID}
                   onChange={e => {
                     const groupId = parseInt(e.target.value);
-                    const group = vehicleGroups.find(g => g.id === groupId);
+                    const group = (apiVehicleGroups || []).find(
+                      g => g.id === groupId,
+                    );
                     handleInputChange("vehicleGroupID", groupId);
                     handleInputChange("vehicleGroupName", group?.name || "");
                   }}
@@ -607,7 +610,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                   }`}
                 >
                   <option value={0}>Select vehicle group</option>
-                  {vehicleGroups.map(group => (
+                  {(apiVehicleGroups || []).map(group => (
                     <option key={group.id} value={group.id}>
                       {group.name}
                     </option>
@@ -624,7 +627,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               <div>
                 <label
                   htmlFor="assignedTechnicianID"
-                  className="block text-sm font-medium text-gray-700 mb-2"
+                  className="block text-md font-medium text-gray-700 mb-2"
                 >
                   Assigned Technician
                 </label>
@@ -633,19 +636,21 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                   value={formData.assignedTechnicianID || ""}
                   onChange={e => {
                     const techId = e.target.value || null;
-                    const tech = technicians.find(t => t.id === techId);
+                    const tech = (apiTechnicians || []).find(
+                      t => t.id === techId,
+                    );
                     handleInputChange("assignedTechnicianID", techId);
                     handleInputChange(
                       "assignedTechnicianName",
-                      tech?.name || "",
+                      tech ? `${tech.firstName} ${tech.lastName}` : "",
                     );
                   }}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="">No technician assigned</option>
-                  {technicians.map(tech => (
+                  {(apiTechnicians || []).map(tech => (
                     <option key={tech.id} value={tech.id}>
-                      {tech.name}
+                      {`${tech.firstName} ${tech.lastName}`}
                     </option>
                   ))}
                 </select>
@@ -655,9 +660,9 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               <div className="md:col-span-2">
                 <label
                   htmlFor="location"
-                  className="block text-sm font-medium text-gray-700 mb-2"
+                  className="block text-md font-medium text-gray-700 mb-2"
                 >
-                  Location *
+                  Location <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -691,9 +696,9 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               <div>
                 <label
                   htmlFor="mileage"
-                  className="block text-sm font-medium text-gray-700 mb-2"
+                  className="block text-md font-medium text-gray-700 mb-2"
                 >
-                  Mileage *
+                  Mileage <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
@@ -725,9 +730,9 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               <div>
                 <label
                   htmlFor="engineHours"
-                  className="block text-sm font-medium text-gray-700 mb-2"
+                  className="block text-md font-medium text-gray-700 mb-2"
                 >
-                  Engine Hours *
+                  Engine Hours <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
@@ -760,9 +765,9 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               <div>
                 <label
                   htmlFor="fuelCapacity"
-                  className="block text-sm font-medium text-gray-700 mb-2"
+                  className="block text-md font-medium text-gray-700 mb-2"
                 >
-                  Fuel Capacity (Liters) *
+                  Fuel Capacity (Liters) <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
@@ -804,14 +809,18 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               <div>
                 <label
                   htmlFor="purchaseDate"
-                  className="block text-sm font-medium text-gray-700 mb-2"
+                  className="block text-md font-medium text-gray-700 mb-2"
                 >
-                  Purchase Date *
+                  Purchase Date <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="date"
                   id="purchaseDate"
-                  value={formData.purchaseDate}
+                  value={
+                    formData.purchaseDate
+                      ? formData.purchaseDate.split("T")[0]
+                      : ""
+                  }
                   onChange={e =>
                     handleInputChange("purchaseDate", e.target.value)
                   }
@@ -832,20 +841,21 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               <div>
                 <label
                   htmlFor="purchasePrice"
-                  className="block text-sm font-medium text-gray-700 mb-2"
+                  className="block text-md font-medium text-gray-700 mb-2"
                 >
-                  Purchase Price ($) *
+                  Purchase Price ($) <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
                   id="purchasePrice"
-                  value={formData.purchasePrice}
-                  onChange={e =>
+                  value={formData.purchasePrice ?? ""}
+                  onChange={e => {
+                    const value = e.target.value;
                     handleInputChange(
                       "purchasePrice",
-                      parseFloat(e.target.value) || 0,
-                    )
-                  }
+                      value === "" ? null : parseFloat(value),
+                    );
+                  }}
                   min="0"
                   step="0.01"
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
@@ -853,7 +863,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                       ? "border-red-500"
                       : "border-gray-300"
                   }`}
-                  placeholder="0.00"
+                  placeholder="Enter purchase price"
                 />
                 {getFieldError("purchasePrice") && (
                   <p className="mt-1 text-sm text-red-600">
