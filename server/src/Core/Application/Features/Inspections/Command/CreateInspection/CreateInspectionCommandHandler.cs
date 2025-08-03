@@ -5,6 +5,7 @@ using Application.Exceptions;
 using AutoMapper;
 
 using Domain.Entities;
+using Domain.Entities.Enums;
 
 using FluentValidation;
 
@@ -18,6 +19,7 @@ public class CreateInspectionCommandHandler : IRequestHandler<CreateInspectionCo
     private readonly IInspectionFormRepository _inspectionFormRepository;
     private readonly IVehicleRepository _vehicleRepository;
     private readonly IUserRepository _userRepository;
+    private readonly IIssueRepository _issueRepository;
     private readonly IValidator<CreateInspectionCommand> _validator;
     private readonly IAppLogger<CreateInspectionCommandHandler> _logger;
     private readonly IMapper _mapper;
@@ -27,6 +29,7 @@ public class CreateInspectionCommandHandler : IRequestHandler<CreateInspectionCo
         IInspectionFormRepository inspectionFormRepository,
         IVehicleRepository vehicleRepository,
         IUserRepository userRepository,
+        IIssueRepository issueRepository,
         IValidator<CreateInspectionCommand> validator,
         IAppLogger<CreateInspectionCommandHandler> logger,
         IMapper mapper)
@@ -35,6 +38,7 @@ public class CreateInspectionCommandHandler : IRequestHandler<CreateInspectionCo
         _inspectionFormRepository = inspectionFormRepository;
         _vehicleRepository = vehicleRepository;
         _userRepository = userRepository;
+        _issueRepository = issueRepository;
         _validator = validator;
         _logger = logger;
         _mapper = mapper;
@@ -103,6 +107,9 @@ public class CreateInspectionCommandHandler : IRequestHandler<CreateInspectionCo
 
         // Save changes
         await _inspectionRepository.SaveChangesAsync();
+
+        // Create issues for failed inspection items
+        await CreateIssuesForFailedItemsAsync(newInspection);
 
         _logger.LogInformation($"Inspection created successfully with ID: {newInspection.ID}");
         return newInspection.ID;
@@ -179,5 +186,102 @@ public class CreateInspectionCommandHandler : IRequestHandler<CreateInspectionCo
         }
 
         return (inspectionFormWithItems, vehicle, technician);
+    }
+
+    private async Task CreateIssuesForFailedItemsAsync(Inspection inspection)
+    {
+        var failedItems = inspection.InspectionPassFailItems?.Where(item => !item.Passed).ToList();
+        if (failedItems == null || failedItems.Count == 0)
+        {
+            _logger.LogInformation($"No failed inspection items found for inspection {inspection.ID}");
+            return;
+        }
+
+        _logger.LogInformation($"Creating issues for {failedItems.Count} failed inspection items in inspection {inspection.ID}");
+
+        // Get the vehicle and technician for the issue creation
+        var vehicle = await _vehicleRepository.GetByIdAsync(inspection.VehicleID);
+        var technician = await _userRepository.GetTechnicianByIdAsync(inspection.TechnicianID);
+
+        if (vehicle == null)
+        {
+            _logger.LogError($"Vehicle not found for inspection {inspection.ID}");
+            return;
+        }
+
+        if (technician == null)
+        {
+            _logger.LogError($"Technician not found for inspection {inspection.ID} with technician ID {inspection.TechnicianID}");
+            return;
+        }
+
+        foreach (var failedItem in failedItems)
+        {
+            try
+            {
+                var currentTime = DateTime.UtcNow;
+
+                var issue = new Issue
+                {
+                    ID = 0, // Will be set by DB
+                    CreatedAt = currentTime,
+                    UpdatedAt = currentTime,
+                    VehicleID = inspection.VehicleID,
+                    IssueNumber = 0, // Will be set by DB (same as ID)
+                    ReportedByUserID = inspection.TechnicianID,
+                    ReportedDate = currentTime,
+                    Title = $"Inspection Failed: {failedItem.SnapshotItemLabel}",
+                    Description = $"Inspection item '{failedItem.SnapshotItemLabel}' failed during inspection {inspection.ID}. " +
+                                $"Item Description: {failedItem.SnapshotItemDescription}. " +
+                                $"Technician Comment: {failedItem.Comment ?? "No comment provided"}.",
+                    Category = DetermineIssueCategory(failedItem.SnapshotItemLabel, failedItem.SnapshotItemDescription),
+                    PriorityLevel = DeterminePriorityLevel(failedItem.SnapshotIsRequired),
+                    Status = IssueStatusEnum.OPEN,
+                    Vehicle = vehicle,
+                    ReportedByUser = technician,
+                    IssueAttachments = [],
+                    IssueAssignments = []
+                };
+
+                await _issueRepository.AddAsync(issue);
+                _logger.LogInformation($"Created issue for failed inspection item {failedItem.InspectionFormItemID}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Failed to create issue for failed inspection item {failedItem.InspectionFormItemID}: {ex.Message}");
+                // Continue with other failed items even if one fails
+            }
+        }
+
+        // Save all issues
+        await _issueRepository.SaveChangesAsync();
+    }
+
+    private IssueCategoryEnum DetermineIssueCategory(string itemLabel, string? itemDescription)
+    {
+        var labelAndDescription = $"{itemLabel} {itemDescription}".ToLowerInvariant();
+
+        if (labelAndDescription.Contains("engine") || labelAndDescription.Contains("motor"))
+            return IssueCategoryEnum.ENGINE;
+        if (labelAndDescription.Contains("transmission") || labelAndDescription.Contains("gear"))
+            return IssueCategoryEnum.TRANSMISSION;
+        if (labelAndDescription.Contains("brake") || labelAndDescription.Contains("braking"))
+            return IssueCategoryEnum.BRAKES;
+        if (labelAndDescription.Contains("electrical") || labelAndDescription.Contains("battery") || labelAndDescription.Contains("light"))
+            return IssueCategoryEnum.ELECTRICAL;
+        if (labelAndDescription.Contains("body") || labelAndDescription.Contains("door") || labelAndDescription.Contains("window"))
+            return IssueCategoryEnum.BODY;
+        if (labelAndDescription.Contains("tire") || labelAndDescription.Contains("wheel"))
+            return IssueCategoryEnum.TIRES;
+        if (labelAndDescription.Contains("hvac") || labelAndDescription.Contains("air") || labelAndDescription.Contains("heating") || labelAndDescription.Contains("cooling"))
+            return IssueCategoryEnum.HVAC;
+
+        return IssueCategoryEnum.OTHER;
+    }
+
+    private PriorityLevelEnum DeterminePriorityLevel(bool isRequired)
+    {
+        // Required items that fail are high priority, optional items are medium priority
+        return isRequired ? PriorityLevelEnum.HIGH : PriorityLevelEnum.MEDIUM;
     }
 }
