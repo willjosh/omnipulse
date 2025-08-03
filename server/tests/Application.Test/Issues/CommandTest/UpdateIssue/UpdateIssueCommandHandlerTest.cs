@@ -81,7 +81,6 @@ public class UpdateIssueCommandHandlerTest
             Status = IssueStatusEnum.IN_PROGRESS,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
-            IssueNumber = 1001,
             IssueAttachments = [],
             IssueAssignments = [],
             Vehicle = null!,

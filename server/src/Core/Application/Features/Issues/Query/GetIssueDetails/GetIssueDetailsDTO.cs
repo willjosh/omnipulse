@@ -7,9 +7,6 @@ public class GetIssueDetailsDTO
     /// <example>1</example>
     public int ID { get; set; }
 
-    /// <example>1</example>
-    public required int IssueNumber { get; set; }
-
     /// <example>Engine overheating</example>
     public required string Title { get; set; }
 
@@ -51,4 +48,7 @@ public class GetIssueDetailsDTO
 
     /// <example>Mike Johnson</example>
     public string? ResolvedByUserName { get; set; }
+
+    /// <example>1</example>
+    public int? InspectionID { get; set; }
 }
