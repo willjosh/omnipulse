@@ -7,11 +7,12 @@ import {
   ComboboxOptions,
   ComboboxOption,
 } from "@headlessui/react";
-import { IconButton } from "@mui/material";
+import { IconButton, Button } from "@mui/material";
 import {
   Delete as DeleteIcon,
   ExpandMore as ExpandMoreIcon,
   ExpandLess as ExpandLessIcon,
+  Add as AddIcon,
 } from "@mui/icons-material";
 import { useServiceTasks } from "@/features/service-task/hooks/useServiceTasks";
 import { useInventoryItems } from "@/features/inventory-item/hooks/useInventoryItems";
@@ -19,18 +20,27 @@ import { useTechnicians } from "@/features/technician/hooks/useTechnicians";
 import { ServiceTaskWithLabels } from "@/features/service-task/types/serviceTaskType";
 import { InventoryItemWithLabels } from "@/features/inventory-item/types/inventoryItemType";
 import { LineItemTypeEnum } from "../types/workOrderEnum";
-import { WorkOrderLineItem } from "../types/workOrderType";
+import { CreateWorkOrderLineItem } from "../types/workOrderType";
+import AddLaborModal from "./AddLaborModal";
+import AddPartModal from "./AddPartModal";
+import SecondaryButton from "@/components/ui/Button/SecondaryButton";
+import { Labor, Parts } from "@/components/ui/Icons";
 
-const lineItemTypeOptions = [
-  { value: LineItemTypeEnum.LABOR, label: "Labor" },
-  { value: LineItemTypeEnum.ITEM, label: "Item" },
-  { value: LineItemTypeEnum.BOTH, label: "Both" },
-];
+// Helper function to determine item type based on selections
+const determineItemType = (
+  hasLabor: boolean,
+  hasParts: boolean,
+): LineItemTypeEnum => {
+  if (hasLabor && hasParts) return LineItemTypeEnum.BOTH;
+  if (hasLabor) return LineItemTypeEnum.LABOR;
+  if (hasParts) return LineItemTypeEnum.ITEM;
+  return LineItemTypeEnum.LABOR; // Default to labor if nothing is selected
+};
 
 interface WorkOrderLineItemFormProps {
-  lineItem: WorkOrderLineItem;
+  lineItem: CreateWorkOrderLineItem;
   index: number;
-  onUpdate: (updatedLineItem: WorkOrderLineItem) => void;
+  onUpdate: (updatedLineItem: CreateWorkOrderLineItem) => void;
   onRemove: () => void;
   disabled?: boolean;
 }
@@ -42,6 +52,13 @@ const WorkOrderLineItemForm: React.FC<WorkOrderLineItemFormProps> = ({
   onRemove,
   disabled = false,
 }) => {
+  const [isAddLaborModalOpen, setIsAddLaborModalOpen] = useState(false);
+  const [isAddPartModalOpen, setIsAddPartModalOpen] = useState(false);
+  const [isLaborTableExpanded, setIsLaborTableExpanded] = useState(true);
+  const [isPartsTableExpanded, setIsPartsTableExpanded] = useState(true);
+  const [hasLaborAdded, setHasLaborAdded] = useState(false);
+  const [hasPartsAdded, setHasPartsAdded] = useState(false);
+
   // Fetch data for dropdowns
   const { serviceTasks, isPending: isLoadingServiceTasks } = useServiceTasks({
     PageNumber: 1,
@@ -54,10 +71,6 @@ const WorkOrderLineItemForm: React.FC<WorkOrderLineItemFormProps> = ({
 
   const { technicians, isPending: isLoadingTechnicians } = useTechnicians();
 
-  // Local state for search
-  const [serviceTaskSearch, setServiceTaskSearch] = useState("");
-  const [inventoryItemSearch, setInventoryItemSearch] = useState("");
-  const [technicianSearch, setTechnicianSearch] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
 
   // Create option structures following WorkOrderDetailsForm pattern
@@ -90,83 +103,43 @@ const WorkOrderLineItemForm: React.FC<WorkOrderLineItemFormProps> = ({
     [technicians],
   );
 
-  // Filtered options following WorkOrderDetailsForm pattern
-  const filteredServiceTasks = useMemo(() => {
-    if (!serviceTaskSearch) return serviceTaskOptions;
-    const searchLower = serviceTaskSearch.toLowerCase();
-    return serviceTaskOptions.filter(opt =>
-      opt.label.toLowerCase().includes(searchLower),
-    );
-  }, [serviceTaskSearch, serviceTaskOptions]);
-
-  const filteredInventoryItems = useMemo(() => {
-    if (!inventoryItemSearch) return inventoryItemOptions;
-    const searchLower = inventoryItemSearch.toLowerCase();
-    return inventoryItemOptions.filter(opt =>
-      opt.label.toLowerCase().includes(searchLower),
-    );
-  }, [inventoryItemSearch, inventoryItemOptions]);
-
-  const filteredTechnicians = useMemo(() => {
-    if (!technicianSearch) return technicianOptions;
-    const searchLower = technicianSearch.toLowerCase();
-    return technicianOptions.filter(opt =>
-      opt.label.toLowerCase().includes(searchLower),
-    );
-  }, [technicianSearch, technicianOptions]);
-
-  const updateLineItem = (field: keyof WorkOrderLineItem, value: any) => {
+  const updateLineItem = (field: keyof CreateWorkOrderLineItem, value: any) => {
     const updatedLineItem = { ...lineItem, [field]: value };
 
-    // Clear search states when items are selected
-    if (field === "serviceTaskID") {
-      setServiceTaskSearch("");
-    }
-    if (field === "inventoryItemID") {
-      setInventoryItemSearch("");
-    }
-    if (field === "assignedToUserID") {
-      setTechnicianSearch("");
-    }
-
-    // Auto-calculate costs based on type and quantity
-    if (
-      field === "quantity" ||
-      field === "itemType" ||
-      field === "inventoryItemID" ||
-      field === "serviceTaskID"
-    ) {
-      // Recalculate costs
-      let laborCost = 0;
-      let itemCost = 0;
-
-      if (updatedLineItem.serviceTaskID) {
-        const serviceTask = serviceTasks.find(
-          (st: ServiceTaskWithLabels) =>
-            st.id === updatedLineItem.serviceTaskID,
-        );
-        if (serviceTask) {
-          laborCost =
-            serviceTask.estimatedLabourHours * updatedLineItem.quantity;
-          updatedLineItem.serviceTaskName = serviceTask.name;
-        }
+    // Auto-populate rates and hours based on selected items
+    if (field === "serviceTaskID" && updatedLineItem.serviceTaskID) {
+      const serviceTask = serviceTasks.find(
+        (st: ServiceTaskWithLabels) => st.id === updatedLineItem.serviceTaskID,
+      );
+      if (serviceTask) {
+        // Use estimated cost as hourly rate if available, otherwise keep existing
+        updatedLineItem.hourlyRate =
+          serviceTask.estimatedCost > 0
+            ? serviceTask.estimatedCost
+            : updatedLineItem.hourlyRate;
+        updatedLineItem.laborHours = serviceTask.estimatedLabourHours || null;
       }
-
-      if (updatedLineItem.inventoryItemID) {
-        const inventoryItem = inventoryItems.find(
-          (ii: InventoryItemWithLabels) =>
-            ii.id === updatedLineItem.inventoryItemID,
-        );
-        if (inventoryItem && inventoryItem.unitCost) {
-          itemCost = inventoryItem.unitCost * updatedLineItem.quantity;
-          updatedLineItem.inventoryItemName = inventoryItem.itemName;
-        }
-      }
-
-      updatedLineItem.laborCost = laborCost;
-      updatedLineItem.itemCost = itemCost;
-      updatedLineItem.subTotal = laborCost + itemCost;
     }
+
+    if (field === "inventoryItemID" && updatedLineItem.inventoryItemID) {
+      const inventoryItem = inventoryItems.find(
+        (ii: InventoryItemWithLabels) =>
+          ii.id === updatedLineItem.inventoryItemID,
+      );
+      if (inventoryItem) {
+        updatedLineItem.unitPrice = inventoryItem.unitCost || null;
+      }
+    }
+
+    // Auto-determine item type based on selections
+    const hasLabor = !!(
+      updatedLineItem.serviceTaskID &&
+      (updatedLineItem.hourlyRate || updatedLineItem.laborHours)
+    );
+    const hasParts = !!(
+      updatedLineItem.inventoryItemID && updatedLineItem.unitPrice
+    );
+    updatedLineItem.itemType = determineItemType(hasLabor, hasParts);
 
     onUpdate(updatedLineItem);
   };
@@ -176,10 +149,24 @@ const WorkOrderLineItemForm: React.FC<WorkOrderLineItemFormProps> = ({
   };
 
   const getItemTypeLabel = (itemType: LineItemTypeEnum) => {
-    return (
-      lineItemTypeOptions.find(opt => opt.value === itemType)?.label ||
-      "Unknown"
-    );
+    // Check if any labor or parts are actually added
+    const hasLabor = !!(lineItem.hourlyRate && lineItem.laborHours);
+    const hasParts = !!(lineItem.inventoryItemID && lineItem.unitPrice);
+
+    if (!hasLabor && !hasParts) {
+      return "Unassigned";
+    }
+
+    switch (itemType) {
+      case LineItemTypeEnum.LABOR:
+        return "Labor";
+      case LineItemTypeEnum.ITEM:
+        return "Item";
+      case LineItemTypeEnum.BOTH:
+        return "Both";
+      default:
+        return "Unknown";
+    }
   };
 
   // Create selected values following WorkOrderDetailsForm pattern
@@ -194,6 +181,54 @@ const WorkOrderLineItemForm: React.FC<WorkOrderLineItemFormProps> = ({
   const selectedTechnician =
     technicianOptions.find(opt => opt.value === lineItem.assignedToUserID) ||
     null;
+
+  const handleAddLabor = (labor: {
+    assignedToUserID: string;
+    laborHours: number;
+    hourlyRate: number;
+  }) => {
+    const updatedLineItem = { ...lineItem };
+    updatedLineItem.assignedToUserID = labor.assignedToUserID;
+    updatedLineItem.laborHours = labor.laborHours;
+    updatedLineItem.hourlyRate = labor.hourlyRate;
+
+    // Auto-determine item type
+    const hasLabor = !!(
+      updatedLineItem.serviceTaskID &&
+      (updatedLineItem.hourlyRate || updatedLineItem.laborHours)
+    );
+    const hasParts = !!(
+      updatedLineItem.inventoryItemID && updatedLineItem.unitPrice
+    );
+    updatedLineItem.itemType = determineItemType(hasLabor, hasParts);
+
+    setHasLaborAdded(true);
+    onUpdate(updatedLineItem);
+  };
+
+  const handleAddPart = (part: {
+    inventoryItemID: number;
+    quantity: number;
+    unitPrice: number;
+  }) => {
+    const updatedLineItem = { ...lineItem };
+    updatedLineItem.inventoryItemID = part.inventoryItemID;
+    updatedLineItem.quantity = part.quantity;
+    updatedLineItem.unitPrice = part.unitPrice;
+
+    // Auto-determine item type
+    const hasLabor = !!(
+      updatedLineItem.serviceTaskID &&
+      (updatedLineItem.hourlyRate || updatedLineItem.laborHours)
+    );
+    const hasParts = !!(
+      updatedLineItem.inventoryItemID && updatedLineItem.unitPrice
+    );
+    updatedLineItem.itemType = determineItemType(hasLabor, hasParts);
+
+    setHasPartsAdded(true);
+    onUpdate(updatedLineItem);
+  };
 
   return (
     <div className="border border-gray-200 rounded-lg overflow-hidden">
@@ -210,7 +245,9 @@ const WorkOrderLineItemForm: React.FC<WorkOrderLineItemFormProps> = ({
               <ExpandMoreIcon className="text-gray-500" />
             )}
             <span className="text-sm font-medium text-gray-900">
-              Line Item #{index + 1}
+              {selectedServiceTask
+                ? selectedServiceTask.label
+                : `Service Task #${index + 1}`}
             </span>
           </div>
 
@@ -218,28 +255,38 @@ const WorkOrderLineItemForm: React.FC<WorkOrderLineItemFormProps> = ({
             <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
               {getItemTypeLabel(lineItem.itemType)}
             </span>
-            <span>Qty: {lineItem.quantity}</span>
-            {lineItem.serviceTaskName && (
-              <span className="max-w-xs truncate">
-                {lineItem.serviceTaskName}
-              </span>
-            )}
-            {lineItem.inventoryItemName && (
-              <span className="max-w-xs truncate">
-                {lineItem.inventoryItemName}
-              </span>
-            )}
           </div>
         </div>
 
-        <div className="flex items-center space-x-4">
-          <div className="text-right">
-            <div className="text-sm font-semibold text-blue-600">
-              ${lineItem.subTotal.toFixed(2)}
+        <div className="flex items-center space-x-6">
+          {/* Labor Cost */}
+          <div className="text-center min-w-[80px]">
+            <div className="text-xs text-gray-500 mb-1">Labor</div>
+            <div className="text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded px-2 py-1">
+              $
+              {(
+                (lineItem.hourlyRate || 0) * (lineItem.laborHours || 0)
+              ).toFixed(2)}
             </div>
-            <div className="text-xs text-gray-500">
-              Labor: ${lineItem.laborCost.toFixed(2)} | Items: $
-              {lineItem.itemCost.toFixed(2)}
+          </div>
+
+          {/* Parts Cost */}
+          <div className="text-center min-w-[80px]">
+            <div className="text-xs text-gray-500 mb-1">Parts</div>
+            <div className="text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded px-2 py-1">
+              ${((lineItem.unitPrice || 0) * lineItem.quantity).toFixed(2)}
+            </div>
+          </div>
+
+          {/* Subtotal */}
+          <div className="text-center min-w-[80px]">
+            <div className="text-xs text-gray-500 mb-1">Subtotal</div>
+            <div className="text-sm font-semibold text-blue-600 bg-white border border-gray-200 rounded px-2 py-1">
+              $
+              {(
+                (lineItem.hourlyRate || 0) * (lineItem.laborHours || 0) +
+                (lineItem.unitPrice || 0) * lineItem.quantity
+              ).toFixed(2)}
             </div>
           </div>
 
@@ -260,308 +307,28 @@ const WorkOrderLineItemForm: React.FC<WorkOrderLineItemFormProps> = ({
       {/* Expanded Content */}
       {isExpanded && (
         <div className="p-4 space-y-4 bg-white">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Item Type */}
-            <FormField label="Item Type" required>
-              <Combobox
-                value={
-                  lineItemTypeOptions.find(
-                    opt => opt.value === lineItem.itemType,
-                  ) || null
-                }
-                onChange={opt => opt && updateLineItem("itemType", opt.value)}
-                disabled={disabled}
-              >
-                <div className="relative">
-                  <ComboboxInput
-                    className="w-full border border-gray-300 rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                    displayValue={(
-                      opt: { value: number; label: string } | null,
-                    ) => opt?.label || ""}
-                    placeholder="Select item type..."
-                    disabled={disabled}
-                    readOnly
-                  />
-                  <ComboboxButton className="absolute inset-y-0 right-0 flex items-center pr-2">
-                    <svg
-                      className="h-5 w-5 text-gray-400"
-                      viewBox="0 0 20 20"
-                      fill="none"
-                      stroke="currentColor"
-                    >
-                      <path
-                        d="M7 7l3-3 3 3m0 6l-3 3-3-3"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </ComboboxButton>
-                  <ComboboxOptions className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-3xl shadow-lg max-h-60 overflow-auto">
-                    {lineItemTypeOptions.map(opt => (
-                      <ComboboxOption
-                        key={opt.value}
-                        value={opt}
-                        className={({ active, selected }) =>
-                          `cursor-pointer select-none px-4 py-2 flex items-center ${active ? "bg-blue-100" : ""}`
-                        }
-                      >
-                        {({ selected }) => (
-                          <>
-                            <span className="flex-1">{opt.label}</span>
-                            {selected && (
-                              <svg
-                                className="h-5 w-5 text-blue-600 ml-2"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M5 13l4 4L19 7"
-                                />
-                              </svg>
-                            )}
-                          </>
-                        )}
-                      </ComboboxOption>
-                    ))}
-                  </ComboboxOptions>
-                </div>
-              </Combobox>
-            </FormField>
-
-            {/* Quantity */}
-            <FormField label="Quantity" required>
-              <input
-                type="number"
-                min={1}
-                value={lineItem.quantity || 1}
-                onChange={e =>
-                  updateLineItem("quantity", Number(e.target.value))
-                }
-                className="w-full border border-gray-300 rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                disabled={disabled}
-              />
-            </FormField>
-
-            {/* Service Task */}
-            <FormField label="Service Task" required>
-              <Combobox
-                value={selectedServiceTask}
-                onChange={(task: { value: number; label: string } | null) =>
-                  task && updateLineItem("serviceTaskID", task.value)
-                }
-                disabled={disabled || isLoadingServiceTasks}
-              >
-                <div className="relative">
-                  <ComboboxInput
-                    className="w-full border border-gray-300 rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                    displayValue={(
-                      task: { value: number; label: string } | null,
-                    ) => task?.label || ""}
-                    onChange={e => setServiceTaskSearch(e.target.value)}
-                    placeholder="Search service tasks..."
-                    disabled={disabled || isLoadingServiceTasks}
-                  />
-                  <ComboboxButton className="absolute inset-y-0 right-0 flex items-center pr-2">
-                    <svg
-                      className="h-5 w-5 text-gray-400"
-                      viewBox="0 0 20 20"
-                      fill="none"
-                      stroke="currentColor"
-                    >
-                      <path
-                        d="M7 7l3-3 3 3m0 6l-3 3-3-3"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </ComboboxButton>
-                  <ComboboxOptions className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-3xl shadow-lg max-h-60 overflow-auto">
-                    {filteredServiceTasks.map(opt => (
-                      <ComboboxOption
-                        key={opt.value}
-                        value={opt}
-                        className={({ active, selected }) =>
-                          `cursor-pointer select-none px-4 py-2 flex items-center ${active ? "bg-blue-100" : ""}`
-                        }
-                      >
-                        {({ selected }) => (
-                          <>
-                            <span className="flex-1">{opt.label}</span>
-                            {selected && (
-                              <svg
-                                className="h-5 w-5 text-blue-600 ml-2"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M5 13l4 4L19 7"
-                                />
-                              </svg>
-                            )}
-                          </>
-                        )}
-                      </ComboboxOption>
-                    ))}
-                  </ComboboxOptions>
-                </div>
-              </Combobox>
-            </FormField>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Inventory Item */}
-            <FormField label="Inventory Item">
-              <Combobox
-                value={selectedInventoryItem}
-                onChange={(item: { value: number; label: string } | null) =>
-                  item && updateLineItem("inventoryItemID", item.value)
-                }
-                disabled={disabled || isLoadingInventoryItems}
-              >
-                <div className="relative">
-                  <ComboboxInput
-                    className="w-full border border-gray-300 rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                    displayValue={(
-                      item: { value: number; label: string } | null,
-                    ) => item?.label || ""}
-                    onChange={e => setInventoryItemSearch(e.target.value)}
-                    placeholder="Search inventory items..."
-                    disabled={disabled || isLoadingInventoryItems}
-                  />
-                  <ComboboxButton className="absolute inset-y-0 right-0 flex items-center pr-2">
-                    <svg
-                      className="h-5 w-5 text-gray-400"
-                      viewBox="0 0 20 20"
-                      fill="none"
-                      stroke="currentColor"
-                    >
-                      <path
-                        d="M7 7l3-3 3 3m0 6l-3 3-3-3"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </ComboboxButton>
-                  <ComboboxOptions className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-3xl shadow-lg max-h-60 overflow-auto">
-                    {filteredInventoryItems.map(opt => (
-                      <ComboboxOption
-                        key={opt.value}
-                        value={opt}
-                        className={({ active, selected }) =>
-                          `cursor-pointer select-none px-4 py-2 flex items-center ${active ? "bg-blue-100" : ""}`
-                        }
-                      >
-                        {({ selected }) => (
-                          <>
-                            <span className="flex-1">{opt.label}</span>
-                            {selected && (
-                              <svg
-                                className="h-5 w-5 text-blue-600 ml-2"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M5 13l4 4L19 7"
-                                />
-                              </svg>
-                            )}
-                          </>
-                        )}
-                      </ComboboxOption>
-                    ))}
-                  </ComboboxOptions>
-                </div>
-              </Combobox>
-            </FormField>
-
-            {/* Assigned Technician */}
-            <FormField label="Assigned Technician">
-              <Combobox
-                value={selectedTechnician}
-                onChange={(tech: { value: string; label: string } | null) =>
-                  tech && updateLineItem("assignedToUserID", tech.value)
-                }
-                disabled={disabled || isLoadingTechnicians}
-              >
-                <div className="relative">
-                  <ComboboxInput
-                    className="w-full border border-gray-300 rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                    displayValue={(
-                      tech: { value: string; label: string } | null,
-                    ) => tech?.label || ""}
-                    onChange={e => setTechnicianSearch(e.target.value)}
-                    placeholder="Search technicians..."
-                    disabled={disabled || isLoadingTechnicians}
-                  />
-                  <ComboboxButton className="absolute inset-y-0 right-0 flex items-center pr-2">
-                    <svg
-                      className="h-5 w-5 text-gray-400"
-                      viewBox="0 0 20 20"
-                      fill="none"
-                      stroke="currentColor"
-                    >
-                      <path
-                        d="M7 7l3-3 3 3m0 6l-3 3-3-3"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </ComboboxButton>
-                  <ComboboxOptions className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-3xl shadow-lg max-h-60 overflow-auto">
-                    {filteredTechnicians.map(opt => (
-                      <ComboboxOption
-                        key={opt.value}
-                        value={opt}
-                        className={({ active, selected }) =>
-                          `cursor-pointer select-none px-4 py-2 flex items-center ${active ? "bg-blue-100" : ""}`
-                        }
-                      >
-                        {({ selected }) => (
-                          <>
-                            <span className="flex-1">{opt.label}</span>
-                            {selected && (
-                              <svg
-                                className="h-5 w-5 text-blue-600 ml-2"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M5 13l4 4L19 7"
-                                />
-                              </svg>
-                            )}
-                          </>
-                        )}
-                      </ComboboxOption>
-                    ))}
-                  </ComboboxOptions>
-                </div>
-              </Combobox>
-            </FormField>
+          {/* Add Labor and Add Part Buttons */}
+          <div className="flex space-x-3">
+            <SecondaryButton
+              onClick={() => setIsAddLaborModalOpen(true)}
+              disabled={disabled}
+              className="flex items-center space-x-1"
+            >
+              <Labor />
+              <span>Add Labor</span>
+            </SecondaryButton>
+            <SecondaryButton
+              onClick={() => setIsAddPartModalOpen(true)}
+              disabled={disabled}
+              className="flex items-center space-x-1"
+            >
+              <Parts />
+              <span>Add Part</span>
+            </SecondaryButton>
           </div>
 
           {/* Description */}
-          <FormField label="Description">
+          <FormField label="">
             <textarea
               value={lineItem.description || ""}
               onChange={e => updateLineItem("description", e.target.value)}
@@ -571,29 +338,230 @@ const WorkOrderLineItemForm: React.FC<WorkOrderLineItemFormProps> = ({
             />
           </FormField>
 
-          {/* Cost Summary */}
-          <div className="grid grid-cols-3 gap-4 text-sm">
-            <div className="text-center p-2 bg-gray-50 rounded">
-              <div className="font-medium">Labor Cost</div>
-              <div className="text-gray-600">
-                ${lineItem.laborCost.toFixed(2)}
+          {/* Labor Table */}
+          {hasLaborAdded && (
+            <div className="border border-gray-200 rounded-lg overflow-hidden">
+              <div
+                className="bg-blue-50 px-4 py-3 border-b border-gray-200 cursor-pointer hover:bg-blue-100"
+                onClick={() => setIsLaborTableExpanded(!isLaborTableExpanded)}
+              >
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-medium text-blue-900">
+                    Labor Details
+                  </h3>
+                  <svg
+                    className={`w-4 h-4 text-blue-600 transition-transform ${
+                      isLaborTableExpanded ? "rotate-180" : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </div>
               </div>
+
+              {isLaborTableExpanded && (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Technician
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Hours
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Rate
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Amount
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      <tr>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                          {selectedTechnician
+                            ? selectedTechnician.label
+                            : "Not assigned"}
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                          {lineItem.laborHours || 0} hrs
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                          ${lineItem.hourlyRate || 0}/hr
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900 relative">
+                          $
+                          {(
+                            (lineItem.hourlyRate || 0) *
+                            (lineItem.laborHours || 0)
+                          ).toFixed(2)}
+                          <button
+                            type="button"
+                            onClick={e => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setIsAddLaborModalOpen(true);
+                            }}
+                            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
+                            disabled={disabled}
+                          >
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                              />
+                            </svg>
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
-            <div className="text-center p-2 bg-gray-50 rounded">
-              <div className="font-medium">Item Cost</div>
-              <div className="text-gray-600">
-                ${lineItem.itemCost.toFixed(2)}
+          )}
+
+          {/* Parts Table */}
+          {hasPartsAdded && (
+            <div className="border border-gray-200 rounded-lg overflow-hidden">
+              <div
+                className="bg-green-50 px-4 py-3 border-b border-gray-200 cursor-pointer hover:bg-green-100"
+                onClick={() => setIsPartsTableExpanded(!isPartsTableExpanded)}
+              >
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-medium text-green-900">
+                    Parts Details
+                  </h3>
+                  <svg
+                    className={`w-4 h-4 text-green-600 transition-transform ${
+                      isPartsTableExpanded ? "rotate-180" : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </div>
               </div>
+
+              {isPartsTableExpanded && (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Part
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Quantity
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Unit Cost
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Amount
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      <tr>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                          {selectedInventoryItem
+                            ? selectedInventoryItem.label
+                            : "No part selected"}
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                          {lineItem.quantity || 0}
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                          ${lineItem.unitPrice || 0}
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900 relative">
+                          $
+                          {(
+                            (lineItem.unitPrice || 0) * lineItem.quantity
+                          ).toFixed(2)}
+                          <button
+                            type="button"
+                            onClick={e => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setIsAddPartModalOpen(true);
+                            }}
+                            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
+                            disabled={disabled}
+                          >
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                              />
+                            </svg>
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
-            <div className="text-center p-2 bg-blue-50 rounded">
-              <div className="font-medium">Subtotal</div>
-              <div className="text-blue-600 font-semibold">
-                ${lineItem.subTotal.toFixed(2)}
-              </div>
-            </div>
-          </div>
+          )}
         </div>
       )}
+
+      {/* Add Labor Modal */}
+      <AddLaborModal
+        isOpen={isAddLaborModalOpen}
+        onClose={() => setIsAddLaborModalOpen(false)}
+        onSave={handleAddLabor}
+        initialValues={{
+          assignedToUserID: lineItem.assignedToUserID || "",
+          laborHours: lineItem.laborHours || 1,
+          hourlyRate: lineItem.hourlyRate || 0,
+        }}
+      />
+
+      {/* Add Part Modal */}
+      <AddPartModal
+        isOpen={isAddPartModalOpen}
+        onClose={() => setIsAddPartModalOpen(false)}
+        onSave={handleAddPart}
+        initialValues={{
+          inventoryItemID: lineItem.inventoryItemID || 0,
+          quantity: lineItem.quantity || 1,
+          unitPrice: lineItem.unitPrice || 0,
+        }}
+      />
     </div>
   );
 };
