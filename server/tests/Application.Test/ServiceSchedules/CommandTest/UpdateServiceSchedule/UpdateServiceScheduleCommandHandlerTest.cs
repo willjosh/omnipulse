@@ -64,7 +64,6 @@ public class UpdateServiceScheduleCommandHandlerTest
             MileageInterval: mileageInterval,
             MileageBuffer: mileageBuffer,
             FirstServiceDate: firstServiceDate,
-            FirstServiceDate: firstServiceDate,
             FirstServiceMileage: firstServiceMileage,
             IsActive: isActive);
 
@@ -103,7 +102,6 @@ public class UpdateServiceScheduleCommandHandlerTest
             TimeBufferUnit = TimeUnitEnum.Days,
             MileageInterval = null,
             MileageBuffer = null,
-            FirstServiceDate = null,
             FirstServiceDate = null,
             FirstServiceMileage = null,
             IsActive = true,
@@ -180,7 +178,6 @@ public class UpdateServiceScheduleCommandHandlerTest
             TimeBufferUnit = TimeUnitEnum.Days,
             MileageInterval = null,
             MileageBuffer = null,
-            FirstServiceDate = null,
             FirstServiceDate = null,
             FirstServiceMileage = null,
             IsActive = true,

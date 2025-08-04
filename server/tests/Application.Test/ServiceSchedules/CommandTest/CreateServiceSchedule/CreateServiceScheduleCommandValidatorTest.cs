@@ -32,7 +32,6 @@ public class CreateServiceScheduleCommandValidatorTest
             MileageInterval: mileageInterval,
             MileageBuffer: mileageBuffer,
             FirstServiceDate: firstServiceDate,
-            FirstServiceDate: firstServiceDate,
             FirstServiceMileage: firstServiceMileage,
             IsActive: isActive);
 }
