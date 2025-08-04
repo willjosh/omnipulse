@@ -76,11 +76,6 @@ public sealed class CreateServiceScheduleCommandValidator : AbstractValidator<Cr
             .WithMessage("Mileage buffer cannot be greater than or equal to mileage interval");
 
         // First service date validation
-        RuleFor(x => x.FirstServiceDate)
-            .GreaterThan(DateTime.Today.AddDays(-1)) // Allow today or future dates
-            .When(x => x.FirstServiceDate.HasValue)
-            .WithMessage("First service date must be today or in the future");
-
         RuleFor(x => x)
             .Must(x => !x.FirstServiceDate.HasValue || (x.TimeIntervalValue.HasValue && x.TimeIntervalUnit.HasValue))
             .WithMessage("First service date requires TimeIntervalValue and TimeIntervalUnit to be set");

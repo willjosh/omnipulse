@@ -431,21 +431,7 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.Equal(isValid, result.IsValid);
     }
 
-    [Theory]
-    [InlineData(-1)]
-    [InlineData(-100)]
-    public async Task Validator_Should_Fail_When_FirstServiceDate_Is_Negative(int invalidValue)
-    {
-        // Arrange
-        var command = CreateValidCommand(firstServiceDate: DateTime.Today.AddDays(invalidValue));
-
-        // Act
-        var result = await Validator.ValidateAsync(command);
-
-        // Assert
-        Assert.False(result.IsValid);
-        Assert.Contains(result.Errors, e => e.PropertyName == "FirstServiceDate");
-    }
+    // Removed test: FirstServiceDate now allows past dates as per user requirement
 
     [Fact]
     public async Task Validator_Should_Pass_When_FirstServiceDate_Is_Zero()
@@ -806,7 +792,7 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
 
     [Trait("Category", "EnumValidation")]
     [Fact]
-    public async Task Validator_Should_Fail_When_FirstServiceDate_IsInPast()
+    public async Task Validator_Should_Pass_When_FirstServiceDate_IsInPast()
     {
         // Arrange
         var command = CreateValidCommand(
@@ -818,8 +804,7 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         var result = await Validator.ValidateAsync(command);
 
         // Assert
-        Assert.False(result.IsValid);
-        Assert.Contains(result.Errors, e => e.PropertyName == "FirstServiceDate");
+        Assert.True(result.IsValid);
     }
 
     [Trait("Category", "FirstServiceEdge")]
