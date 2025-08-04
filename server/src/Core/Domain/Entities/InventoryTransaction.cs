@@ -14,4 +14,19 @@ public class InventoryTransaction : BaseEntity
     // navigation properties
     public required Inventory Inventory { get; set; }
     public required User User { get; set; }
+
+    public static TransactionTypeEnum DecideTransactionType(bool isAdjustment, int transactionQuantity, int quantityOnHand)
+    {
+        if (isAdjustment || (transactionQuantity == 0 && quantityOnHand == 0))
+        {
+            return TransactionTypeEnum.ADJUSTMENT;
+        }
+
+        if (transactionQuantity > quantityOnHand)
+        {
+            return TransactionTypeEnum.IN;
+        }
+
+        return TransactionTypeEnum.OUT;
+    }
 }
