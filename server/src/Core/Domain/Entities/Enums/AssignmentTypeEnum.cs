@@ -2,7 +2,7 @@ namespace Domain.Entities.Enums;
 
 public enum AssignmentTypeEnum
 {
-    PERMANENT,
-    TEMPORARY,
-    POOL_VEHICLE
+    PERMANENT = 1,
+    TEMPORARY = 2,
+    POOL_VEHICLE = 3
 }

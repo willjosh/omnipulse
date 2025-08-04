@@ -19,7 +19,6 @@
   <ItemGroup>
     <Folder Include="Exceptions/WorkOrder/" />
     <Folder Include="Features/Auth/Query/" />
-    <Folder Include="Features/Inventory/Query/" />
     <Folder Include="Features/WorkOrderLineItem/Command/" />
   </ItemGroup>
 

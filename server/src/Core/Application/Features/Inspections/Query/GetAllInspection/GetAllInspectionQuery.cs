@@ -1,6 +1,6 @@
-using Domain.Entities;
-
 using Application.Models.PaginationModels;
+
+using Domain.Entities;
 
 using MediatR;
 

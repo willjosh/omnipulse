@@ -2,8 +2,8 @@ namespace Domain.Entities.Enums;
 
 public enum PriorityLevelEnum
 {
-    LOW,
-    MEDIUM,
-    HIGH,
-    CRITICAL
+    LOW = 1,
+    MEDIUM = 2,
+    HIGH = 3,
+    CRITICAL = 4
 }
