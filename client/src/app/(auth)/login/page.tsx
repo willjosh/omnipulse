@@ -110,12 +110,26 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Password
-            </label>
+            <div className="flex items-center justify-between">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Password
+              </label>
+              <div className="text-sm">
+                <button
+                  type="button"
+                  className="font-medium text-blue-600 hover:text-blue-500 hover:underline focus:outline-none"
+                  onClick={() => {
+                    // TODO: Implement forgot password functionality
+                    console.log("Forgot password clicked");
+                  }}
+                >
+                  Forgot your password?
+                </button>
+              </div>
+            </div>
             <div className="mt-1">
               <input
                 id="password"
@@ -136,24 +150,29 @@ export default function LoginPage() {
             )}
           </div>
 
-          <div>
+          <div className="pt-2">
             <PrimaryButton
               type="submit"
-              className="w-full"
+              className="w-full py-3 text-base font-medium"
               disabled={isPending}
             >
               {isPending ? "Signing in..." : "Sign in"}
             </PrimaryButton>
           </div>
 
-          <div className="text-center">
-            <SecondaryButton
-              type="button"
-              onClick={() => router.push("/register")}
-              className="text-sm"
-            >
-              Need a Fleet Manager account? Register here
-            </SecondaryButton>
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <div className="text-center">
+              <p className="text-sm text-gray-600">
+                Need a Fleet Manager account?{" "}
+                <button
+                  type="button"
+                  onClick={() => router.push("/register")}
+                  className="font-medium text-blue-600 hover:text-blue-500 hover:underline focus:outline-none transition-colors duration-200"
+                >
+                  Register here
+                </button>
+              </p>
+            </div>
           </div>
         </form>
       </div>
