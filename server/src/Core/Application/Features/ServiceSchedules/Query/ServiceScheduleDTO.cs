@@ -35,13 +35,9 @@ public class ServiceScheduleDTO
     /// <example>100</example>
     public int? MileageBuffer { get; set; }
 
-    /// <example>1</example>
-    public int? FirstServiceTimeValue { get; set; }
+    public DateTime? FirstServiceDate { get; set; }
 
-    /// <example>TimeUnitEnum.Days</example>
-    public TimeUnitEnum? FirstServiceTimeUnit { get; set; }
-
-    /// <example>200</example>
+    /// <example>1000</example>
     public int? FirstServiceMileage { get; set; }
 
     /// <example>true</example>
