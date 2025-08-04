@@ -62,7 +62,7 @@ public class ServiceReminder : BaseEntity
     public WorkOrder? WorkOrder { get; set; }
 
     /// <summary>Navigation property to the related service program.</summary>
-    public required ServiceProgram ServiceProgram { get; set; }
+    public ServiceProgram? ServiceProgram { get; set; }
 
     /// <summary>Navigation property to the related service schedule.</summary>
     public required ServiceSchedule ServiceSchedule { get; set; }
