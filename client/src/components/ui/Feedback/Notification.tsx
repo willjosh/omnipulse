@@ -32,7 +32,7 @@ const Notification: React.FC<NotificationProps> = ({
 
   return (
     <div
-      className={`fixed top-6 right-6 z-50 px-4 py-3 rounded shadow border ${typeStyles[type]} ${className}`}
+      className={`fixed top-16 right-6 z-50 px-4 py-3 rounded shadow border ${typeStyles[type]} ${className}`}
       role="alert"
     >
       <span>{message}</span>

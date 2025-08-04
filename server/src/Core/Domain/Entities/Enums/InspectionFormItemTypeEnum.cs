@@ -6,7 +6,7 @@ namespace Domain.Entities.Enums;
 /// </summary>
 public enum InspectionFormItemTypeEnum
 {
-    PassFail, // Boolean
+    PassFail = 1, // Boolean
     // Text, // Free-form comments
     // Numeric, // e.g., tyre pressure
     // Photo, // Photo evidence

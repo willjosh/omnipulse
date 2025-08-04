@@ -11,4 +11,4 @@ namespace Application.Features.InspectionFormItems.Query.GetAllInspectionFormIte
 /// </summary>
 /// <param name="InspectionFormID">The ID of the <see cref="InspectionForm"/> to get items for.</param>
 /// <param name="Parameters">Pagination, filtering, and sorting parameters.</param>
-public record GetAllInspectionFormItemQuery(int InspectionFormID, PaginationParameters Parameters) : IRequest<PagedResult<GetAllInspectionFormItemDTO>>;
+public record GetAllInspectionFormItemQuery(int InspectionFormID, PaginationParameters Parameters) : IRequest<PagedResult<InspectionFormItemDetailDTO>>;

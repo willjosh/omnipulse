@@ -2,6 +2,7 @@ using Application.Features.InspectionFormItems.Command.CreateInspectionFormItem;
 using Application.Features.InspectionFormItems.Command.DeactivateInspectionFormItem;
 using Application.Features.InspectionFormItems.Command.UpdateInspectionFormItem;
 using Application.Features.InspectionFormItems.Query.GetAllInspectionFormItem;
+using Application.Features.InspectionFormItems.Query.GetInspectionFormItem;
 using Application.Features.InspectionForms.Command.CreateInspectionForm;
 using Application.Features.InspectionForms.Command.DeactivateInspectionForm;
 using Application.Features.InspectionForms.Command.UpdateInspectionForm;
@@ -14,6 +15,7 @@ using Domain.Entities;
 
 using MediatR;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
@@ -39,6 +41,7 @@ namespace Api.Controllers;
 [Route("api/[controller]")]
 [Consumes("application/json")]
 [Produces("application/json")]
+[Authorize(Policy = "AllRoles")]
 public sealed class InspectionFormsController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -232,11 +235,11 @@ public sealed class InspectionFormsController : ControllerBase
     /// <response code="404">The specified inspection form was not found.</response>
     /// <response code="500">Internal server error occurred.</response>
     [HttpGet("{id:int}/items")]
-    [ProducesResponseType(typeof(PagedResult<GetAllInspectionFormItemDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PagedResult<InspectionFormItemDetailDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<PagedResult<GetAllInspectionFormItemDTO>>> GetAllInspectionFormItems(
+    public async Task<ActionResult<PagedResult<InspectionFormItemDetailDTO>>> GetAllInspectionFormItems(
         int id,
         [FromQuery] PaginationParameters parameters,
         CancellationToken cancellationToken)
@@ -365,6 +368,41 @@ public sealed class InspectionFormsController : ControllerBase
             var deactivatedInspectionFormItemId = await _mediator.Send(command, cancellationToken);
 
             return Ok(deactivatedInspectionFormItemId);
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Retrieves detailed information about a specific inspection form item by its ID.
+    /// </summary>
+    /// <param name="id">The ID of the <see cref="InspectionForm"/> that contains the item.</param>
+    /// <param name="itemId">The ID of the <see cref="InspectionFormItem"/> to retrieve.</param>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>The <see cref="InspectionFormItem"/> details.</returns>
+    /// <response code="200">Inspection form item retrieved successfully.</response>
+    /// <response code="404">Inspection form item with the specified ID was not found.</response>
+    /// <response code="500">Internal server error occurred.</response>
+    [HttpGet("{id:int}/items/{itemId:int}")]
+    [ProducesResponseType(typeof(InspectionFormItemDetailDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<InspectionFormItemDetailDTO>> GetInspectionFormItem(
+        int id,
+        int itemId,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            _logger.LogInformation("{Method}() - Called with InspectionForm ID: {InspectionFormID}, Item ID: {ItemID}",
+                nameof(GetInspectionFormItem), id, itemId);
+
+            var query = new GetInspectionFormItemQuery(itemId);
+            var inspectionFormItemDto = await _mediator.Send(query, cancellationToken);
+
+            return Ok(inspectionFormItemDto);
         }
         catch (Exception)
         {

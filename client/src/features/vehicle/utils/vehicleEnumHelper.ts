@@ -3,6 +3,12 @@ import {
   VehicleStatusEnum,
   VehicleTypeEnum,
 } from "@/features/vehicle/types/vehicleEnum";
+import {
+  getVehicleStatusLabel,
+  getVehicleStatusColor,
+  getAllVehicleStatusOptions,
+} from "@/features/vehicle-status/types/vehicleStatusEnum";
+export const getVehicleStatusOptions = () => getAllVehicleStatusOptions();
 
 export const getVehicleTypeLabel = (type: VehicleTypeEnum) => {
   switch (type) {
@@ -27,20 +33,8 @@ export const getVehicleTypeLabel = (type: VehicleTypeEnum) => {
   }
 };
 
-export const getStatusLabel = (status: VehicleStatusEnum) => {
-  switch (status) {
-    case VehicleStatusEnum.ACTIVE:
-      return "Active";
-    case VehicleStatusEnum.INACTIVE:
-      return "Inactive";
-    case VehicleStatusEnum.MAINTENANCE:
-      return "In Shop";
-    case VehicleStatusEnum.OUT_OF_SERVICE:
-      return "Out of Service";
-    default:
-      return "Sold";
-  }
-};
+export const getStatusLabel = (status: VehicleStatusEnum) =>
+  getVehicleStatusLabel(status);
 
 export const getVehicleIcon = (type: VehicleTypeEnum) => {
   switch (type) {
@@ -85,30 +79,21 @@ export const getFuelTypeLabel = (fuelType: FuelTypeEnum) => {
 };
 
 export const getStatusDot = (status: VehicleStatusEnum) => {
-  switch (status) {
-    case VehicleStatusEnum.ACTIVE:
-      return "bg-green-500";
-    case VehicleStatusEnum.MAINTENANCE:
-      return "bg-orange-500";
-    case VehicleStatusEnum.INACTIVE:
-      return "bg-blue-500";
-    case VehicleStatusEnum.OUT_OF_SERVICE:
-      return "bg-red-500";
-    default:
-      return "bg-gray-500";
-  }
+  const color = getVehicleStatusColor(status);
+  return `bg-${color}-500`;
 };
 
 export const getStatusColor = (status: VehicleStatusEnum) => {
-  switch (status) {
-    case VehicleStatusEnum.ACTIVE:
+  const color = getVehicleStatusColor(status);
+  switch (color) {
+    case "green":
       return "text-green-600 bg-green-50";
-    case VehicleStatusEnum.MAINTENANCE:
-      return "text-yellow-600 bg-yellow-50";
-    case VehicleStatusEnum.INACTIVE:
-      return "text-blue-600 bg-blue-50";
-    case VehicleStatusEnum.OUT_OF_SERVICE:
+    case "orange":
+      return "text-orange-600 bg-orange-50";
+    case "red":
       return "text-red-600 bg-red-50";
+    case "blue":
+      return "text-blue-600 bg-blue-50";
     default:
       return "text-gray-600 bg-gray-50";
   }

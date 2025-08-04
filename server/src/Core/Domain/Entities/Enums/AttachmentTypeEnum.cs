@@ -2,9 +2,9 @@ namespace Domain.Entities.Enums;
 
 public enum AttachmentTypeEnum
 {
-    IMAGE,
-    VIDEO,
-    AUDIO,
-    DOCUMENT,
-    OTHER
+    IMAGE = 1,
+    VIDEO = 2,
+    AUDIO = 3,
+    DOCUMENT = 4,
+    OTHER = 5
 }

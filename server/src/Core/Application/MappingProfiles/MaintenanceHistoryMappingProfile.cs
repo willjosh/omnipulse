@@ -17,7 +17,15 @@ public class MaintenanceHistoryMappingProfile : Profile
 
         CreateMap<MaintenanceHistory, GetAllMaintenanceHistoryDTO>()
             .ForMember(dest => dest.MaintenanceHistoryID, opt => opt.MapFrom(src => src.ID))
-            .ForMember(dest => dest.WorkOrderNumber, opt => opt.MapFrom(src => src.WorkOrder != null ? src.WorkOrder.Title : string.Empty));
+            .ForMember(dest => dest.VehicleID, opt => opt.MapFrom(src => src.WorkOrder.VehicleID))
+            .ForMember(dest => dest.VehicleName, opt => opt.MapFrom(src => src.WorkOrder.Vehicle.Name))
+            .ForMember(dest => dest.ServiceTaskName, opt => opt.MapFrom(src => src.WorkOrder.WorkOrderLineItems.Select(wol => wol.ServiceTask.Name).ToList()))
+            .ForMember(dest => dest.ServiceTaskID, opt => opt.MapFrom(src => src.WorkOrder.WorkOrderLineItems.Select(wol => wol.ServiceTask.ID).ToArray()))
+            .ForMember(dest => dest.TechnicianID, opt => opt.MapFrom(src => src.WorkOrder.AssignedToUserID))
+            .ForMember(dest => dest.TechnicianName, opt => opt.MapFrom(src => src.WorkOrder.User.FirstName + " " + src.WorkOrder.User.LastName))
+            .ForMember(dest => dest.ServiceDate, opt => opt.MapFrom(src => src.WorkOrder.ActualCompletionDate))
+            .ForMember(dest => dest.Cost, opt => opt.Ignore())
+            .ForMember(dest => dest.LabourHours, opt => opt.Ignore());
 
         CreateMap<WorkOrder, MaintenanceHistory>()
             .ForMember(dest => dest.ID, opt => opt.Ignore())

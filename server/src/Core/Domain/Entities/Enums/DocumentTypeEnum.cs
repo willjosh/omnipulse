@@ -2,12 +2,12 @@ namespace Domain.Entities.Enums;
 
 public enum DocumentTypeEnum
 {
-    REGISTRATION,
-    INSURANCE,
-    WARRANTY,
-    SERVICE_RECORD,
-    INSPECTION_REPORT,
-    IMAGE,
-    MANUAL,
-    OTHER
+    REGISTRATION = 1,
+    INSURANCE = 2,
+    WARRANTY = 3,
+    SERVICE_RECORD = 4,
+    INSPECTION_REPORT = 5,
+    IMAGE = 6,
+    MANUAL = 7,
+    OTHER = 8
 }
