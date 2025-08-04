@@ -9,7 +9,7 @@ import { PrimaryButton } from "@/components/ui/Button";
 import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
 import { getInspectionFormItemTypeLabel } from "@/features/inspection-form/utils/inspectionFormEnumHelper";
 import { Edit as EditIcon } from "@/components/ui/Icons";
-import { Trash2, Plus } from "lucide-react";
+import { Archive, Plus } from "lucide-react";
 
 export default function InspectionFormDetailsPage() {
   const params = useParams();
@@ -71,6 +71,8 @@ export default function InspectionFormDetailsPage() {
     <div className="min-h-screen bg-gray-50">
       <InspectionFormHeader
         title={inspectionForm.title}
+        description={inspectionForm.description || undefined}
+        showDescription={true}
         breadcrumbs={breadcrumbs}
         actions={
           <PrimaryButton onClick={handleEdit}>
@@ -80,80 +82,6 @@ export default function InspectionFormDetailsPage() {
       />
 
       <div className="px-6 pb-12 mt-4 max-w-6xl mx-auto">
-        {/* Form Details Section */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
-            Form Details
-          </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Title
-              </label>
-              <p className="text-gray-900">{inspectionForm.title}</p>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Status
-              </label>
-              <span
-                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                  inspectionForm.isActive
-                    ? "bg-green-100 text-green-800"
-                    : "bg-red-100 text-red-800"
-                }`}
-              >
-                {inspectionForm.isActive ? "Active" : "Inactive"}
-              </span>
-            </div>
-
-            {inspectionForm.description && (
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description
-                </label>
-                <p className="text-gray-900">{inspectionForm.description}</p>
-              </div>
-            )}
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Total Inspections
-              </label>
-              <p className="text-gray-900">{inspectionForm.inspectionCount}</p>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Checklist Items
-              </label>
-              <p className="text-gray-900">
-                {inspectionForm.inspectionFormItemCount}
-              </p>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Created
-              </label>
-              <p className="text-gray-900">
-                {new Date(inspectionForm.createdAt).toLocaleDateString()}
-              </p>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Last Updated
-              </label>
-              <p className="text-gray-900">
-                {new Date(inspectionForm.updatedAt).toLocaleDateString()}
-              </p>
-            </div>
-          </div>
-        </div>
-
         {/* Inspection Items Section */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-6">
@@ -193,7 +121,7 @@ export default function InspectionFormDetailsPage() {
                   className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors"
                 >
                   <div className="flex justify-between items-start">
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0 pr-4 overflow-hidden">
                       <div className="flex items-center gap-2 mb-2">
                         <span className="font-medium text-gray-900">
                           {item.itemLabel}
@@ -201,45 +129,34 @@ export default function InspectionFormDetailsPage() {
                             <span className="text-red-500 ml-1">*</span>
                           )}
                         </span>
-                        <div className="flex items-center gap-1 text-sm text-gray-600">
-                          <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs">
-                            {getInspectionFormItemTypeLabel(
-                              item.inspectionFormItemTypeEnum,
-                            )}
-                          </span>
-                        </div>
                       </div>
 
-                      {item.itemDescription && (
-                        <p className="text-sm text-gray-600 mb-2">
-                          {item.itemDescription}
-                        </p>
-                      )}
-
-                      {item.itemInstructions && (
-                        <div className="mb-2">
-                          <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                      <div className="text-sm text-gray-600 mb-2">
+                        <div className="flex items-baseline mb-1">
+                          <span className="text-xs font-medium text-gray-500 uppercase tracking-wide whitespace-nowrap flex-shrink-0 w-24">
+                            Description:
+                          </span>
+                          <div className="ml-2 break-words overflow-hidden">
+                            {item.itemDescription || "-"}
+                          </div>
+                        </div>
+                        <div className="flex items-baseline">
+                          <span className="text-xs font-medium text-gray-500 uppercase tracking-wide whitespace-nowrap flex-shrink-0 w-24">
                             Instructions:
                           </span>
-                          <p className="text-sm text-gray-600 mt-1">
-                            {item.itemInstructions}
-                          </p>
+                          <div className="ml-2 break-words overflow-hidden">
+                            {item.itemInstructions || "-"}
+                          </div>
                         </div>
-                      )}
-
-                      <div className="flex items-center gap-4 text-xs text-gray-500">
-                        <span>Required: {item.isRequired ? "Yes" : "No"}</span>
-                        <span>
-                          Type:{" "}
-                          {getInspectionFormItemTypeLabel(
-                            item.inspectionFormItemTypeEnum,
-                          )}
-                        </span>
-                        <span>ID: #{item.id}</span>
                       </div>
                     </div>
 
-                    <div className="flex gap-2 ml-4">
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs">
+                        {getInspectionFormItemTypeLabel(
+                          item.inspectionFormItemTypeEnum,
+                        )}
+                      </span>
                       <button
                         onClick={() =>
                           router.push(
@@ -253,16 +170,16 @@ export default function InspectionFormDetailsPage() {
                       </button>
                       <button
                         onClick={() => {
-                          // TODO: Implement delete functionality
+                          // TODO: Implement deactivate functionality
                           notify(
-                            "Delete functionality not implemented yet",
+                            "Deactivate functionality not implemented yet",
                             "info",
                           );
                         }}
                         className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                        title="Delete item"
+                        title="Deactivate item"
                       >
-                        <Trash2 size={16} />
+                        <Archive size={16} />
                       </button>
                     </div>
                   </div>

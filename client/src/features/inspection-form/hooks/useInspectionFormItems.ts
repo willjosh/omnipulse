@@ -80,6 +80,7 @@ export function useCreateInspectionFormItem() {
       await queryClient.invalidateQueries({
         queryKey: ["inspectionForm", variables.inspectionFormID],
       });
+      await queryClient.invalidateQueries({ queryKey: ["inspectionForms"] });
     },
   });
 }
@@ -110,6 +111,7 @@ export function useUpdateInspectionFormItem() {
           variables.command.inspectionFormItemID,
         ],
       });
+      await queryClient.invalidateQueries({ queryKey: ["inspectionForms"] });
     },
   });
 }
@@ -140,6 +142,7 @@ export function useDeactivateInspectionFormItem() {
           variables.itemId,
         ],
       });
+      await queryClient.invalidateQueries({ queryKey: ["inspectionForms"] });
     },
   });
 }
