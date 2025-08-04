@@ -49,10 +49,10 @@ public sealed class ServiceRemindersController : ControllerBase
     /// <response code="400">Pagination parameters are invalid.</response>
     /// <response code="500">Internal server error occurred.</response>
     [HttpGet]
-    [ProducesResponseType(typeof(PagedResult<GetAllServiceReminderDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PagedResult<ServiceReminderDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<PagedResult<GetAllServiceReminderDTO>>> GetAllServiceReminders(
+    public async Task<ActionResult<PagedResult<ServiceReminderDTO>>> GetAllServiceReminders(
         [FromQuery] PaginationParameters parameters,
         CancellationToken cancellationToken)
     {
