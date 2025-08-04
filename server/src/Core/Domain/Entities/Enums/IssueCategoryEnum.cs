@@ -2,12 +2,12 @@ namespace Domain.Entities.Enums;
 
 public enum IssueCategoryEnum
 {
-    ENGINE,
-    TRANSMISSION,
-    BRAKES,
-    ELECTRICAL,
-    BODY,
-    TIRES,
-    HVAC,
-    OTHER
+    ENGINE = 1,
+    TRANSMISSION = 2,
+    BRAKES = 3,
+    ELECTRICAL = 4,
+    BODY = 5,
+    TIRES = 6,
+    HVAC = 7,
+    OTHER = 8
 }
