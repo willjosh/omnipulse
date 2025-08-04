@@ -2,6 +2,6 @@ namespace Domain.Entities.Enums;
 
 public enum WorkTypeEnum
 {
-    SCHEDULED,
-    UNSCHEDULED
+    SCHEDULED = 1,
+    UNSCHEDULED = 2
 }
