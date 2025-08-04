@@ -5,20 +5,32 @@ import { useRouter } from "next/navigation";
 import { DataTable, PaginationControls } from "@/components/ui/Table";
 import { PrimaryButton } from "@/components/ui/Button";
 import { FilterBar } from "@/components/ui/Filter";
-import { Plus } from "lucide-react";
-import { useWorkOrders } from "@/features/work-order/hooks/useWorkOrders";
+import { Plus, Trash2 } from "lucide-react";
+import {
+  useWorkOrders,
+  useDeleteWorkOrder,
+} from "@/features/work-order/hooks/useWorkOrders";
 import { WorkOrderWithLabels } from "@/features/work-order/types/workOrderType";
 import { DEFAULT_PAGE_SIZE } from "@/components/ui/Table/constants";
 import { workOrderTableColumns } from "@/features/work-order/config/workOrderTableColumns";
+import { ConfirmModal } from "@/components/ui/Modal";
+import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
 
 export default function WorkOrdersPage() {
   const router = useRouter();
+  const notify = useNotification();
+  const { mutate: deleteWorkOrder, isPending: isDeleting } =
+    useDeleteWorkOrder();
 
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [sortBy, setSortBy] = useState("Title");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    workOrder: WorkOrderWithLabels | null;
+  }>({ isOpen: false, workOrder: null });
 
   React.useEffect(() => {
     setPage(1);
@@ -74,9 +86,40 @@ export default function WorkOrdersPage() {
     setPage(1);
   };
 
-  const handleRowClick = (row: any) => {
-    router.push(`/work-orders/${row.id}`);
+  const handleRowClick = (workOrder: WorkOrderWithLabels) => {
+    router.push(`/work-orders/${workOrder.id}`);
   };
+
+  const handleDeleteWorkOrder = async () => {
+    if (!confirmModal.workOrder) return;
+
+    deleteWorkOrder(confirmModal.workOrder.id, {
+      onSuccess: () => {
+        notify("Work order deleted successfully", "success");
+        setConfirmModal({ isOpen: false, workOrder: null });
+      },
+      onError: error => {
+        console.error("Failed to delete work order:", error);
+        notify("Failed to delete work order", "error");
+        setConfirmModal({ isOpen: false, workOrder: null });
+      },
+    });
+  };
+
+  const workOrderActions = useMemo(
+    () => [
+      {
+        key: "delete",
+        label: "Delete",
+        icon: <Trash2 size={16} />,
+        variant: "danger" as const,
+        onClick: (workOrder: WorkOrderWithLabels) => {
+          setConfirmModal({ isOpen: true, workOrder });
+        },
+      },
+    ],
+    [],
+  );
 
   const emptyState = (
     <div className="text-center py-8">
@@ -130,13 +173,14 @@ export default function WorkOrdersPage() {
 
       <DataTable
         columns={workOrderTableColumns}
-        data={tableData}
+        data={workOrders}
         selectedItems={[]}
         onSelectItem={() => {}}
         onSelectAll={() => {}}
-        getItemId={item => item.id}
+        getItemId={item => item.id.toString()}
         loading={isPending}
-        showActions={false}
+        showActions={true}
+        actions={workOrderActions}
         emptyState={emptyState}
         onRowClick={handleRowClick}
         fixedLayout={false}
@@ -150,6 +194,21 @@ export default function WorkOrdersPage() {
         }}
         sortBy={sortBy}
         sortOrder={sortOrder}
+      />
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() =>
+          !isDeleting && setConfirmModal({ isOpen: false, workOrder: null })
+        }
+        onConfirm={handleDeleteWorkOrder}
+        title="Delete Work Order"
+        message={
+          confirmModal.workOrder
+            ? `Are you sure you want to delete "${confirmModal.workOrder.title}"? This action cannot be undone.`
+            : ""
+        }
+        confirmText={isDeleting ? "Deleting..." : "Delete"}
       />
     </div>
   );

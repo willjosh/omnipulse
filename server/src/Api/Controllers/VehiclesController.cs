@@ -9,6 +9,7 @@ using Domain.Entities;
 
 using MediatR;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
@@ -30,6 +31,7 @@ namespace Api.Controllers;
 [Route("api/[controller]")]
 [Consumes("application/json")]
 [Produces("application/json")]
+[Authorize]
 public sealed class VehiclesController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -49,11 +51,14 @@ public sealed class VehiclesController : ControllerBase
     /// <returns>A paginated result containing vehicles.</returns>
     /// <response code="200">Returns the paginated list of vehicles.</response>
     /// <response code="400">Pagination parameters are invalid.</response>
+    /// <response code="401">Unauthorized access.</response>
     /// <response code="500">Internal server error occurred.</response>
     [HttpGet]
     [ProducesResponseType(typeof(PagedResult<GetAllVehicleDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Authorize(Policy = "AllRoles")]
     public async Task<ActionResult<PagedResult<GetAllVehicleDTO>>> GetVehicles(
         [FromQuery] PaginationParameters parameters,
         CancellationToken cancellationToken)
@@ -80,10 +85,13 @@ public sealed class VehiclesController : ControllerBase
     /// <param name="cancellationToken">Cancellation token for the operation.</param>
     /// <returns>Detailed vehicle information.</returns>
     /// <response code="200">Returns the vehicle details.</response>
+    /// <response code="401">Unauthorized access.</response>
     /// <response code="404">Vehicle not found.</response>
     [HttpGet("{id:int}")]
     [ProducesResponseType(typeof(GetVehicleDetailsDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize(Policy = "AllRoles")]
     public async Task<ActionResult<GetVehicleDetailsDTO>> GetVehicle(
         int id,
         CancellationToken cancellationToken)
@@ -111,13 +119,16 @@ public sealed class VehiclesController : ControllerBase
     /// <returns>The ID of the newly created vehicle.</returns>
     /// <response code="201">Vehicle created successfully. Returns the vehicle ID.</response>
     /// <response code="400">Request data is invalid or validation failed.</response>
+    /// <response code="401">Unauthorized access.</response>
     /// <response code="409">Vehicle with the same VIN or license plate already exists.</response>
     /// <response code="500">Internal server error occurred.</response>
     [HttpPost]
     [ProducesResponseType(typeof(int), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Authorize(Policy = "FleetManager")]
     public async Task<ActionResult<int>> CreateVehicle(
         [FromBody] CreateVehicleCommand command,
         CancellationToken cancellationToken)
@@ -145,13 +156,16 @@ public sealed class VehiclesController : ControllerBase
     /// <returns>The ID of the updated vehicle.</returns>
     /// <response code="200">Vehicle updated successfully. Returns the vehicle ID.</response>
     /// <response code="400">Request data is invalid or validation failed.</response>
+    /// <response code="401">Unauthorized access.</response>
     /// <response code="404">Vehicle not found.</response>
     /// <response code="409">Vehicle with the same VIN or license plate already exists.</response>
     [HttpPut("{id:int}")]
     [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [Authorize(Policy = "FleetManager")]
     public async Task<ActionResult<int>> UpdateVehicle(
         int id,
         [FromBody] UpdateVehicleCommand command,
@@ -180,10 +194,12 @@ public sealed class VehiclesController : ControllerBase
     /// <param name="cancellationToken">Cancellation token for the operation.</param>
     /// <returns>The ID of the deactivated vehicle.</returns>
     /// <response code="200">Vehicle deactivated successfully. Returns the vehicle ID.</response>
+    /// <response code="401">Unauthorized access.</response>
     /// <response code="404">Vehicle not found.</response>
     [HttpPatch("{id:int}/deactivate")]
     [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize(Policy = "FleetManager")]
     public async Task<ActionResult<int>> DeactivateVehicle(
         int id,
         CancellationToken cancellationToken)

@@ -9,7 +9,7 @@ import WorkOrderLineItemsForm from "@/features/work-order/components/WorkOrderLi
 import SecondaryButton from "@/components/ui/Button/SecondaryButton";
 import PrimaryButton from "@/components/ui/Button/PrimaryButton";
 import { useCreateWorkOrder } from "@/features/work-order/hooks/useWorkOrders";
-import { WorkOrderLineItem } from "@/features/work-order/types/workOrderType";
+import { CreateWorkOrderLineItem } from "@/features/work-order/types/workOrderType";
 import {
   WorkOrderFormState,
   validateWorkOrderForm,
@@ -26,7 +26,7 @@ export default function NewWorkOrderPage() {
     ...emptyWorkOrderFormState,
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [resetKey, setResetKey] = useState(0); // for resetting form
+  const [resetKey, setResetKey] = useState(0);
 
   // Create work order mutation
   const { mutate: createWorkOrder, isPending } = useCreateWorkOrder();
@@ -41,7 +41,7 @@ export default function NewWorkOrderPage() {
   // Controlled field change
   const handleFormChange = (
     field: string,
-    value: string | number | null | number[] | WorkOrderLineItem[],
+    value: string | number | null | number[] | CreateWorkOrderLineItem[],
   ) => {
     setForm(f => ({ ...f, [field]: value }));
     setErrors(e => ({ ...e, [field]: "" }));
@@ -93,7 +93,7 @@ export default function NewWorkOrderPage() {
         }
       />
       <WorkOrderDetailsForm
-        key={resetKey}
+        key={`details-${resetKey}`}
         value={form}
         errors={errors}
         onChange={handleFormChange}
@@ -111,12 +111,13 @@ export default function NewWorkOrderPage() {
       />
 
       <WorkOrderLineItemsForm
-        key={`${resetKey}-${form.vehicleID}`}
+        key={`lineitems-${resetKey}`}
         value={{ workOrderLineItems: form.workOrderLineItems }}
         errors={errors}
         onChange={handleFormChange}
         disabled={isPending}
       />
+
       {/* Footer Actions */}
       <div className="max-w-4xl mx-auto w-full mt-8 mb-12">
         <hr className="mb-6 border-gray-300" />

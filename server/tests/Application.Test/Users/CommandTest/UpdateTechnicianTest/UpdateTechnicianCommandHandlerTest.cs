@@ -118,7 +118,7 @@ public class UpdateTechnicianCommandHandlerTest
             IssueAttachments = [],
             VehicleAssignments = [],
             VehicleDocuments = [],
-            VehicleInspections = [],
+            Inspections = [],
             Vehicles = [],
             InventoryTransactions = []
         };

@@ -14,6 +14,15 @@ public class WorkOrderLineItemRepository : GenericRepository<WorkOrderLineItem>,
     {
     }
 
+    public async Task DeleteByWorkOrderIdAsync(int workOrderId)
+    {
+        var items = await _dbSet.Where(woli => woli.WorkOrderID == workOrderId).ToListAsync();
+        if (items.Count != 0)
+        {
+            _dbSet.RemoveRange(items);
+        }
+    }
+
     public async Task<List<WorkOrderLineItem>> GetByWorkOrderIdAsync(int workOrderID)
     {
         return await _dbSet
@@ -36,4 +45,5 @@ public class WorkOrderLineItemRepository : GenericRepository<WorkOrderLineItem>,
             .Where(woli => workOrderIds.Contains(woli.WorkOrderID))
             .ToListAsync();
     }
+
 }

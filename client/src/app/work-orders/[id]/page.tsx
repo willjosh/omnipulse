@@ -1,12 +1,13 @@
 "use client";
 
 import { Box, Container } from "@mui/material";
-import { notFound, useParams } from "next/navigation";
+import { notFound, useParams, useRouter } from "next/navigation";
 import WorkOrderDetailsHeader from "@/features/work-order/components/WorkOrderDetailsHeader";
 import { WorkOrderDetailsPanel } from "@/features/work-order/components/WorkOrderDetailsPanel";
 import { useWorkOrder } from "@/features/work-order/hooks/useWorkOrders";
 
 export default function WorkOrderPage() {
+  const router = useRouter();
   const params = useParams();
   const workOrderId = Number(params.id);
 
@@ -30,8 +31,7 @@ export default function WorkOrderPage() {
   };
 
   const handleEdit = () => {
-    // TODO: Navigate to edit page
-    console.log("Edit work order");
+    router.push(`/work-orders/${workOrderId}/edit`);
   };
 
   const handleDelete = () => {

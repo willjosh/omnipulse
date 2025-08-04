@@ -94,7 +94,7 @@ public class RemoveVehicleFromServiceProgramCommandHandlerTest
             XrefServiceProgramVehicles = [],
             ServiceReminders = [],
             Issues = [],
-            VehicleInspections = []
+            Inspections = []
         };
         _mockServiceProgramRepository.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(serviceProgram);
         _mockVehicleRepository.Setup(r => r.GetByIdAsync(2)).ReturnsAsync(vehicle);
@@ -155,7 +155,7 @@ public class RemoveVehicleFromServiceProgramCommandHandlerTest
             XrefServiceProgramVehicles = [],
             ServiceReminders = [],
             Issues = [],
-            VehicleInspections = []
+            Inspections = []
         };
         _mockServiceProgramRepository.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(serviceProgram);
         _mockVehicleRepository.Setup(r => r.GetByIdAsync(2)).ReturnsAsync(vehicle);

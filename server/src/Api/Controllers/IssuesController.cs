@@ -1,3 +1,4 @@
+using Application.Contracts.UserServices;
 using Application.Features.Issues.Command.CreateIssue;
 using Application.Features.Issues.Command.DeleteIssue;
 using Application.Features.Issues.Command.UpdateIssue;
@@ -9,6 +10,7 @@ using Domain.Entities;
 
 using MediatR;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
@@ -30,15 +32,19 @@ namespace Api.Controllers;
 [Route("api/[controller]")]
 [Consumes("application/json")]
 [Produces("application/json")]
+[Authorize(Policy = "AllRoles")]
 public sealed class IssuesController : ControllerBase
 {
     private readonly IMediator _mediator;
     private readonly ILogger<IssuesController> _logger;
 
-    public IssuesController(IMediator mediator, ILogger<IssuesController> logger)
+    private readonly ICurrentUserService _currentUserService;
+
+    public IssuesController(IMediator mediator, ILogger<IssuesController> logger, ICurrentUserService currentUserService)
     {
         _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _currentUserService = currentUserService ?? throw new ArgumentNullException(nameof(currentUserService));
     }
 
     /// <summary>
@@ -128,7 +134,10 @@ public sealed class IssuesController : ControllerBase
         {
             _logger.LogInformation($"{nameof(CreateIssue)}() - Called");
 
-            var issueId = await _mediator.Send(command, cancellationToken);
+            var userId = _currentUserService.UserId;
+
+            // The Controller can safely assume that the user is authenticated
+            var issueId = await _mediator.Send(command with { ReportedByUserID = userId! }, cancellationToken);
 
             return CreatedAtAction(nameof(GetIssue), new { id = issueId }, issueId);
         }
@@ -165,7 +174,10 @@ public sealed class IssuesController : ControllerBase
 
             if (id != command.IssueID) return ValidationProblem($"{nameof(UpdateIssue)} - Route ID and body ID mismatch.");
 
-            var issueId = await _mediator.Send(command with { IssueID = id }, cancellationToken);
+            var userId = _currentUserService.UserId;
+
+            // The Controller can safely assume that the user is authenticated
+            var issueId = await _mediator.Send(command with { IssueID = id, ResolvedByUserID = userId! }, cancellationToken);
 
             return Ok(issueId);
         }

@@ -31,4 +31,6 @@ public class GetWorkOrderDetailDTO
 
     // Work Order Line Items
     public required List<WorkOrderLineItemDetailDTO> WorkOrderLineItems { get; set; }
+    // Issues
+    public required List<int> IssueIDs { get; set; }
 }

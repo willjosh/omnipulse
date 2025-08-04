@@ -81,7 +81,6 @@ public class UpdateIssueCommandHandlerTest
             Status = IssueStatusEnum.IN_PROGRESS,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
-            IssueNumber = 1001,
             IssueAttachments = [],
             IssueAssignments = [],
             Vehicle = null!,
@@ -121,7 +120,7 @@ public class UpdateIssueCommandHandlerTest
             XrefServiceProgramVehicles = [],
             ServiceReminders = [],
             Issues = [],
-            VehicleInspections = []
+            Inspections = []
         };
     }
 
@@ -140,7 +139,7 @@ public class UpdateIssueCommandHandlerTest
             IssueAttachments = [],
             VehicleAssignments = [],
             VehicleDocuments = [],
-            VehicleInspections = [],
+            Inspections = [],
             Vehicles = [],
             InventoryTransactions = [],
         };

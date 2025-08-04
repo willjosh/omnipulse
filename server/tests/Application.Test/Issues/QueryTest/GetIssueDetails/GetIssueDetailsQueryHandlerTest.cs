@@ -50,7 +50,7 @@ public class GetIssueDetailsQueryHandlerTest
             IssueAttachments = new List<IssueAttachment>(),
             VehicleAssignments = new List<VehicleAssignment>(),
             VehicleDocuments = new List<VehicleDocument>(),
-            VehicleInspections = new List<VehicleInspection>(),
+            Inspections = new List<Inspection>(),
             Vehicles = new List<Vehicle>(),
             InventoryTransactions = new List<InventoryTransaction>()
         };
@@ -76,20 +76,19 @@ public class GetIssueDetailsQueryHandlerTest
             Status = VehicleStatusEnum.ACTIVE,
             Location = "TestLocation",
             VehicleGroup = new VehicleGroup { ID = 1, Name = "Group1", Description = "", IsActive = true, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow },
-            VehicleImages = new List<VehicleImage>(),
-            VehicleAssignments = new List<VehicleAssignment>(),
-            VehicleDocuments = new List<VehicleDocument>(),
-            XrefServiceProgramVehicles = new List<XrefServiceProgramVehicle>(),
-            ServiceReminders = new List<ServiceReminder>(),
-            Issues = new List<Issue>(),
-            VehicleInspections = new List<VehicleInspection>(),
+            VehicleImages = [],
+            VehicleAssignments = [],
+            VehicleDocuments = [],
+            XrefServiceProgramVehicles = [],
+            ServiceReminders = [],
+            Issues = [],
+            Inspections = [],
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
         var expectedIssue = new Issue
         {
             ID = 1,
-            IssueNumber = 1001,
             Title = "Engine Noise",
             Description = "Strange noise from engine",
             Status = IssueStatusEnum.OPEN,
@@ -101,8 +100,8 @@ public class GetIssueDetailsQueryHandlerTest
             ReportedByUser = expectedUser,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
-            IssueAttachments = new List<IssueAttachment>(),
-            IssueAssignments = new List<IssueAssignment>()
+            IssueAttachments = [],
+            IssueAssignments = []
         };
         _mockIssueRepository.Setup(r => r.GetIssueWithDetailsAsync(query.IssueID))
             .ReturnsAsync(expectedIssue);
@@ -112,7 +111,6 @@ public class GetIssueDetailsQueryHandlerTest
         Assert.NotNull(result);
         Assert.IsType<GetIssueDetailsDTO>(result);
         Assert.Equal(1, result.ID);
-        Assert.Equal(1001, result.IssueNumber);
         Assert.Equal("Engine Noise", result.Title);
         Assert.Equal("Strange noise from engine", result.Description);
         Assert.Equal(IssueStatusEnum.OPEN, result.Status);

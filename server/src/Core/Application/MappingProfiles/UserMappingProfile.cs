@@ -1,3 +1,5 @@
+using Application.Contracts.AuthService;
+using Application.Features.Auth.Command.Register;
 using Application.Features.Users.Command.CreateTechnician;
 using Application.Features.Users.Command.UpdateTechnician;
 using Application.Features.Users.Query.GetAllTechnician;
@@ -20,7 +22,7 @@ public class UserMappingProfile : Profile
             .ForMember(dest => dest.IssueAttachments, opt => opt.Ignore())
             .ForMember(dest => dest.VehicleAssignments, opt => opt.Ignore())
             .ForMember(dest => dest.VehicleDocuments, opt => opt.Ignore())
-            .ForMember(dest => dest.VehicleInspections, opt => opt.Ignore())
+            .ForMember(dest => dest.Inspections, opt => opt.Ignore())
             .ForMember(dest => dest.Vehicles, opt => opt.Ignore());
 
         CreateMap<UpdateTechnicianCommand, User>()
@@ -29,7 +31,17 @@ public class UserMappingProfile : Profile
             .ForMember(dest => dest.IssueAttachments, opt => opt.Ignore())
             .ForMember(dest => dest.VehicleAssignments, opt => opt.Ignore())
             .ForMember(dest => dest.VehicleDocuments, opt => opt.Ignore())
-            .ForMember(dest => dest.VehicleInspections, opt => opt.Ignore())
+            .ForMember(dest => dest.Inspections, opt => opt.Ignore())
+            .ForMember(dest => dest.Vehicles, opt => opt.Ignore());
+
+        CreateMap<RegisterOperatorCommand, User>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email))
+            .ForMember(dest => dest.MaintenanceHistories, opt => opt.Ignore())
+            .ForMember(dest => dest.IssueAttachments, opt => opt.Ignore())
+            .ForMember(dest => dest.VehicleAssignments, opt => opt.Ignore())
+            .ForMember(dest => dest.VehicleDocuments, opt => opt.Ignore())
+            .ForMember(dest => dest.Inspections, opt => opt.Ignore())
             .ForMember(dest => dest.Vehicles, opt => opt.Ignore());
 
         CreateMap<User, GetAllTechnicianDTO>()
@@ -48,5 +60,10 @@ public class UserMappingProfile : Profile
             .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email));
 
+        CreateMap<User, AuthUserDTO>()
+            .ForMember(dest => dest.Expires, opt => opt.Ignore())
+            .ForMember(dest => dest.Token, opt => opt.Ignore())
+            .ForMember(dest => dest.RefreshToken, opt => opt.Ignore())
+            .ForMember(dest => dest.Roles, opt => opt.Ignore());
     }
 }

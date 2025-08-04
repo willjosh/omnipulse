@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { FormField } from "@/components/ui/Form";
 import { PrimaryButton, SecondaryButton } from "@/components/ui/Button";
+import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
 import {
   useCreateTechnician,
   useUpdateTechnician,
@@ -23,6 +24,7 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({
   technicianId,
 }) => {
   const router = useRouter();
+  const notify = useNotification();
   const createTechnicianMutation = useCreateTechnician();
   const updateTechnicianMutation = useUpdateTechnician();
 
@@ -40,7 +42,6 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({
 
   const [errors, setErrors] = useState<Partial<CreateTechnicianCommand>>({});
 
-  // Load existing technician data when in edit mode
   useEffect(() => {
     if (mode === "edit" && existingTechnician) {
       setFormData({
@@ -79,6 +80,14 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({
       newErrors.email = "Email format is invalid";
     }
 
+    if (mode === "create") {
+      if (!formData.password.trim()) {
+        newErrors.password = "Password is required";
+      } else if (formData.password.length < 6) {
+        newErrors.password = "Password must be at least 6 characters";
+      }
+    }
+
     if (!formData.hireDate) {
       newErrors.hireDate = "Hire date is required";
     }
@@ -97,6 +106,7 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({
     try {
       if (mode === "create") {
         await createTechnicianMutation.mutateAsync(formData);
+        notify("Technician created successfully!", "success");
       } else {
         const updateData: UpdateTechnicianCommand = {
           id: technicianId!,
@@ -107,16 +117,45 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({
         };
 
         await updateTechnicianMutation.mutateAsync(updateData);
+        notify("Technician updated successfully!", "success");
       }
 
       router.push("/contacts");
-    } catch (error) {
+    } catch (error: any) {
       console.error(
         mode === "create"
           ? "Error creating technician:"
           : "Error updating technician:",
         error,
       );
+
+      let errorMessage =
+        mode === "create"
+          ? "Failed to create technician. Please check your input and try again."
+          : "Failed to update technician. Please check your input and try again.";
+
+      if (error?.response?.data) {
+        const errorData = error.response.data;
+        if (errorData.errors && typeof errorData.errors === "object") {
+          const validationMessages = [];
+          for (const [field, messages] of Object.entries(errorData.errors)) {
+            if (Array.isArray(messages)) {
+              validationMessages.push(...messages);
+            } else if (typeof messages === "string") {
+              validationMessages.push(messages);
+            }
+          }
+          if (validationMessages.length > 0) {
+            errorMessage = validationMessages.join(" ");
+          }
+        } else if (errorData.message) {
+          errorMessage = errorData.message;
+        } else if (errorData.title) {
+          errorMessage = errorData.detail || errorData.title;
+        }
+      }
+
+      notify(errorMessage, "error");
     }
   };
 
@@ -175,6 +214,24 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({
           placeholder="Enter email address"
         />
       </FormField>
+
+      {mode === "create" && (
+        <FormField
+          label="Password"
+          htmlFor="password"
+          required
+          error={errors.password}
+        >
+          <input
+            id="password"
+            type="password"
+            value={formData.password}
+            onChange={e => handleInputChange("password", e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="Enter password (minimum 6 characters)"
+          />
+        </FormField>
+      )}
 
       <FormField
         label="Hire Date"

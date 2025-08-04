@@ -41,6 +41,9 @@ public class IssueRepository : GenericRepository<Issue>, IIssueRepository
 
         var totalCount = await query.CountAsync();
         var items = await query
+            .Include(i => i.ReportedByUser)
+            .Include(i => i.ResolvedByUser)
+            .Include(i => i.Vehicle)
             .Skip((parameters.PageNumber - 1) * parameters.PageSize)
             .Take(parameters.PageSize)
             .ToListAsync();
@@ -63,7 +66,7 @@ public class IssueRepository : GenericRepository<Issue>, IIssueRepository
         return query.Where(i =>
             EF.Functions.Like(i.Title, searchPattern) ||
             EF.Functions.Like(i.Description ?? string.Empty, searchPattern) ||
-            EF.Functions.Like(i.IssueNumber.ToString(), searchPattern)
+            EF.Functions.Like(i.ID.ToString(), searchPattern)
         );
     }
 
@@ -71,6 +74,7 @@ public class IssueRepository : GenericRepository<Issue>, IIssueRepository
     {
         return await _dbSet
             .Include(i => i.ReportedByUser)
+            .Include(i => i.ResolvedByUser)
             .Include(i => i.Vehicle)
             .FirstOrDefaultAsync(i => i.ID == issueID);
     }

@@ -8,6 +8,7 @@ using Domain.Entities;
 
 using MediatR;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
@@ -28,6 +29,7 @@ namespace Api.Controllers;
 [Route("api/[controller]")]
 [Consumes("application/json")]
 [Produces("application/json")]
+[Authorize(Policy = "FleetManager")]
 public sealed class VehicleGroupsController : ControllerBase
 {
     private readonly IMediator _mediator;

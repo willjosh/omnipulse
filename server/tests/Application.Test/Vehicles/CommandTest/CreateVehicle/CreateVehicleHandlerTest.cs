@@ -57,7 +57,7 @@ public class CreateVehicleHandlerTest
         decimal purchasePrice = 25000,
         Domain.Entities.Enums.VehicleStatusEnum status = Domain.Entities.Enums.VehicleStatusEnum.ACTIVE,
         string location = "Test Location",
-        string? AssignedTechnicianID = null
+        string? assignedTechnicianID = null
     )
     {
         return new CreateVehicleCommand(
@@ -79,7 +79,7 @@ public class CreateVehicleHandlerTest
             PurchasePrice: purchasePrice,
             Status: status,
             Location: location,
-            AssignedTechnicianID
+            assignedTechnicianID
         );
     }
 
@@ -138,7 +138,7 @@ public class CreateVehicleHandlerTest
             XrefServiceProgramVehicles = [],
             ServiceReminders = [],
             Issues = [],
-            VehicleInspections = []
+            Inspections = []
         };
 
         _mockVehicleRepository.Setup(r => r.VinExistAsync(command.VIN)).ReturnsAsync(false);
@@ -201,7 +201,7 @@ public class CreateVehicleHandlerTest
     {
         // Given
         var technicianId = "f5095320-3f0a-42a1-8de6-b6792c980213";
-        var command = CreateValidCommand(AssignedTechnicianID: technicianId);
+        var command = CreateValidCommand(assignedTechnicianID: technicianId);
         SetupValidValidation(command);
 
         _mockVehicleRepository.Setup(r => r.VinExistAsync(command.VIN)).ReturnsAsync(false);

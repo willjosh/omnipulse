@@ -13,7 +13,6 @@ public class IssueMappingProfile : Profile
     {
         CreateMap<CreateIssueCommand, Issue>()
             .ForMember(dest => dest.ID, opt => opt.Ignore()) // Don't map ID - will be auto-generated
-            .ForMember(dest => dest.IssueNumber, opt => opt.Ignore()) // Will be auto-generated
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore()) // Handled by BaseEntity
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore()) // Handled by BaseEntity
             .ForMember(dest => dest.ResolvedDate, opt => opt.Ignore()) // Not set during creation
@@ -26,7 +25,6 @@ public class IssueMappingProfile : Profile
 
         CreateMap<UpdateIssueCommand, Issue>()
             .ForMember(dest => dest.ID, opt => opt.Ignore()) // Don't map ID - should not be changed
-            .ForMember(dest => dest.IssueNumber, opt => opt.Ignore()) // Should not be changed
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore()) // Handled by BaseEntity
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore()) // Handled by BaseEntity
             .ForMember(dest => dest.ResolvedDate, opt => opt.Ignore()) // Not set here

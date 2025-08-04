@@ -81,3 +81,33 @@ export function useDeactivateVehicle() {
     },
   });
 }
+
+export function useVehicleGroups() {
+  const { data, isPending, isError, error } = useQuery({
+    queryKey: ["vehicleGroups"],
+    queryFn: vehicleApi.getVehicleGroups,
+  });
+
+  return { vehicleGroups: data ?? [], isPending, isError, error };
+}
+
+export function useTechnicians() {
+  const { data, isPending, isError, error } = useQuery({
+    queryKey: ["technicians"],
+    queryFn: async () => {
+      const technicians = await vehicleApi.getTechnicians();
+      return technicians.map(tech => ({
+        id: tech.id,
+        firstName: tech.firstName,
+        lastName: tech.lastName,
+        email: tech.email,
+        isActive: tech.isActive,
+        hireDate: tech.hireDate || "", // Ensure hireDate is included
+      }));
+    },
+  });
+
+  return { technicians: data ?? [], isPending, isError, error };
+}
+
+// TODO: Future Implementation - Vehicle Status API

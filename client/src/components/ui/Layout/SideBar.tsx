@@ -39,7 +39,7 @@ const navItems: NavItem[] = [
     label: "Inspections",
     icon: ClipboardCheck,
     children: [
-      { label: "Inspection History", path: "/inspection-history" },
+      { label: "Inspection History", path: "/inspections" },
       { label: "Forms", path: "/inspection-forms" },
     ],
   },

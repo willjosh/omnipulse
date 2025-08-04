@@ -64,7 +64,7 @@ public class GetVehicleDetailsQueryHandlerTest
             Vehicles = [],
             VehicleAssignments = [],
             VehicleDocuments = [],
-            VehicleInspections = [],
+            Inspections = [],
             MaintenanceHistories = [],
             IssueAttachments = [],
             InventoryTransactions = []
@@ -102,7 +102,7 @@ public class GetVehicleDetailsQueryHandlerTest
             XrefServiceProgramVehicles = [],
             ServiceReminders = [],
             Issues = [],
-            VehicleInspections = []
+            Inspections = []
         };
 
         // Setup the mock to return the vehicle with navigation properties loaded
@@ -187,7 +187,7 @@ public class GetVehicleDetailsQueryHandlerTest
             XrefServiceProgramVehicles = [],
             ServiceReminders = [],
             Issues = [],
-            VehicleInspections = []
+            Inspections = []
         };
 
         // Setup the mock to return the vehicle with navigation properties loaded
