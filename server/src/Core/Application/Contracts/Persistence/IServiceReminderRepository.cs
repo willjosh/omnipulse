@@ -1,3 +1,4 @@
+using Application.Features.ServiceReminders.Query;
 using Application.Models.PaginationModels;
 
 using Domain.Entities;
@@ -7,7 +8,10 @@ namespace Application.Contracts.Persistence;
 
 public interface IServiceReminderRepository : IGenericRepository<ServiceReminder>
 {
-    // Paged Results
+    // Calculated service reminders (primary method for GetAll queries)
+    Task<PagedResult<ServiceReminderDTO>> GetAllCalculatedServiceRemindersPagedAsync(PaginationParameters parameters);
+
+    // Paged Results for stored reminders
     Task<PagedResult<ServiceReminder>> GetAllServiceRemindersPagedAsync(PaginationParameters parameters);
 
     // Get service reminder with related data
