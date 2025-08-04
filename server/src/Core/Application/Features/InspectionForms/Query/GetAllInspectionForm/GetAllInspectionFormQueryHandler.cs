@@ -46,24 +46,27 @@ public class GetAllInspectionFormQueryHandler : IRequestHandler<GetAllInspection
         // Get all inspection forms from the repository
         var result = await _inspectionFormRepository.GetAllInspectionFormsPagedAsync(request.Parameters);
 
-        // Map the inspection forms to DTOs
-        var inspectionFormDTOs = _mapper.Map<List<InspectionFormDTO>>(result.Items);
+        // Filter to only include active inspection forms
+        var activeInspectionForms = result.Items.Where(x => x != null && x.IsActive).ToList();
+
+        // Map the active inspection forms to DTOs
+        var inspectionFormDTOs = _mapper.Map<List<InspectionFormDTO>>(activeInspectionForms);
 
         // Set calculated properties for each DTO
         foreach (var dto in inspectionFormDTOs)
         {
-            var inspectionForm = result.Items.FirstOrDefault(x => x.ID == dto.ID);
+            var inspectionForm = activeInspectionForms.FirstOrDefault(x => x.ID == dto.ID);
             if (inspectionForm != null)
             {
                 dto.InspectionCount = inspectionForm.Inspections?.Count ?? 0;
-                dto.InspectionFormItemCount = inspectionForm.InspectionFormItems?.Count ?? 0;
+                dto.InspectionFormItemCount = inspectionForm.InspectionFormItems?.Where(item => item != null && item.IsActive).Count() ?? 0;
             }
         }
 
         var pagedResult = new PagedResult<InspectionFormDTO>
         {
             Items = inspectionFormDTOs,
-            TotalCount = result.TotalCount,
+            TotalCount = activeInspectionForms.Count,
             PageNumber = result.PageNumber,
             PageSize = result.PageSize
         };
