@@ -36,3 +36,12 @@ public class Inventory : BaseEntity
     public required InventoryItem InventoryItem { get; set; }
     public required ICollection<InventoryTransaction> InventoryTransactions { get; set; } = [];
 }
+
+// Extension method in a separate static class
+public static class InventoryExtensions
+{
+    public static void DecideReorderStatus(this Inventory inventory)
+    {
+        inventory.NeedsReorder = inventory.QuantityOnHand < inventory.MinStockLevel;
+    }
+}
