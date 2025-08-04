@@ -12,7 +12,6 @@ const TechnicianProfilePage = () => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("details");
 
-  // Extract id from params and use it to fetch technician data
   const technicianId = params.id as string;
   const { technician, isPending, isError } = useTechnician(technicianId);
 
@@ -48,6 +47,7 @@ const TechnicianProfilePage = () => {
 
   const handleEdit = () => {
     console.log("Edit technician:", technician.id);
+    router.push(`/contacts/${technicianId}/edit`);
   };
 
   const handleBack = () => {
@@ -165,7 +165,6 @@ const TechnicianProfilePage = () => {
                 Recent Work Orders
               </h3>
               <div className="flex items-center space-x-4 text-sm text-primary hover:text-blue-700">
-                <button>+ Assign Work Order</button>
                 <button>View All</button>
               </div>
             </div>
@@ -181,7 +180,6 @@ const TechnicianProfilePage = () => {
                 Vehicle Assignments
               </h3>
               <div className="flex items-center space-x-4 text-sm text-primary hover:text-blue-700">
-                <button>+ Assign Vehicle</button>
                 <button>View All</button>
               </div>
             </div>
