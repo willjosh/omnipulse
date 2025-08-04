@@ -86,7 +86,6 @@ export default function InspectionFormsPage() {
           <span className="text-sm font-medium text-gray-900">
             {item.inspectionFormItemCount}
           </span>
-          <div className="text-xs text-gray-500">items</div>
         </div>
       ),
     },
@@ -100,7 +99,6 @@ export default function InspectionFormsPage() {
           <span className="text-sm font-medium text-gray-900">
             {item.inspectionCount}
           </span>
-          <div className="text-xs text-gray-500">inspections</div>
         </div>
       ),
     },
