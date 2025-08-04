@@ -49,8 +49,7 @@ public class CreateServiceScheduleCommandHandlerTest
         TimeUnitEnum? timeBufferUnit = TimeUnitEnum.Days,
         int? mileageInterval = 5000,
         int? mileageBuffer = 250,
-        int? firstServiceTimeValue = null,
-        TimeUnitEnum? firstServiceTimeUnit = null,
+        DateTime? firstServiceDate = null,
         int? firstServiceMileage = null,
         bool isActive = true) => new(
             ServiceProgramID: serviceProgramId,
@@ -62,8 +61,8 @@ public class CreateServiceScheduleCommandHandlerTest
             TimeBufferUnit: timeBufferUnit,
             MileageInterval: mileageInterval,
             MileageBuffer: mileageBuffer,
-            FirstServiceTimeValue: firstServiceTimeValue,
-            FirstServiceTimeUnit: firstServiceTimeUnit,
+            FirstServiceDate: firstServiceDate,
+            FirstServiceDate: firstServiceDate,
             FirstServiceMileage: firstServiceMileage,
             IsActive: isActive);
 
@@ -103,8 +102,6 @@ public class CreateServiceScheduleCommandHandlerTest
             TimeBufferUnit = command.TimeBufferUnit,
             MileageInterval = command.MileageInterval,
             MileageBuffer = command.MileageBuffer,
-            FirstServiceTimeValue = command.FirstServiceTimeValue,
-            FirstServiceTimeUnit = command.FirstServiceTimeUnit,
             FirstServiceMileage = command.FirstServiceMileage,
             IsActive = command.IsActive,
             CreatedAt = DateTime.UtcNow,

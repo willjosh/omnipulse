@@ -91,8 +91,8 @@ public class GetAllServiceScheduleQueryHandlerTest
             TimeBufferUnit = TimeUnitEnum.Days,
             MileageInterval = 1000,
             MileageBuffer = 100,
-            FirstServiceTimeValue = 5,
-            FirstServiceTimeUnit = TimeUnitEnum.Days,
+            FirstServiceDate = 5,
+            FirstServiceDate = TimeUnitEnum.Days,
             FirstServiceMileage = 500,
             IsActive = true,
             // Navigation Properties

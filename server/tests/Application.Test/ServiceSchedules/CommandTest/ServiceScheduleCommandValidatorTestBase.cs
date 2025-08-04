@@ -27,8 +27,7 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         TimeUnitEnum? timeBufferUnit = TimeUnitEnum.Days,
         int? mileageInterval = 5000,
         int? mileageBuffer = 250,
-        int? firstServiceTimeValue = null,
-        TimeUnitEnum? firstServiceTimeUnit = null,
+        DateTime? firstServiceDate = null,
         int? firstServiceMileage = null,
         bool isActive = true);
 
@@ -422,8 +421,8 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
             timeIntervalValue: hasTimeInterval ? 6 : null,
             timeIntervalUnit: hasTimeInterval ? TimeUnitEnum.Days : null,
             mileageInterval: hasMileageInterval ? 5000 : null,
-            firstServiceTimeValue: hasFirstService ? 3 : null,
-            firstServiceTimeUnit: hasFirstService ? TimeUnitEnum.Days : null,
+            firstServiceDate: hasFirstService ? 3 : null,
+            firstServiceDate: hasFirstService ? TimeUnitEnum.Days : null,
             firstServiceMileage: hasFirstService ? 2500 : null);
 
         // Act
@@ -436,24 +435,22 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
     [Theory]
     [InlineData(-1)]
     [InlineData(-100)]
-    public async Task Validator_Should_Fail_When_FirstServiceTimeValue_Is_Negative(int invalidValue)
+    public async Task Validator_Should_Fail_When_FirstServiceDate_Is_Negative(int invalidValue)
     {
         // Arrange
-        var command = CreateValidCommand(firstServiceTimeValue: invalidValue, firstServiceTimeUnit: TimeUnitEnum.Days);
 
         // Act
         var result = await Validator.ValidateAsync(command);
 
         // Assert
         Assert.False(result.IsValid);
-        Assert.Contains(result.Errors, e => e.PropertyName == "FirstServiceTimeValue");
+        Assert.Contains(result.Errors, e => e.PropertyName == "FirstServiceDate");
     }
 
     [Fact]
-    public async Task Validator_Should_Pass_When_FirstServiceTimeValue_Is_Zero()
+    public async Task Validator_Should_Pass_When_FirstServiceDate_Is_Zero()
     {
         // Arrange
-        var command = CreateValidCommand(firstServiceTimeValue: 0, firstServiceTimeUnit: TimeUnitEnum.Days);
 
         // Act
         var result = await Validator.ValidateAsync(command);
@@ -463,10 +460,9 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
     }
 
     [Fact]
-    public async Task Validator_Should_Fail_When_FirstServiceTimeValue_Without_Unit()
+    public async Task Validator_Should_Fail_When_FirstServiceDate_Without_Unit()
     {
         // Arrange
-        var command = CreateValidCommand(firstServiceTimeValue: 1, firstServiceTimeUnit: null);
 
         // Act
         var result = await Validator.ValidateAsync(command);
@@ -477,10 +473,9 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
     }
 
     [Fact]
-    public async Task Validator_Should_Fail_When_FirstServiceTimeUnit_Without_Value()
+    public async Task Validator_Should_Fail_When_FirstServiceDate_Without_Value()
     {
         // Arrange
-        var command = CreateValidCommand(firstServiceTimeValue: null, firstServiceTimeUnit: TimeUnitEnum.Days);
 
         // Act
         var result = await Validator.ValidateAsync(command);
@@ -499,8 +494,8 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
             timeIntervalUnit: null,
             timeBufferValue: null,
             timeBufferUnit: null,
-            firstServiceTimeValue: 2,
-            firstServiceTimeUnit: TimeUnitEnum.Days);
+            firstServiceDate: 2,
+            firstServiceDate: TimeUnitEnum.Days);
 
         // Act
         var result = await Validator.ValidateAsync(command);
@@ -573,8 +568,8 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
             timeBufferUnit: TimeUnitEnum.Days,
             mileageInterval: 5000,
             mileageBuffer: 250,
-            firstServiceTimeValue: 3,
-            firstServiceTimeUnit: TimeUnitEnum.Days,
+            firstServiceDate: 3,
+            firstServiceDate: TimeUnitEnum.Days,
             firstServiceMileage: 2500);
 
         // Act
@@ -637,8 +632,8 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
             timeBufferUnit: TimeUnitEnum.Days,
             mileageInterval: null,
             mileageBuffer: null,
-            firstServiceTimeValue: 6,
-            firstServiceTimeUnit: TimeUnitEnum.Days,
+            firstServiceDate: 6,
+            firstServiceDate: TimeUnitEnum.Days,
             firstServiceMileage: null);
 
         // Act
@@ -660,8 +655,8 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
             timeBufferUnit: null,
             mileageInterval: 10000,
             mileageBuffer: 500,
-            firstServiceTimeValue: null,
-            firstServiceTimeUnit: null,
+            firstServiceDate: null,
+            firstServiceDate: null,
             firstServiceMileage: 5000);
 
         // Act
@@ -683,8 +678,8 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
             timeBufferUnit: TimeUnitEnum.Days,
             mileageInterval: 10000,
             mileageBuffer: 9999,
-            firstServiceTimeValue: 6,
-            firstServiceTimeUnit: TimeUnitEnum.Days,
+            firstServiceDate: 6,
+            firstServiceDate: TimeUnitEnum.Days,
             firstServiceMileage: 5000);
 
         // Act
@@ -810,21 +805,21 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
 
     [Trait("Category", "EnumValidation")]
     [Fact]
-    public async Task Validator_Should_Fail_When_FirstServiceTimeUnit_InvalidEnum()
+    public async Task Validator_Should_Fail_When_FirstServiceDate_InvalidEnum()
     {
         // Arrange
         var command = CreateValidCommand(
             timeIntervalValue: 5,
             timeIntervalUnit: TimeUnitEnum.Days,
-            firstServiceTimeValue: 1,
-            firstServiceTimeUnit: (TimeUnitEnum)999);
+            firstServiceDate: 1,
+            firstServiceDate: (TimeUnitEnum)999);
 
         // Act
         var result = await Validator.ValidateAsync(command);
 
         // Assert
         Assert.False(result.IsValid);
-        Assert.Contains(result.Errors, e => e.PropertyName == "FirstServiceTimeUnit");
+        Assert.Contains(result.Errors, e => e.PropertyName == "FirstServiceDate");
     }
 
     [Trait("Category", "FirstServiceEdge")]
@@ -839,8 +834,8 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
             timeBufferUnit: null,
             mileageInterval: null,
             mileageBuffer: null,
-            firstServiceTimeValue: 3,
-            firstServiceTimeUnit: TimeUnitEnum.Days,
+            firstServiceDate: 3,
+            firstServiceDate: TimeUnitEnum.Days,
             firstServiceMileage: 1000);
 
         // Act
@@ -864,8 +859,8 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
             timeBufferUnit: null,
             mileageInterval: 5000,
             mileageBuffer: null,
-            firstServiceTimeValue: 3,
-            firstServiceTimeUnit: TimeUnitEnum.Days,
+            firstServiceDate: 3,
+            firstServiceDate: TimeUnitEnum.Days,
             firstServiceMileage: null);
 
         // Act
@@ -888,8 +883,8 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
             timeBufferUnit: null,
             mileageInterval: null,
             mileageBuffer: null,
-            firstServiceTimeValue: null,
-            firstServiceTimeUnit: null,
+            firstServiceDate: null,
+            firstServiceDate: null,
             firstServiceMileage: 1000);
 
         // Act
@@ -912,8 +907,8 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
             timeBufferUnit: null,
             mileageInterval: 5000,
             mileageBuffer: null,
-            firstServiceTimeValue: 3,
-            firstServiceTimeUnit: TimeUnitEnum.Days,
+            firstServiceDate: 3,
+            firstServiceDate: TimeUnitEnum.Days,
             firstServiceMileage: 2500);
 
         // Act
@@ -933,8 +928,8 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
             timeIntervalUnit: TimeUnitEnum.Days,
             timeBufferValue: null,
             timeBufferUnit: null,
-            firstServiceTimeValue: 6,
-            firstServiceTimeUnit: TimeUnitEnum.Days,
+            firstServiceDate: 6,
+            firstServiceDate: TimeUnitEnum.Days,
             mileageInterval: 5000,
             firstServiceMileage: 5000);
 
@@ -955,8 +950,8 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
             timeIntervalUnit: TimeUnitEnum.Days,
             timeBufferValue: null,
             timeBufferUnit: null,
-            firstServiceTimeValue: 12,
-            firstServiceTimeUnit: TimeUnitEnum.Days,
+            firstServiceDate: 12,
+            firstServiceDate: TimeUnitEnum.Days,
             mileageInterval: 5000,
             firstServiceMileage: 10000);
 

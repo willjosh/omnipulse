@@ -60,8 +60,8 @@ public class GetServiceScheduleQueryHandlerTest
             TimeBufferUnit = Domain.Entities.Enums.TimeUnitEnum.Days,
             MileageInterval = 1000,
             MileageBuffer = 100,
-            FirstServiceTimeValue = 5,
-            FirstServiceTimeUnit = Domain.Entities.Enums.TimeUnitEnum.Days,
+            FirstServiceDate = 5,
+            FirstServiceDate = Domain.Entities.Enums.TimeUnitEnum.Days,
             FirstServiceMileage = 500,
             IsActive = true,
             ServiceProgram = serviceProgram,
@@ -125,8 +125,6 @@ public class GetServiceScheduleQueryHandlerTest
         Assert.Equal(serviceSchedule.TimeBufferUnit, result.TimeBufferUnit);
         Assert.Equal(serviceSchedule.MileageInterval, result.MileageInterval);
         Assert.Equal(serviceSchedule.MileageBuffer, result.MileageBuffer);
-        Assert.Equal(serviceSchedule.FirstServiceTimeValue, result.FirstServiceTimeValue);
-        Assert.Equal(serviceSchedule.FirstServiceTimeUnit, result.FirstServiceTimeUnit);
         Assert.Equal(serviceSchedule.FirstServiceMileage, result.FirstServiceMileage);
         Assert.Equal(serviceSchedule.IsActive, result.IsActive);
         Assert.NotNull(result.ServiceTasks);

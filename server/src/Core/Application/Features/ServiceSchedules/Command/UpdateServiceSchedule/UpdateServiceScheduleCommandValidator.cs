@@ -79,24 +79,15 @@ public sealed class UpdateServiceScheduleCommandValidator : AbstractValidator<Up
             .Must(x => !x.MileageBuffer.HasValue || !x.MileageInterval.HasValue || x.MileageBuffer < x.MileageInterval)
             .WithMessage("Mileage buffer cannot be greater than or equal to mileage interval");
 
-        // First service time validation
-        RuleFor(x => x.FirstServiceTimeValue)
-            .GreaterThanOrEqualTo(0)
-            .When(x => x.FirstServiceTimeValue.HasValue)
-            .WithMessage("First service time value cannot be negative when provided");
-
-        RuleFor(x => x.FirstServiceTimeUnit)
-            .IsInEnum()
-            .When(x => x.FirstServiceTimeUnit.HasValue)
-            .WithMessage("First service time unit must be a valid enum value when provided");
+        // First service date validation
+        RuleFor(x => x.FirstServiceDate)
+            .GreaterThan(DateTime.Today.AddDays(-1)) // Allow today or future dates
+            .When(x => x.FirstServiceDate.HasValue)
+            .WithMessage("First service date must be today or in the future");
 
         RuleFor(x => x)
-            .Must(x => (x.FirstServiceTimeValue.HasValue && x.FirstServiceTimeUnit.HasValue) || (!x.FirstServiceTimeValue.HasValue && !x.FirstServiceTimeUnit.HasValue))
-            .WithMessage("First service time value and unit must both be provided together or both be null");
-
-        RuleFor(x => x)
-            .Must(x => !x.FirstServiceTimeValue.HasValue || (x.TimeIntervalValue.HasValue && x.TimeIntervalUnit.HasValue))
-            .WithMessage("First service time properties require TimeIntervalValue and TimeIntervalUnit to be set");
+            .Must(x => !x.FirstServiceDate.HasValue || (x.TimeIntervalValue.HasValue && x.TimeIntervalUnit.HasValue))
+            .WithMessage("First service date requires TimeIntervalValue and TimeIntervalUnit to be set");
 
         // First service mileage validation
         RuleFor(x => x.FirstServiceMileage)
