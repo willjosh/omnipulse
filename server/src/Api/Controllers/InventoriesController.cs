@@ -1,5 +1,8 @@
 using System;
 
+using Application.Contracts.UserServices;
+using Application.Features.Inventory.Command.DeleteInventory;
+using Application.Features.Inventory.Command.UpdateInventory;
 using Application.Features.Inventory.Query;
 using Application.Features.Inventory.Query.GetInventory;
 using Application.Models.PaginationModels;
@@ -19,6 +22,8 @@ namespace Api.Controllers;
 /// <list type="bullet">
 /// <item><b>GET /api/inventories</b> - <see cref="GetAllInventories"/> - <see cref="GetAllInventoryQuery"/></item>
 /// <item><b>GET /api/inventories/{id}</b> - <see cref="GetInventory"/> - <see cref="GetInventoryQuery"/></item>
+/// <item><b>PUT /api/inventories/{id}</b> - <see cref="UpdateInventory"/> - <see cref="UpdateInventoryCommand"/></item>
+/// <item><b>DELETE /api/inventories/{id}</b> - <see cref="DeleteInventory"/> - <see cref="DeleteInventoryCommand"/></item>
 /// </list>
 /// </remarks>
 [ApiController]
@@ -30,11 +35,13 @@ public class InventoriesController : ControllerBase
 {
     private readonly IMediator _mediator;
     private readonly ILogger<InventoriesController> _logger;
+    private readonly ICurrentUserService _currentUserService;
 
-    public InventoriesController(IMediator mediator, ILogger<InventoriesController> logger)
+    public InventoriesController(IMediator mediator, ILogger<InventoriesController> logger, ICurrentUserService currentUserService)
     {
         _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _currentUserService = currentUserService ?? throw new ArgumentNullException(nameof(currentUserService));
     }
 
     /// <summary>
@@ -100,6 +107,84 @@ public class InventoriesController : ControllerBase
             var inventoryDto = await _mediator.Send(query, cancellationToken);
 
             return Ok(inventoryDto);
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Updates an existing inventory's information including stock levels and costs.
+    /// </summary>
+    /// <param name="id">The ID of the inventory to update.</param>
+    /// <param name="command">The inventory update command containing the new inventory information.</param>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>The ID of the updated inventory.</returns>
+    /// <response code="200">Inventory updated successfully. Returns the inventory ID.</response>
+    /// <response code="400">Request data is invalid, validation failed, or route ID and body ID mismatch.</response>
+    /// <response code="401">Unauthorized access.</response>
+    /// <response code="404">Inventory not found.</response>
+    /// <response code="500">Internal server error occurred.</response>
+    [HttpPut("{id:int}")]
+    [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<int>> UpdateInventory(
+        int id,
+        [FromBody] UpdateInventoryCommand command,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            _logger.LogInformation($"{nameof(UpdateInventory)}() - Called with ID: {id}");
+
+            // Validate that route ID matches command ID
+            if (id != command.InventoryID)
+            {
+                return ValidationProblem($"{nameof(UpdateInventory)} - Route ID ({id}) and body ID ({command.InventoryID}) mismatch.");
+            }
+
+            var userID = _currentUserService.UserId;
+
+            // Ensure the command uses the route ID (security measure)
+            var inventoryId = await _mediator.Send(command with { InventoryID = id, PerformedByUserID = userID! }, cancellationToken);
+
+            return Ok(inventoryId);
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Deletes an inventory.
+    /// </summary>
+    /// <param name="id">The ID of the inventory to delete.</param>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>The ID of the deleted inventory.</returns>
+    /// <response code="200">Inventory deleted successfully. Returns the inventory ID.</response>
+    /// <response code="404">Inventory not found.</response>
+    /// <response code="500">Internal server error occurred.</response>
+    [HttpDelete("{id:int}")]
+    [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<int>> DeleteInventory(
+        int id,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            _logger.LogInformation($"{nameof(DeleteInventory)}() - Called");
+
+            var command = new DeleteInventoryCommand(id);
+            var inventoryId = await _mediator.Send(command, cancellationToken);
+
+            return Ok(inventoryId);
         }
         catch (Exception)
         {

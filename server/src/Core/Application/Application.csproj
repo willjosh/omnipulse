@@ -19,8 +19,6 @@
   <ItemGroup>
     <Folder Include="Exceptions/WorkOrder/" />
     <Folder Include="Features/Auth/Query/" />
-    <Folder Include="Features/Inventory/Command/DeleteInventory/" />
-    <Folder Include="Features/Inventory/Command/UpdateInventory/" />
     <Folder Include="Features/WorkOrderLineItem/Command/" />
   </ItemGroup>
 
