@@ -70,11 +70,6 @@ public class UpdateTechnicianCommandHandler : IRequestHandler<UpdateTechnicianCo
             user.HireDate = request.HireDate!.Value;
         }
 
-        if (request.ShouldUpdateIsActive)
-        {
-            user.IsActive = request.IsActive!.Value;
-        }
-
         // update user
         user.UpdatedAt = DateTime.UtcNow;
         var result = await _userRepository.UpdateAsync(user);
