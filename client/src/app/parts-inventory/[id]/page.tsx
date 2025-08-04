@@ -83,7 +83,7 @@ const InventoryItemDetailsPage = () => {
             <span className="text-sm font-medium text-gray-600">
               Item Number
             </span>
-            <span className="text-sm text-gray-900 font-mono">
+            <span className="text-sm text-gray-900">
               {inventoryItem.itemNumber}
             </span>
           </div>
@@ -142,7 +142,7 @@ const InventoryItemDetailsPage = () => {
             <span className="text-sm font-medium text-gray-600">
               Manufacturer Part Number
             </span>
-            <span className="text-sm text-gray-900 font-mono">
+            <span className="text-sm text-gray-900">
               {inventoryItem.manufacturerPartNumber || "—"}
             </span>
           </div>
@@ -150,7 +150,7 @@ const InventoryItemDetailsPage = () => {
             <span className="text-sm font-medium text-gray-600">
               Universal Product Code
             </span>
-            <span className="text-sm text-gray-900 font-mono">
+            <span className="text-sm text-gray-900">
               {inventoryItem.universalProductCode || "—"}
             </span>
           </div>
