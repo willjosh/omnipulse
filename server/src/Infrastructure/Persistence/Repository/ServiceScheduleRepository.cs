@@ -47,6 +47,14 @@ public class ServiceScheduleRepository : GenericRepository<ServiceSchedule>, ISe
         return await BuildPagedServiceScheduleQuery(parameters, serviceProgramId);
     }
 
+    public async Task<List<ServiceSchedule>> GetAllActiveWithNavigationAsync()
+    {
+        return await _dbSet
+            .Include(ss => ss.ServiceProgram)
+            .Where(ss => ss.IsActive)
+            .ToListAsync();
+    }
+
     private async Task<PagedResult<ServiceSchedule>> BuildPagedServiceScheduleQuery(PaginationParameters parameters, int? serviceProgramID = null)
     {
         var query = _dbSet
