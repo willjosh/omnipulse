@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import {
   useCreateInventoryItem,
   useUpdateInventoryItem,
-} from "../hooks/useInventoryItems";
+} from "../hooks/useInventoryItem";
 import {
   CreateInventoryItemCommand,
   UpdateInventoryItemCommand,

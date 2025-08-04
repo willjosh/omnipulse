@@ -8,7 +8,7 @@ import {
   ComboboxOptions,
   ComboboxOption,
 } from "@headlessui/react";
-import { useInventoryItems } from "@/features/inventory-item/hooks/useInventoryItems";
+import { useInventoryItems } from "@/features/inventory-item/hooks/useInventoryItem";
 import { InventoryItemWithLabels } from "@/features/inventory-item/types/inventoryItemType";
 
 interface AddPartModalProps {

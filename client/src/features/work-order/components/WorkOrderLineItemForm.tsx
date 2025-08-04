@@ -15,7 +15,7 @@ import {
   Add as AddIcon,
 } from "@mui/icons-material";
 import { useServiceTasks } from "@/features/service-task/hooks/useServiceTasks";
-import { useInventoryItems } from "@/features/inventory-item/hooks/useInventoryItems";
+import { useInventoryItems } from "@/features/inventory-item/hooks/useInventoryItem";
 import { useTechnicians } from "@/features/technician/hooks/useTechnicians";
 import { ServiceTaskWithLabels } from "@/features/service-task/types/serviceTaskType";
 import { InventoryItemWithLabels } from "@/features/inventory-item/types/inventoryItemType";

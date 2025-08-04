@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import {
   useInventoryItems,
   useDeleteInventoryItem,
-} from "../hooks/useInventoryItems";
+} from "../hooks/useInventoryItem";
 import { InventoryItemWithLabels } from "../types/inventoryItemType";
 import { Loading } from "@/components/ui/Feedback";
 import EmptyState from "@/components/ui/Feedback/EmptyState";
@@ -14,14 +14,14 @@ import { FilterBar } from "@/components/ui/Filter";
 import { PrimaryButton, OptionButton } from "@/components/ui/Button";
 import { ConfirmModal } from "@/components/ui/Modal";
 import { Archive, Edit, Details } from "@/components/ui/Icons";
-import { inventoryTableColumns } from "../config/InventoryTableColumns";
-import InventoryModal from "./InventoryModal";
+import { inventoryTableColumns } from "../config/InventoryItemTableColumns";
+import InventoryModal from "./InventoryItemModal";
 import {
   InventoryActionType,
   INVENTORY_ACTION_CONFIG,
-} from "../config/inventoryActions";
+} from "../config/inventoryItemActions";
 
-const InventoryList = () => {
+const InventoryItemList = () => {
   const router = useRouter();
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [modal, setModal] = useState<{
@@ -84,7 +84,7 @@ const InventoryList = () => {
   };
 
   const handleRowClick = (item: InventoryItemWithLabels) => {
-    router.push(`/parts-inventory/${item.id}`);
+    router.push(`/inventory-item/${item.id}`);
   };
 
   const handleArchiveItem = async () => {
@@ -99,14 +99,14 @@ const InventoryList = () => {
     }
   };
 
-  const inventoryActions = useMemo(
+  const inventoryItemAction = useMemo(
     () => [
       {
         key: InventoryActionType.VIEW,
         label: INVENTORY_ACTION_CONFIG[InventoryActionType.VIEW].label,
         icon: <Details />,
         onClick: (item: InventoryItemWithLabels) => {
-          router.push(`/parts-inventory/${item.id}`);
+          router.push(`/inventory-item/${item.id}`);
         },
       },
       {
@@ -163,7 +163,7 @@ const InventoryList = () => {
     <div className="p-6 w-full max-w-none min-h-screen">
       <div className="flex items-center justify-between mb-2">
         <h1 className="text-2xl font-semibold text-gray-900">
-          Parts & Inventory
+          Inventory Items
         </h1>
         <div className="flex items-center gap-3">
           <OptionButton />
@@ -204,7 +204,7 @@ const InventoryList = () => {
           onSelectItem={handleItemSelect}
           onSelectAll={handleSelectAll}
           onRowClick={handleRowClick}
-          actions={inventoryActions}
+          actions={inventoryItemAction}
           showActions={true}
           fixedLayout={false}
           loading={isPending}
@@ -233,4 +233,4 @@ const InventoryList = () => {
   );
 };
 
-export default InventoryList;
+export default InventoryItemList;
