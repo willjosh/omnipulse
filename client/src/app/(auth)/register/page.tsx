@@ -304,10 +304,10 @@ export default function RegisterPage() {
             </label>
           </div>
 
-          <div>
+          <div className="pt-2">
             <PrimaryButton
               type="submit"
-              className="w-full"
+              className="w-full py-3 text-base font-medium"
               disabled={isPending}
             >
               {isPending
@@ -316,14 +316,19 @@ export default function RegisterPage() {
             </PrimaryButton>
           </div>
 
-          <div className="text-center">
-            <SecondaryButton
-              type="button"
-              onClick={() => router.push("/login")}
-              className="text-sm"
-            >
-              Already have an account? Sign in
-            </SecondaryButton>
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <div className="text-center">
+              <p className="text-sm text-gray-600">
+                Already have an account?{" "}
+                <button
+                  type="button"
+                  onClick={() => router.push("/login")}
+                  className="font-medium text-blue-600 hover:text-blue-500 hover:underline focus:outline-none transition-colors duration-200"
+                >
+                  Sign in
+                </button>
+              </p>
+            </div>
           </div>
         </form>
       </div>
