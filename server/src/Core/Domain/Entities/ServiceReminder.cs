@@ -52,14 +52,14 @@ public class ServiceReminder : BaseEntity
     public required PriorityLevelEnum PriorityLevel { get; set; }
 
     /// <summary>The current status of this service reminder.</summary>
-    public required ReminderStatusEnum Status { get; set; }
+    public required ServiceReminderStatusEnum Status { get; set; }
 
     /// <summary>The date when this service was completed, if applicable.</summary>
     public DateTime? CompletedDate { get; set; }
 
     // ===== Navigation Properties =====
     /// <summary>Work order associated with this reminder.</summary>
-    public required WorkOrder? WorkOrder { get; set; }
+    public WorkOrder? WorkOrder { get; set; }
 
     /// <summary>Navigation property to the related service program.</summary>
     public required ServiceProgram ServiceProgram { get; set; }

@@ -431,8 +431,6 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         Assert.Equal(isValid, result.IsValid);
     }
 
-    // Removed test: FirstServiceDate now allows past dates as per user requirement
-
     [Fact]
     public async Task Validator_Should_Pass_When_FirstServiceDate_Is_Zero()
     {
