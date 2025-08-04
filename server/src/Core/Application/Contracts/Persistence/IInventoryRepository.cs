@@ -9,5 +9,6 @@ namespace Application.Contracts.Persistence;
 public interface IInventoryRepository : IGenericRepository<Inventory>
 {
     public Task<Inventory?> GetInventoryByItemIDAsync(int id);
-    public PagedResult<Inventory> GetAllInventoriesPagedAsync(PaginationParameters parameters);
+    public Task<PagedResult<Inventory>> GetAllInventoriesPagedAsync(PaginationParameters parameters);
+    public Task<Inventory?> GetInventoryWithDetailsAsync(int id);
 }

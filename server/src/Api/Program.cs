@@ -191,8 +191,7 @@ if (app.Environment.IsDevelopment())
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-    await omnipulseDbContext.Database.MigrateAsync();
-    // await omnipulseDbContext.Database.EnsureCreatedAsync(); // Triggers UseAsyncSeeding()
+    await omnipulseDbContext.Database.EnsureCreatedAsync(); // Triggers UseAsyncSeeding()
 }
 else
 {
