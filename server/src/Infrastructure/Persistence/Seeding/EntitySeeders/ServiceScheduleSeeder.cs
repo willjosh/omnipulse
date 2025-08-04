@@ -51,9 +51,8 @@ public class ServiceScheduleSeeder : IEntitySeeder
                 TimeBufferUnit = TimeUnitEnum.Days,
                 MileageInterval = 10000 * i,
                 MileageBuffer = 1000,
-                FirstServiceTimeValue = i,
-                FirstServiceTimeUnit = TimeUnitEnum.Days,
-                FirstServiceMileage = 100 * i,
+                FirstServiceDate = now.AddDays(i * 30), // First service 30, 60, 90 days from now
+                FirstServiceMileage = 15000 + (100 * i), // Absolute mileage: 15100, 15200, 15300, etc.
                 IsActive = true,
                 CreatedAt = now,
                 UpdatedAt = now,
