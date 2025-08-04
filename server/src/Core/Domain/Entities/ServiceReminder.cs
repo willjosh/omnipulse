@@ -34,6 +34,11 @@ public class ServiceReminder : BaseEntity
     /// <summary>Recurring mileage interval for this service (e.g., every 10,000 km).</summary>
     public double? MileageInterval { get; set; }
 
+    // ===== Buffer =====
+    public int? TimeBufferValue { get; set; }
+    public TimeUnitEnum? TimeBufferUnit { get; set; }
+    public int? MileageBuffer { get; set; } // km
+
     /// <summary>Difference between the vehicle's current meter and the DueMileage. Negative = distance left until due, Positive = overdue.</summary>
     public double? MeterVariance { get; set; }
 
@@ -72,4 +77,51 @@ public class ServiceReminder : BaseEntity
 
     /// <summary>Navigation property to the related vehicle.</summary>
     public required Vehicle Vehicle { get; set; }
+}
+
+public static class ServiceReminderExtensions
+{
+    /// <summary>
+    /// Determines the current <see cref="ServiceReminderStatusEnum"/> for a service reminder based on its due date/mileage, buffer thresholds, and the current vehicle state.
+    /// </summary>
+    /// <param name="serviceReminder">The reminder being evaluated.</param>
+    /// <param name="currentOdometer">The vehicle's current odometer reading (km).</param>
+    /// <param name="currentDate">The current date/time (UTC).</param>
+    /// <returns>The calculated status.</returns>
+    public static ServiceReminderStatusEnum DetermineServiceReminderStatus(this ServiceReminder serviceReminder, double? currentOdometer, DateTime? currentDate = null)
+    {
+        // Use DateTime.UtcNow if no date is provided
+        var now = currentDate ?? DateTime.UtcNow;
+
+        // Preserve COMPLETED or CANCELLED state
+        if (serviceReminder.Status == ServiceReminderStatusEnum.COMPLETED ||
+            serviceReminder.Status == ServiceReminderStatusEnum.CANCELLED)
+        {
+            return serviceReminder.Status;
+        }
+
+        // Overdue checks
+        bool isOverdueByTime = serviceReminder.DueDate.HasValue && now > serviceReminder.DueDate.Value;
+        bool isOverdueByMileage = serviceReminder.DueMileage.HasValue &&
+                                  currentOdometer.HasValue &&
+                                  currentOdometer.Value > serviceReminder.DueMileage.Value;
+
+        if (isOverdueByTime || isOverdueByMileage) return ServiceReminderStatusEnum.OVERDUE;
+
+        // Due soon checks
+        bool isDueSoonByTime = serviceReminder.DueDate.HasValue && serviceReminder.TimeBufferValue.HasValue &&
+                               now >= serviceReminder.DueDate.Value.AddDays(-serviceReminder.TimeBufferValue.Value) &&
+                               now < serviceReminder.DueDate.Value;
+
+        bool isDueSoonByMileage = serviceReminder.DueMileage.HasValue &&
+                                  serviceReminder.MileageBuffer.HasValue &&
+                                  currentOdometer.HasValue &&
+                                  currentOdometer.Value >= (serviceReminder.DueMileage.Value - serviceReminder.MileageBuffer.Value) &&
+                                  currentOdometer.Value < serviceReminder.DueMileage.Value;
+
+        if (isDueSoonByTime || isDueSoonByMileage) return ServiceReminderStatusEnum.DUE_SOON;
+
+        // Otherwise, it's just upcoming
+        return ServiceReminderStatusEnum.UPCOMING;
+    }
 }
