@@ -35,6 +35,7 @@ public class InspectionFormRepository : GenericRepository<InspectionForm>, IInsp
 
         var totalCount = await query.CountAsync();
         var items = await query
+            .Include(i => i.InspectionFormItems)
             .Skip((parameters.PageNumber - 1) * parameters.PageSize)
             .Take(parameters.PageSize)
             .ToListAsync();

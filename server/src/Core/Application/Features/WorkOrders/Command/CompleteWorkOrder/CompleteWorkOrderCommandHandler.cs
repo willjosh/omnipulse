@@ -19,15 +19,17 @@ public class CompleteWorkOrderCommandHandler : IRequestHandler<CompleteWorkOrder
     private readonly IMaintenanceHistoryRepository _maintenanceHistoryRepository;
     private readonly IInventoryRepository _inventoryRepository;
     private readonly IInventoryTransactionRepository _inventoryTransactionRepository;
+    private readonly IServiceReminderRepository _serviceReminderRepository;
     private readonly IAppLogger<CompleteWorkOrderCommandHandler> _logger;
     private readonly IMapper _mapper;
 
-    public CompleteWorkOrderCommandHandler(IWorkOrderRepository workOrderRepository, IMaintenanceHistoryRepository maintenanceHistoryRepository, IInventoryRepository inventoryRepository, IInventoryTransactionRepository inventoryTransactionRepository, IAppLogger<CompleteWorkOrderCommandHandler> logger, IMapper mapper)
+    public CompleteWorkOrderCommandHandler(IWorkOrderRepository workOrderRepository, IMaintenanceHistoryRepository maintenanceHistoryRepository, IInventoryRepository inventoryRepository, IInventoryTransactionRepository inventoryTransactionRepository, IServiceReminderRepository serviceReminderRepository, IAppLogger<CompleteWorkOrderCommandHandler> logger, IMapper mapper)
     {
         _workOrderRepository = workOrderRepository;
         _maintenanceHistoryRepository = maintenanceHistoryRepository;
         _inventoryRepository = inventoryRepository;
         _inventoryTransactionRepository = inventoryTransactionRepository;
+        _serviceReminderRepository = serviceReminderRepository;
         _logger = logger;
         _mapper = mapper;
     }
@@ -102,6 +104,16 @@ public class CompleteWorkOrderCommandHandler : IRequestHandler<CompleteWorkOrder
         // update the work order status to completed
         workOrder.Status = WorkOrderStatusEnum.COMPLETED;
         _workOrderRepository.Update(workOrder);
+
+        // Make related serviceReminder status to be complete
+        var serviceReminders = await _serviceReminderRepository.GetServiceRemindersByWorkOrderIdAsync(workOrder.ID);
+        foreach (var serviceReminder in serviceReminders)
+        {
+            serviceReminder.Status = ServiceReminderStatusEnum.COMPLETED;
+            _serviceReminderRepository.Update(serviceReminder);
+        }
+
+        await _serviceReminderRepository.SaveChangesAsync();
 
         // create a maintenance history entry
         var maintenanceHistory = _mapper.Map<MaintenanceHistory>(workOrder);

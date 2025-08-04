@@ -6,7 +6,7 @@ namespace Application.Features.InspectionFormItems.Query.GetAllInspectionFormIte
 /// <summary>
 /// Data Transfer Object representing an <see cref="InspectionFormItem"/> in a list.
 /// </summary>
-public class GetAllInspectionFormItemDTO
+public class InspectionFormItemDetailDTO
 {
     /// <example>1</example>
     public required int ID { get; set; }

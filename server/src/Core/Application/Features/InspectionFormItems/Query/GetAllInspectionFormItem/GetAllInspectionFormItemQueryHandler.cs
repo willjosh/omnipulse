@@ -16,7 +16,7 @@ namespace Application.Features.InspectionFormItems.Query.GetAllInspectionFormIte
 /// <summary>
 /// Handles <see cref="GetAllInspectionFormItemQuery"/>
 /// </summary>
-public sealed class GetAllInspectionFormItemQueryHandler : IRequestHandler<GetAllInspectionFormItemQuery, PagedResult<GetAllInspectionFormItemDTO>>
+public sealed class GetAllInspectionFormItemQueryHandler : IRequestHandler<GetAllInspectionFormItemQuery, PagedResult<InspectionFormItemDetailDTO>>
 {
     private readonly IInspectionFormItemRepository _inspectionFormItemRepository;
     private readonly IInspectionFormRepository _inspectionFormRepository;
@@ -38,7 +38,7 @@ public sealed class GetAllInspectionFormItemQueryHandler : IRequestHandler<GetAl
         _mapper = mapper;
     }
 
-    public async Task<PagedResult<GetAllInspectionFormItemDTO>> Handle(GetAllInspectionFormItemQuery request, CancellationToken cancellationToken)
+    public async Task<PagedResult<InspectionFormItemDetailDTO>> Handle(GetAllInspectionFormItemQuery request, CancellationToken cancellationToken)
     {
         _logger.LogInformation($"{nameof(Handle)} - Handling InspectionFormID: {request.InspectionFormID}");
 
@@ -63,9 +63,9 @@ public sealed class GetAllInspectionFormItemQueryHandler : IRequestHandler<GetAl
         var result = await _inspectionFormItemRepository.GetAllByInspectionFormIdPagedAsync(request.InspectionFormID, request.Parameters);
 
         // Map to DTOs
-        var inspectionFormItemDTOs = _mapper.Map<List<GetAllInspectionFormItemDTO>>(result.Items);
+        var inspectionFormItemDTOs = _mapper.Map<List<InspectionFormItemDetailDTO>>(result.Items);
 
-        var pagedResult = new PagedResult<GetAllInspectionFormItemDTO>
+        var pagedResult = new PagedResult<InspectionFormItemDetailDTO>
         {
             Items = inspectionFormItemDTOs,
             TotalCount = result.TotalCount,
