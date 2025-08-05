@@ -51,24 +51,27 @@ public sealed class GetAllInspectionFormItemQueryHandler : IRequestHandler<GetAl
             throw new BadRequestException(errorMessages);
         }
 
-        // Validate that the inspection form exists
+        // Validate that the inspection form exists and is active
         var inspectionForm = await _inspectionFormRepository.GetByIdAsync(request.InspectionFormID);
-        if (inspectionForm == null)
+        if (inspectionForm == null || !inspectionForm.IsActive)
         {
-            _logger.LogError($"Inspection form with ID {request.InspectionFormID} not found.");
+            _logger.LogError($"Inspection form with ID {request.InspectionFormID} not found or is inactive.");
             throw new EntityNotFoundException(nameof(InspectionForm), nameof(InspectionForm.ID), request.InspectionFormID.ToString());
         }
 
         // Get paginated inspection form items for the specified form
         var result = await _inspectionFormItemRepository.GetAllByInspectionFormIdPagedAsync(request.InspectionFormID, request.Parameters);
 
+        // Filter to only include active inspection form items
+        var activeInspectionFormItems = result.Items.Where(x => x != null && x.IsActive).ToList();
+
         // Map to DTOs
-        var inspectionFormItemDTOs = _mapper.Map<List<InspectionFormItemDetailDTO>>(result.Items);
+        var inspectionFormItemDTOs = _mapper.Map<List<InspectionFormItemDetailDTO>>(activeInspectionFormItems);
 
         var pagedResult = new PagedResult<InspectionFormItemDetailDTO>
         {
             Items = inspectionFormItemDTOs,
-            TotalCount = result.TotalCount,
+            TotalCount = activeInspectionFormItems.Count,
             PageNumber = result.PageNumber,
             PageSize = result.PageSize
         };

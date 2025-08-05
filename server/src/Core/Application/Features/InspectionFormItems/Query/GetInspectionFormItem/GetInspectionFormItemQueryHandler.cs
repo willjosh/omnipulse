@@ -29,9 +29,9 @@ public class GetInspectionQueryHandler : IRequestHandler<GetInspectionFormItemQu
         _logger.LogInformation($"GetInspectionFormItemQueryHandler for InspectionFormItemID: {request.InspectionFormItemID}");
         var inspectionFormItem = await _inspectionFormItemRepository.GetInspectionFormItemDetailsAsync(request.InspectionFormItemID);
 
-        if (inspectionFormItem == null)
+        if (inspectionFormItem == null || !inspectionFormItem.IsActive)
         {
-            _logger.LogError($"InspectionFormItem with ID {request.InspectionFormItemID} not found.");
+            _logger.LogError($"InspectionFormItem with ID {request.InspectionFormItemID} not found or is inactive.");
             throw new EntityNotFoundException(typeof(InspectionFormItemDetailDTO).ToString(), "InspectionFormItemID", request.InspectionFormItemID.ToString());
         }
 
