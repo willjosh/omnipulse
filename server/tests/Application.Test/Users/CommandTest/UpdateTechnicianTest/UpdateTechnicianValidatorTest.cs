@@ -18,16 +18,14 @@ public class UpdateTechnicianValidatorTest
         string email = "ClarenceGanteng@gmail.com",
         string firstName = "Clarence",
         string lastName = "Muljadi",
-        DateTime? hireDate = null,
-        bool isActive = true
+        DateTime? hireDate = null
     )
     {
         return new UpdateTechnicianCommand(
             Id: Guid.NewGuid().ToString(),
             firstName,
             lastName,
-            hireDate ?? DateTime.UtcNow,
-            isActive
+            hireDate ?? DateTime.UtcNow
         );
     }
 

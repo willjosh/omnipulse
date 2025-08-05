@@ -32,6 +32,6 @@ public class InspectionFormItemMappingProfile : Profile
             .ForMember(dest => dest.InspectionFormItemTypeEnum, opt => opt.Ignore()); // Cannot be updated to maintain data integrity
 
         // GetAllInspectionFormItem
-        CreateMap<InspectionFormItem, GetAllInspectionFormItemDTO>(MemberList.Destination);
+        CreateMap<InspectionFormItem, InspectionFormItemDetailDTO>(MemberList.Destination);
     }
 }

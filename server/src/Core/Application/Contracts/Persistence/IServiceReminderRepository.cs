@@ -42,4 +42,6 @@ public interface IServiceReminderRepository : IGenericRepository<ServiceReminder
     Task<bool> HasPendingRemindersForVehicleAsync(int vehicleId);
     Task<bool> HasOverdueRemindersForVehicleAsync(int vehicleId);
     Task<ServiceReminder?> GetNextDueReminderForVehicleAsync(int vehicleId);
+
+    public Task<IReadOnlyList<ServiceReminder>> GetServiceRemindersByWorkOrderIdAsync(int workOrderId);
 }

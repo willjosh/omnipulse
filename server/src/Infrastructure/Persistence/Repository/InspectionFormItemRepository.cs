@@ -1,4 +1,5 @@
 using Application.Contracts.Persistence;
+using Application.Features.InspectionFormItems.Query.GetAllInspectionFormItem;
 using Application.Models.PaginationModels;
 
 using Domain.Entities;
@@ -138,6 +139,7 @@ public class InspectionFormItemRepository : GenericRepository<InspectionFormItem
 
         var totalCount = await query.CountAsync();
         var items = await query
+            .Include(i => i.InspectionForm)
             .Skip((parameters.PageNumber - 1) * parameters.PageSize)
             .Take(parameters.PageSize)
             .ToListAsync();
@@ -149,5 +151,12 @@ public class InspectionFormItemRepository : GenericRepository<InspectionFormItem
             PageNumber = parameters.PageNumber,
             PageSize = parameters.PageSize
         };
+    }
+
+    public async Task<InspectionFormItem?> GetInspectionFormItemDetailsAsync(int inspectionFormItemId)
+    {
+        return await _dbSet.Where(i => i.ID == inspectionFormItemId)
+            .Include(i => i.InspectionForm)
+            .FirstOrDefaultAsync();
     }
 }

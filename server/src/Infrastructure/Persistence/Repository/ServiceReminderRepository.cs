@@ -1,9 +1,12 @@
+
 using Application.Contracts.Persistence;
 using Application.Features.ServiceReminders.Query;
 using Application.Models.PaginationModels;
 
 using Domain.Entities;
 using Domain.Entities.Enums;
+
+using Microsoft.EntityFrameworkCore;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -656,5 +659,10 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
             TimeUnitEnum.Weeks => value * 7,
             _ => throw new ArgumentException($"Unsupported time unit: {unit}")
         };
+    }
+
+    public async Task<IReadOnlyList<ServiceReminder>> GetServiceRemindersByWorkOrderIdAsync(int workOrderID)
+    {
+        return await _dbSet.Where(sr => sr.WorkOrderID == workOrderID).ToListAsync();
     }
 }

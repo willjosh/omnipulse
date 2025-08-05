@@ -1,0 +1,493 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Invoice #{{InvoiceNumber}}</title>
+    <style>
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial,
+          sans-serif;
+        margin: 0;
+        padding: 20px;
+        color: #333;
+        font-size: 12px;
+        line-height: 1.4;
+        background: #fff;
+      }
+
+      .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #e0e0e0;
+      }
+
+      .company-info {
+        flex: 1;
+      }
+
+      .company-name {
+        font-size: 18px;
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 5px;
+      }
+
+      .company-address {
+        color: #666;
+        font-size: 11px;
+        margin-bottom: 2px;
+      }
+
+      .work-order-info {
+        text-align: right;
+        flex: 1;
+      }
+
+      .work-order-number {
+        font-size: 14px;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+
+      .invoice-details {
+        font-size: 11px;
+        color: #666;
+      }
+
+      .main-title {
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+        color: #2c3e50;
+        margin: 30px 0;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+      }
+
+      .details-section {
+        margin-bottom: 25px;
+      }
+
+      .section-title {
+        font-size: 14px;
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 15px;
+        text-transform: uppercase;
+        border-bottom: 2px solid #34495e;
+        padding-bottom: 5px;
+      }
+
+      .details-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin-bottom: 20px;
+      }
+
+      .detail-item {
+        display: flex;
+        margin-bottom: 8px;
+      }
+
+      .detail-label {
+        font-weight: 600;
+        min-width: 140px;
+        color: #2c3e50;
+      }
+
+      .detail-value {
+        color: #333;
+        flex: 1;
+      }
+
+      .vehicle-section {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+      }
+
+      .vehicle-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 20px;
+        align-items: start;
+      }
+
+      .vehicle-details h4 {
+        font-size: 16px;
+        font-weight: bold;
+        color: #2c3e50;
+        margin: 0 0 10px 0;
+      }
+
+      .vehicle-specs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+      }
+
+      .line-items-section {
+        margin: 30px 0;
+      }
+
+      .line-items-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+        font-size: 11px;
+      }
+
+      .line-items-table th {
+        background-color: #34495e;
+        color: white;
+        padding: 12px 8px;
+        text-align: left;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 10px;
+        letter-spacing: 0.5px;
+      }
+
+      .line-items-table td {
+        padding: 10px 8px;
+        border-bottom: 1px solid #e0e0e0;
+        vertical-align: top;
+      }
+
+      .line-items-table tr:nth-child(even) {
+        background-color: #f8f9fa;
+      }
+
+      .line-items-table .item-icon {
+        width: 20px;
+        text-align: center;
+        font-size: 14px;
+      }
+
+      .summary-section {
+        margin-top: 30px;
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 30px;
+      }
+
+      .description-box {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 5px;
+      }
+
+      .description-title {
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        font-size: 11px;
+      }
+
+      .totals-box {
+        background-color: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 5px;
+        overflow: hidden;
+      }
+
+      .totals-header {
+        background-color: #34495e;
+        color: white;
+        padding: 12px 15px;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 11px;
+      }
+
+      .totals-content {
+        padding: 15px;
+      }
+
+      .total-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        font-size: 12px;
+      }
+
+      .total-row.subtotal {
+        font-weight: 600;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #e0e0e0;
+      }
+
+      .total-row.final-total {
+        font-size: 16px;
+        font-weight: bold;
+        color: #2c3e50;
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 2px solid #34495e;
+      }
+
+      .discount-row {
+        color: #e74c3c;
+      }
+
+      .tax-row {
+        color: #27ae60;
+      }
+
+      .footer {
+        margin-top: 40px;
+        text-align: center;
+        padding-top: 20px;
+        border-top: 1px solid #e0e0e0;
+      }
+
+      .powered-by {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 10px;
+      }
+
+      .footer-logo {
+        width: 20px;
+        height: 20px;
+        background-color: #2c3e50;
+        border-radius: 3px;
+        margin-right: 8px;
+      }
+
+      .footer-text {
+        font-size: 11px;
+        color: #666;
+      }
+
+      .status-badge {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+
+      .status-open {
+        background-color: #fff3cd;
+        color: #856404;
+      }
+
+      .status-completed {
+        background-color: #d4edda;
+        color: #155724;
+      }
+
+      .status-in-progress {
+        background-color: #cce7ff;
+        color: #004085;
+      }
+
+      .currency {
+        font-weight: 600;
+      }
+
+      @media print {
+        body {
+          margin: 0;
+          padding: 15px;
+        }
+        .page-header {
+          margin-bottom: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-header">
+      <div class="company-info">
+        <div class="company-name">Omnipulse</div>
+        <div class="company-address">Sydney, New South Wales, 1001</div>
+        <div class="company-address">AU</div>
+      </div>
+      <div class="work-order-info">
+        <div class="work-order-number">Work Order Number #{{WorkOrderID}}</div>
+        <div class="invoice-details">
+          <div>Invoice Number: {{InvoiceNumber}}</div>
+          <div>PO Number:</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="main-title">WORK ORDER</div>
+
+    <div class="details-section">
+      <div class="section-title">Work Order Details</div>
+      <div class="details-grid">
+        <div>
+          <div class="detail-item">
+            <span class="detail-label">Issue Date:</span>
+            <span class="detail-value">{{formatDate InvoiceDate}}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Scheduled Start Date:</span>
+            <span class="detail-value">{{formatDate ScheduledStartDate}}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Actual Start Date:</span>
+            <span class="detail-value">{{formatDate ActualStartDate}}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Expected Completion Date:</span>
+            <span class="detail-value">{{formatDate
+                ExpectedCompletionDate
+              }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Actual Completion Date:</span>
+            <span class="detail-value">{{formatDate
+                ActualCompletionDate
+              }}</span>
+          </div>
+        </div>
+        <div>
+          <div class="detail-item">
+            <span class="detail-label">Repair Priority Class:</span>
+            <span class="detail-value">{{WorkOrderPriorityLevel}}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Status:</span>
+            <span class="detail-value">
+              <span class="status-badge">
+                {{WorkOrderStatus}}
+              </span>
+            </span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Issued By:</span>
+            <span class="detail-value">{{IssuedByUserName}}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Assigned to:</span>
+            <span class="detail-value">{{AssignedToUserName}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="vehicle-section">
+      <div class="vehicle-grid">
+        <div class="vehicle-details">
+          <h4>{{VehicleName}}</h4>
+          <div class="detail-item">
+            <span class="detail-value">{{VehicleMake}} {{VehicleModel}}</span>
+          </div>
+          <div class="vehicle-specs">
+            <div>
+              <div class="detail-item">
+                <span class="detail-label">VIN/SN:</span>
+                <span class="detail-value">{{VehicleVIN}}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">License Plate:</span>
+                <span class="detail-value">{{VehicleLicensePlate}}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Operator:</span>
+                <span class="detail-value">N/A</span>
+              </div>
+            </div>
+            <div>
+              <div class="detail-item">
+                <span class="detail-label">Type:</span>
+                <span class="detail-value">{{VehicleType}}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Group:</span>
+                <span class="detail-value">{{VehicleGroupName}}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Odometer:</span>
+                <span class="detail-value">{{VehicleOdometer}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="line-items-section">
+      <div class="section-title">Line Items</div>
+      <table class="line-items-table">
+        <thead>
+          <tr>
+            <th width="5%"></th>
+            <th width="35%">Item</th>
+            <th width="15%">Labor</th>
+            <th width="15%">Parts</th>
+            <th width="15%">Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each WorkOrderLineItems}}
+            <tr>
+              <td>{{@index}}</td>
+              <td>{{InventoryItemName}}</td>
+              <td class="currency">${{formatCurrency LaborTotal}}</td>
+              <td class="currency">${{formatCurrency ItemTotal}}</td>
+              <td class="currency">${{formatCurrency SubTotal}}</td>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="summary-section">
+      <div class="description-box">
+        <div class="description-title">Description</div>
+        <div>{{WorkOrderDescription}}</div>
+      </div>
+
+      <div class="totals-box">
+        <div class="totals-header">Summary</div>
+        <div class="totals-content">
+          <div class="total-row subtotal">
+            <span>Subtotal</span>
+            <span class="currency">${{formatCurrency TotalCost}}</span>
+          </div>
+          <div class="total-row">
+            <span>Labor</span>
+            <span class="currency">${{formatCurrency TotalLabourCost}}</span>
+          </div>
+          <div class="total-row">
+            <span>Parts</span>
+            <span class="currency">${{formatCurrency TotalItemCost}}</span>
+          </div>
+          <div class="total-row discount-row">
+            <span>Discount</span>
+            <span>- $0.00 (0.0%)</span>
+          </div>
+          <div class="total-row tax-row">
+            <span>Tax</span>
+            <span>+$0.00 (0.0%)</span>
+          </div>
+          <div class="total-row final-total">
+            <span>Total</span>
+            <span class="currency">${{formatCurrency TotalCost}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div class="powered-by">
+        <div class="footer-logo"></div>
+        <span class="footer-text">Powered by <strong>Omnipulse</strong></span>
+      </div>
+      <div class="footer-text">Page 1 of 1</div>
+    </div>
+  </body>
+</html>

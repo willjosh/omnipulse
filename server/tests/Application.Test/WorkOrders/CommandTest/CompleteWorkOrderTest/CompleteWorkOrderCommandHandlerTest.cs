@@ -17,11 +17,11 @@ namespace Application.Test.WorkOrders.CommandTest.CreateWorkOrderTest;
 
 public class CompleteWorkOrderCommandHandlerTest
 {
-
     private readonly Mock<IWorkOrderRepository> _mockWorkOrderRepository;
     private readonly Mock<IMaintenanceHistoryRepository> _mockMaintenanceHistoryRepository;
     private readonly Mock<IInventoryRepository> _mockInventoryRepository;
     private readonly Mock<IInventoryTransactionRepository> _mockInventoryTransactionRepository;
+    private readonly Mock<IServiceReminderRepository> _mockServiceReminderRepository;
     private readonly Mock<IAppLogger<CompleteWorkOrderCommandHandler>> _mockLogger;
     private readonly CompleteWorkOrderCommandHandler _handler;
 
@@ -31,6 +31,7 @@ public class CompleteWorkOrderCommandHandlerTest
         _mockMaintenanceHistoryRepository = new();
         _mockInventoryRepository = new();
         _mockInventoryTransactionRepository = new();
+        _mockServiceReminderRepository = new();
         _mockLogger = new();
 
         var config = new MapperConfiguration(cfg =>
@@ -45,6 +46,7 @@ public class CompleteWorkOrderCommandHandlerTest
             _mockMaintenanceHistoryRepository.Object,
             _mockInventoryRepository.Object,
             _mockInventoryTransactionRepository.Object,
+            _mockServiceReminderRepository.Object,
             _mockLogger.Object,
             mapper
         );
@@ -86,19 +88,28 @@ public class CompleteWorkOrderCommandHandlerTest
             VIN = "1234567890ABCDEFG",
             LicensePlate = "ABC123",
             LicensePlateExpirationDate = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
-            VehicleType = Domain.Entities.Enums.VehicleTypeEnum.CAR,
+            VehicleType = VehicleTypeEnum.CAR,
             VehicleGroupID = 2,
             Trim = "LE",
             Mileage = 50000,
             EngineHours = 1000,
             FuelCapacity = 50.0,
-            FuelType = Domain.Entities.Enums.FuelTypeEnum.PETROL,
+            FuelType = FuelTypeEnum.PETROL,
             PurchaseDate = new DateTime(2021, 1, 1, 0, 0, 0, DateTimeKind.Utc),
             PurchasePrice = 25000.00m,
-            Status = Domain.Entities.Enums.VehicleStatusEnum.ACTIVE,
+            Status = VehicleStatusEnum.ACTIVE,
             Location = "Sydney",
             AssignedTechnicianID = "GUID123",
-            VehicleGroup = null!,
+            // Add required navigation properties
+            VehicleGroup = new VehicleGroup
+            {
+                ID = 2,
+                Name = "Fleet",
+                Description = "Main fleet",
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            },
             User = null!,
             VehicleImages = [],
             VehicleAssignments = [],
@@ -120,12 +131,12 @@ public class CompleteWorkOrderCommandHandlerTest
             ItemNumber = "INV-001",
             ItemName = "Test Inventory Item",
             Description = "This is a test inventory item",
-            Category = Domain.Entities.Enums.InventoryItemCategoryEnum.FILTERS,
+            Category = InventoryItemCategoryEnum.FILTERS,
             Manufacturer = "Test Manufacturer",
             ManufacturerPartNumber = "MPN-001",
             UniversalProductCode = "UPC-001",
             UnitCost = 50.00m,
-            UnitCostMeasurementUnit = Domain.Entities.Enums.InventoryItemUnitCostMeasurementUnitEnum.Litre,
+            UnitCostMeasurementUnit = InventoryItemUnitCostMeasurementUnitEnum.Litre,
             Supplier = "Test Supplier",
             WeightKG = 0.5,
             IsActive = true,
@@ -145,7 +156,7 @@ public class CompleteWorkOrderCommandHandlerTest
             Description = "This is a test service task",
             EstimatedLabourHours = 2.0,
             EstimatedCost = 100.00m,
-            Category = Domain.Entities.Enums.ServiceTaskCategoryEnum.INSPECTION,
+            Category = ServiceTaskCategoryEnum.INSPECTION,
             IsActive = true,
             XrefServiceScheduleServiceTasks = [],
             MaintenanceHistories = [],
@@ -177,8 +188,8 @@ public class CompleteWorkOrderCommandHandlerTest
             WorkOrderType = WorkTypeEnum.SCHEDULED,
             PriorityLevel = PriorityLevelEnum.CRITICAL,
             Status = status,
-            ScheduledStartDate = scheduledStartDate,
-            ActualStartDate = actualStartDate,
+            ScheduledStartDate = scheduledStartDate ?? DateTime.UtcNow.AddDays(-1), // Add default
+            ActualStartDate = actualStartDate ?? DateTime.UtcNow, // Add default
             ScheduledCompletionDate = scheduledCompletionDate,
             ActualCompletionDate = actualCompletionDate,
             StartOdometer = 1000,
@@ -224,6 +235,9 @@ public class CompleteWorkOrderCommandHandlerTest
 
         _mockWorkOrderRepository.Setup(r => r.GetWorkOrderWithDetailsAsync(command.ID)).ReturnsAsync(workOrder);
         _mockMaintenanceHistoryRepository.Setup(r => r.AddAsync(It.IsAny<MaintenanceHistory>())).ReturnsAsync(maintenanceHistory);
+        _mockServiceReminderRepository.Setup(r => r.GetServiceRemindersByWorkOrderIdAsync(It.IsAny<int>())).ReturnsAsync(new List<ServiceReminder>());
+        _mockServiceReminderRepository.Setup(r => r.SaveChangesAsync()).ReturnsAsync(1); // Returns number of affected rows
+        _mockMaintenanceHistoryRepository.Setup(r => r.SaveChangesAsync()).ReturnsAsync(1);
         _mockWorkOrderRepository.Setup(r => r.Update(It.IsAny<WorkOrder>()));
 
         // When
@@ -233,11 +247,13 @@ public class CompleteWorkOrderCommandHandlerTest
         Assert.Equal(workOrder.ID, result);
         Assert.Equal(WorkOrderStatusEnum.COMPLETED, workOrder.Status);
         Assert.NotNull(workOrder.ActualStartDate);
-        Assert.Equal(scheduledCompletionDate, workOrder.ScheduledCompletionDate); // Check scheduled completion
-        Assert.Equal(actualCompletionDate, workOrder.ActualCompletionDate);       // Check actual completion
+        Assert.Equal(scheduledCompletionDate, workOrder.ScheduledCompletionDate);
+        Assert.Equal(actualCompletionDate, workOrder.ActualCompletionDate);
 
         _mockWorkOrderRepository.Verify(r => r.GetWorkOrderWithDetailsAsync(command.ID), Times.Once);
         _mockMaintenanceHistoryRepository.Verify(r => r.AddAsync(It.IsAny<MaintenanceHistory>()), Times.Once);
+        _mockServiceReminderRepository.Verify(r => r.GetServiceRemindersByWorkOrderIdAsync(command.ID), Times.Once);
+        _mockMaintenanceHistoryRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
     [Fact]
@@ -312,5 +328,4 @@ public class CompleteWorkOrderCommandHandlerTest
         _mockMaintenanceHistoryRepository.Verify(r => r.AddAsync(It.IsAny<MaintenanceHistory>()), Times.Never);
         _mockWorkOrderRepository.Verify(r => r.Update(It.IsAny<WorkOrder>()), Times.Never);
     }
-
 }

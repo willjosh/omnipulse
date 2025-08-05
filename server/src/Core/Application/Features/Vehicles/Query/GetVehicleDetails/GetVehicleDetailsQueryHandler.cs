@@ -39,7 +39,6 @@ public class GetVehicleDetailsQueryHandler : IRequestHandler<GetVehicleDetailsQu
         // map to GetVehicleDetailsDTO
         var vehicleDetailsDto = _mapper.Map<GetVehicleDetailsDTO>(vehicle);
 
-
         // return GetVehicleDetailsDTO
         _logger.LogInformation($"Returning VehicleDetailsDTO for VehicleID: {request.VehicleID}");
         return vehicleDetailsDto;
