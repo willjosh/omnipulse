@@ -6,6 +6,7 @@ import { Edit, Trash2, Printer } from "lucide-react";
 import WorkOrderHeader from "@/features/work-order/components/WorkOrderHeader";
 import { useWorkOrder } from "@/features/work-order/hooks/useWorkOrders";
 import { useIssue } from "@/features/issue/hooks/useIssues";
+import { workOrderApi } from "@/features/work-order/api/workOrderApi";
 import PrimaryButton from "@/components/ui/Button/PrimaryButton";
 import SecondaryButton from "@/components/ui/Button/SecondaryButton";
 
@@ -24,7 +25,7 @@ const IssueItem: React.FC<{ issueId: number; router: any }> = ({
       onClick={() => router.push(`/issues/${issueId}`)}
     >
       <div className="flex items-center gap-3">
-        <span className="text-sm font-medium text-green-600 underline decoration-dotted underline-offset-2">
+        <span className="text-sm font-medium text-blue-600">
           #{issue.issueNumber} · {issue.title}
         </span>
       </div>
@@ -84,6 +85,57 @@ export default function WorkOrderPage() {
     console.log("Delete work order");
   };
 
+  const handlePrint = async () => {
+    try {
+      console.log("Generating invoice PDF for work order:", workOrderId);
+
+      // Show loading state
+      const printButton = document.querySelector(
+        "[data-print-button]",
+      ) as HTMLButtonElement;
+      if (printButton) {
+        printButton.disabled = true;
+        printButton.textContent = "Generating...";
+      }
+
+      // Call the invoice API
+      const pdfBlob = await workOrderApi.getWorkOrderInvoicePdf(workOrderId);
+
+      // Create a blob URL for the PDF
+      const blobUrl = URL.createObjectURL(pdfBlob);
+
+      // Open the PDF in a new window/tab
+      const newWindow = window.open(blobUrl, "_blank");
+
+      if (!newWindow) {
+        // If popup is blocked, create a download link
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.download = `work-order-${workOrderId}-invoice.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+
+      // Clean up the blob URL after a delay
+      setTimeout(() => {
+        URL.revokeObjectURL(blobUrl);
+      }, 1000);
+    } catch (error) {
+      console.error("Error generating invoice PDF:", error);
+      alert("Failed to generate invoice PDF. Please try again.");
+    } finally {
+      // Reset button state
+      const printButton = document.querySelector(
+        "[data-print-button]",
+      ) as HTMLButtonElement;
+      if (printButton) {
+        printButton.disabled = false;
+        printButton.textContent = "Print";
+      }
+    }
+  };
+
   const breadcrumbs = [{ label: "Work Orders", href: "/work-orders" }];
 
   const getStatusColor = (status: string) => {
@@ -116,7 +168,11 @@ export default function WorkOrderPage() {
 
   const actions = (
     <>
-      <SecondaryButton className="flex items-center gap-2">
+      <SecondaryButton
+        onClick={handlePrint}
+        className="flex items-center gap-2"
+        data-print-button
+      >
         <Printer className="w-4 h-4" />
         Print
       </SecondaryButton>
@@ -209,7 +265,7 @@ export default function WorkOrderPage() {
                               {getInitials(workOrder.assignedToUserName)}
                             </span>
                           </div>
-                          <span className="text-sm text-blue-600 underline decoration-dotted underline-offset-2">
+                          <span className="text-sm text-blue-600">
                             {workOrder.assignedToUserName}
                           </span>
                         </>
@@ -370,7 +426,7 @@ export default function WorkOrderPage() {
                       className="grid grid-cols-4 gap-4 py-3 border-b border-gray-100"
                     >
                       <div className="flex items-center gap-2">
-                        <span className="text-blue-600 underline decoration-dotted underline-offset-2">
+                        <span className="text-blue-600">
                           {item.serviceTaskName}
                         </span>
                       </div>
