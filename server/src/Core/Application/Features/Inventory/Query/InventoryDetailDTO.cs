@@ -1,5 +1,3 @@
-using System;
-
 namespace Application.Features.Inventory.Query;
 
 public class InventoryDetailDTO

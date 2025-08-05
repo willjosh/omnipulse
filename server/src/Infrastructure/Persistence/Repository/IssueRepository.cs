@@ -2,6 +2,7 @@ using Application.Contracts.Persistence;
 using Application.Models.PaginationModels;
 
 using Domain.Entities;
+using Domain.Entities.Enums;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -77,5 +78,10 @@ public class IssueRepository : GenericRepository<Issue>, IIssueRepository
             .Include(i => i.ResolvedByUser)
             .Include(i => i.Vehicle)
             .FirstOrDefaultAsync(i => i.ID == issueID);
+    }
+
+    public Task<int> GetAllOpenIssuesCountAsync()
+    {
+        return _dbSet.CountAsync(i => i.Status == IssueStatusEnum.OPEN);
     }
 }

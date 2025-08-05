@@ -3,6 +3,7 @@
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthContext } from "@/features/auth/context/AuthContext";
+import { useIssues } from "@/features/issue/hooks/useIssues";
 
 const Home = () => {
   const router = useRouter();
