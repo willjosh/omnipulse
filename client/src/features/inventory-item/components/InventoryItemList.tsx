@@ -20,9 +20,11 @@ import {
   InventoryActionType,
   INVENTORY_ACTION_CONFIG,
 } from "../config/inventoryItemActions";
+import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
 
 const InventoryItemList = () => {
   const router = useRouter();
+  const notify = useNotification();
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [modal, setModal] = useState<{
     isOpen: boolean;
@@ -94,8 +96,10 @@ const InventoryItemList = () => {
       const itemId = confirmModal.item.id;
       await deleteInventoryMutation.mutateAsync(itemId);
       setConfirmModal({ isOpen: false });
+      notify("Inventory item archived successfully", "success");
     } catch (error) {
       console.error("Error archiving inventory item:", error);
+      notify("Failed to archive inventory item", "error");
     }
   };
 
