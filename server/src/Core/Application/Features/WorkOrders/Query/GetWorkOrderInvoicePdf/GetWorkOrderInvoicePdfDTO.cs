@@ -7,6 +7,7 @@ public class GetWorkOrderInvoicePdfDTO
     public string? WorkOrderDescription { get; set; }
     public string? WorkOrderType { get; set; }
     public string? WorkOrderPriorityLevel { get; set; }
+    public string? WorkOrderStatus { get; set; }
     public string? InvoiceNumber { get; set; }
     public DateTime InvoiceDate { get; set; }
     public string? VehicleName { get; set; }
@@ -14,7 +15,13 @@ public class GetWorkOrderInvoicePdfDTO
     public string? VehicleModel { get; set; }
     public string? VehicleVIN { get; set; }
     public string? VehicleLicensePlate { get; set; }
+    public string? VehicleType { get; set; }
+    public string? VehicleGroupName { get; set; }
+    public double VehicleOdometer { get; set; }
+    public string? IssuedByUserName { get; set; }
     public string? AssignedToUserName { get; set; }
+    public DateTime? ExpectedCompletionDate { get; set; }
+    public DateTime? ActualCompletionDate { get; set; }
     public DateTime? ScheduledStartDate { get; set; }
     public DateTime? ActualStartDate { get; set; }
     public List<WorkOrderLineItemInvoicePdfDTO> WorkOrderLineItems { get; set; } = [];

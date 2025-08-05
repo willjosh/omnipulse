@@ -14,17 +14,20 @@ public class GetWorkOrderInvoicePdfQueryHandler : IRequestHandler<GetWorkOrderIn
 {
     private readonly IInvoicePdfService _invoicePdfService;
     private readonly IWorkOrderRepository _workOrderRepository;
+    private readonly IUserRepository _userRepository;
     private readonly IWorkOrderLineItemRepository _workOrderLineItemRepository;
     private readonly IAppLogger<GetWorkOrderInvoicePdfQueryHandler> _logger;
 
     public GetWorkOrderInvoicePdfQueryHandler(
         IInvoicePdfService invoicePdfService,
         IWorkOrderRepository workOrderRepository,
+        IUserRepository userRepository,
         IWorkOrderLineItemRepository workOrderLineItemRepository,
         IAppLogger<GetWorkOrderInvoicePdfQueryHandler> logger)
     {
         _invoicePdfService = invoicePdfService ?? throw new ArgumentNullException(nameof(invoicePdfService));
         _workOrderRepository = workOrderRepository ?? throw new ArgumentNullException(nameof(workOrderRepository));
+        _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
         _workOrderLineItemRepository = workOrderLineItemRepository ?? throw new ArgumentNullException(nameof(workOrderLineItemRepository));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
@@ -32,6 +35,14 @@ public class GetWorkOrderInvoicePdfQueryHandler : IRequestHandler<GetWorkOrderIn
     public async Task<byte[]> Handle(GetWorkOrderInvoicePdfQuery request, CancellationToken cancellationToken)
     {
         _logger.LogInformation($"{nameof(Handle)}() - Handling {nameof(GetWorkOrderInvoicePdfQuery)}({nameof(GetWorkOrderInvoicePdfQuery.WorkOrderId)}: {request.WorkOrderId})");
+
+        // get the user who issued the work order
+        var issuedByUser = await _userRepository.GetByIdAsync(request.IssuedByUserID);
+        if (issuedByUser == null)
+        {
+            _logger.LogError("IssuedBy user for WorkOrder with ID {WorkOrderId} not found", request.WorkOrderId);
+            throw new EntityNotFoundException(nameof(User), nameof(GetWorkOrderInvoicePdfQuery.IssuedByUserID), request.IssuedByUserID);
+        }
 
         // Get work order with related data
         var workOrder = await _workOrderRepository.GetWorkOrderWithDetailsAsync(request.WorkOrderId);
@@ -58,13 +69,20 @@ public class GetWorkOrderInvoicePdfQueryHandler : IRequestHandler<GetWorkOrderIn
             WorkOrderDescription = workOrder.Description,
             WorkOrderType = workOrder.WorkOrderType.ToString(),
             WorkOrderPriorityLevel = workOrder.PriorityLevel.ToString(),
+            WorkOrderStatus = workOrder.Status.ToString(),
+            ExpectedCompletionDate = workOrder.ScheduledCompletionDate,
+            ActualCompletionDate = workOrder.ActualCompletionDate,
             ScheduledStartDate = workOrder.ScheduledStartDate,
             ActualStartDate = workOrder.ActualStartDate,
             VehicleName = workOrder.Vehicle.Name,
             VehicleMake = workOrder.Vehicle.Make,
             VehicleModel = workOrder.Vehicle.Model,
             VehicleVIN = workOrder.Vehicle.VIN,
+            VehicleType = workOrder.Vehicle.VehicleType.ToString(),
+            VehicleGroupName = workOrder.Vehicle.VehicleGroup?.Name,
+            VehicleOdometer = workOrder.Vehicle.Mileage,
             VehicleLicensePlate = workOrder.Vehicle.LicensePlate,
+            IssuedByUserName = issuedByUser.GetFullName(),
             AssignedToUserName = workOrder.User.GetFullName(),
             WorkOrderLineItems = MapLineItemsToDto(lineItems),
             TotalLabourCost = totals.TotalLaborCost,
@@ -82,20 +100,18 @@ public class GetWorkOrderInvoicePdfQueryHandler : IRequestHandler<GetWorkOrderIn
 
     private static List<WorkOrderLineItemInvoicePdfDTO> MapLineItemsToDto(List<Domain.Entities.WorkOrderLineItem> lineItems)
     {
-        return lineItems.Select(item => new WorkOrderLineItemInvoicePdfDTO
+        // TODO add missing fields
+        return lineItems.Select(item =>
         {
-            ID = item.ID,
-            WorkOrderID = item.WorkOrderID,
-            ServiceTaskID = item.ServiceTaskID,
-            ServiceTaskName = item.ServiceTask?.Name ?? "Unknown Task",
-            ItemType = item.ItemType.ToString(),
-            Quantity = item.Quantity,
-            TotalCost = item.TotalCost,
-            InventoryItemID = item.InventoryItemID,
-            Description = item.Description,
-            LaborHours = item.LaborHours.HasValue ? (decimal)item.LaborHours.Value : null,
-            UnitPrice = item.UnitPrice,
-            HourlyRate = item.HourlyRate
+            item.CalculateTotalCost(); // Ensure each item has its total calculated
+            return new WorkOrderLineItemInvoicePdfDTO
+            {
+                InventoryItemName = item.InventoryItem?.ItemName,
+                ServiceTaskName = item.ServiceTask?.Name ?? "Unknown Task",
+                LaborTotal = item.CalculateLaborCost(),
+                ItemTotal = item.CalculateItemCost(),
+                SubTotal = item.TotalCost
+            };
         }).ToList();
     }
 }
