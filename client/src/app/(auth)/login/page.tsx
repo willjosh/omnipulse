@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { PrimaryButton, SecondaryButton } from "@/components/ui/Button";
+import { EyeOpen, EyeClosed } from "@/components/ui/Icons";
 import { useLogin } from "@/features/auth/hooks/useAuth";
 import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
 
@@ -11,6 +12,7 @@ export default function LoginPage() {
   const { mutate: login, isPending } = useLogin();
 
   const [form, setForm] = useState({ email: "", password: "" });
+  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<{
     email?: string;
     password?: string;
@@ -130,20 +132,27 @@ export default function LoginPage() {
                 </button>
               </div>
             </div>
-            <div className="mt-1">
+            <div className="mt-1 relative">
               <input
                 id="password"
                 name="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 autoComplete="current-password"
                 required
                 value={form.password}
                 onChange={e => handleChange("password", e.target.value)}
-                className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
+                className={`appearance-none block w-full px-3 py-2 pr-10 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
                   errors.password ? "border-red-300" : "border-gray-300"
                 }`}
                 placeholder="Enter your password"
               />
+              <button
+                type="button"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 transition-colors duration-200"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <EyeClosed /> : <EyeOpen />}
+              </button>
             </div>
             {errors.password && (
               <p className="mt-2 text-sm text-red-600">{errors.password}</p>
