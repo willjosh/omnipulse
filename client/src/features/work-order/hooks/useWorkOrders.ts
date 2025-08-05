@@ -81,3 +81,24 @@ export function useDeleteWorkOrder() {
     },
   });
 }
+
+// Complete a work order
+export function useCompleteWorkOrder() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: workOrderApi.completeWorkOrder,
+    onSuccess: async (_data, id) => {
+      await queryClient.invalidateQueries({ queryKey: ["workOrders"] });
+      await queryClient.invalidateQueries({ queryKey: ["workOrder", id] });
+    },
+  });
+}
+
+// Get invoice PDF for a work order
+export function useWorkOrderInvoicePdf(id: number, enabled = true) {
+  return useQuery({
+    queryKey: ["workOrderInvoicePdf", id],
+    queryFn: () => workOrderApi.getWorkOrderInvoicePdf(id),
+    enabled: !!id && enabled,
+  });
+}
