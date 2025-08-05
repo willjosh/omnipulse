@@ -74,7 +74,14 @@ const navItems: NavItem[] = [
   },
   { label: "Contacts", icon: User, path: "/contacts" },
   // { label: "Vendors", icon: Store },
-  { label: "Parts", icon: Boxes, path: "/parts-inventory" },
+  {
+    label: "Inventory",
+    icon: Boxes,
+    children: [
+      { label: "Inventory", path: "/inventory" },
+      { label: "Items", path: "/inventory-item" },
+    ],
+  },
   { label: "Fuel & Energy", icon: Fuel },
   // { label: "Places", icon: MapPin },
   { label: "Documents", icon: FileText },
