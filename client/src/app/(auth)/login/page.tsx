@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { PrimaryButton, SecondaryButton } from "@/components/ui/Button";
+import { EyeOpen, EyeClosed } from "@/components/ui/Icons";
 import { useLogin } from "@/features/auth/hooks/useAuth";
 import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
 
@@ -11,6 +12,7 @@ export default function LoginPage() {
   const { mutate: login, isPending } = useLogin();
 
   const [form, setForm] = useState({ email: "", password: "" });
+  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<{
     email?: string;
     password?: string;
@@ -110,50 +112,76 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Password
-            </label>
-            <div className="mt-1">
+            <div className="flex items-center justify-between">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Password
+              </label>
+              <div className="text-sm">
+                <button
+                  type="button"
+                  className="font-medium text-blue-600 hover:text-blue-500 hover:underline focus:outline-none"
+                  onClick={() => {
+                    // TODO: Implement forgot password functionality
+                    console.log("Forgot password clicked");
+                  }}
+                >
+                  Forgot your password?
+                </button>
+              </div>
+            </div>
+            <div className="mt-1 relative">
               <input
                 id="password"
                 name="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 autoComplete="current-password"
                 required
                 value={form.password}
                 onChange={e => handleChange("password", e.target.value)}
-                className={`appearance-none block w-full px-3 py-2 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
+                className={`appearance-none block w-full px-3 py-2 pr-10 border rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
                   errors.password ? "border-red-300" : "border-gray-300"
                 }`}
                 placeholder="Enter your password"
               />
+              <button
+                type="button"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 transition-colors duration-200"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <EyeClosed /> : <EyeOpen />}
+              </button>
             </div>
             {errors.password && (
               <p className="mt-2 text-sm text-red-600">{errors.password}</p>
             )}
           </div>
 
-          <div>
+          <div className="pt-2">
             <PrimaryButton
               type="submit"
-              className="w-full"
+              className="w-full py-3 text-base font-medium"
               disabled={isPending}
             >
               {isPending ? "Signing in..." : "Sign in"}
             </PrimaryButton>
           </div>
 
-          <div className="text-center">
-            <SecondaryButton
-              type="button"
-              onClick={() => router.push("/register")}
-              className="text-sm"
-            >
-              Need a Fleet Manager account? Register here
-            </SecondaryButton>
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <div className="text-center">
+              <p className="text-sm text-gray-600">
+                Need a Fleet Manager account?{" "}
+                <button
+                  type="button"
+                  onClick={() => router.push("/register")}
+                  className="font-medium text-blue-600 hover:text-blue-500 hover:underline focus:outline-none transition-colors duration-200"
+                >
+                  Register here
+                </button>
+              </p>
+            </div>
           </div>
         </form>
       </div>

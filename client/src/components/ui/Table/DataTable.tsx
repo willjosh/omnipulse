@@ -26,7 +26,6 @@ interface DataTableProps<T> {
   fixedLayout?: boolean;
   actions?: ActionItem[] | ((item: T) => ActionItem[]);
   showActions?: boolean;
-  // Function to extract the ID from each item
   getItemId: (item: T) => string;
 }
 

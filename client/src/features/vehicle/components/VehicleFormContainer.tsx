@@ -247,7 +247,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               <div>
                 <label
                   htmlFor="vehicleName"
-                  className="block text-md font-medium text-gray-700 mb-2"
+                  className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   Vehicle Name <span className="text-red-500">*</span>
                 </label>
@@ -276,7 +276,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               <div>
                 <label
                   htmlFor="year"
-                  className="block text-md font-medium text-gray-700 mb-2"
+                  className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   Year <span className="text-red-500">*</span>
                 </label>
@@ -304,7 +304,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               <div>
                 <label
                   htmlFor="make"
-                  className="block text-md font-medium text-gray-700 mb-2"
+                  className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   Make <span className="text-red-500">*</span>
                 </label>
@@ -329,7 +329,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               <div>
                 <label
                   htmlFor="model"
-                  className="block text-md font-medium text-gray-700 mb-2"
+                  className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   Model <span className="text-red-500">*</span>
                 </label>
@@ -356,7 +356,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               <div>
                 <label
                   htmlFor="trim"
-                  className="block text-md font-medium text-gray-700 mb-2"
+                  className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   Trim <span className="text-red-500">*</span>
                 </label>
@@ -381,7 +381,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               <div>
                 <label
                   htmlFor="vin"
-                  className="block text-md font-medium text-gray-700 mb-2"
+                  className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   VIN <span className="text-red-500">*</span>
                 </label>
@@ -411,7 +411,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               <div>
                 <label
                   htmlFor="type"
-                  className="block text-md font-medium text-gray-700 mb-2"
+                  className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   Vehicle Type <span className="text-red-500">*</span>
                 </label>
@@ -443,7 +443,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               <div>
                 <label
                   htmlFor="fuelType"
-                  className="block text-md font-medium text-gray-700 mb-2"
+                  className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   Fuel Type <span className="text-red-500">*</span>
                 </label>
@@ -477,7 +477,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               <div>
                 <label
                   htmlFor="status"
-                  className="block text-md font-medium text-gray-700 mb-2"
+                  className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   Status <span className="text-red-500">*</span>
                 </label>
@@ -520,7 +520,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               <div>
                 <label
                   htmlFor="licensePlate"
-                  className="block text-md font-medium text-gray-700 mb-2"
+                  className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   License Plate <span className="text-red-500">*</span>
                 </label>
@@ -552,7 +552,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               <div>
                 <label
                   htmlFor="licensePlateExpirationDate"
-                  className="block text-md font-medium text-gray-700 mb-2"
+                  className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   License Plate Expiration Date{" "}
                   <span className="text-red-500">*</span>
@@ -588,7 +588,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               <div>
                 <label
                   htmlFor="vehicleGroupID"
-                  className="block text-md font-medium text-gray-700 mb-2"
+                  className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   Vehicle Group <span className="text-red-500">*</span>
                 </label>
@@ -627,7 +627,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               <div>
                 <label
                   htmlFor="assignedTechnicianID"
-                  className="block text-md font-medium text-gray-700 mb-2"
+                  className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   Assigned Technician
                 </label>
@@ -660,7 +660,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               <div className="md:col-span-2">
                 <label
                   htmlFor="location"
-                  className="block text-md font-medium text-gray-700 mb-2"
+                  className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   Location <span className="text-red-500">*</span>
                 </label>
@@ -696,7 +696,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               <div>
                 <label
                   htmlFor="mileage"
-                  className="block text-md font-medium text-gray-700 mb-2"
+                  className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   Mileage <span className="text-red-500">*</span>
                 </label>
@@ -730,7 +730,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               <div>
                 <label
                   htmlFor="engineHours"
-                  className="block text-md font-medium text-gray-700 mb-2"
+                  className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   Engine Hours <span className="text-red-500">*</span>
                 </label>
@@ -765,7 +765,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               <div>
                 <label
                   htmlFor="fuelCapacity"
-                  className="block text-md font-medium text-gray-700 mb-2"
+                  className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   Fuel Capacity (Liters) <span className="text-red-500">*</span>
                 </label>
@@ -809,7 +809,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               <div>
                 <label
                   htmlFor="purchaseDate"
-                  className="block text-md font-medium text-gray-700 mb-2"
+                  className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   Purchase Date <span className="text-red-500">*</span>
                 </label>
@@ -841,7 +841,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               <div>
                 <label
                   htmlFor="purchasePrice"
-                  className="block text-md font-medium text-gray-700 mb-2"
+                  className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   Purchase Price ($) <span className="text-red-500">*</span>
                 </label>
