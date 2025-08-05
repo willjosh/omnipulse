@@ -8,6 +8,7 @@ import {
   IssueCategoryEnum,
   PriorityLevelEnum,
   IssueStatusEnum,
+  OpenIssueData,
 } from "../types/issueType";
 import {
   getIssueCategoryLabel,
@@ -77,6 +78,13 @@ export const issueApi = {
 
   deleteIssue: async (id: number) => {
     const { data } = await agent.delete(`/api/Issues/${id}`);
+    return data;
+  },
+
+  getOpenIssueData: async () => {
+    const { data } = await agent.get<OpenIssueData>(
+      "/api/Issues/OpenIssueData",
+    );
     return data;
   },
 };

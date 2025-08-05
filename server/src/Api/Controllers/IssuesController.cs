@@ -4,6 +4,7 @@ using Application.Features.Issues.Command.DeleteIssue;
 using Application.Features.Issues.Command.UpdateIssue;
 using Application.Features.Issues.Query.GetAllIssue;
 using Application.Features.Issues.Query.GetIssueDetails;
+using Application.Features.Issues.Query.GetOpenIssueData; // ✅ Add this using
 using Application.Models.PaginationModels;
 
 using Domain.Entities;
@@ -23,6 +24,7 @@ namespace Api.Controllers;
 /// <list type="bullet">
 /// <item><b>GET /api/issues</b> - <see cref="GetIssues"/> - <see cref="GetAllIssueQuery"/></item>
 /// <item><b>GET /api/issues/{id}</b> - <see cref="GetIssue"/> - <see cref="GetIssueDetailsQuery"/></item>
+/// <item><b>GET /api/issues/open-data</b> - <see cref="GetOpenIssueData"/> - <see cref="GetOpenIssueDataQuery"/></item>
 /// <item><b>POST /api/issues</b> - <see cref="CreateIssue"/> - <see cref="CreateIssueCommand"/></item>
 /// <item><b>PUT /api/issues/{id}</b> - <see cref="UpdateIssue"/> - <see cref="UpdateIssueCommand"/></item>
 /// <item><b>DELETE /api/issues/{id}</b> - <see cref="DeleteIssue"/> - <see cref="DeleteIssueCommand"/></item>
@@ -37,7 +39,6 @@ public sealed class IssuesController : ControllerBase
 {
     private readonly IMediator _mediator;
     private readonly ILogger<IssuesController> _logger;
-
     private readonly ICurrentUserService _currentUserService;
 
     public IssuesController(IMediator mediator, ILogger<IssuesController> logger, ICurrentUserService currentUserService)
@@ -212,6 +213,37 @@ public sealed class IssuesController : ControllerBase
             var issueId = await _mediator.Send(command, cancellationToken);
 
             return Ok(issueId);
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Retrieves open issue statistics (count of unresolved issues).
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>Open issue data including count of unresolved issues.</returns>
+    /// <response code="200">Returns the open issue statistics.</response>
+    /// <response code="401">Unauthorized access.</response>
+    /// <response code="500">Internal server error occurred.</response>
+    [HttpGet("open-data")]
+    [ProducesResponseType(typeof(GetOpenIssueDataDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Authorize(Policy = "FleetManager")]
+    public async Task<ActionResult<GetOpenIssueDataDTO>> GetOpenIssueData(
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            _logger.LogInformation($"{nameof(GetOpenIssueData)}() - Called");
+
+            var query = new GetOpenIssueDataQuery();
+            var result = await _mediator.Send(query, cancellationToken);
+
+            return Ok(result);
         }
         catch (Exception)
         {

@@ -15,6 +15,8 @@ public class GetWorkOrderDetailDTO
     public required WorkOrderStatusEnum Status { get; set; }
     public DateTime? ScheduledStartDate { get; set; }
     public DateTime? ActualStartDate { get; set; }
+    public DateTime? ScheduledCompletionDate { get; set; }
+    public DateTime? ActualCompletionDate { get; set; }
     public required double StartOdometer { get; set; }
     public double? EndOdometer { get; set; }
     public decimal? TotalCost { get; set; }

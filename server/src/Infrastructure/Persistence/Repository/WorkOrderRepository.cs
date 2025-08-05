@@ -5,6 +5,7 @@ using Application.Models;
 using Application.Models.PaginationModels;
 
 using Domain.Entities;
+using Domain.Entities.Enums;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -16,6 +17,16 @@ public class WorkOrderRepository : GenericRepository<WorkOrder>, IWorkOrderRepos
 {
     public WorkOrderRepository(OmnipulseDatabaseContext context) : base(context)
     {
+    }
+
+    public Task<int> GetAllCreatedWorkOrdersCountAsync()
+    {
+        return _dbSet.CountAsync(wo => wo.Status == WorkOrderStatusEnum.CREATED);
+    }
+
+    public Task<int> GetAllInProgressWorkOrdersCountAsync()
+    {
+        return _dbSet.CountAsync(wo => wo.Status == WorkOrderStatusEnum.IN_PROGRESS);
     }
 
     public async Task<PagedResult<WorkOrder>> GetAllWorkOrderPagedAsync(PaginationParameters parameters)
