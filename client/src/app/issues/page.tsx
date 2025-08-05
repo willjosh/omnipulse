@@ -1,23 +1,24 @@
 "use client";
 import React, { useState, useMemo } from "react";
-import { IssueListFilters } from "../../features/issue/config/IssueListFilters";
+import { useRouter } from "next/navigation";
+import { Plus } from "lucide-react";
+import PrimaryButton from "@/components/ui/Button/PrimaryButton";
+import { FilterBar } from "@/components/ui/Filter";
+import { PaginationControls } from "@/components/ui/Table";
+import { useIssues } from "@/features/issue/hooks/useIssues";
+import { IssueWithLabels } from "@/features/issue/types/issueType";
+import { DEFAULT_PAGE_SIZE } from "@/components/ui/Table/constants";
 import {
   IssueListTable,
   IssueRow,
-} from "../../features/issue/components/IssueListTable";
-import { PaginationControls } from "../../components/ui/Table";
-import { useIssues } from "@/features/issue/hooks/useIssues";
-import { useRouter } from "next/navigation";
-import { DEFAULT_PAGE_SIZE } from "@/components/ui/Table/constants";
-import { IssueWithLabels } from "@/features/issue/types/issueType";
+} from "@/features/issue/components/IssueListTable";
 
 export default function IssuesPage() {
-  // State for filters and pagination
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
 
-  // Compose filter object for useIssues
   const filter = useMemo(
     () => ({ PageNumber: page, PageSize: pageSize, Search: search }),
     [page, pageSize, search],
@@ -25,7 +26,6 @@ export default function IssuesPage() {
 
   const { issues, pagination, isPending } = useIssues(filter);
 
-  // Map issues to IssueRow for the table
   const tableData: IssueRow[] = useMemo(
     () =>
       issues.map((issue: IssueWithLabels) => ({
@@ -44,7 +44,6 @@ export default function IssuesPage() {
     [issues],
   );
 
-  // Pagination handlers
   const handlePreviousPage = () => setPage(p => Math.max(1, p - 1));
   const handleNextPage = () =>
     setPage(p => (pagination && p < pagination.totalPages ? p + 1 : p));
@@ -54,32 +53,45 @@ export default function IssuesPage() {
     setPage(1);
   };
 
-  // Reset page when search changes
   React.useEffect(() => {
     setPage(1);
   }, [search]);
 
-  const router = useRouter();
-
-  // Handler for row click to navigate to details page
   const handleRowClick = (row: IssueRow) => {
     router.push(`/issues/${row.id}`);
   };
 
+  const emptyState = (
+    <div className="text-center py-8">
+      <p className="text-gray-500 mb-2">No issues found.</p>
+      <p className="text-gray-400 mb-4">
+        Issues are used to track problems or defects reported for vehicles.
+      </p>
+      <button
+        onClick={() => setSearch("")}
+        className="text-blue-600 hover:text-blue-800 text-sm"
+      >
+        Clear search
+      </button>
+    </div>
+  );
+
   return (
-    <div className="container mx-auto px-4 mt-4">
-      <div className="flex items-center justify-between mb-2">
-        <h1 className="text-2xl font-bold">Issues</h1>
-        <button
-          className="bg-blue-600 text-white px-4 rounded-lg font-semibold hover:bg-blue-700 transition"
-          onClick={() => router.push("/issues/new")}
-        >
-          Add Issue
-        </button>
+    <div className="p-6 w-full max-w-none min-h-screen">
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-semibold text-gray-900">Issues</h1>
+        <PrimaryButton onClick={() => router.push("/issues/new")}>
+          <Plus className="w-5 h-5" />
+          <span className="flex items-center">Add Issue</span>
+        </PrimaryButton>
       </div>
-      {/* Inline filters and pagination controls */}
-      <div className="flex flex-wrap items-center gap-4 mb-4 justify-between">
-        <IssueListFilters searchValue={search} onSearchChange={setSearch} />
+      <div className="flex items-center justify-between mb-6">
+        <FilterBar
+          searchValue={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search issues"
+          onFilterChange={() => {}}
+        />
         {pagination && (
           <PaginationControls
             currentPage={pagination.pageNumber}
@@ -94,23 +106,12 @@ export default function IssuesPage() {
           />
         )}
       </div>
-      <div className="bg-white rounded-lg shadow">
-        <IssueListTable
-          issues={tableData}
-          isLoading={isPending}
-          emptyState={
-            <div>
-              <div className="text-lg font-semibold text-gray-500 mb-2">
-                No issues found.
-              </div>
-              <div className="text-gray-400">
-                Try adjusting your filters or search.
-              </div>
-            </div>
-          }
-          onRowClick={handleRowClick}
-        />
-      </div>
+      <IssueListTable
+        issues={tableData}
+        isLoading={isPending}
+        emptyState={emptyState}
+        onRowClick={handleRowClick}
+      />
     </div>
   );
 }

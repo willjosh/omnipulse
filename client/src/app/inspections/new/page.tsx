@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useRef, Suspense } from "react";
-import { useRouter, useSearchParams, useParams } from "next/navigation";
+import React, { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import InspectionHeader from "@/features/inspection/components/InspectionHeader";
 import InspectionDetailsForm, {
   InspectionDetailsFormValues,
@@ -21,10 +21,7 @@ import { useInspectionForm } from "@/features/inspection-form/hooks/useInspectio
 import { useInspectionFormItems } from "@/features/inspection-form/hooks/useInspectionFormItems";
 import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
 import { VehicleConditionEnum } from "@/features/inspection/types/inspectionEnum";
-import {
-  CreateInspectionCommand,
-  CreateInspectionPassFailItemCommand,
-} from "@/features/inspection/types/inspectionType";
+import { CreateInspectionCommand } from "@/features/inspection/types/inspectionType";
 
 interface FormErrors {
   details: Partial<Record<keyof InspectionDetailsFormValues, string>>;
@@ -35,21 +32,11 @@ interface FormErrors {
 
 const InspectionCreationContent: React.FC = () => {
   const router = useRouter();
-  const params = useParams();
   const searchParams = useSearchParams();
   const notify = useNotification();
 
   // Get inspection form ID from URL query params
   const inspectionFormId = Number(searchParams.get("formId"));
-
-  // Debug URL parsing
-  console.log("URL Debug:", {
-    params,
-    searchParams: Object.fromEntries(searchParams.entries()),
-    formIdParam: searchParams.get("formId"),
-    parsedFormId: inspectionFormId,
-    isNumber: !isNaN(inspectionFormId),
-  });
 
   // Form state
   const [detailsForm, setDetailsForm] = useState<InspectionDetailsFormValues>({
@@ -74,7 +61,6 @@ const InspectionCreationContent: React.FC = () => {
     checklist: {},
     signOff: {},
   });
-  const hasInitializedItems = useRef(false);
 
   // Timer state for inspection start and end times
   const [inspectionStartTime, setInspectionStartTime] = useState<string | null>(
@@ -98,18 +84,6 @@ const InspectionCreationContent: React.FC = () => {
     isError: isItemsError,
     error: itemsError,
   } = useInspectionFormItems(inspectionFormId);
-
-  // Debug logging
-  console.log("Inspection Creation Debug:", {
-    inspectionFormId,
-    params,
-    hasInspectionFormId: !!inspectionFormId,
-    inspectionFormItems,
-    checklistFormItems: checklistForm.items,
-    itemsLength: checklistForm.items.length,
-    isLoadingItems,
-    isItemsError,
-  });
 
   // Add error handling for missing or invalid form ID
   if (!inspectionFormId || isNaN(inspectionFormId)) {
@@ -136,12 +110,6 @@ const InspectionCreationContent: React.FC = () => {
 
   // Initialize inspection items when form items are loaded
   useEffect(() => {
-    console.log("useEffect Debug:", {
-      hasInitializedItems: hasInitializedItems.current,
-      inspectionFormItems,
-      inspectionFormItemsLength: inspectionFormItems?.length,
-    });
-
     if (inspectionFormItems && inspectionFormItems.length > 0) {
       const initialItems = inspectionFormItems.map((item: any) => ({
         id: item.id,
@@ -153,7 +121,6 @@ const InspectionCreationContent: React.FC = () => {
         comment: "",
         showRemarks: false,
       }));
-      console.log("Setting initial items:", initialItems);
 
       // Only update if the items are different
       setChecklistForm(prev => {
@@ -166,7 +133,6 @@ const InspectionCreationContent: React.FC = () => {
         return { ...prev, items: initialItems };
       });
     } else if (inspectionFormItems && inspectionFormItems.length === 0) {
-      console.log("No inspection form items found");
       // Only update if the current items array is not already empty
       setChecklistForm(prev => {
         if (prev.items.length === 0) {
