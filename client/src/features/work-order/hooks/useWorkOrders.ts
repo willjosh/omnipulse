@@ -1,7 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { workOrderApi, convertWorkOrderData } from "../api/workOrderApi";
-import { WorkOrderWithLabels, WorkOrderFilter } from "../types/workOrderType";
+import {
+  WorkOrderWithLabels,
+  WorkOrderFilter,
+  WorkOrderStatusData,
+} from "../types/workOrderType";
 import { useDebounce } from "@/hooks/useDebounce";
+import { VehicleStatusData } from "@/features/vehicle/types/vehicleType";
 
 export function useWorkOrders(filter: WorkOrderFilter = {}) {
   const debouncedSearch = useDebounce(filter?.Search || "", 300);
@@ -80,4 +85,24 @@ export function useDeleteWorkOrder() {
       await queryClient.invalidateQueries({ queryKey: ["workOrder", id] });
     },
   });
+}
+
+export function useWorkOrderStatusData() {
+  const { data, isPending, isError, isSuccess, error } =
+    useQuery<WorkOrderStatusData>({
+      queryKey: ["workOrderStatusData"],
+      queryFn: async () => {
+        const data = await workOrderApi.getWorkOrderStatusData();
+        return data;
+      },
+    });
+
+  return {
+    createdCount: data?.createdCount ?? 0,
+    inProgressCount: data?.inProgressCount ?? 0,
+    isLoadingworkOrderStatusData: isPending,
+    isError,
+    isSuccess,
+    error,
+  };
 }

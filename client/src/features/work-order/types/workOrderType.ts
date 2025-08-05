@@ -112,3 +112,8 @@ export interface WorkOrderFilter {
   SortDescending?: boolean;
   Search?: string;
 }
+
+export interface WorkOrderStatusData {
+  createdCount: number;
+  inProgressCount: number;
+}

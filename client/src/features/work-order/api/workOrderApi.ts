@@ -7,6 +7,7 @@ import {
   CreateWorkOrderCommand,
   UpdateWorkOrderCommand,
   WorkOrderFilter,
+  WorkOrderStatusData,
 } from "../types/workOrderType";
 import {
   getLineItemTypeLabel,
@@ -19,6 +20,7 @@ import {
   WorkOrderStatusEnum,
   WorkTypeEnum,
 } from "../types/workOrderEnum";
+import { get } from "http";
 
 function formatDate(date?: string | null): string {
   if (!date) return "Unknown";
@@ -76,6 +78,13 @@ export const workOrderApi = {
       hasPreviousPage: boolean;
       hasNextPage: boolean;
     }>(`/api/WorkOrders${queryString ? `?${queryString}` : ""}`);
+    return data;
+  },
+
+  getWorkOrderStatusData: async () => {
+    const { data } = await agent.get<WorkOrderStatusData>(
+      "/api/WorkOrders/status-data",
+    );
     return data;
   },
 

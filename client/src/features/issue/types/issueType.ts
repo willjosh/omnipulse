@@ -71,3 +71,7 @@ export interface IssueFilter {
   SortDescending?: boolean;
   Search?: string;
 }
+
+export interface OpenIssueData {
+  openIssueCount: number;
+}
