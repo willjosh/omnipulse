@@ -75,7 +75,7 @@ public class InspectionSeeder : IEntitySeeder
             };
 
             // Create InspectionPassFailItems for each InspectionFormItem in the form
-            var inspectionPassFailItems = CreateInspectionPassFailItems(inspection, inspectionFormId, now);
+            var inspectionPassFailItems = CreateInspectionPassFailItems(inspection, inspectionFormId, now, i);
             inspection.InspectionPassFailItems = inspectionPassFailItems;
 
             inspections.Add(inspection);
@@ -86,7 +86,7 @@ public class InspectionSeeder : IEntitySeeder
         return inspections;
     }
 
-    private List<InspectionPassFailItem> CreateInspectionPassFailItems(Inspection inspection, int inspectionFormId, DateTime now)
+    private List<InspectionPassFailItem> CreateInspectionPassFailItems(Inspection inspection, int inspectionFormId, DateTime now, int inspectionIndex)
     {
         var passFailItems = new List<InspectionPassFailItem>();
 
@@ -95,9 +95,9 @@ public class InspectionSeeder : IEntitySeeder
             .Where(ifi => ifi.InspectionFormID == inspectionFormId && ifi.IsActive)
             .ToList();
 
-        // Determine if this inspection should have all passed items (80% chance)
-        var inspectionRandom = new Random(inspection.ID);
-        var shouldHaveAllPassed = inspectionRandom.Next(100) < 80; // 80% chance
+        // Determine if this inspection should have all passed items
+        var inspectionRandom = new Random(inspectionIndex); // Use inspectionIndex for better seeding
+        var shouldHaveAllPassed = inspectionRandom.Next(100) < 80; // 80% chance of passing all items
 
         foreach (var formItem in inspectionFormItems)
         {
@@ -111,8 +111,8 @@ public class InspectionSeeder : IEntitySeeder
             else
             {
                 // 20% of inspections: some items may fail
-                var itemRandom = new Random(inspection.ID + formItem.ID);
-                passed = itemRandom.Next(100) < 70; // 70% chance of pass for failed inspections
+                var itemRandom = new Random(inspectionIndex * 100 + formItem.ID); // Better seed for individual items
+                passed = itemRandom.Next(100) < 60; // 60% chance for item to pass for failed inspections
             }
 
             passFailItems.Add(new InspectionPassFailItem

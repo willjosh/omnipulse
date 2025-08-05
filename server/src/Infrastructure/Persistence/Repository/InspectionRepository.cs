@@ -23,6 +23,13 @@ public class InspectionRepository : GenericRepository<Inspection>, IInspectionRe
         // Apply sorting
         query = ApplySorting(query, parameters.SortBy, parameters.SortDescending);
 
+        // Apply includes for related entities
+        query = query
+            .Include(i => i.Vehicle)
+            .Include(i => i.User)
+            .Include(i => i.InspectionForm)
+            .Include(i => i.InspectionPassFailItems);
+
         var totalCount = await query.CountAsync();
         var items = await query
             .Skip((parameters.PageNumber - 1) * parameters.PageSize)
@@ -47,7 +54,11 @@ public class InspectionRepository : GenericRepository<Inspection>, IInspectionRe
         return query.Where(i =>
             EF.Functions.Like(i.Notes ?? string.Empty, searchPattern) ||
             EF.Functions.Like(i.TechnicianID, searchPattern) ||
-            EF.Functions.Like(i.VehicleID.ToString(), searchPattern)
+            EF.Functions.Like(i.VehicleID.ToString(), searchPattern) ||
+            (i.Vehicle != null && EF.Functions.Like(i.Vehicle.Name, searchPattern)) ||
+            (i.User != null && EF.Functions.Like(i.User.FirstName, searchPattern)) ||
+            (i.User != null && EF.Functions.Like(i.User.LastName, searchPattern)) ||
+            (i.InspectionForm != null && EF.Functions.Like(i.InspectionForm.Title, searchPattern))
         );
     }
 
