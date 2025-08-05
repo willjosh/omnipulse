@@ -8,8 +8,8 @@ namespace Application.Contracts.Persistence;
 
 public interface IServiceReminderRepository : IGenericRepository<ServiceReminder>
 {
-    // Calculated service reminders (primary method for GetAll queries)
-    Task<PagedResult<ServiceReminderDTO>> GetAllCalculatedServiceRemindersPagedAsync(PaginationParameters parameters);
+    // Simple data access for Application layer to perform calculations
+    Task<List<ServiceSchedule>> GetActiveServiceSchedulesWithDataAsync();
 
     // Paged Results for stored reminders
     Task<PagedResult<ServiceReminder>> GetAllServiceRemindersPagedAsync(PaginationParameters parameters);
