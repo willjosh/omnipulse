@@ -6,6 +6,7 @@ import { PrimaryButton, SecondaryButton } from "@/components/ui/Button";
 import { useUpdateInventory } from "../hooks/useInventory";
 import { Inventory, UpdateInventoryCommand } from "../types/inventoryType";
 import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
+import { getErrorFields, getErrorMessage } from "@/utils/fieldErrorUtils";
 
 interface InventoryFormContainerProps {
   mode: "edit";
@@ -33,7 +34,6 @@ const InventoryFormContainer: React.FC<InventoryFormContainerProps> = ({
     unitCost?: string;
     minStockLevel?: string;
     maxStockLevel?: string;
-    general?: string;
   }>({});
 
   useEffect(() => {
@@ -89,7 +89,7 @@ const InventoryFormContainer: React.FC<InventoryFormContainerProps> = ({
         minStockLevel: formData.minStockLevel,
         maxStockLevel: formData.maxStockLevel,
         isAdjustment: formData.isAdjustment,
-        performedByUserID: "current-user", // TODO: Get from auth context
+        performedByUserID: "current-user",
       };
 
       await updateInventoryMutation.mutateAsync(command);
@@ -97,12 +97,20 @@ const InventoryFormContainer: React.FC<InventoryFormContainerProps> = ({
       router.push("/inventory");
     } catch (error: any) {
       console.error("Failed to update inventory:", error);
-      setErrors({
-        general:
-          error.response?.data?.message ||
-          "Failed to update inventory. Please try again.",
-      });
-      notify("Failed to update inventory. Please try again.", "error");
+
+      const errorMessage = getErrorMessage(
+        error,
+        "Failed to update inventory. Please try again.",
+      );
+      const fieldErrors = getErrorFields(error, [
+        "quantityOnHand",
+        "unitCost",
+        "minStockLevel",
+        "maxStockLevel",
+      ]);
+
+      setErrors(fieldErrors);
+      notify(errorMessage, "error");
     }
   };
 
@@ -130,12 +138,6 @@ const InventoryFormContainer: React.FC<InventoryFormContainerProps> = ({
 
       <div className="bg-white rounded-lg shadow">
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {errors.general && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
-              {errors.general}
-            </div>
-          )}
-
           {/* Item Information (Read-only) */}
           <div className="bg-gray-50 p-4 rounded-lg">
             <h3 className="text-lg font-medium text-gray-900 mb-4">

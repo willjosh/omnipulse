@@ -77,9 +77,9 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
   };
 
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
+    <div className={`flex items-center gap-4 ${className}`}>
       {showItemCount && (
-        <span className="text-sm text-gray-500">
+        <span className="text-sm text-gray-500 whitespace-nowrap">
           {totalItems === 0
             ? "0 - 0 of 0"
             : `${startItem} - ${endItem} of ${totalItems}`}
@@ -88,108 +88,120 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
 
       {/* Page size selector */}
       {onPageSizeChange && (
-        <select
-          className="border rounded px-2 py-1 text-sm text-gray-700 bg-white mx-2"
-          value={itemsPerPage}
-          onChange={e => onPageSizeChange(Number(e.target.value))}
-        >
-          {pageSizeOptions.map(size => (
-            <option key={size} value={size}>
-              {size} / page
-            </option>
-          ))}
-        </select>
-      )}
-
-      {/* First page */}
-      {onPageChange && (
-        <button
-          onClick={() => onPageChange(1)}
-          disabled={currentPage === 1}
-          className={getButtonClasses(currentPage === 1)}
-          aria-label="First page"
-        >
-          «
-        </button>
-      )}
-
-      {/* Previous */}
-      <button
-        onClick={onPreviousPage}
-        disabled={currentPage <= 1}
-        className={getButtonClasses(currentPage <= 1)}
-        aria-label="Previous page"
-      >
-        <svg
-          className="size-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M15 19l-7-7 7-7"
-          />
-        </svg>
-      </button>
-
-      {/* Page numbers */}
-      {showPageNumbers && onPageChange && (
-        <div className="flex items-center">
-          {getPageNumbers().map((page, idx) =>
-            typeof page === "number" ? (
-              <button
-                key={page}
-                onClick={() => onPageChange(page)}
-                className={getButtonClasses(false, page === currentPage)}
-                aria-current={page === currentPage ? "page" : undefined}
-              >
-                {page}
-              </button>
-            ) : (
-              <span key={"ellipsis-" + idx} className="px-1 text-gray-400">
-                …
-              </span>
-            ),
-          )}
+        <div className="flex items-center gap-2 whitespace-nowrap">
+          <span className="text-sm text-gray-500">Show</span>
+          <select
+            className="border border-gray-300 rounded-md px-3 py-1.5 text-sm text-gray-700 bg-white focus:outline-none min-w-[70px]"
+            value={itemsPerPage}
+            onChange={e => onPageSizeChange(Number(e.target.value))}
+          >
+            {pageSizeOptions.map(size => (
+              <option key={size} value={size}>
+                {size}
+              </option>
+            ))}
+          </select>
+          <span className="text-sm text-gray-500">per page</span>
         </div>
       )}
 
-      {/* Next */}
-      <button
-        onClick={onNextPage}
-        disabled={currentPage >= totalPages}
-        className={getButtonClasses(currentPage >= totalPages)}
-        aria-label="Next page"
-      >
-        <svg
-          className="size-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M9 5l7 7-7 7"
-          />
-        </svg>
-      </button>
-
-      {/* Last page */}
-      {onPageChange && (
-        <button
-          onClick={() => onPageChange(totalPages)}
-          disabled={currentPage === totalPages}
-          className={getButtonClasses(currentPage === totalPages)}
-          aria-label="Last page"
-        >
-          »
-        </button>
+      {/* Separator */}
+      {onPageSizeChange && showItemCount && (
+        <div className="h-4 w-px bg-gray-300"></div>
       )}
+
+      {/* Navigation Controls */}
+      <div className="flex items-center gap-1">
+        {/* First page */}
+        {onPageChange && (
+          <button
+            onClick={() => onPageChange(1)}
+            disabled={currentPage === 1}
+            className={getButtonClasses(currentPage === 1)}
+            aria-label="First page"
+          >
+            «
+          </button>
+        )}
+
+        {/* Previous */}
+        <button
+          onClick={onPreviousPage}
+          disabled={currentPage <= 1}
+          className={getButtonClasses(currentPage <= 1)}
+          aria-label="Previous page"
+        >
+          <svg
+            className="size-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+        </button>
+
+        {/* Page numbers */}
+        {showPageNumbers && onPageChange && (
+          <div className="flex items-center">
+            {getPageNumbers().map((page, idx) =>
+              typeof page === "number" ? (
+                <button
+                  key={page}
+                  onClick={() => onPageChange(page)}
+                  className={getButtonClasses(false, page === currentPage)}
+                  aria-current={page === currentPage ? "page" : undefined}
+                >
+                  {page}
+                </button>
+              ) : (
+                <span key={"ellipsis-" + idx} className="px-1 text-gray-400">
+                  …
+                </span>
+              ),
+            )}
+          </div>
+        )}
+
+        {/* Next */}
+        <button
+          onClick={onNextPage}
+          disabled={currentPage >= totalPages}
+          className={getButtonClasses(currentPage >= totalPages)}
+          aria-label="Next page"
+        >
+          <svg
+            className="size-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 5l7 7-7 7"
+            />
+          </svg>
+        </button>
+
+        {/* Last page */}
+        {onPageChange && (
+          <button
+            onClick={() => onPageChange(totalPages)}
+            disabled={currentPage === totalPages}
+            className={getButtonClasses(currentPage === totalPages)}
+            aria-label="Last page"
+          >
+            »
+          </button>
+        )}
+      </div>
     </div>
   );
 };

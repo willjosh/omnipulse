@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import {
   useVehicleFormStore,
@@ -25,6 +25,7 @@ import { getVehicleStatusOptions } from "@/features/vehicle/utils/vehicleEnumHel
 import PrimaryButton from "@/components/ui/Button/PrimaryButton";
 import SecondaryButton from "@/components/ui/Button/SecondaryButton";
 import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
+import { getErrorMessage, getErrorFields } from "@/utils/fieldErrorUtils";
 
 interface VehicleFormProps {
   mode: "create" | "edit";
@@ -68,12 +69,12 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
   const router = useRouter();
   const params = useParams();
   const notify = useNotification();
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const formData = useVehicleFormData();
   const formMode = useVehicleFormMode();
-  const { showValidation, validationErrors, isFormValid } =
-    useVehicleFormValidation();
-  const { isLoading, isDirty, vehicleId } = useVehicleFormStatus();
+  const { showValidation, validationErrors } = useVehicleFormValidation();
+  const { isLoading, vehicleId } = useVehicleFormStatus();
 
   const { mutateAsync: createVehicle, isPending: isCreating } =
     useCreateVehicle();
@@ -120,17 +121,13 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
 
   const handleInputChange = (field: string, value: any) => {
     updateFormData({ [field]: value });
+    // Clear errors for this field when user starts typing
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: "" }));
+    }
   };
 
   const handleSaveVehicle = async () => {
-    if (!isFormValid) {
-      setShowValidation(true);
-      return;
-    }
-
-    setShowValidation(false);
-    setValidationErrors({});
-
     try {
       setLoading(true);
 
@@ -146,7 +143,6 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
         } else {
           const commandData = toUpdateCommand();
           await updateVehicle(commandData);
-          console.log("Vehicle updated successfully:", commandData);
           notify("Vehicle updated successfully!", "success");
         }
       }
@@ -154,35 +150,33 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
       resetForm();
       router.push("/vehicles");
     } catch (error: any) {
-      console.error("Error saving vehicle:", error);
+      const errorMessage = getErrorMessage(
+        error,
+        "Failed to save vehicle. Please check your input and try again.",
+      );
 
-      let errorMessage =
-        formMode === "create"
-          ? "Failed to create vehicle. Please check your input and try again."
-          : "Failed to update vehicle. Please check your input and try again.";
+      const fieldErrors = getErrorFields(error, [
+        "vehicleName",
+        "year",
+        "make",
+        "model",
+        "trim",
+        "vin",
+        "type",
+        "fuelType",
+        "status",
+        "licensePlate",
+        "licensePlateExpirationDate",
+        "vehicleGroupID",
+        "location",
+        "mileage",
+        "engineHours",
+        "fuelCapacity",
+        "purchaseDate",
+        "purchasePrice",
+      ]);
 
-      if (error?.response?.data) {
-        const errorData = error.response.data;
-
-        if (errorData.errors && typeof errorData.errors === "object") {
-          const validationMessages = [];
-          for (const [field, messages] of Object.entries(errorData.errors)) {
-            if (Array.isArray(messages)) {
-              validationMessages.push(...messages);
-            } else if (typeof messages === "string") {
-              validationMessages.push(messages);
-            }
-          }
-          if (validationMessages.length > 0) {
-            errorMessage = validationMessages.join(" ");
-          }
-        } else if (errorData.message) {
-          errorMessage = errorData.message;
-        } else if (errorData.title) {
-          errorMessage = errorData.detail || errorData.title;
-        }
-      }
-
+      setErrors(fieldErrors);
       notify(errorMessage, "error");
     } finally {
       setLoading(false);
@@ -192,13 +186,6 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
   const isSaving = isLoading || isCreating || isUpdating;
 
   const handleCancel = () => {
-    if (isDirty) {
-      const confirmed = window.confirm(
-        "You have unsaved changes. Are you sure you want to cancel?",
-      );
-      if (!confirmed) return;
-    }
-
     resetForm();
 
     if (onCancel) {
@@ -206,10 +193,6 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
     } else {
       router.push("/vehicles");
     }
-  };
-
-  const getFieldError = (fieldName: string) => {
-    return showValidation ? validationErrors[fieldName] : "";
   };
 
   const originalVehicleName = vehicleData?.name || vehicleId;
@@ -226,11 +209,6 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
       {/* Page Title */}
       <div className="mb-6">
         <h1 className="text-2xl font-semibold text-gray-900">{pageTitle}</h1>
-        {isDirty && (
-          <p className="text-sm text-amber-600 mt-1">
-            You have unsaved changes
-          </p>
-        )}
       </div>
 
       {/* Form */}
@@ -259,17 +237,10 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                     handleInputChange("vehicleName", e.target.value)
                   }
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    getFieldError("vehicleName")
-                      ? "border-red-500"
-                      : "border-gray-300"
+                    errors.vehicleName ? "border-red-300" : "border-gray-300"
                   }`}
                   placeholder="Enter vehicle name"
                 />
-                {getFieldError("vehicleName") && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {getFieldError("vehicleName")}
-                  </p>
-                )}
               </div>
 
               {/* Year */}
@@ -290,14 +261,9 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                   min="1900"
                   max={new Date().getFullYear() + 1}
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    getFieldError("year") ? "border-red-500" : "border-gray-300"
+                    errors.year ? "border-red-300" : "border-gray-300"
                   }`}
                 />
-                {getFieldError("year") && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {getFieldError("year")}
-                  </p>
-                )}
               </div>
 
               {/* Make */}
@@ -314,15 +280,10 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                   value={formData.make}
                   onChange={e => handleInputChange("make", e.target.value)}
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    getFieldError("make") ? "border-red-500" : "border-gray-300"
+                    errors.make ? "border-red-300" : "border-gray-300"
                   }`}
                   placeholder="e.g., Toyota, Ford, BMW"
                 />
-                {getFieldError("make") && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {getFieldError("make")}
-                  </p>
-                )}
               </div>
 
               {/* Model */}
@@ -339,17 +300,10 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                   value={formData.model}
                   onChange={e => handleInputChange("model", e.target.value)}
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    getFieldError("model")
-                      ? "border-red-500"
-                      : "border-gray-300"
+                    errors.model ? "border-red-300" : "border-gray-300"
                   }`}
                   placeholder="e.g., Camry, F-150, 3 Series"
                 />
-                {getFieldError("model") && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {getFieldError("model")}
-                  </p>
-                )}
               </div>
 
               {/* Trim */}
@@ -366,15 +320,10 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                   value={formData.trim}
                   onChange={e => handleInputChange("trim", e.target.value)}
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    getFieldError("trim") ? "border-red-500" : "border-gray-300"
+                    errors.trim ? "border-red-300" : "border-gray-300"
                   }`}
                   placeholder="e.g., LE, XLT, 320i"
                 />
-                {getFieldError("trim") && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {getFieldError("trim")}
-                  </p>
-                )}
               </div>
 
               {/* VIN */}
@@ -394,15 +343,10 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                   }
                   maxLength={17}
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    getFieldError("vin") ? "border-red-500" : "border-gray-300"
+                    errors.vin ? "border-red-300" : "border-gray-300"
                   }`}
                   placeholder="17-character VIN"
                 />
-                {getFieldError("vin") && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {getFieldError("vin")}
-                  </p>
-                )}
               </div>
             </div>
 
@@ -422,7 +366,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                     handleInputChange("type", parseInt(e.target.value))
                   }
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    getFieldError("type") ? "border-red-500" : "border-gray-300"
+                    errors.type ? "border-red-300" : "border-gray-300"
                   }`}
                 >
                   <option value="">Select vehicle type</option>
@@ -432,11 +376,6 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                     </option>
                   ))}
                 </select>
-                {getFieldError("type") && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {getFieldError("type")}
-                  </p>
-                )}
               </div>
 
               {/* Fuel Type */}
@@ -454,9 +393,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                     handleInputChange("fuelType", parseInt(e.target.value))
                   }
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    getFieldError("fuelType")
-                      ? "border-red-500"
-                      : "border-gray-300"
+                    errors.fuelType ? "border-red-300" : "border-gray-300"
                   }`}
                 >
                   <option value="">Select fuel type</option>
@@ -466,11 +403,6 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                     </option>
                   ))}
                 </select>
-                {getFieldError("fuelType") && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {getFieldError("fuelType")}
-                  </p>
-                )}
               </div>
 
               {/* Status */}
@@ -488,9 +420,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                     handleInputChange("status", parseInt(e.target.value))
                   }
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    getFieldError("status")
-                      ? "border-red-500"
-                      : "border-gray-300"
+                    errors.status ? "border-red-300" : "border-gray-300"
                   }`}
                 >
                   <option value="">Select status</option>
@@ -500,11 +430,6 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                     </option>
                   ))}
                 </select>
-                {getFieldError("status") && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {getFieldError("status")}
-                  </p>
-                )}
               </div>
             </div>
           </div>
@@ -535,17 +460,10 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                     )
                   }
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    getFieldError("licensePlate")
-                      ? "border-red-500"
-                      : "border-gray-300"
+                    errors.licensePlate ? "border-red-300" : "border-gray-300"
                   }`}
                   placeholder="Enter license plate"
                 />
-                {getFieldError("licensePlate") && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {getFieldError("licensePlate")}
-                  </p>
-                )}
               </div>
 
               {/* License Plate Expiration Date */}
@@ -572,16 +490,11 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                     )
                   }
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    getFieldError("licensePlateExpirationDate")
-                      ? "border-red-500"
+                    errors.licensePlateExpirationDate
+                      ? "border-red-300"
                       : "border-gray-300"
                   }`}
                 />
-                {getFieldError("licensePlateExpirationDate") && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {getFieldError("licensePlateExpirationDate")}
-                  </p>
-                )}
               </div>
 
               {/* Vehicle Group */}
@@ -604,9 +517,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                     handleInputChange("vehicleGroupName", group?.name || "");
                   }}
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    getFieldError("vehicleGroupID")
-                      ? "border-red-500"
-                      : "border-gray-300"
+                    errors.vehicleGroupID ? "border-red-300" : "border-gray-300"
                   }`}
                 >
                   <option value={0}>Select vehicle group</option>
@@ -616,11 +527,6 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                     </option>
                   ))}
                 </select>
-                {getFieldError("vehicleGroupID") && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {getFieldError("vehicleGroupID")}
-                  </p>
-                )}
               </div>
 
               {/* Assigned Technician */}
@@ -670,17 +576,10 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                   value={formData.location}
                   onChange={e => handleInputChange("location", e.target.value)}
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    getFieldError("location")
-                      ? "border-red-500"
-                      : "border-gray-300"
+                    errors.location ? "border-red-300" : "border-gray-300"
                   }`}
                   placeholder="Enter vehicle location"
                 />
-                {getFieldError("location") && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {getFieldError("location")}
-                  </p>
-                )}
               </div>
             </div>
           </div>
@@ -713,17 +612,10 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                   }}
                   min="0"
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    getFieldError("mileage")
-                      ? "border-red-500"
-                      : "border-gray-300"
+                    errors.mileage ? "border-red-300" : "border-gray-300"
                   }`}
                   placeholder="Enter mileage"
                 />
-                {getFieldError("mileage") && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {getFieldError("mileage")}
-                  </p>
-                )}
               </div>
 
               {/* Engine Hours */}
@@ -748,17 +640,10 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                   min="0"
                   step="0.1"
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    getFieldError("engineHours")
-                      ? "border-red-500"
-                      : "border-gray-300"
+                    errors.engineHours ? "border-red-300" : "border-gray-300"
                   }`}
                   placeholder="Enter engine hours"
                 />
-                {getFieldError("engineHours") && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {getFieldError("engineHours")}
-                  </p>
-                )}
               </div>
 
               {/* Fuel Capacity */}
@@ -783,17 +668,10 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                   min="0"
                   step="0.1"
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    getFieldError("fuelCapacity")
-                      ? "border-red-500"
-                      : "border-gray-300"
+                    errors.fuelCapacity ? "border-red-300" : "border-gray-300"
                   }`}
                   placeholder="Enter fuel capacity"
                 />
-                {getFieldError("fuelCapacity") && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {getFieldError("fuelCapacity")}
-                  </p>
-                )}
               </div>
             </div>
           </div>
@@ -825,16 +703,9 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                     handleInputChange("purchaseDate", e.target.value)
                   }
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    getFieldError("purchaseDate")
-                      ? "border-red-500"
-                      : "border-gray-300"
+                    errors.purchaseDate ? "border-red-300" : "border-gray-300"
                   }`}
                 />
-                {getFieldError("purchaseDate") && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {getFieldError("purchaseDate")}
-                  </p>
-                )}
               </div>
 
               {/* Purchase Price */}
@@ -859,17 +730,10 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                   min="0"
                   step="0.01"
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    getFieldError("purchasePrice")
-                      ? "border-red-500"
-                      : "border-gray-300"
+                    errors.purchasePrice ? "border-red-300" : "border-gray-300"
                   }`}
                   placeholder="Enter purchase price"
                 />
-                {getFieldError("purchasePrice") && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {getFieldError("purchasePrice")}
-                  </p>
-                )}
               </div>
             </div>
           </div>

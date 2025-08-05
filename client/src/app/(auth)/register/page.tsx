@@ -5,6 +5,7 @@ import { PrimaryButton, SecondaryButton } from "@/components/ui/Button";
 import { EyeOpen, EyeClosed } from "@/components/ui/Icons";
 import { useRegister } from "@/features/auth/hooks/useAuth";
 import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
+import { getErrorFields, getErrorMessage } from "@/utils/fieldErrorUtils";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -32,45 +33,8 @@ export default function RegisterPage() {
     general?: string;
   }>({});
 
-  const validate = () => {
-    const newErrors: typeof errors = {};
-
-    if (!form.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(form.email)) {
-      newErrors.email = "Please enter a valid email address";
-    }
-
-    if (!form.password) {
-      newErrors.password = "Password is required";
-    } else if (form.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
-    }
-
-    if (form.password !== form.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
-    }
-
-    if (!form.firstName.trim()) {
-      newErrors.firstName = "First name is required";
-    }
-
-    if (!form.lastName.trim()) {
-      newErrors.lastName = "Last name is required";
-    }
-
-    if (!form.hireDate) {
-      newErrors.hireDate = "Hire date is required";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!validate()) return;
 
     register(
       {
@@ -90,13 +54,23 @@ export default function RegisterPage() {
           router.push("/login");
         },
         onError: (error: any) => {
-          console.error("Registration failed:", error);
-          setErrors({
-            general:
-              error.response?.data?.message ||
-              "Registration failed. Please try again.",
-          });
-          notify("Registration failed. Please try again.", "error");
+          console.log("error", error);
+          const errorMessage = getErrorMessage(
+            error,
+            "Registration failed. Please try again.",
+          );
+
+          const fieldErrors = getErrorFields(error, [
+            "firstName",
+            "lastName",
+            "email",
+            "hireDate",
+            "password",
+            "confirmPassword",
+          ]);
+
+          setErrors(fieldErrors);
+          notify(errorMessage, "error");
         },
       },
     );
@@ -122,12 +96,6 @@ export default function RegisterPage() {
 
       <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
         <form className="space-y-6" onSubmit={handleSubmit}>
-          {errors.general && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
-              {errors.general}
-            </div>
-          )}
-
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label
@@ -150,9 +118,6 @@ export default function RegisterPage() {
                   placeholder="First name"
                 />
               </div>
-              {errors.firstName && (
-                <p className="mt-2 text-sm text-red-600">{errors.firstName}</p>
-              )}
             </div>
 
             <div>
@@ -176,9 +141,6 @@ export default function RegisterPage() {
                   placeholder="Last name"
                 />
               </div>
-              {errors.lastName && (
-                <p className="mt-2 text-sm text-red-600">{errors.lastName}</p>
-              )}
             </div>
           </div>
 
@@ -204,9 +166,6 @@ export default function RegisterPage() {
                 placeholder="Enter your email"
               />
             </div>
-            {errors.email && (
-              <p className="mt-2 text-sm text-red-600">{errors.email}</p>
-            )}
           </div>
 
           <div>
@@ -229,9 +188,6 @@ export default function RegisterPage() {
                 }`}
               />
             </div>
-            {errors.hireDate && (
-              <p className="mt-2 text-sm text-red-600">{errors.hireDate}</p>
-            )}
           </div>
 
           <div>
@@ -263,9 +219,6 @@ export default function RegisterPage() {
                 {showPassword ? <EyeClosed /> : <EyeOpen />}
               </button>
             </div>
-            {errors.password && (
-              <p className="mt-2 text-sm text-red-600">{errors.password}</p>
-            )}
           </div>
 
           <div>
@@ -297,11 +250,6 @@ export default function RegisterPage() {
                 {showConfirmPassword ? <EyeClosed /> : <EyeOpen />}
               </button>
             </div>
-            {errors.confirmPassword && (
-              <p className="mt-2 text-sm text-red-600">
-                {errors.confirmPassword}
-              </p>
-            )}
           </div>
 
           <div className="flex items-center">

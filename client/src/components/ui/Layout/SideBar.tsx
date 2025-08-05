@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import { useAuthContext } from "@/features/auth/context/AuthContext";
 import {
   LayoutDashboard,
   Car,
@@ -43,24 +44,26 @@ const navItems: NavItem[] = [
       { label: "Forms", path: "/inspection-forms" },
     ],
   },
-  {
-    label: "Issues",
-    icon: AlertTriangle,
-    children: [
-      { label: "Issues", path: "/issues" },
-      { label: "Faults", path: "/issues/faults" },
-      { label: "Recalls", path: "/issues/recalls" },
-    ],
-  },
-  {
-    label: "Reminders",
-    icon: Bell,
-    children: [
-      { label: "Service Reminders", path: "/reminders/service" },
-      { label: "Vehicle Renewals", path: "/reminders/vehicle-renewals" },
-      { label: "Contact Renewals", path: "/reminders/contact-renewals" },
-    ],
-  },
+  { label: "Issues", icon: AlertTriangle, path: "/issues" },
+  // {
+  //   label: "Issues",
+  //   icon: AlertTriangle,
+  //   children: [
+  //     { label: "Issues", path: "/issues" },
+  //     // { label: "Faults", path: "/issues/faults" },
+  //     // { label: "Recalls", path: "/issues/recalls" },
+  //   ],
+  // },
+  { label: "Service Reminders", icon: Bell, path: "/reminders/service" },
+  // {
+  //   label: "Reminders",
+  //   icon: Bell,
+  //   children: [
+  //     { label: "Service Reminders", path: "/reminders/service" },
+  //     { label: "Vehicle Renewals", path: "/reminders/vehicle-renewals" },
+  //     { label: "Contact Renewals", path: "/reminders/contact-renewals" },
+  //   ],
+  // },
   {
     label: "Service",
     icon: UserCog,
@@ -82,22 +85,40 @@ const navItems: NavItem[] = [
       { label: "Items", path: "/inventory-item" },
     ],
   },
-  { label: "Fuel & Energy", icon: Fuel },
+  // { label: "Fuel & Energy", icon: Fuel },
   // { label: "Places", icon: MapPin },
-  { label: "Documents", icon: FileText },
-  { label: "Reports", icon: BarChart },
+  // { label: "Documents", icon: FileText },
+  // { label: "Reports", icon: BarChart },
   { label: "Settings", icon: Settings, path: "/settings" },
 ];
 
 const SideBar = () => {
   const router = useRouter();
   const pathname = usePathname();
+  const { user } = useAuthContext();
   const [activeParent, setActiveParent] = useState<string>("");
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>(
     {},
   );
 
-  // Clear activeParent when navigating to pages that don't belong to any parent
+  // Generate user initials from first and last name
+  const getUserInitials = (firstName?: string, lastName?: string) => {
+    if (!firstName || !lastName) return "NN"; // fallback to current initials
+    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+  };
+
+  // Get user display name
+  const getUserDisplayName = () => {
+    if (!user?.firstName || !user?.lastName) return "No Name"; // fallback
+    return `${user.firstName} ${user.lastName}`;
+  };
+
+  // Format user role for display
+  const getFormattedRole = () => {
+    if (!user?.role) return "No Role"; // fallback
+    return user.role === "FleetManager" ? "Fleet Manager" : user.role;
+  };
+
   useEffect(() => {
     if (activeParent) {
       const activeParentItem = navItems.find(
@@ -114,10 +135,8 @@ const SideBar = () => {
     }
   }, [pathname, activeParent]);
 
-  // Check if we're on a settings page
   const isSettingsPage = pathname.startsWith("/settings");
 
-  // If on settings page, render the SettingsSidebar
   if (isSettingsPage) {
     return <SettingsSidebar />;
   }
@@ -131,7 +150,6 @@ const SideBar = () => {
       setActiveParent(label);
       toggleExpand(label);
     } else {
-      // no children, so navigate to the path
       const item = navItems.find(item => item.label === label);
       if (item?.path) {
         router.push(item.path);
@@ -147,15 +165,11 @@ const SideBar = () => {
   const isParentActive = (label: string) => {
     const item = navItems.find(item => item.label === label);
 
-    // For items without children, check if current path matches item path
     if (!item?.children) {
       return pathname === item?.path;
     }
 
-    // For items with children, check if any child is active
     const hasActiveChild = item.children.some(child => pathname === child.path);
-
-    // Return true if activeParent matches and no child is active
     return activeParent === label && !hasActiveChild;
   };
 
@@ -168,11 +182,13 @@ const SideBar = () => {
       {/* Header */}
       <div className="px-4 py-5 border-b border-[var(--border)] flex items-center gap-3 flex-shrink-0">
         <div className="w-9 h-9 rounded-full bg-[var(--primary-color)] flex items-center justify-center text-white font-semibold">
-          SC
+          {getUserInitials(user?.firstName, user?.lastName)}
         </div>
         <div>
-          <div className="text-xs text-gray-500">Ciskie Contracting</div>
-          <div className="text-sm font-medium text-gray-700">Sara Ciskie</div>
+          <div className="text-xs text-gray-500">{getFormattedRole()}</div>
+          <div className="text-sm font-medium text-gray-700">
+            {getUserDisplayName()}
+          </div>
         </div>
       </div>
 
