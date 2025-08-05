@@ -86,6 +86,7 @@ public class GetServiceProgramQueryHandlerTest
                     AddedAt = FixedDate,
                     ServiceProgram = null!,
                     Vehicle = null!,
+                    VehicleMileageAtAssignment = 10000,
                     // User = null! // TODO XrefServiceProgramVehicle User
                 }
             ]

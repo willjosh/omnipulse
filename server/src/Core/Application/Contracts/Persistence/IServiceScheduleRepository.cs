@@ -41,4 +41,10 @@ public interface IServiceScheduleRepository : IGenericRepository<ServiceSchedule
     /// <param name="serviceScheduleID">The ID of the service schedule.</param>
     /// <returns>A <see cref="ServiceSchedule"/> entity with its service tasks included, or null if not found.</returns>
     Task<ServiceSchedule?> GetByIdWithServiceTasksAsync(int serviceScheduleID);
+
+    /// <summary>
+    /// Retrieves all active service schedules with navigation properties loaded.
+    /// </summary>
+    /// <returns>A list of active <see cref="ServiceSchedule"/> entities with ServiceProgram navigation property.</returns>
+    Task<List<ServiceSchedule>> GetAllActiveWithNavigationAsync();
 }
