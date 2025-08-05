@@ -11,6 +11,9 @@ public interface IServiceReminderRepository : IGenericRepository<ServiceReminder
     // Simple data access for Application layer to perform calculations
     Task<List<ServiceSchedule>> GetActiveServiceSchedulesWithDataAsync();
 
+    // Sync calculated reminders to database for persistence
+    Task SyncRemindersAsync(List<ServiceReminderDTO> calculatedReminders);
+
     // Paged Results for stored reminders
     Task<PagedResult<ServiceReminder>> GetAllServiceRemindersPagedAsync(PaginationParameters parameters);
 

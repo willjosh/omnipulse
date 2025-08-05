@@ -34,6 +34,70 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
             .ToListAsync();
     }
 
+    /// <summary>
+    /// Sync calculated reminders to database for persistence
+    /// </summary>
+    public async Task SyncRemindersAsync(List<ServiceReminderDTO> calculatedReminders)
+    {
+        foreach (var calculated in calculatedReminders)
+        {
+            // Find existing reminder with same key (Vehicle + Schedule + Due Date/Mileage)
+            var existing = await _dbSet.FirstOrDefaultAsync(sr =>
+                sr.VehicleID == calculated.VehicleID &&
+                sr.ServiceScheduleID == calculated.ServiceScheduleID &&
+                sr.DueDate == calculated.DueDate &&
+                sr.DueMileage == calculated.DueMileage);
+
+            if (existing == null)
+            {
+                // CREATE: New reminder doesn't exist in database
+                // Load navigation properties for entity creation
+                var vehicle = await _dbContext.Set<Vehicle>().FindAsync(calculated.VehicleID);
+                var serviceSchedule = await _dbContext.Set<ServiceSchedule>().FindAsync(calculated.ServiceScheduleID);
+
+                if (vehicle == null || serviceSchedule == null) continue; // Skip if referenced entities don't exist
+
+                var newReminder = new ServiceReminder
+                {
+                    ID = 0, // Will be auto-generated
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
+                    VehicleID = calculated.VehicleID,
+                    Vehicle = vehicle,
+                    ServiceScheduleID = calculated.ServiceScheduleID,
+                    ServiceSchedule = serviceSchedule,
+                    ServiceProgramID = calculated.ServiceProgramID,
+                    ServiceScheduleName = calculated.ServiceScheduleName,
+                    ServiceProgramName = calculated.ServiceProgramName,
+                    DueDate = calculated.DueDate,
+                    DueMileage = calculated.DueMileage,
+                    Status = calculated.Status,
+                    PriorityLevel = calculated.PriorityLevel,
+                    TimeIntervalValue = calculated.TimeIntervalValue,
+                    TimeIntervalUnit = calculated.TimeIntervalUnit,
+                    MileageInterval = calculated.MileageInterval,
+                    TimeBufferValue = calculated.TimeBufferValue,
+                    TimeBufferUnit = calculated.TimeBufferUnit,
+                    MileageBuffer = calculated.MileageBuffer,
+                    MeterVariance = calculated.MileageVariance
+                };
+
+                await _dbSet.AddAsync(newReminder);
+            }
+            else if (existing.Status != ServiceReminderStatusEnum.COMPLETED)
+            {
+                // UPDATE: Existing reminder (but preserve completed ones)
+                existing.Status = calculated.Status;
+                existing.PriorityLevel = calculated.PriorityLevel;
+                existing.MeterVariance = calculated.MileageVariance;
+                // Don't update due dates - they're fixed when created
+                existing.UpdatedAt = DateTime.UtcNow;
+            }
+        }
+
+        await _dbContext.SaveChangesAsync();
+    }
+
     public async Task<ServiceReminder?> GetServiceReminderWithDetailsAsync(int serviceReminderId)
     {
         return await _dbSet

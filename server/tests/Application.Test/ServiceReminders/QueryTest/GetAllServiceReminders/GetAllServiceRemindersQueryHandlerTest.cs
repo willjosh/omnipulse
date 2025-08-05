@@ -49,6 +49,21 @@ public class GetAllServiceRemindersQueryHandlerTest
         _mockServiceReminderRepository.Setup(r => r.GetActiveServiceSchedulesWithDataAsync())
             .ReturnsAsync(emptyServiceSchedules);
 
+        // Mock SyncRemindersAsync method
+        _mockServiceReminderRepository.Setup(r => r.SyncRemindersAsync(It.IsAny<List<ServiceReminderDTO>>()))
+            .Returns(Task.CompletedTask);
+
+        // Mock GetAllServiceRemindersPagedAsync to return empty result
+        var emptyPagedResult = new PagedResult<ServiceReminder>
+        {
+            Items = new List<ServiceReminder>(),
+            TotalCount = 0,
+            PageNumber = 1,
+            PageSize = 10
+        };
+        _mockServiceReminderRepository.Setup(r => r.GetAllServiceRemindersPagedAsync(It.IsAny<PaginationParameters>()))
+            .ReturnsAsync(emptyPagedResult);
+
         // Act
         var result = await _handler.Handle(query, CancellationToken.None);
 
@@ -60,6 +75,8 @@ public class GetAllServiceRemindersQueryHandlerTest
         Assert.Equal(10, result.PageSize);
 
         _mockServiceReminderRepository.Verify(r => r.GetActiveServiceSchedulesWithDataAsync(), Times.Once);
+        _mockServiceReminderRepository.Verify(r => r.SyncRemindersAsync(It.IsAny<List<ServiceReminderDTO>>()), Times.Once);
+        _mockServiceReminderRepository.Verify(r => r.GetAllServiceRemindersPagedAsync(It.IsAny<PaginationParameters>()), Times.Once);
     }
 
     [Fact]
@@ -78,6 +95,21 @@ public class GetAllServiceRemindersQueryHandlerTest
         _mockServiceReminderRepository.Setup(r => r.GetActiveServiceSchedulesWithDataAsync())
             .ReturnsAsync(emptyServiceSchedules);
 
+        // Mock SyncRemindersAsync method
+        _mockServiceReminderRepository.Setup(r => r.SyncRemindersAsync(It.IsAny<List<ServiceReminderDTO>>()))
+            .Returns(Task.CompletedTask);
+
+        // Mock GetAllServiceRemindersPagedAsync to return empty result
+        var emptyPagedResult = new PagedResult<ServiceReminder>
+        {
+            Items = new List<ServiceReminder>(),
+            TotalCount = 0,
+            PageNumber = 1,
+            PageSize = 10
+        };
+        _mockServiceReminderRepository.Setup(r => r.GetAllServiceRemindersPagedAsync(It.IsAny<PaginationParameters>()))
+            .ReturnsAsync(emptyPagedResult);
+
         // Act
         var actualResult = await _handler.Handle(query, CancellationToken.None);
 
@@ -89,6 +121,8 @@ public class GetAllServiceRemindersQueryHandlerTest
         Assert.Equal(10, actualResult.PageSize);
 
         _mockServiceReminderRepository.Verify(r => r.GetActiveServiceSchedulesWithDataAsync(), Times.Once);
+        _mockServiceReminderRepository.Verify(r => r.SyncRemindersAsync(It.IsAny<List<ServiceReminderDTO>>()), Times.Once);
+        _mockServiceReminderRepository.Verify(r => r.GetAllServiceRemindersPagedAsync(It.IsAny<PaginationParameters>()), Times.Once);
     }
 
     [Fact]

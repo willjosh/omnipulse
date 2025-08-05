@@ -19,6 +19,7 @@ public class GetAllServiceRemindersQueryHandler : IRequestHandler<GetAllServiceR
     private const int DefaultMileageBufferKm = 1000;
     private const double DefaultDailyMileageEstimate = 30.0; // km/day for time vs mileage comparison
     private const int DaysPerWeek = 7;
+    private const int MaxUpcomingLookaheadYears = 1;
 
     private readonly IServiceReminderRepository _serviceReminderRepository;
     private readonly IValidator<GetAllServiceRemindersQuery> _validator;
@@ -47,21 +48,31 @@ public class GetAllServiceRemindersQueryHandler : IRequestHandler<GetAllServiceR
             throw new BadRequestException(errorMessages);
         }
 
-        // Get raw data from repository (simple data access)
+        // GENERATE: Get raw data and calculate reminders using domain logic
         var serviceSchedulesWithData = await _serviceReminderRepository.GetActiveServiceSchedulesWithDataAsync();
+        var calculatedReminders = await GenerateCalculatedServiceRemindersAsync(serviceSchedulesWithData);
 
-        // Calculate reminders using domain logic (business calculations in Application layer)
-        var allReminders = await GenerateCalculatedServiceRemindersAsync(serviceSchedulesWithData);
+        // SYNC: Persist calculated reminders to database
+        await _serviceReminderRepository.SyncRemindersAsync(calculatedReminders);
 
-        // Apply filtering, sorting, and pagination
-        var pagedResult = ApplyPaginationAndFiltering(allReminders, request.Parameters);
+        // RETURN: Get persisted reminders from database and convert to DTOs
+        var persistedReminders = await _serviceReminderRepository.GetAllServiceRemindersPagedAsync(request.Parameters);
+        var reminderDTOs = MapEntitiesToDTOs(persistedReminders.Items);
 
-        _logger.LogInformation($"Returning {pagedResult.TotalCount} service reminders for page {pagedResult.PageNumber} with page size {pagedResult.PageSize}");
-        return pagedResult;
+        var result = new PagedResult<ServiceReminderDTO>
+        {
+            Items = reminderDTOs,
+            TotalCount = persistedReminders.TotalCount,
+            PageNumber = persistedReminders.PageNumber,
+            PageSize = persistedReminders.PageSize
+        };
+
+        _logger.LogInformation($"Returning {result.TotalCount} service reminders for page {result.PageNumber} with page size {result.PageSize}");
+        return result;
     }
 
     /// <summary>Generate calculated service reminders from service schedules</summary>
-    private Task<List<ServiceReminderDTO>> GenerateCalculatedServiceRemindersAsync(List<ServiceSchedule> serviceSchedules)
+    private static Task<List<ServiceReminderDTO>> GenerateCalculatedServiceRemindersAsync(List<ServiceSchedule> serviceSchedules)
     {
         var currentDate = DateTime.UtcNow;
         var reminders = new List<ServiceReminderDTO>();
@@ -207,7 +218,7 @@ public class GetAllServiceRemindersQueryHandler : IRequestHandler<GetAllServiceR
             var dueDate = CalculateOccurrenceDate(startDate, schedule.TimeIntervalValue!.Value, schedule.TimeIntervalUnit!.Value, occurrenceNumber);
 
             // Stop if we're too far in the future
-            if (dueDate > currentDate.AddYears(1)) break;
+            if (dueDate > currentDate.AddYears(MaxUpcomingLookaheadYears)) break;
 
             // Calculate status directly using simplified logic (avoiding temporary entity creation)
             var status = CalculateTimeBasedStatus(dueDate, currentDate, schedule);
@@ -229,7 +240,7 @@ public class GetAllServiceRemindersQueryHandler : IRequestHandler<GetAllServiceR
     {
         var reminders = new List<ServiceReminderDTO>();
         var startMileage = schedule.FirstServiceMileage ?? vehicle.Mileage;
-        var maxMileage = vehicle.Mileage + (schedule.MileageBuffer ?? DefaultMileageBufferKm) * 2; // Look ahead reasonable distance
+        var maxMileage = vehicle.Mileage + (schedule.MileageBuffer ?? DefaultMileageBufferKm); // Look ahead reasonable distance
 
         // Generate occurrences and determine their status using domain extensions
         for (int occurrenceNumber = 1; occurrenceNumber <= MaxOccurrenceCount; occurrenceNumber++)
@@ -447,4 +458,40 @@ public class GetAllServiceRemindersQueryHandler : IRequestHandler<GetAllServiceR
         ServiceReminderStatusEnum.DUE_SOON => 1,
         _ => 2
     };
+
+    /// <summary>
+    /// Convert ServiceReminder entities back to ServiceReminderDTO for API response
+    /// </summary>
+    private static List<ServiceReminderDTO> MapEntitiesToDTOs(IReadOnlyList<ServiceReminder> entities)
+    {
+        return entities.Select(entity => new ServiceReminderDTO
+        {
+            VehicleID = entity.VehicleID,
+            VehicleName = entity.Vehicle?.Name ?? "Unknown",
+            ServiceScheduleID = entity.ServiceScheduleID,
+            ServiceScheduleName = entity.ServiceScheduleName,
+            ServiceProgramID = entity.ServiceProgramID,
+            ServiceProgramName = entity.ServiceProgramName,
+            DueDate = entity.DueDate,
+            DueMileage = entity.DueMileage,
+            Status = entity.Status,
+            PriorityLevel = entity.PriorityLevel,
+            CurrentMileage = entity.Vehicle?.Mileage ?? 0,
+            MileageVariance = entity.MeterVariance,
+            DaysUntilDue = entity.DueDate?.Subtract(DateTime.UtcNow).Days,
+            TimeIntervalValue = entity.TimeIntervalValue,
+            TimeIntervalUnit = entity.TimeIntervalUnit,
+            MileageInterval = entity.MileageInterval,
+            TimeBufferValue = entity.TimeBufferValue,
+            TimeBufferUnit = entity.TimeBufferUnit,
+            MileageBuffer = entity.MileageBuffer,
+            ServiceTasks = new List<ServiceTaskInfoDTO>(), // Can populate from ServiceSchedule if needed
+            TotalEstimatedLabourHours = 0, // Calculate from service tasks if needed
+            TotalEstimatedCost = 0, // Calculate from service tasks if needed
+            TaskCount = 0, // Calculate from service tasks if needed
+            OccurrenceNumber = 1, // Could be calculated based on history if needed
+            IsTimeBasedReminder = entity.TimeIntervalValue.HasValue,
+            IsMileageBasedReminder = entity.MileageInterval.HasValue
+        }).ToList();
+    }
 }
