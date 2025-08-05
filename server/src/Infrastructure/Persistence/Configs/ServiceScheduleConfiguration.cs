@@ -18,7 +18,6 @@ public class ServiceScheduleConfiguration : IEntityTypeConfiguration<ServiceSche
         // Enum Configurations
         builder.Property(ss => ss.TimeIntervalUnit).HasConversion<string>();
         builder.Property(ss => ss.TimeBufferUnit).HasConversion<string>();
-        builder.Property(ss => ss.FirstServiceTimeUnit).HasConversion<string>();
 
         // Regular Indexes
         builder.HasIndex(ss => ss.ServiceProgramID);
@@ -41,8 +40,6 @@ public class ServiceScheduleConfiguration : IEntityTypeConfiguration<ServiceSche
             "MileageInterval > 0"));
         builder.ToTable(t => t.HasCheckConstraint("CK_ServiceSchedule_MileageBuffer",
             "MileageBuffer >= 0"));
-        builder.ToTable(t => t.HasCheckConstraint("CK_ServiceSchedule_FirstServiceTimeValue",
-            "FirstServiceTimeValue >= 0"));
         builder.ToTable(t => t.HasCheckConstraint("CK_ServiceSchedule_FirstServiceMileage",
             "FirstServiceMileage >= 0"));
 

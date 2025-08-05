@@ -2,9 +2,9 @@ namespace Domain.Entities.Enums;
 
 public enum ServiceTaskCategoryEnum
 {
-    PREVENTIVE,
-    CORRECTIVE,
-    EMERGENCY,
-    INSPECTION,
-    WARRANTY
+    PREVENTIVE = 1,
+    CORRECTIVE = 2,
+    EMERGENCY = 3,
+    INSPECTION = 4,
+    WARRANTY = 5
 }

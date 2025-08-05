@@ -52,7 +52,18 @@ public class GetInspectionFormQueryHandlerTest
         var inspectionFormItems = new List<InspectionFormItem>();
         for (int i = 0; i < inspectionFormItemCount; i++)
         {
-            inspectionFormItems.Add(null!); // Just for count - we only test the count property
+            inspectionFormItems.Add(new InspectionFormItem
+            {
+                ID = i + 1,
+                InspectionFormID = id,
+                ItemLabel = $"Test Item {i + 1}",
+                IsRequired = true,
+                InspectionFormItemTypeEnum = Domain.Entities.Enums.InspectionFormItemTypeEnum.PassFail,
+                IsActive = true, // Active items
+                CreatedAt = FixedDate,
+                UpdatedAt = FixedDate,
+                InspectionForm = null! // Will be set by the parent
+            });
         }
 
         return new InspectionForm
@@ -185,12 +196,9 @@ public class GetInspectionFormQueryHandlerTest
         _mockInspectionFormRepository.Setup(r => r.GetInspectionFormWithItemsAsync(query.InspectionFormID))
             .ReturnsAsync(inspectionForm);
 
-        // Act
-        var result = await _queryHandler.Handle(query, CancellationToken.None);
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.False(result.IsActive);
+        // Act & Assert
+        await Assert.ThrowsAsync<EntityNotFoundException>(
+            () => _queryHandler.Handle(query, CancellationToken.None));
     }
 
     [Theory]

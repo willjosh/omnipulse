@@ -42,6 +42,11 @@ public static class SeedingExtensions
             context.GetService<VehicleSeeder>(),
             context.GetService<IssueSeeder>(),
             context.GetService<XrefServiceProgramVehicleSeeder>(),
+            context.GetService<InspectionFormSeeder>(),
+            context.GetService<InspectionFormItemSeeder>(),
+            context.GetService<InspectionSeeder>(),
+            context.GetService<WorkOrderSeeder>(),
+            context.GetService<WorkOrderLineItemSeeder>(),
         ];
     }
 }

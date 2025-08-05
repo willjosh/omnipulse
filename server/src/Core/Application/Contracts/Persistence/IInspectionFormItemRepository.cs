@@ -1,3 +1,4 @@
+using Application.Features.InspectionFormItems.Query.GetAllInspectionFormItem;
 using Application.Models.PaginationModels;
 
 using Domain.Entities;
@@ -19,4 +20,7 @@ public interface IInspectionFormItemRepository : IGenericRepository<InspectionFo
     Task<int> CountRequiredItemsByFormIdAsync(int inspectionFormId);
     Task<List<InspectionFormItem>> GetAllByInspectionFormIdAsync(int inspectionFormId);
     Task<PagedResult<InspectionFormItem>> GetAllByInspectionFormIdPagedAsync(int inspectionFormId, PaginationParameters parameters);
+
+    // Detail methods
+    Task<InspectionFormItem?> GetInspectionFormItemDetailsAsync(int inspectionFormItemId);
 }

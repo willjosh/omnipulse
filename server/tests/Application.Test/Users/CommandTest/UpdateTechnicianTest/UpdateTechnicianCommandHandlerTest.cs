@@ -61,8 +61,7 @@ public class UpdateTechnicianCommandHandlerTest
         string? id = null,
         string? firstName = null,
         string? lastName = null,
-        DateTime? hireDate = null,
-        bool? isActive = null
+        DateTime? hireDate = null
     )
     {
         return new UpdateTechnicianCommand
@@ -70,8 +69,7 @@ public class UpdateTechnicianCommandHandlerTest
             id ?? Guid.NewGuid().ToString(),
             firstName,
             lastName,
-            hireDate,
-            isActive
+            hireDate
         );
     }
 
@@ -81,16 +79,15 @@ public class UpdateTechnicianCommandHandlerTest
     }
 
     [Theory]
-    [InlineData("Clarence", "Drifter", "2023-10-01", true)]
-    [InlineData("Bolso Rojo", null, "2023-10-01", true)]
-    [InlineData("Mamba", "Viper", null, true)]
-    [InlineData("FullOfJoy", "Happiness", "2023-10-01", null)]
-    [InlineData(null, null, null, null)]
+    [InlineData("Clarence", "Drifter", "2023-10-01")]
+    [InlineData("Bolso Rojo", null, "2023-10-01")]
+    [InlineData("Mamba", "Viper", null)]
+    [InlineData("FullOfJoy", "Happiness", "2023-10-01")]
+    [InlineData(null, null, null)]
     public async Task Handle_ValidCommand_ShouldUpdateTechnician(
         string? firstName,
         string? lastName,
-        string? hireDate,
-        bool? isActive
+        string? hireDate
     )
     {
         // Given
@@ -98,8 +95,7 @@ public class UpdateTechnicianCommandHandlerTest
             id: Guid.NewGuid().ToString(),
             firstName: firstName,
             lastName: lastName,
-            hireDate: hireDate is not null ? DateTime.Parse(hireDate) : null,
-            isActive: isActive
+            hireDate: hireDate is not null ? DateTime.Parse(hireDate) : null
         );
 
         SetupValidValidation(command);
@@ -142,8 +138,7 @@ public class UpdateTechnicianCommandHandlerTest
                 u.Id == command.Id &&
                 (command.FirstName == null || u.FirstName == command.FirstName) &&
                 (command.LastName == null || u.LastName == command.LastName) &&
-                (command.HireDate == null || u.HireDate == command.HireDate) &&
-                (command.IsActive == null || u.IsActive == command.IsActive)
+                (command.HireDate == null || u.HireDate == command.HireDate)
             )), Times.Once);
         }
 

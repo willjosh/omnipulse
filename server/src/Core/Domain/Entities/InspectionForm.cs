@@ -8,6 +8,7 @@ public class InspectionForm : BaseEntity
 {
     public required string Title { get; set; }
     public string? Description { get; set; }
+    /// <summary><c>false</c> = soft-deleted</summary>
     public required bool IsActive { get; set; } = true;
 
     // Navigation Properties

@@ -33,19 +33,19 @@ public sealed class GetInspectionFormQueryHandler : IRequestHandler<GetInspectio
         // Get inspection form with related data
         var inspectionForm = await _inspectionFormRepository.GetInspectionFormWithItemsAsync(request.InspectionFormID);
 
-        // Check if inspection form exists
-        if (inspectionForm == null)
+        // Check if inspection form exists or is inactive
+        if (inspectionForm == null || !inspectionForm.IsActive)
         {
-            _logger.LogError($"Inspection form with ID {request.InspectionFormID} not found.");
+            _logger.LogError($"Inspection form with ID {request.InspectionFormID} not found or is inactive.");
             throw new EntityNotFoundException(nameof(InspectionForm), nameof(InspectionForm.ID), request.InspectionFormID.ToString());
         }
 
         // Map to DTO
         var inspectionFormDto = _mapper.Map<InspectionFormDTO>(inspectionForm);
 
-        // Set additional calculated properties
+        // Set additional calculated properties (only count active items)
         inspectionFormDto.InspectionCount = inspectionForm.Inspections?.Count ?? 0;
-        inspectionFormDto.InspectionFormItemCount = inspectionForm.InspectionFormItems?.Count ?? 0;
+        inspectionFormDto.InspectionFormItemCount = inspectionForm.InspectionFormItems?.Where(item => item != null && item.IsActive).Count() ?? 0;
 
         _logger.LogInformation($"Returning InspectionFormDTO for InspectionFormID: {request.InspectionFormID}");
         return inspectionFormDto;
