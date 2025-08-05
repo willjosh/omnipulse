@@ -28,7 +28,6 @@ public interface IServiceReminderRepository : IGenericRepository<ServiceReminder
 
     // Query methods by service schedule
     Task<IReadOnlyList<ServiceReminder>> GetRemindersByServiceScheduleIdAsync(int serviceScheduleId);
-    Task<IReadOnlyList<ServiceReminder>> GetRemindersByServiceTaskIdAsync(int serviceTaskId);
 
     // Query methods by date ranges
     Task<IReadOnlyList<ServiceReminder>> GetRemindersByDateRangeAsync(DateTime startDate, DateTime endDate);

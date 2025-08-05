@@ -182,11 +182,21 @@ public class GetAllServiceRemindersQueryHandlerTest
                 ServiceProgramName = "Test Program",
                 ServiceScheduleID = 1,
                 ServiceScheduleName = "Test Schedule 1",
-                ServiceTaskID = 1,
-                ServiceTaskName = "Oil Change",
-                ServiceTaskCategory = ServiceTaskCategoryEnum.PREVENTIVE,
-                EstimatedLabourHours = 1.5,
-                EstimatedCost = 75.00m,
+                ServiceTasks = [
+                    new ServiceTaskInfoDTO
+                    {
+                        ServiceTaskID = 1,
+                        ServiceTaskName = "Oil Change",
+                        ServiceTaskCategory = ServiceTaskCategoryEnum.PREVENTIVE,
+                        EstimatedLabourHours = 1.5,
+                        EstimatedCost = 75.00m,
+                        Description = "Change engine oil and filter",
+                        IsRequired = true
+                    }
+                ],
+                TotalEstimatedLabourHours = 1.5,
+                TotalEstimatedCost = 75.00m,
+                TaskCount = 1,
                 DueDate = DateTime.UtcNow.AddDays(-30),
                 Status = ServiceReminderStatusEnum.OVERDUE,
                 PriorityLevel = PriorityLevelEnum.HIGH,
@@ -203,11 +213,21 @@ public class GetAllServiceRemindersQueryHandlerTest
                 ServiceProgramName = "Test Program",
                 ServiceScheduleID = 1,
                 ServiceScheduleName = "Test Schedule 1",
-                ServiceTaskID = 1,
-                ServiceTaskName = "Oil Change",
-                ServiceTaskCategory = ServiceTaskCategoryEnum.PREVENTIVE,
-                EstimatedLabourHours = 1.5,
-                EstimatedCost = 75.00m,
+                ServiceTasks = [
+                    new ServiceTaskInfoDTO
+                    {
+                        ServiceTaskID = 1,
+                        ServiceTaskName = "Oil Change",
+                        ServiceTaskCategory = ServiceTaskCategoryEnum.PREVENTIVE,
+                        EstimatedLabourHours = 1.5,
+                        EstimatedCost = 75.00m,
+                        Description = "Change engine oil and filter",
+                        IsRequired = true
+                    }
+                ],
+                TotalEstimatedLabourHours = 1.5,
+                TotalEstimatedCost = 75.00m,
+                TaskCount = 1,
                 DueMileage = 20000,
                 Status = ServiceReminderStatusEnum.OVERDUE,
                 PriorityLevel = PriorityLevelEnum.HIGH,
@@ -231,11 +251,21 @@ public class GetAllServiceRemindersQueryHandlerTest
                 ServiceProgramName = "Test Program",
                 ServiceScheduleID = 1,
                 ServiceScheduleName = "Test Schedule",
-                ServiceTaskID = 1,
-                ServiceTaskName = "Oil Change",
-                ServiceTaskCategory = ServiceTaskCategoryEnum.PREVENTIVE,
-                EstimatedLabourHours = 1.5,
-                EstimatedCost = 75.00m,
+                ServiceTasks = [
+                    new ServiceTaskInfoDTO
+                    {
+                        ServiceTaskID = 1,
+                        ServiceTaskName = "Oil Change",
+                        ServiceTaskCategory = ServiceTaskCategoryEnum.PREVENTIVE,
+                        EstimatedLabourHours = 1.5,
+                        EstimatedCost = 75.00m,
+                        Description = "Change engine oil and filter",
+                        IsRequired = true
+                    }
+                ],
+                TotalEstimatedLabourHours = 1.5,
+                TotalEstimatedCost = 75.00m,
+                TaskCount = 1,
                 Status = ServiceReminderStatusEnum.UPCOMING,
                 PriorityLevel = PriorityLevelEnum.LOW,
                 CurrentMileage = 15000,

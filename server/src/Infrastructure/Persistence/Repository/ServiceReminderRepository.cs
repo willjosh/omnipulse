@@ -56,7 +56,6 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
             .Include(sr => sr.Vehicle)
             .Include(sr => sr.ServiceProgram)
             .Include(sr => sr.ServiceSchedule)
-            .Include(sr => sr.ServiceTask)
             .Include(sr => sr.WorkOrder);
 
         // Apply search filter
@@ -87,7 +86,6 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
         string searchPattern = $"%{searchText.Trim().ToLowerInvariant()}%";
 
         return query.Where(sr =>
-            EF.Functions.Like(sr.ServiceTaskName, searchPattern) ||
             EF.Functions.Like(sr.ServiceScheduleName, searchPattern) ||
             EF.Functions.Like(sr.ServiceProgramName ?? string.Empty, searchPattern) ||
             EF.Functions.Like(sr.Vehicle.Name, searchPattern) ||
@@ -112,9 +110,7 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
             "vehiclename" => sortDescending
                 ? query.OrderByDescending(sr => sr.Vehicle.Name)
                 : query.OrderBy(sr => sr.Vehicle.Name),
-            "servicetaskname" => sortDescending
-                ? query.OrderByDescending(sr => sr.ServiceTaskName)
-                : query.OrderBy(sr => sr.ServiceTaskName),
+
             "serviceschedulename" => sortDescending
                 ? query.OrderByDescending(sr => sr.ServiceScheduleName)
                 : query.OrderBy(sr => sr.ServiceScheduleName),
@@ -151,7 +147,7 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
             .Include(sr => sr.Vehicle)
             .Include(sr => sr.ServiceProgram)
             .Include(sr => sr.ServiceSchedule)
-            .Include(sr => sr.ServiceTask)
+
             .Include(sr => sr.WorkOrder)
             .FirstOrDefaultAsync(sr => sr.ID == serviceReminderId);
     }
@@ -160,7 +156,7 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
     public async Task<IReadOnlyList<ServiceReminder>> GetRemindersByVehicleIdAsync(int vehicleId)
     {
         return await _dbSet
-            .Include(sr => sr.ServiceTask)
+
             .Include(sr => sr.ServiceSchedule)
             .Where(sr => sr.VehicleID == vehicleId)
             .OrderBy(sr => sr.Status == ServiceReminderStatusEnum.OVERDUE ? 0 :
@@ -172,7 +168,7 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
     public async Task<IReadOnlyList<ServiceReminder>> GetOverdueRemindersByVehicleIdAsync(int vehicleId)
     {
         return await _dbSet
-            .Include(sr => sr.ServiceTask)
+
             .Include(sr => sr.ServiceSchedule)
             .Where(sr => sr.VehicleID == vehicleId && sr.Status == ServiceReminderStatusEnum.OVERDUE)
             .OrderBy(sr => sr.DueDate ?? DateTime.MaxValue)
@@ -182,7 +178,7 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
     public async Task<IReadOnlyList<ServiceReminder>> GetUpcomingRemindersByVehicleIdAsync(int vehicleId)
     {
         return await _dbSet
-            .Include(sr => sr.ServiceTask)
+
             .Include(sr => sr.ServiceSchedule)
             .Where(sr => sr.VehicleID == vehicleId &&
                 (sr.Status == ServiceReminderStatusEnum.DUE_SOON || sr.Status == ServiceReminderStatusEnum.UPCOMING))
@@ -195,7 +191,7 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
     {
         return await _dbSet
             .Include(sr => sr.Vehicle)
-            .Include(sr => sr.ServiceTask)
+
             .Where(sr => sr.Status == status)
             .OrderBy(sr => sr.DueDate ?? DateTime.MaxValue)
             .ToListAsync();
@@ -205,7 +201,7 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
     {
         return await _dbSet
             .Include(sr => sr.Vehicle)
-            .Include(sr => sr.ServiceTask)
+
             .Where(sr => sr.PriorityLevel == priority)
             .OrderBy(sr => sr.DueDate ?? DateTime.MaxValue)
             .ToListAsync();
@@ -216,29 +212,22 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
     {
         return await _dbSet
             .Include(sr => sr.Vehicle)
-            .Include(sr => sr.ServiceTask)
+
             .Where(sr => sr.ServiceScheduleID == serviceScheduleId)
             .OrderBy(sr => sr.VehicleID)
             .ThenBy(sr => sr.DueDate ?? DateTime.MaxValue)
             .ToListAsync();
     }
 
-    public async Task<IReadOnlyList<ServiceReminder>> GetRemindersByServiceTaskIdAsync(int serviceTaskId)
-    {
-        return await _dbSet
-            .Include(sr => sr.Vehicle)
-            .Include(sr => sr.ServiceSchedule)
-            .Where(sr => sr.ServiceTaskID == serviceTaskId)
-            .OrderBy(sr => sr.DueDate ?? DateTime.MaxValue)
-            .ToListAsync();
-    }
+    // TODO: This method needs to be redesigned for schedule-based reminders
+    // public async Task<IReadOnlyList<ServiceReminder>> GetRemindersByServiceTaskIdAsync(int serviceTaskId)
 
     // Query methods by date ranges
     public async Task<IReadOnlyList<ServiceReminder>> GetRemindersByDateRangeAsync(DateTime startDate, DateTime endDate)
     {
         return await _dbSet
             .Include(sr => sr.Vehicle)
-            .Include(sr => sr.ServiceTask)
+
             .Where(sr => sr.DueDate.HasValue && sr.DueDate.Value >= startDate && sr.DueDate.Value <= endDate)
             .OrderBy(sr => sr.DueDate)
             .ToListAsync();
@@ -248,7 +237,7 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
     {
         return await _dbSet
             .Include(sr => sr.Vehicle)
-            .Include(sr => sr.ServiceTask)
+
             .Where(sr => sr.Status == ServiceReminderStatusEnum.COMPLETED &&
                 sr.CompletedDate.HasValue &&
                 sr.CompletedDate.Value >= startDate &&
@@ -289,7 +278,7 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
     public async Task<ServiceReminder?> GetNextDueReminderForVehicleAsync(int vehicleId)
     {
         return await _dbSet
-            .Include(sr => sr.ServiceTask)
+
             .Include(sr => sr.ServiceSchedule)
             .Where(sr => sr.VehicleID == vehicleId &&
                 sr.Status != ServiceReminderStatusEnum.COMPLETED &&
@@ -361,7 +350,7 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
         var searchLower = search.ToLowerInvariant();
         return reminders.Where(r =>
             r.VehicleName.ToLowerInvariant().Contains(searchLower) ||
-            r.ServiceTaskName.ToLowerInvariant().Contains(searchLower) ||
+            r.ServiceTasks.Any(t => t.ServiceTaskName.ToLowerInvariant().Contains(searchLower)) ||
             r.ServiceScheduleName.ToLowerInvariant().Contains(searchLower) ||
             (r.ServiceProgramName?.ToLowerInvariant().Contains(searchLower) ?? false)
         ).ToList();
@@ -384,9 +373,9 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
             "vehiclename" => sortDescending
                 ? reminders.OrderByDescending(r => r.VehicleName)
                 : reminders.OrderBy(r => r.VehicleName),
-            "servicetaskname" => sortDescending
-                ? reminders.OrderByDescending(r => r.ServiceTaskName)
-                : reminders.OrderBy(r => r.ServiceTaskName),
+            "serviceschedulename" => sortDescending
+                ? reminders.OrderByDescending(r => r.ServiceScheduleName)
+                : reminders.OrderBy(r => r.ServiceScheduleName),
             "duedate" => sortDescending
                 ? reminders.OrderByDescending(r => r.DueDate ?? DateTime.MinValue)
                 : reminders.OrderBy(r => r.DueDate ?? DateTime.MaxValue),
@@ -414,7 +403,7 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
     {
         var reminders = new List<ServiceReminderDTO>();
 
-        if (!serviceTasks.Any())
+        if (serviceTasks.Count == 0)
         {
             return reminders;
         }
@@ -474,15 +463,12 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
             // Only include if it's overdue, due soon, or upcoming (skip far future ones)
             if (status != ServiceReminderStatusEnum.UPCOMING || currentOccurrenceDate <= bufferEndDate)
             {
-                foreach (var task in serviceTasks)
-                {
-                    var reminder = CreateServiceReminderDTO(
-                        schedule, vehicle, task, currentOccurrenceDate, null,
-                        status, occurrenceNumber, isTimeBasedReminder: true,
-                        isMileageBasedReminder: false);
+                var reminder = CreateServiceReminderDTO(
+                    schedule, vehicle, serviceTasks, currentOccurrenceDate, null,
+                    status, occurrenceNumber, isTimeBasedReminder: true,
+                    isMileageBasedReminder: false);
 
-                    reminders.Add(reminder);
-                }
+                reminders.Add(reminder);
             }
 
             // Calculate next occurrence
@@ -526,15 +512,12 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
         {
             var status = CalculateMileageBasedStatus(currentOccurrenceMileage, vehicle.Mileage, schedule);
 
-            foreach (var task in serviceTasks)
-            {
-                var reminder = CreateServiceReminderDTO(
-                    schedule, vehicle, task, null, currentOccurrenceMileage,
-                    status, occurrenceNumber, isTimeBasedReminder: false,
-                    isMileageBasedReminder: true);
+            var reminder = CreateServiceReminderDTO(
+                schedule, vehicle, serviceTasks, null, currentOccurrenceMileage,
+                status, occurrenceNumber, isTimeBasedReminder: false,
+                isMileageBasedReminder: true);
 
-                reminders.Add(reminder);
-            }
+            reminders.Add(reminder);
 
             // Calculate next occurrence
             currentOccurrenceMileage += schedule.MileageInterval!.Value;
@@ -553,7 +536,7 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
     private ServiceReminderDTO CreateServiceReminderDTO(
         ServiceSchedule schedule,
         Vehicle vehicle,
-        ServiceTask task,
+        List<ServiceTask> tasks,
         DateTime? dueDate,
         double? dueMileage,
         ServiceReminderStatusEnum status,
@@ -563,6 +546,18 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
     {
         var currentDate = DateTime.UtcNow;
 
+        // Create ServiceTaskInfo DTOs for all tasks
+        var serviceTasks = tasks.Select(task => new ServiceTaskInfoDTO
+        {
+            ServiceTaskID = task.ID,
+            ServiceTaskName = task.Name,
+            ServiceTaskCategory = task.Category,
+            EstimatedLabourHours = task.EstimatedLabourHours,
+            EstimatedCost = task.EstimatedCost,
+            Description = task.Description,
+            IsRequired = true // Assuming all tasks in a schedule are required
+        }).ToList();
+
         return new ServiceReminderDTO
         {
             VehicleID = vehicle.ID,
@@ -571,11 +566,10 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
             ServiceProgramName = schedule.ServiceProgram?.Name,
             ServiceScheduleID = schedule.ID,
             ServiceScheduleName = schedule.Name,
-            ServiceTaskID = task.ID,
-            ServiceTaskName = task.Name,
-            ServiceTaskCategory = task.Category,
-            EstimatedLabourHours = task.EstimatedLabourHours,
-            EstimatedCost = task.EstimatedCost,
+            ServiceTasks = serviceTasks,
+            TotalEstimatedLabourHours = serviceTasks.Sum(t => t.EstimatedLabourHours),
+            TotalEstimatedCost = serviceTasks.Sum(t => t.EstimatedCost),
+            TaskCount = serviceTasks.Count,
             DueDate = dueDate,
             DueMileage = dueMileage,
             Status = status,

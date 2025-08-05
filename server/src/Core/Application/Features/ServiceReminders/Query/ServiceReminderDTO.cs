@@ -31,25 +31,20 @@ public class ServiceReminderDTO
     /// <example>Oil Change Schedule</example>
     public required string ServiceScheduleName { get; set; }
 
-    /// <summary>Service task ID that needs to be performed.</summary>
-    /// <example>1</example>
-    public required int ServiceTaskID { get; set; }
+    /// <summary>Collection of service tasks included in this reminder.</summary>
+    public required List<ServiceTaskInfoDTO> ServiceTasks { get; set; } = [];
 
-    /// <summary>Service task name for display purposes.</summary>
-    /// <example>Engine Oil Change</example>
-    public required string ServiceTaskName { get; set; }
+    /// <summary>Total estimated labor hours for all tasks in this reminder.</summary>
+    /// <example>3.5</example>
+    public required double TotalEstimatedLabourHours { get; set; }
 
-    /// <summary>Service task category.</summary>
-    /// <example>1</example>
-    public required ServiceTaskCategoryEnum ServiceTaskCategory { get; set; }
+    /// <summary>Total estimated cost for all tasks in this reminder.</summary>
+    /// <example>225.75</example>
+    public required decimal TotalEstimatedCost { get; set; }
 
-    /// <summary>Estimated labor hours for this task.</summary>
-    /// <example>2.0</example>
-    public required double EstimatedLabourHours { get; set; }
-
-    /// <summary>Estimated cost for this task.</summary>
-    /// <example>150.00</example>
-    public required decimal EstimatedCost { get; set; }
+    /// <summary>Number of tasks included in this reminder.</summary>
+    /// <example>2</example>
+    public required int TaskCount { get; set; }
 
     /// <summary>The calculated due date for this service occurrence.</summary>
     /// <example>2024-08-15T00:00:00</example>
