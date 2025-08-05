@@ -73,7 +73,7 @@ const TechnicianList: React.FC = () => {
   };
 
   const handleRowClick = (technician: Technician) => {
-    router.push(`/contacts/${technician.id}`);
+    router.push(`/technician/${technician.id}`);
   };
 
   const handleToggleTechnicianStatus = async () => {
@@ -95,7 +95,7 @@ const TechnicianList: React.FC = () => {
         label: "View Details",
         icon: <Details />,
         onClick: (tech: Technician) => {
-          router.push(`/contacts/${tech.id}`);
+          router.push(`/technician/${tech.id}`);
         },
       },
       {
@@ -103,7 +103,7 @@ const TechnicianList: React.FC = () => {
         label: "Edit Technician",
         icon: <Edit />,
         onClick: (tech: Technician) => {
-          router.push(`/contacts/${tech.id}/edit`);
+          router.push(`/technician/${tech.id}/edit`);
         },
       },
       {
@@ -139,7 +139,7 @@ const TechnicianList: React.FC = () => {
         <h1 className="text-2xl font-semibold text-gray-900">Technicians</h1>
         <div className="flex items-center gap-3">
           <OptionButton />
-          <PrimaryButton onClick={() => router.push("/contacts/create")}>
+          <PrimaryButton onClick={() => router.push("/technician/create")}>
             <span>+</span>
             Add Technician
           </PrimaryButton>

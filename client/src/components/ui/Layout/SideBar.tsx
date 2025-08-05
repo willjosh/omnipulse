@@ -72,10 +72,10 @@ const navItems: NavItem[] = [
       { label: "Service Programs", path: "/service-programs" },
     ],
   },
-  { label: "Contacts", icon: User, path: "/contacts" },
+  { label: "Technicians", icon: User, path: "/technician" },
   // { label: "Vendors", icon: Store },
   {
-    label: "Inventory",
+    label: "Inventories",
     icon: Boxes,
     children: [
       { label: "Inventory", path: "/inventory" },
