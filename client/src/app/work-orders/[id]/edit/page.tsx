@@ -53,8 +53,8 @@ export default function EditWorkOrderPage() {
         assignedToUserID: workOrder.assignedToUserID,
         scheduledStartDate: workOrder.scheduledStartDate,
         actualStartDate: workOrder.actualStartDate,
-        scheduledCompletionDate: null, // TODO: Add to WorkOrderWithLabels if needed
-        actualCompletionDate: null, // TODO: Add to WorkOrderWithLabels if needed
+        scheduledCompletionDate: workOrder.scheduledCompletionDate,
+        actualCompletionDate: workOrder.actualCompletionDate,
         startOdometer: workOrder.startOdometer,
         endOdometer: workOrder.endOdometer,
         issueIdList: workOrder.issueIDs,

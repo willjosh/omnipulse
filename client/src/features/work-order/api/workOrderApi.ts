@@ -22,10 +22,10 @@ import {
 } from "../types/workOrderEnum";
 import { get } from "http";
 
-function formatDate(date?: string | null): string {
-  if (!date) return "Unknown";
+function formatDate(date?: string | null): string | null {
+  if (!date) return null;
   const d = new Date(date);
-  return isNaN(d.getTime()) ? "Unknown" : d.toLocaleString();
+  return isNaN(d.getTime()) ? null : d.toLocaleString();
 }
 
 export const convertWorkOrderLineItemData = (
@@ -52,6 +52,8 @@ export const convertWorkOrderData = (
   statusEnum: workOrder.status as WorkOrderStatusEnum,
   scheduledStartDate: formatDate(workOrder.scheduledStartDate),
   actualStartDate: formatDate(workOrder.actualStartDate),
+  scheduledCompletionDate: formatDate(workOrder.scheduledCompletionDate),
+  actualCompletionDate: formatDate(workOrder.actualCompletionDate),
   workOrderLineItems: workOrder.workOrderLineItems.map(
     convertWorkOrderLineItemData,
   ),
