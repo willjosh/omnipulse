@@ -1,6 +1,5 @@
 import React from "react";
 import FormContainer from "@/components/ui/Form/FormContainer";
-import { PrimaryButton } from "@/components/ui/Button";
 import { ChevronDown } from "lucide-react";
 
 export interface InspectionItemChecklistFormValues {
@@ -9,6 +8,7 @@ export interface InspectionItemChecklistFormValues {
     itemLabel: string;
     itemDescription?: string;
     itemInstructions?: string;
+    isRequired: boolean;
     passed: boolean | null;
     comment?: string;
     showRemarks: boolean;
@@ -41,82 +41,77 @@ const InspectionItemChecklistForm: React.FC<
 
   return (
     <FormContainer title="Item Checklist">
-      <div className="space-y-4">
+      <div className="space-y-6">
         {value.items.map((item, index) => (
           <div
             key={item.id}
-            className="border-b border-gray-200 pb-4 last:border-b-0"
+            className="border-b border-gray-200 pb-6 last:border-b-0"
           >
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <h3 className="font-medium text-gray-900">
-                    {item.itemLabel}
-                    {item.itemDescription && (
-                      <span className="text-sm text-gray-500 ml-2">
-                        ({item.itemDescription})
-                      </span>
-                    )}
-                  </h3>
-                </div>
-
-                {item.itemInstructions && (
-                  <p className="text-sm text-gray-600 mb-3">
-                    {item.itemInstructions}
+            {/* First line: Item label and Pass/Fail radio buttons */}
+            <div className="flex items-center mb-3">
+              <div className="w-1/2">
+                <h3 className="font-medium text-gray-900">
+                  {item.itemLabel}
+                  {item.isRequired && (
+                    <span className="text-red-500 ml-1">*</span>
+                  )}
+                  {item.itemDescription && (
+                    <span className="text-sm text-gray-500 ml-2">
+                      ({item.itemDescription})
+                    </span>
+                  )}
+                </h3>
+                {/* Error message for required items */}
+                {errors[`item-${item.id}`] && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors[`item-${item.id}`]}
                   </p>
-                )}
-
-                {/* Pass/Fail Radio Buttons */}
-                <div className="flex items-center gap-4 mb-3">
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      name={`item-${item.id}`}
-                      checked={item.passed === true}
-                      onChange={() => handleItemChange(item.id, "passed", true)}
-                      disabled={disabled}
-                      className="text-blue-600 focus:ring-blue-500"
-                    />
-                    <span className="text-sm font-medium text-gray-700">
-                      Pass
-                    </span>
-                  </label>
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      name={`item-${item.id}`}
-                      checked={item.passed === false}
-                      onChange={() =>
-                        handleItemChange(item.id, "passed", false)
-                      }
-                      disabled={disabled}
-                      className="text-blue-600 focus:ring-blue-500"
-                    />
-                    <span className="text-sm font-medium text-gray-700">
-                      Fail
-                    </span>
-                  </label>
-                </div>
-
-                {/* Remarks Section */}
-                {item.showRemarks && (
-                  <div className="mt-3">
-                    <textarea
-                      value={item.comment || ""}
-                      onChange={e =>
-                        handleItemChange(item.id, "comment", e.target.value)
-                      }
-                      placeholder="Add your remarks here..."
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white resize-none"
-                      rows={3}
-                      disabled={disabled}
-                    />
-                  </div>
                 )}
               </div>
 
-              {/* Add Remark Button */}
-              <div className="ml-4">
+              {/* Pass/Fail Radio Buttons - starting at 1/2 width */}
+              <div className="w-1/2 flex items-center gap-4">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name={`item-${item.id}`}
+                    checked={item.passed === true}
+                    onChange={() => handleItemChange(item.id, "passed", true)}
+                    disabled={disabled}
+                    className="text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="text-sm font-medium text-gray-700">
+                    Pass
+                  </span>
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name={`item-${item.id}`}
+                    checked={item.passed === false}
+                    onChange={() => handleItemChange(item.id, "passed", false)}
+                    disabled={disabled}
+                    className="text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="text-sm font-medium text-gray-700">
+                    Fail
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            {/* Second line: Instructions (if any) and Add Remark button */}
+            <div className="flex items-start">
+              <div className="w-1/2">
+                {item.itemInstructions && (
+                  <p className="text-sm text-gray-600">
+                    {item.itemInstructions}
+                  </p>
+                )}
+              </div>
+
+              {/* Add Remark Button - starting at 1/2 width */}
+              <div className="w-1/2 flex justify-end">
                 <button
                   type="button"
                   onClick={() => toggleRemarks(item.id)}
@@ -131,6 +126,28 @@ const InspectionItemChecklistForm: React.FC<
                 </button>
               </div>
             </div>
+
+            {/* Third line: Comment box (when remarks are shown) */}
+            {item.showRemarks && (
+              <div className="mt-3 flex">
+                <div className="w-1/2"></div>
+                <div className="w-1/2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Comment
+                  </label>
+                  <textarea
+                    value={item.comment || ""}
+                    onChange={e =>
+                      handleItemChange(item.id, "comment", e.target.value)
+                    }
+                    placeholder="Add your remarks here..."
+                    className="w-full border border-gray-300 rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white resize-none"
+                    rows={3}
+                    disabled={disabled}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         ))}
       </div>
