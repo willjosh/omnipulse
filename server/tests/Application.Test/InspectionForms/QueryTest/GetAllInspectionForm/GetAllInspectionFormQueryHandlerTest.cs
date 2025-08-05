@@ -71,7 +71,18 @@ public class GetAllInspectionFormQueryHandlerTest
             var inspectionFormItems = new List<InspectionFormItem>();
             for (int j = 0; j < i * 3; j++) // Different counts for each form
             {
-                inspectionFormItems.Add(null!); // Just for count
+                inspectionFormItems.Add(new InspectionFormItem
+                {
+                    ID = j + 1,
+                    InspectionFormID = i,
+                    ItemLabel = $"Test Item {j + 1}",
+                    IsRequired = true,
+                    InspectionFormItemTypeEnum = Domain.Entities.Enums.InspectionFormItemTypeEnum.PassFail,
+                    IsActive = true, // Active items
+                    CreatedAt = FixedDate,
+                    UpdatedAt = FixedDate,
+                    InspectionForm = null!
+                });
             }
 
             inspectionForms.Add(new InspectionForm
@@ -123,10 +134,10 @@ public class GetAllInspectionFormQueryHandlerTest
         // Act
         var result = await _queryHandler.Handle(query, CancellationToken.None);
 
-        // Assert
+        // Assert - Only 2 out of 3 forms are active (forms 1 and 3)
         Assert.NotNull(result);
-        Assert.Equal(3, result.Items.Count);
-        Assert.Equal(3, result.TotalCount);
+        Assert.Equal(2, result.Items.Count);
+        Assert.Equal(2, result.TotalCount);
         Assert.Equal(1, result.PageNumber);
         Assert.Equal(10, result.PageSize);
 
@@ -247,7 +258,7 @@ public class GetAllInspectionFormQueryHandlerTest
         Assert.NotNull(result);
         Assert.Equal(pageNumber, result.PageNumber);
         Assert.Equal(pageSize, result.PageSize);
-        Assert.Equal(50, result.TotalCount);
+        Assert.Equal(1, result.TotalCount); // Only 1 active form out of 2 test forms
     }
 
     [Fact]
@@ -301,9 +312,9 @@ public class GetAllInspectionFormQueryHandlerTest
         // Act
         var result = await _queryHandler.Handle(query, CancellationToken.None);
 
-        // Assert
+        // Assert - Only 1 out of 2 forms is active (form 1)
         Assert.NotNull(result);
-        Assert.Equal(2, result.Items.Count);
+        Assert.Single(result.Items);
         _mockInspectionFormRepository.Verify(r => r.GetAllInspectionFormsPagedAsync(
             It.Is<PaginationParameters>(p => p.SortBy == sortBy && p.SortDescending == sortDescending)), Times.Once);
     }
@@ -319,11 +330,17 @@ public class GetAllInspectionFormQueryHandlerTest
             ID = 42,
             Title = "Custom Safety Inspection",
             Description = "Custom description for testing",
-            IsActive = false,
+            IsActive = true,
             CreatedAt = FixedDate,
             UpdatedAt = FixedDate.AddDays(5),
             Inspections = [null!, null!, null!], // 3 items
-            InspectionFormItems = [null!, null!, null!, null!, null!] // 5 items
+            InspectionFormItems = [
+                new InspectionFormItem { ID = 1, IsActive = true, ItemLabel = "Item 1", IsRequired = true, InspectionFormItemTypeEnum = Domain.Entities.Enums.InspectionFormItemTypeEnum.PassFail, CreatedAt = FixedDate, UpdatedAt = FixedDate, InspectionFormID = 42, InspectionForm = null! },
+                new InspectionFormItem { ID = 2, IsActive = true, ItemLabel = "Item 2", IsRequired = true, InspectionFormItemTypeEnum = Domain.Entities.Enums.InspectionFormItemTypeEnum.PassFail, CreatedAt = FixedDate, UpdatedAt = FixedDate, InspectionFormID = 42, InspectionForm = null! },
+                new InspectionFormItem { ID = 3, IsActive = true, ItemLabel = "Item 3", IsRequired = true, InspectionFormItemTypeEnum = Domain.Entities.Enums.InspectionFormItemTypeEnum.PassFail, CreatedAt = FixedDate, UpdatedAt = FixedDate, InspectionFormID = 42, InspectionForm = null! },
+                new InspectionFormItem { ID = 4, IsActive = true, ItemLabel = "Item 4", IsRequired = true, InspectionFormItemTypeEnum = Domain.Entities.Enums.InspectionFormItemTypeEnum.PassFail, CreatedAt = FixedDate, UpdatedAt = FixedDate, InspectionFormID = 42, InspectionForm = null! },
+                new InspectionFormItem { ID = 5, IsActive = true, ItemLabel = "Item 5", IsRequired = true, InspectionFormItemTypeEnum = Domain.Entities.Enums.InspectionFormItemTypeEnum.PassFail, CreatedAt = FixedDate, UpdatedAt = FixedDate, InspectionFormID = 42, InspectionForm = null! }
+            ] // 5 active items
         };
         var pagedResult = new PagedResult<InspectionForm>
         {
@@ -344,7 +361,7 @@ public class GetAllInspectionFormQueryHandlerTest
         Assert.Equal(42, dto.ID);
         Assert.Equal("Custom Safety Inspection", dto.Title);
         Assert.Equal("Custom description for testing", dto.Description);
-        Assert.False(dto.IsActive);
+        Assert.True(dto.IsActive);
         Assert.Equal(FixedDate, dto.CreatedAt);
         Assert.Equal(FixedDate.AddDays(5), dto.UpdatedAt);
         Assert.Equal(3, dto.InspectionCount);

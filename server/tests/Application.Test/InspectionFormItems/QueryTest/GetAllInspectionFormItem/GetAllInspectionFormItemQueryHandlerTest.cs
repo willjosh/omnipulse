@@ -254,7 +254,7 @@ public class GetAllInspectionFormItemQueryHandlerTest
         Assert.NotNull(result);
         Assert.Equal(pageNumber, result.PageNumber);
         Assert.Equal(pageSize, result.PageSize);
-        Assert.Equal(50, result.TotalCount);
+        Assert.Equal(2, result.TotalCount); // 2 active items from CreateInspectionFormItemList(2)
     }
 
     [Fact]

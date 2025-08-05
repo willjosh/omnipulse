@@ -1,21 +1,49 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useInspectionForm } from "@/features/inspection-form/hooks/useInspectionForms";
-import { useInspectionFormItems } from "@/features/inspection-form/hooks/useInspectionFormItems";
+import {
+  useInspectionForm,
+  useDeactivateInspectionForm,
+} from "@/features/inspection-form/hooks/useInspectionForms";
+import {
+  useInspectionFormItems,
+  useDeactivateInspectionFormItem,
+} from "@/features/inspection-form/hooks/useInspectionFormItems";
 import InspectionFormHeader from "@/features/inspection-form/components/InspectionFormHeader";
-import { PrimaryButton } from "@/components/ui/Button";
+import { PrimaryButton, SecondaryButton } from "@/components/ui/Button";
 import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
 import { getInspectionFormItemTypeLabel } from "@/features/inspection-form/utils/inspectionFormEnumHelper";
-import { Edit as EditIcon } from "@/components/ui/Icons";
-import { Archive, Plus } from "lucide-react";
+import {
+  Edit as EditIcon,
+  Archive as ArchiveIcon,
+} from "@/components/ui/Icons";
+import { Plus } from "lucide-react";
+import { ConfirmModal } from "@/components/ui/Modal";
 
 export default function InspectionFormDetailsPage() {
   const params = useParams();
   const router = useRouter();
   const notify = useNotification();
   const inspectionFormId = Number(params.id);
+
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    inspectionForm: any | null;
+  }>({ isOpen: false, inspectionForm: null });
+
+  const [itemConfirmModal, setItemConfirmModal] = useState<{
+    isOpen: boolean;
+    item: any | null;
+  }>({ isOpen: false, item: null });
+
+  const { mutate: deactivateInspectionForm, isPending: isDeactivating } =
+    useDeactivateInspectionForm();
+
+  const {
+    mutate: deactivateInspectionFormItem,
+    isPending: isDeactivatingItem,
+  } = useDeactivateInspectionFormItem();
 
   const {
     inspectionForm,
@@ -67,6 +95,54 @@ export default function InspectionFormDetailsPage() {
     router.push(`/inspection-forms/${inspectionFormId}/items/new`);
   };
 
+  const handleArchive = () => {
+    setConfirmModal({ isOpen: true, inspectionForm });
+  };
+
+  const handleConfirmArchive = async () => {
+    if (!confirmModal.inspectionForm) return;
+
+    deactivateInspectionForm(confirmModal.inspectionForm.id, {
+      onSuccess: () => {
+        notify("Inspection form archived successfully", "success");
+        setConfirmModal({ isOpen: false, inspectionForm: null });
+        router.push("/inspection-forms");
+      },
+      onError: () => {
+        notify("Failed to archive inspection form", "error");
+      },
+    });
+  };
+
+  const handleCancelArchive = () => {
+    setConfirmModal({ isOpen: false, inspectionForm: null });
+  };
+
+  const handleDeactivateItem = (item: any) => {
+    setItemConfirmModal({ isOpen: true, item });
+  };
+
+  const handleConfirmDeactivateItem = async () => {
+    if (!itemConfirmModal.item) return;
+
+    deactivateInspectionFormItem(
+      { inspectionFormId, itemId: itemConfirmModal.item.id },
+      {
+        onSuccess: () => {
+          notify("Inspection item deactivated successfully", "success");
+          setItemConfirmModal({ isOpen: false, item: null });
+        },
+        onError: () => {
+          notify("Failed to deactivate inspection item", "error");
+        },
+      },
+    );
+  };
+
+  const handleCancelDeactivateItem = () => {
+    setItemConfirmModal({ isOpen: false, item: null });
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <InspectionFormHeader
@@ -75,9 +151,18 @@ export default function InspectionFormDetailsPage() {
         showDescription={true}
         breadcrumbs={breadcrumbs}
         actions={
-          <PrimaryButton onClick={handleEdit}>
-            <EditIcon /> Edit
-          </PrimaryButton>
+          <>
+            <PrimaryButton
+              onClick={handleArchive}
+              disabled={isDeactivating}
+              className="bg-red-600 hover:bg-red-700 text-white border-red-600"
+            >
+              <ArchiveIcon /> Archive
+            </PrimaryButton>
+            <PrimaryButton onClick={handleEdit}>
+              <EditIcon /> Edit
+            </PrimaryButton>
+          </>
         }
       />
 
@@ -169,17 +254,11 @@ export default function InspectionFormDetailsPage() {
                         <EditIcon />
                       </button>
                       <button
-                        onClick={() => {
-                          // TODO: Implement deactivate functionality
-                          notify(
-                            "Deactivate functionality not implemented yet",
-                            "info",
-                          );
-                        }}
+                        onClick={() => handleDeactivateItem(item)}
                         className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                         title="Deactivate item"
                       >
-                        <Archive size={16} />
+                        <ArchiveIcon />
                       </button>
                     </div>
                   </div>
@@ -189,6 +268,26 @@ export default function InspectionFormDetailsPage() {
           )}
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={handleCancelArchive}
+        title="Archive Inspection Form"
+        message={`Are you sure you want to archive "${confirmModal.inspectionForm?.title}"? This action cannot be undone.`}
+        confirmText={isDeactivating ? "Archiving..." : "Archive"}
+        cancelText="Cancel"
+        onConfirm={handleConfirmArchive}
+      />
+
+      <ConfirmModal
+        isOpen={itemConfirmModal.isOpen}
+        onClose={handleCancelDeactivateItem}
+        title="Deactivate Inspection Item"
+        message={`Are you sure you want to deactivate "${itemConfirmModal.item?.itemLabel}"? This action cannot be undone.`}
+        confirmText={isDeactivatingItem ? "Deactivating..." : "Deactivate"}
+        cancelText="Cancel"
+        onConfirm={handleConfirmDeactivateItem}
+      />
     </div>
   );
 }
