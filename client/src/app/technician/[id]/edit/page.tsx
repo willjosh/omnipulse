@@ -17,7 +17,7 @@ const EditTechnicianPage = () => {
   }
 
   if (!technician) {
-    router.push("/contacts");
+    router.push("/technician");
     return <Loading />;
   }
 

@@ -5,8 +5,8 @@ import { Edit, ArrowLeft, Package } from "lucide-react";
 import { TabNavigation } from "@/components/ui/Tabs";
 import { PrimaryButton, OptionButton } from "@/components/ui/Button";
 import { Loading } from "@/components/ui/Feedback";
-import { useInventoryItem } from "@/features/inventory-item/hooks/useInventoryItems";
-import InventoryModal from "@/features/inventory-item/components/InventoryModal";
+import { useInventoryItem } from "@/features/inventory-item/hooks/useInventoryItem";
+import InventoryModal from "@/features/inventory-item/components/InventoryItemModal";
 
 const InventoryItemDetailsPage = () => {
   const params = useParams();
@@ -32,8 +32,8 @@ const InventoryItemDetailsPage = () => {
           <p className="text-gray-600 mb-4">
             {"The inventory item you're looking for doesn't exist."}
           </p>
-          <PrimaryButton onClick={() => router.push("/parts-inventory")}>
-            Back to Parts Inventory
+          <PrimaryButton onClick={() => router.push("/inventory-item")}>
+            Back to Inventory Items
           </PrimaryButton>
         </div>
       </div>
@@ -51,7 +51,7 @@ const InventoryItemDetailsPage = () => {
   };
 
   const handleBack = () => {
-    router.push("/parts-inventory");
+    router.push("/inventory-item");
   };
 
   const formatCurrency = (value: number | null | undefined) => {
@@ -83,7 +83,7 @@ const InventoryItemDetailsPage = () => {
             <span className="text-sm font-medium text-gray-600">
               Item Number
             </span>
-            <span className="text-sm text-gray-900 font-mono">
+            <span className="text-sm text-gray-900">
               {inventoryItem.itemNumber}
             </span>
           </div>
@@ -142,7 +142,7 @@ const InventoryItemDetailsPage = () => {
             <span className="text-sm font-medium text-gray-600">
               Manufacturer Part Number
             </span>
-            <span className="text-sm text-gray-900 font-mono">
+            <span className="text-sm text-gray-900">
               {inventoryItem.manufacturerPartNumber || "—"}
             </span>
           </div>
@@ -150,7 +150,7 @@ const InventoryItemDetailsPage = () => {
             <span className="text-sm font-medium text-gray-600">
               Universal Product Code
             </span>
-            <span className="text-sm text-gray-900 font-mono">
+            <span className="text-sm text-gray-900">
               {inventoryItem.universalProductCode || "—"}
             </span>
           </div>
@@ -226,7 +226,7 @@ const InventoryItemDetailsPage = () => {
               className="flex items-center text-gray-600 hover:text-gray-900"
             >
               <ArrowLeft className="w-4 h-4 mr-1" />
-              <span className="text-sm">Parts Inventory</span>
+              <span className="text-sm">Inventory Items</span>
             </button>
           </div>
           <div className="flex items-start justify-between">
