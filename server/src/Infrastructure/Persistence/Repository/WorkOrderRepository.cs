@@ -24,6 +24,8 @@ public class WorkOrderRepository : GenericRepository<WorkOrder>, IWorkOrderRepos
 
         query = query
             .Include(wo => wo.Vehicle)
+            .ThenInclude(v => v.VehicleGroup)
+            .Include(wo => wo.WorkOrderLineItems)
             .Include(wo => wo.User);
 
         if (!string.IsNullOrWhiteSpace(parameters.Search))
@@ -64,6 +66,7 @@ public class WorkOrderRepository : GenericRepository<WorkOrder>, IWorkOrderRepos
     {
         return await _dbSet
             .Include(wo => wo.Vehicle)
+            .ThenInclude(v => v.VehicleGroup)
             .Include(wo => wo.User)
             .Include(wo => wo.WorkOrderLineItems)
             .FirstOrDefaultAsync(wo => wo.ID == workOrderId);
