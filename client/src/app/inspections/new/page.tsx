@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useParams } from "next/navigation";
+import React, { useState, useEffect, useRef, Suspense } from "react";
+import { useRouter, useSearchParams, useParams } from "next/navigation";
 import InspectionHeader from "@/features/inspection/components/InspectionHeader";
 import InspectionDetailsForm, {
   InspectionDetailsFormValues,
@@ -22,7 +21,10 @@ import { useInspectionForm } from "@/features/inspection-form/hooks/useInspectio
 import { useInspectionFormItems } from "@/features/inspection-form/hooks/useInspectionFormItems";
 import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
 import { VehicleConditionEnum } from "@/features/inspection/types/inspectionEnum";
-import { CreateInspectionCommand } from "@/features/inspection/types/inspectionType";
+import {
+  CreateInspectionCommand,
+  CreateInspectionPassFailItemCommand,
+} from "@/features/inspection/types/inspectionType";
 
 interface FormErrors {
   details: Partial<Record<keyof InspectionDetailsFormValues, string>>;
@@ -31,15 +33,23 @@ interface FormErrors {
   signOff: Partial<Record<keyof InspectionSignOffFormValues, string>>;
 }
 
-const InspectionCreationPage: React.FC = () => {
+const InspectionCreationContent: React.FC = () => {
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const notify = useNotification();
 
-  // Get inspection form ID from URL params
-  const inspectionFormId = params?.formId
-    ? parseInt(params.formId as string)
-    : null;
+  // Get inspection form ID from URL query params
+  const inspectionFormId = Number(searchParams.get("formId"));
+
+  // Debug URL parsing
+  console.log("URL Debug:", {
+    params,
+    searchParams: Object.fromEntries(searchParams.entries()),
+    formIdParam: searchParams.get("formId"),
+    parsedFormId: inspectionFormId,
+    isNumber: !isNaN(inspectionFormId),
+  });
 
   // Form state
   const [detailsForm, setDetailsForm] = useState<InspectionDetailsFormValues>({
@@ -48,22 +58,14 @@ const InspectionCreationPage: React.FC = () => {
   });
 
   const [odometerForm, setOdometerForm] =
-    useState<InspectionOdometerFormValues>({
-      odometerReading: 0,
-      voidOdometer: false,
-      photoFile: null,
-    });
+    useState<InspectionOdometerFormValues>({ odometerReading: null });
 
   const [checklistForm, setChecklistForm] =
     useState<InspectionItemChecklistFormValues>({ items: [] });
 
   const [signOffForm, setSignOffForm] = useState<InspectionSignOffFormValues>({
-    vehicleConditionOK: false,
-    vehicleConditionRemarks: "",
-    showVehicleConditionRemarks: false,
-    driverSignature: "",
-    signatureRemarks: "",
-    showSignatureRemarks: false,
+    vehicleCondition: VehicleConditionEnum.Excellent,
+    notes: null,
   });
 
   const [errors, setErrors] = useState<FormErrors>({
@@ -72,33 +74,155 @@ const InspectionCreationPage: React.FC = () => {
     checklist: {},
     signOff: {},
   });
+  const hasInitializedItems = useRef(false);
 
-  // API hooks
-  const { inspectionForm, isPending: isLoadingForm } = useInspectionForm(
-    inspectionFormId || 0,
+  // Timer state for inspection start and end times
+  const [inspectionStartTime, setInspectionStartTime] = useState<string | null>(
+    null,
+  );
+  const [inspectionEndTime, setInspectionEndTime] = useState<string | null>(
+    null,
   );
 
-  const { inspectionFormItems, isPending: isLoadingItems } =
-    useInspectionFormItems(inspectionFormId || 0);
+  // API hooks - only enable when we have a valid form ID
+  const {
+    inspectionForm,
+    isPending: isLoadingForm,
+    isError: isFormError,
+    error: formError,
+  } = useInspectionForm(inspectionFormId);
+
+  const {
+    inspectionFormItems,
+    isPending: isLoadingItems,
+    isError: isItemsError,
+    error: itemsError,
+  } = useInspectionFormItems(inspectionFormId);
+
+  // Debug logging
+  console.log("Inspection Creation Debug:", {
+    inspectionFormId,
+    params,
+    hasInspectionFormId: !!inspectionFormId,
+    inspectionFormItems,
+    checklistFormItems: checklistForm.items,
+    itemsLength: checklistForm.items.length,
+    isLoadingItems,
+    isItemsError,
+  });
+
+  // Add error handling for missing or invalid form ID
+  if (!inspectionFormId || isNaN(inspectionFormId)) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <p className="text-gray-600">
+              Invalid or missing inspection form ID
+            </p>
+            <SecondaryButton
+              onClick={() => router.push("/inspections")}
+              className="mt-4"
+            >
+              Back to Inspections
+            </SecondaryButton>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const createInspectionMutation = useCreateInspection();
 
-  // Initialize checklist items when form items are loaded
+  // Initialize inspection items when form items are loaded
   useEffect(() => {
+    console.log("useEffect Debug:", {
+      hasInitializedItems: hasInitializedItems.current,
+      inspectionFormItems,
+      inspectionFormItemsLength: inspectionFormItems?.length,
+    });
+
     if (inspectionFormItems && inspectionFormItems.length > 0) {
       const initialItems = inspectionFormItems.map((item: any) => ({
         id: item.id,
         itemLabel: item.itemLabel,
         itemDescription: item.itemDescription || undefined,
         itemInstructions: item.itemInstructions || undefined,
+        isRequired: item.isRequired || false,
         passed: null as boolean | null,
         comment: "",
         showRemarks: false,
       }));
+      console.log("Setting initial items:", initialItems);
 
-      setChecklistForm(prev => ({ ...prev, items: initialItems }));
+      // Only update if the items are different
+      setChecklistForm(prev => {
+        const currentItemIds = prev.items.map(item => item.id).sort();
+        const newItemIds = initialItems.map(item => item.id).sort();
+
+        if (JSON.stringify(currentItemIds) === JSON.stringify(newItemIds)) {
+          return prev; // Don't update if items are the same
+        }
+        return { ...prev, items: initialItems };
+      });
+    } else if (inspectionFormItems && inspectionFormItems.length === 0) {
+      console.log("No inspection form items found");
+      // Only update if the current items array is not already empty
+      setChecklistForm(prev => {
+        if (prev.items.length === 0) {
+          return prev; // Don't update if already empty
+        }
+        return { ...prev, items: [] };
+      });
     }
   }, [inspectionFormItems]);
+
+  // Set inspection start time when component mounts (when user clicks "Start Inspection")
+  useEffect(() => {
+    if (!inspectionStartTime) {
+      setInspectionStartTime(new Date().toISOString());
+    }
+  }, [inspectionStartTime]);
+
+  // Validation
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {
+      details: {},
+      odometer: {},
+      checklist: {},
+      signOff: {},
+    };
+
+    if (!detailsForm.vehicleID) {
+      newErrors.details.vehicleID = "Vehicle is required";
+    }
+    if (!detailsForm.technicianID) {
+      newErrors.details.technicianID = "Technician is required";
+    }
+
+    // Validate vehicle condition (required)
+    if (
+      signOffForm.vehicleCondition === undefined ||
+      signOffForm.vehicleCondition === null
+    ) {
+      newErrors.signOff.vehicleCondition = "Vehicle condition is required";
+    }
+
+    // Validate required inspection items
+    checklistForm.items.forEach((item, index) => {
+      if (item.isRequired && item.passed === null) {
+        newErrors.checklist[`item-${item.id}`] =
+          `${item.itemLabel} is required`;
+      }
+    });
+
+    setErrors(newErrors);
+    return (
+      Object.keys(newErrors.details).length === 0 &&
+      Object.keys(newErrors.signOff).length === 0 &&
+      Object.keys(newErrors.checklist).length === 0
+    );
+  };
 
   // Form change handlers
   const handleDetailsChange = (
@@ -106,7 +230,6 @@ const InspectionCreationPage: React.FC = () => {
     value: any,
   ) => {
     setDetailsForm(prev => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
     if (errors.details[field]) {
       setErrors(prev => ({
         ...prev,
@@ -120,12 +243,6 @@ const InspectionCreationPage: React.FC = () => {
     value: any,
   ) => {
     setOdometerForm(prev => ({ ...prev, [field]: value }));
-    if (errors.odometer[field]) {
-      setErrors(prev => ({
-        ...prev,
-        odometer: { ...prev.odometer, [field]: "" },
-      }));
-    }
   };
 
   const handleChecklistChange = (field: string, value: any) => {
@@ -137,61 +254,6 @@ const InspectionCreationPage: React.FC = () => {
     value: any,
   ) => {
     setSignOffForm(prev => ({ ...prev, [field]: value }));
-    if (errors.signOff[field]) {
-      setErrors(prev => ({
-        ...prev,
-        signOff: { ...prev.signOff, [field]: "" },
-      }));
-    }
-  };
-
-  // Validation
-  const validateForm = (): boolean => {
-    const newErrors: FormErrors = {
-      details: {},
-      odometer: {},
-      checklist: {},
-      signOff: {},
-    };
-
-    // Details validation
-    if (!detailsForm.vehicleID) {
-      newErrors.details.vehicleID = "Vehicle is required";
-    }
-    if (!detailsForm.technicianID) {
-      newErrors.details.technicianID = "Technician is required";
-    }
-
-    // Odometer validation
-    if (!odometerForm.odometerReading && !odometerForm.voidOdometer) {
-      newErrors.odometer.odometerReading =
-        "Odometer reading is required unless voided";
-    }
-
-    // Checklist validation
-    const uncompletedItems = checklistForm.items.filter(
-      item => item.passed === null,
-    );
-    if (uncompletedItems.length > 0) {
-      newErrors.checklist.items = `Please complete all inspection items (${uncompletedItems.length} remaining)`;
-    }
-
-    // Sign-off validation
-    if (!signOffForm.vehicleConditionOK) {
-      newErrors.signOff.vehicleConditionOK =
-        "Vehicle condition must be confirmed";
-    }
-    if (!signOffForm.driverSignature) {
-      newErrors.signOff.driverSignature = "Driver signature is required";
-    }
-
-    setErrors(newErrors);
-    return (
-      Object.keys(newErrors.details).length === 0 &&
-      Object.keys(newErrors.odometer).length === 0 &&
-      Object.keys(newErrors.checklist).length === 0 &&
-      Object.keys(newErrors.signOff).length === 0
-    );
   };
 
   // Submit handler
@@ -202,6 +264,10 @@ const InspectionCreationPage: React.FC = () => {
     }
 
     try {
+      // Set the inspection end time when submitting
+      const endTime = new Date().toISOString();
+      setInspectionEndTime(endTime);
+
       const inspectionItems = checklistForm.items
         .filter(item => item.passed !== null)
         .map(item => ({
@@ -214,19 +280,12 @@ const InspectionCreationPage: React.FC = () => {
         inspectionFormID: inspectionFormId,
         vehicleID: detailsForm.vehicleID,
         technicianID: detailsForm.technicianID,
-        inspectionStartTime: new Date().toISOString(),
-        inspectionEndTime: new Date().toISOString(),
-        odometerReading: odometerForm.voidOdometer
-          ? null
-          : odometerForm.odometerReading,
-        vehicleCondition: signOffForm.vehicleConditionOK
-          ? VehicleConditionEnum.Excellent
-          : VehicleConditionEnum.NotSafeToOperate,
-        notes:
-          signOffForm.vehicleConditionRemarks ||
-          signOffForm.signatureRemarks ||
-          null,
-        inspectionItems,
+        inspectionStartTime: inspectionStartTime || new Date().toISOString(),
+        inspectionEndTime: endTime,
+        odometerReading: odometerForm.odometerReading,
+        vehicleCondition: signOffForm.vehicleCondition,
+        notes: signOffForm.notes,
+        inspectionItems: inspectionItems,
       };
 
       await createInspectionMutation.mutateAsync(command);
@@ -242,6 +301,35 @@ const InspectionCreationPage: React.FC = () => {
     router.push("/inspections");
   };
 
+  // Error states
+  if (isFormError || isItemsError) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <p className="text-red-600 mb-2">Error loading inspection form</p>
+            {formError && (
+              <p className="text-sm text-gray-500 mb-2">
+                Form Error: {formError.message}
+              </p>
+            )}
+            {itemsError && (
+              <p className="text-sm text-gray-500 mb-2">
+                Items Error: {itemsError.message}
+              </p>
+            )}
+            <SecondaryButton
+              onClick={() => router.push("/inspections")}
+              className="mt-4"
+            >
+              Back to Inspections
+            </SecondaryButton>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Loading states
   if (isLoadingForm || isLoadingItems) {
     return (
@@ -249,7 +337,14 @@ const InspectionCreationPage: React.FC = () => {
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-2 text-gray-600">Loading inspection form...</p>
+            <p className="mt-2 text-gray-600">
+              {isLoadingForm
+                ? "Loading inspection form..."
+                : "Loading inspection items..."}
+            </p>
+            <p className="text-sm text-gray-500 mt-2">
+              Form ID: {inspectionFormId}
+            </p>
           </div>
         </div>
       </div>
@@ -279,22 +374,48 @@ const InspectionCreationPage: React.FC = () => {
     { label: "New Inspection", href: "#" },
   ];
 
+  // Calculate inspection duration
+  const getInspectionDuration = () => {
+    if (!inspectionStartTime) return null;
+
+    const startTime = new Date(inspectionStartTime);
+    const endTime = inspectionEndTime
+      ? new Date(inspectionEndTime)
+      : new Date();
+    const durationMs = endTime.getTime() - startTime.getTime();
+
+    const minutes = Math.floor(durationMs / (1000 * 60));
+    const seconds = Math.floor((durationMs % (1000 * 60)) / 1000);
+
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+  };
+
   const actions = (
-    <div className="flex gap-2">
-      <SecondaryButton
-        onClick={handleCancel}
-        disabled={createInspectionMutation.isPending}
-      >
-        Cancel
-      </SecondaryButton>
-      <PrimaryButton
-        onClick={handleSubmit}
-        disabled={createInspectionMutation.isPending}
-      >
-        {createInspectionMutation.isPending
-          ? "Creating..."
-          : "Create Inspection"}
-      </PrimaryButton>
+    <div className="flex items-center gap-4">
+      {/* Timer display */}
+      {inspectionStartTime && (
+        <div className="text-sm text-gray-600">
+          <span className="font-medium">Duration:</span>{" "}
+          {getInspectionDuration()}
+        </div>
+      )}
+
+      <div className="flex gap-2">
+        <SecondaryButton
+          onClick={handleCancel}
+          disabled={createInspectionMutation.isPending}
+        >
+          Cancel
+        </SecondaryButton>
+        <PrimaryButton
+          onClick={handleSubmit}
+          disabled={createInspectionMutation.isPending}
+        >
+          {createInspectionMutation.isPending
+            ? "Creating..."
+            : "Create Inspection"}
+        </PrimaryButton>
+      </div>
     </div>
   );
 
@@ -321,12 +442,15 @@ const InspectionCreationPage: React.FC = () => {
           disabled={createInspectionMutation.isPending}
         />
 
-        <InspectionItemChecklistForm
-          value={checklistForm}
-          errors={errors.checklist}
-          onChange={handleChecklistChange}
-          disabled={createInspectionMutation.isPending}
-        />
+        {/* Inspection Items - Only show if there are items */}
+        {checklistForm.items.length > 0 && (
+          <InspectionItemChecklistForm
+            value={checklistForm}
+            errors={errors.checklist}
+            onChange={handleChecklistChange}
+            disabled={createInspectionMutation.isPending}
+          />
+        )}
 
         <InspectionSignOffForm
           value={signOffForm}
@@ -336,6 +460,25 @@ const InspectionCreationPage: React.FC = () => {
         />
       </div>
     </div>
+  );
+};
+
+const InspectionCreationPage: React.FC = () => {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gray-50">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+              <p className="mt-2 text-gray-600">Loading inspection form...</p>
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <InspectionCreationContent />
+    </Suspense>
   );
 };
 
