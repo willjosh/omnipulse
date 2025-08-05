@@ -9,6 +9,29 @@ import { useIssue } from "@/features/issue/hooks/useIssues";
 import PrimaryButton from "@/components/ui/Button/PrimaryButton";
 import SecondaryButton from "@/components/ui/Button/SecondaryButton";
 
+// Separate component to handle individual issue items
+const IssueItem: React.FC<{ issueId: number; router: any }> = ({
+  issueId,
+  router,
+}) => {
+  const { issue } = useIssue(issueId);
+
+  if (!issue) return null;
+
+  return (
+    <div
+      className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer"
+      onClick={() => router.push(`/issues/${issueId}`)}
+    >
+      <div className="flex items-center gap-3">
+        <span className="text-sm font-medium text-green-600 underline decoration-dotted underline-offset-2">
+          #{issue.issueNumber} · {issue.title}
+        </span>
+      </div>
+    </div>
+  );
+};
+
 export default function WorkOrderPage() {
   const router = useRouter();
   const params = useParams();
@@ -270,24 +293,13 @@ export default function WorkOrderPage() {
                 </h2>
                 {workOrder.issueIDs && workOrder.issueIDs.length > 0 ? (
                   <div className="space-y-2">
-                    {workOrder.issueIDs.map(issueId => {
-                      const { issue } = useIssue(issueId);
-                      if (!issue) return null;
-
-                      return (
-                        <div
-                          key={issueId}
-                          className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer"
-                          onClick={() => router.push(`/issues/${issueId}`)}
-                        >
-                          <div className="flex items-center gap-3">
-                            <span className="text-sm font-medium text-green-600 underline decoration-dotted underline-offset-2">
-                              #{issue.issueNumber} · {issue.title}
-                            </span>
-                          </div>
-                        </div>
-                      );
-                    })}
+                    {workOrder.issueIDs.map(issueId => (
+                      <IssueItem
+                        key={issueId}
+                        issueId={issueId}
+                        router={router}
+                      />
+                    ))}
                   </div>
                 ) : (
                   <div className="text-center py-8">

@@ -1,18 +1,10 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import FormField from "@/components/ui/Form/FormField";
-import {
-  Combobox,
-  ComboboxInput,
-  ComboboxButton,
-  ComboboxOptions,
-  ComboboxOption,
-} from "@headlessui/react";
-import { IconButton, Button } from "@mui/material";
+import { IconButton } from "@mui/material";
 import {
   Delete as DeleteIcon,
   ExpandMore as ExpandMoreIcon,
   ExpandLess as ExpandLessIcon,
-  Add as AddIcon,
 } from "@mui/icons-material";
 import { useServiceTasks } from "@/features/service-task/hooks/useServiceTasks";
 import { useInventoryItems } from "@/features/inventory-item/hooks/useInventoryItem";
@@ -72,6 +64,16 @@ const WorkOrderLineItemForm: React.FC<WorkOrderLineItemFormProps> = ({
   const { technicians, isPending: isLoadingTechnicians } = useTechnicians();
 
   const [isExpanded, setIsExpanded] = useState(false);
+
+  // Initialize hasLaborAdded and hasPartsAdded based on existing line item data
+  // Show tables if we have data, regardless of type sync
+  useEffect(() => {
+    const hasLaborData = !!(lineItem.hourlyRate && lineItem.laborHours);
+    const hasPartsData = !!(lineItem.inventoryItemID && lineItem.unitPrice);
+
+    setHasLaborAdded(hasLaborData);
+    setHasPartsAdded(hasPartsData);
+  }, [lineItem]);
 
   // Create option structures following WorkOrderDetailsForm pattern
   const serviceTaskOptions = useMemo(
@@ -149,14 +151,6 @@ const WorkOrderLineItemForm: React.FC<WorkOrderLineItemFormProps> = ({
   };
 
   const getItemTypeLabel = (itemType: LineItemTypeEnum) => {
-    // Check if any labor or parts are actually added
-    const hasLabor = !!(lineItem.hourlyRate && lineItem.laborHours);
-    const hasParts = !!(lineItem.inventoryItemID && lineItem.unitPrice);
-
-    if (!hasLabor && !hasParts) {
-      return "Unassigned";
-    }
-
     switch (itemType) {
       case LineItemTypeEnum.LABOR:
         return "Labor";
@@ -264,8 +258,12 @@ const WorkOrderLineItemForm: React.FC<WorkOrderLineItemFormProps> = ({
             <div className="text-xs text-gray-500 mb-1">Labor</div>
             <div className="text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded px-2 py-1">
               $
-              {(
-                (lineItem.hourlyRate || 0) * (lineItem.laborHours || 0)
+              {((lineItem.itemType === LineItemTypeEnum.LABOR ||
+                lineItem.itemType === LineItemTypeEnum.BOTH) &&
+              lineItem.hourlyRate &&
+              lineItem.laborHours
+                ? lineItem.hourlyRate * lineItem.laborHours
+                : 0
               ).toFixed(2)}
             </div>
           </div>
@@ -274,7 +272,14 @@ const WorkOrderLineItemForm: React.FC<WorkOrderLineItemFormProps> = ({
           <div className="text-center min-w-[80px]">
             <div className="text-xs text-gray-500 mb-1">Parts</div>
             <div className="text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded px-2 py-1">
-              ${((lineItem.unitPrice || 0) * lineItem.quantity).toFixed(2)}
+              $
+              {((lineItem.itemType === LineItemTypeEnum.ITEM ||
+                lineItem.itemType === LineItemTypeEnum.BOTH) &&
+              lineItem.inventoryItemID &&
+              lineItem.unitPrice
+                ? lineItem.unitPrice * lineItem.quantity
+                : 0
+              ).toFixed(2)}
             </div>
           </div>
 
@@ -284,8 +289,18 @@ const WorkOrderLineItemForm: React.FC<WorkOrderLineItemFormProps> = ({
             <div className="text-sm font-semibold text-blue-600 bg-white border border-gray-200 rounded px-2 py-1">
               $
               {(
-                (lineItem.hourlyRate || 0) * (lineItem.laborHours || 0) +
-                (lineItem.unitPrice || 0) * lineItem.quantity
+                ((lineItem.itemType === LineItemTypeEnum.LABOR ||
+                  lineItem.itemType === LineItemTypeEnum.BOTH) &&
+                lineItem.hourlyRate &&
+                lineItem.laborHours
+                  ? lineItem.hourlyRate * lineItem.laborHours
+                  : 0) +
+                ((lineItem.itemType === LineItemTypeEnum.ITEM ||
+                  lineItem.itemType === LineItemTypeEnum.BOTH) &&
+                lineItem.inventoryItemID &&
+                lineItem.unitPrice
+                  ? lineItem.unitPrice * lineItem.quantity
+                  : 0)
               ).toFixed(2)}
             </div>
           </div>

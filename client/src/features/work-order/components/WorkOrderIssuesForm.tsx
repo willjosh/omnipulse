@@ -90,9 +90,9 @@ const WorkOrderIssuesForm: React.FC<WorkOrderIssuesFormProps> = ({
               height:
                 vehicleIssues.length === 0
                   ? "200px" // Empty state - smaller height
-                  : vehicleIssues.length <= 3
-                    ? `${Math.max(200, vehicleIssues.length * 60 + 80)}px` // Small number of issues - dynamic height
-                    : "400px", // Many issues - reasonable max height
+                  : vehicleIssues.length <= 8
+                    ? `${Math.max(200, vehicleIssues.length * 60 + 80)}px` // Dynamic height based on number of issues
+                    : "500px", // Many issues - reasonable max height with scroll
             }}
           >
             <table className="w-full">
