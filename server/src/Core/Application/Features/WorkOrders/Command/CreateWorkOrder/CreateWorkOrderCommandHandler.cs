@@ -67,6 +67,9 @@ public class CreateWorkOrderCommandHandler : IRequestHandler<CreateWorkOrderComm
         var newWorkOrder = await _workOrderRepository.AddAsync(workOrder);
         _logger.LogInformation($"Work order created with ID: {newWorkOrder.ID}");
 
+        // save the new work order
+        await _workOrderRepository.SaveChangesAsync();
+
         // create workOrderLineItems and WorkOrderIssues
         await CreateRelatedEntitiesAsync(newWorkOrder.ID, request);
 
