@@ -55,10 +55,10 @@ public class InspectionRepository : GenericRepository<Inspection>, IInspectionRe
             EF.Functions.Like(i.Notes ?? string.Empty, searchPattern) ||
             EF.Functions.Like(i.TechnicianID, searchPattern) ||
             EF.Functions.Like(i.VehicleID.ToString(), searchPattern) ||
-            EF.Functions.Like(i.Vehicle.Name, searchPattern) ||
-            EF.Functions.Like(i.User.FirstName, searchPattern) ||
-            EF.Functions.Like(i.User.LastName, searchPattern) ||
-            EF.Functions.Like(i.InspectionForm.Title, searchPattern)
+            (i.Vehicle != null && EF.Functions.Like(i.Vehicle.Name, searchPattern)) ||
+            (i.User != null && EF.Functions.Like(i.User.FirstName, searchPattern)) ||
+            (i.User != null && EF.Functions.Like(i.User.LastName, searchPattern)) ||
+            (i.InspectionForm != null && EF.Functions.Like(i.InspectionForm.Title, searchPattern))
         );
     }
 
