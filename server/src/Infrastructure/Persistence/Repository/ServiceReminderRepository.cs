@@ -8,14 +8,18 @@ using Domain.Entities.Enums;
 
 using Microsoft.EntityFrameworkCore;
 
-using Microsoft.EntityFrameworkCore;
-
 using Persistence.DatabaseContext;
 
 namespace Persistence.Repository;
 
 public class ServiceReminderRepository : GenericRepository<ServiceReminder>, IServiceReminderRepository
 {
+    // Configuration constants to avoid hard-coded values
+    private const int MaxOccurrenceCount = 100;
+    private const int DefaultMileageBufferKm = 1000;
+    private const double DefaultDailyMileageEstimate = 30.0; // km/day for time vs mileage comparison
+    private const int DaysPerWeek = 7;
+
     private readonly OmnipulseDatabaseContext _dbContext;
 
     public ServiceReminderRepository(OmnipulseDatabaseContext context) : base(context)
@@ -50,99 +54,66 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
         };
     }
 
-    public async Task<PagedResult<ServiceReminder>> GetAllServiceRemindersPagedAsync(PaginationParameters parameters)
+    private static List<ServiceReminderDTO> ApplySearchFilter(List<ServiceReminderDTO> reminders, string? search)
     {
-        var query = _dbSet.AsQueryable();
+        if (string.IsNullOrWhiteSpace(search))
+            return reminders;
 
-        // Include related data
-        query = query
-            .Include(sr => sr.Vehicle)
-            .Include(sr => sr.ServiceProgram)
-            .Include(sr => sr.ServiceSchedule)
-            .Include(sr => sr.WorkOrder);
-
-        // Apply search filter
-        query = ApplySearchFilter(query, parameters.Search);
-
-        // Apply sorting
-        query = ApplySorting(query, parameters.SortBy, parameters.SortDescending);
-
-        var totalCount = await query.CountAsync();
-        var items = await query
-            .Skip((parameters.PageNumber - 1) * parameters.PageSize)
-            .Take(parameters.PageSize)
-            .ToListAsync();
-
-        return new PagedResult<ServiceReminder>
-        {
-            Items = items,
-            TotalCount = totalCount,
-            PageNumber = parameters.PageNumber,
-            PageSize = parameters.PageSize
-        };
+        var searchText = search.Trim().ToLowerInvariant();
+        return reminders.Where(r =>
+            r.ServiceScheduleName.ToLowerInvariant().Contains(searchText) ||
+            (r.ServiceProgramName?.ToLowerInvariant().Contains(searchText) ?? false) ||
+            r.VehicleName.ToLowerInvariant().Contains(searchText) ||
+            r.ServiceTasks.Any(t => t.ServiceTaskName.ToLowerInvariant().Contains(searchText))
+        ).ToList();
     }
 
-    private static IQueryable<ServiceReminder> ApplySearchFilter(IQueryable<ServiceReminder> query, string? searchText)
-    {
-        if (string.IsNullOrWhiteSpace(searchText)) return query;
-
-        string searchPattern = $"%{searchText.Trim().ToLowerInvariant()}%";
-
-        return query.Where(sr =>
-            EF.Functions.Like(sr.ServiceScheduleName, searchPattern) ||
-            EF.Functions.Like(sr.ServiceProgramName ?? string.Empty, searchPattern) ||
-            EF.Functions.Like(sr.Vehicle.Name, searchPattern) ||
-            EF.Functions.Like(sr.Vehicle.Make, searchPattern) ||
-            EF.Functions.Like(sr.Vehicle.Model, searchPattern) ||
-            EF.Functions.Like(sr.Vehicle.LicensePlate, searchPattern)
-        );
-    }
-
-    private static IQueryable<ServiceReminder> ApplySorting(IQueryable<ServiceReminder> query, string? sortBy, bool sortDescending)
+    private static List<ServiceReminderDTO> ApplySorting(List<ServiceReminderDTO> reminders, string? sortBy, bool sortDescending)
     {
         if (string.IsNullOrWhiteSpace(sortBy))
         {
-            return query.OrderBy(sr => sr.Status == ServiceReminderStatusEnum.OVERDUE ? 0 :
-                              sr.Status == ServiceReminderStatusEnum.DUE_SOON ? 1 : 2)
-                        .ThenBy(sr => sr.DueDate ?? DateTime.MaxValue); // Default sort: overdue first, then by due date
+            // Default sorting: Status priority (overdue first), then by due date/mileage
+            return reminders.OrderBy(r => GetStatusPriority(r.Status))
+                           .ThenBy(r => r.DueDate ?? DateTime.MaxValue)
+                           .ThenBy(r => r.DueMileage ?? double.MaxValue)
+                           .ToList();
         }
 
-        var sortByLower = sortBy.ToLower();
-        return sortByLower switch
+        var sortField = sortBy.ToLowerInvariant();
+
+        return sortField switch
         {
             "vehiclename" => sortDescending
-                ? query.OrderByDescending(sr => sr.Vehicle.Name)
-                : query.OrderBy(sr => sr.Vehicle.Name),
-
-            "serviceschedulename" => sortDescending
-                ? query.OrderByDescending(sr => sr.ServiceScheduleName)
-                : query.OrderBy(sr => sr.ServiceScheduleName),
-            "serviceprogramname" => sortDescending
-                ? query.OrderByDescending(sr => sr.ServiceProgramName)
-                : query.OrderBy(sr => sr.ServiceProgramName),
+                ? reminders.OrderByDescending(r => r.VehicleName).ToList()
+                : reminders.OrderBy(r => r.VehicleName).ToList(),
+            "servicetaskname" => sortDescending
+                ? reminders.OrderByDescending(r => r.ServiceScheduleName).ToList()
+                : reminders.OrderBy(r => r.ServiceScheduleName).ToList(),
             "duedate" => sortDescending
-                ? query.OrderByDescending(sr => sr.DueDate)
-                : query.OrderBy(sr => sr.DueDate),
+                ? reminders.OrderByDescending(r => r.DueDate ?? DateTime.MinValue).ToList()
+                : reminders.OrderBy(r => r.DueDate ?? DateTime.MaxValue).ToList(),
             "duemileage" => sortDescending
-                ? query.OrderByDescending(sr => sr.DueMileage)
-                : query.OrderBy(sr => sr.DueMileage),
+                ? reminders.OrderByDescending(r => r.DueMileage ?? double.MinValue).ToList()
+                : reminders.OrderBy(r => r.DueMileage ?? double.MaxValue).ToList(),
             "status" => sortDescending
-                ? query.OrderByDescending(sr => sr.Status)
-                : query.OrderBy(sr => sr.Status),
+                ? reminders.OrderByDescending(r => r.Status).ToList()
+                : reminders.OrderBy(r => r.Status).ToList(),
             "prioritylevel" => sortDescending
-                ? query.OrderByDescending(sr => sr.PriorityLevel)
-                : query.OrderBy(sr => sr.PriorityLevel),
-            "createdat" => sortDescending
-                ? query.OrderByDescending(sr => sr.CreatedAt)
-                : query.OrderBy(sr => sr.CreatedAt),
-            "updatedat" => sortDescending
-                ? query.OrderByDescending(sr => sr.UpdatedAt)
-                : query.OrderBy(sr => sr.UpdatedAt),
-            _ => query.OrderBy(sr => sr.Status == ServiceReminderStatusEnum.OVERDUE ? 0 :
-                              sr.Status == ServiceReminderStatusEnum.DUE_SOON ? 1 : 2)
-                      .ThenBy(sr => sr.DueDate ?? DateTime.MaxValue) // Default sort for unrecognized fields
+                ? reminders.OrderByDescending(r => r.PriorityLevel).ToList()
+                : reminders.OrderBy(r => r.PriorityLevel).ToList(),
+            "occurrencenumber" => sortDescending
+                ? reminders.OrderByDescending(r => r.OccurrenceNumber).ToList()
+                : reminders.OrderBy(r => r.OccurrenceNumber).ToList(),
+            _ => reminders.OrderBy(r => GetStatusPriority(r.Status)).ToList()
         };
     }
+
+    private static int GetStatusPriority(ServiceReminderStatusEnum status) => status switch
+    {
+        ServiceReminderStatusEnum.OVERDUE => 0,
+        ServiceReminderStatusEnum.DUE_SOON => 1,
+        _ => 2
+    };
 
     public async Task<ServiceReminder?> GetServiceReminderWithDetailsAsync(int serviceReminderId)
     {
@@ -300,38 +271,30 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
         var currentDate = DateTime.UtcNow;
         var reminders = new List<ServiceReminderDTO>();
 
-        // Get all active service schedules with their relationships
-        var serviceSchedules = await _dbContext.Set<ServiceSchedule>()
+        // Get all data in a single query with proper includes to avoid N+1 problem
+        var serviceSchedulesWithData = await _dbContext.Set<ServiceSchedule>()
             .Where(ss => ss.IsActive)
             .Include(ss => ss.ServiceProgram)
+                .ThenInclude(sp => sp.XrefServiceProgramVehicles)
+                .ThenInclude(xspv => xspv.Vehicle)
+            .Include(ss => ss.XrefServiceScheduleServiceTasks)
+                .ThenInclude(xsst => xsst.ServiceTask)
             .ToListAsync();
 
-        foreach (var schedule in serviceSchedules)
+        foreach (var schedule in serviceSchedulesWithData)
         {
-            // Get vehicles assigned to this schedule's service program
-            var vehicleAssignments = await _dbContext.Set<XrefServiceProgramVehicle>()
-                .Where(x => x.ServiceProgramID == schedule.ServiceProgramID)
-                .ToListAsync();
-
-            // Get service tasks for this schedule
-            var scheduleTaskXrefs = await _dbContext.Set<XrefServiceScheduleServiceTask>()
-                .Where(x => x.ServiceScheduleID == schedule.ID)
-                .ToListAsync();
-            var serviceTaskIds = scheduleTaskXrefs.Select(x => x.ServiceTaskID).ToList();
-            var serviceTasks = await _dbContext.Set<ServiceTask>()
-                .Where(st => serviceTaskIds.Contains(st.ID))
-                .ToListAsync();
+            var vehicleAssignments = schedule.ServiceProgram?.XrefServiceProgramVehicles ?? [];
+            var serviceTasks = schedule.XrefServiceScheduleServiceTasks?.Select(x => x.ServiceTask).ToList() ?? [];
 
             foreach (var vehicleAssignment in vehicleAssignments)
             {
-                var vehicle = await _dbContext.Set<Vehicle>()
-                    .FirstOrDefaultAsync(v => v.ID == vehicleAssignment.VehicleID);
+                var vehicle = vehicleAssignment.Vehicle;
                 if (vehicle == null) continue;
 
                 var scheduleReminders = GenerateRemindersForSchedule(
                     schedule,
                     vehicle,
-                    serviceTasks?.ToList() ?? [],
+                    serviceTasks,
                     vehicleAssignment.AddedAt,
                     currentDate);
 
@@ -342,60 +305,7 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
         return reminders;
     }
 
-    /// <summary>
-    /// Applies search filtering to the reminders list.
-    /// </summary>
-    private static List<ServiceReminderDTO> ApplySearchFilter(List<ServiceReminderDTO> reminders, string? search)
-    {
-        if (string.IsNullOrWhiteSpace(search))
-            return reminders;
 
-        var searchLower = search.ToLowerInvariant();
-        return reminders.Where(r =>
-            r.VehicleName.ToLowerInvariant().Contains(searchLower) ||
-            r.ServiceTasks.Any(t => t.ServiceTaskName.ToLowerInvariant().Contains(searchLower)) ||
-            r.ServiceScheduleName.ToLowerInvariant().Contains(searchLower) ||
-            (r.ServiceProgramName?.ToLowerInvariant().Contains(searchLower) ?? false)
-        ).ToList();
-    }
-
-    private static List<ServiceReminderDTO> ApplySorting(List<ServiceReminderDTO> reminders, string? sortBy, bool sortDescending)
-    {
-        if (string.IsNullOrWhiteSpace(sortBy))
-        {
-            // Default sorting: Status priority (overdue first), then by due date/mileage
-            return reminders.OrderBy(r => r.Status == ServiceReminderStatusEnum.OVERDUE ? 0 :
-                                         r.Status == ServiceReminderStatusEnum.DUE_SOON ? 1 : 2)
-                           .ThenBy(r => r.DueDate ?? DateTime.MaxValue)
-                           .ThenBy(r => r.DueMileage ?? double.MaxValue)
-                           .ToList();
-        }
-
-        var query = sortBy.ToLowerInvariant() switch
-        {
-            "vehiclename" => sortDescending
-                ? reminders.OrderByDescending(r => r.VehicleName)
-                : reminders.OrderBy(r => r.VehicleName),
-            "serviceschedulename" => sortDescending
-                ? reminders.OrderByDescending(r => r.ServiceScheduleName)
-                : reminders.OrderBy(r => r.ServiceScheduleName),
-            "duedate" => sortDescending
-                ? reminders.OrderByDescending(r => r.DueDate ?? DateTime.MinValue)
-                : reminders.OrderBy(r => r.DueDate ?? DateTime.MaxValue),
-            "duemileage" => sortDescending
-                ? reminders.OrderByDescending(r => r.DueMileage ?? double.MinValue)
-                : reminders.OrderBy(r => r.DueMileage ?? double.MaxValue),
-            "status" => sortDescending
-                ? reminders.OrderByDescending(r => r.Status)
-                : reminders.OrderBy(r => r.Status),
-            "prioritylevel" => sortDescending
-                ? reminders.OrderByDescending(r => r.PriorityLevel)
-                : reminders.OrderBy(r => r.PriorityLevel),
-            _ => reminders.OrderBy(r => r.Status)
-        };
-
-        return query.ToList();
-    }
 
     private List<ServiceReminderDTO> GenerateRemindersForSchedule(
         ServiceSchedule schedule,
@@ -411,60 +321,80 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
             return reminders;
         }
 
-        // Calculate buffer end date (how far ahead to look for upcoming reminders)
-        var bufferEndDate = currentDate;
-        if (schedule.TimeBufferValue.HasValue && schedule.TimeBufferUnit.HasValue)
-        {
-            bufferEndDate = AddTimeInterval(currentDate, schedule.TimeBufferValue.Value, schedule.TimeBufferUnit.Value);
-        }
-        else
-        {
-            // Default to 30 days ahead if no buffer specified
-            bufferEndDate = currentDate.AddDays(30);
-        }
+        // Generate overdue and due soon reminders (these can be multiple)
+        var overdueAndDueSoonReminders = GenerateOverdueAndDueSoonReminders(
+            schedule, vehicle, serviceTasks, assignmentDate, currentDate);
+        reminders.AddRange(overdueAndDueSoonReminders);
 
-        // Generate time-based reminders
-        if (schedule.TimeIntervalValue.HasValue && schedule.TimeIntervalUnit.HasValue)
+        // Generate the next upcoming reminder (only one per schedule)
+        var nextUpcomingReminder = GenerateNextUpcomingReminder(
+            schedule, vehicle, serviceTasks, assignmentDate, currentDate);
+        if (nextUpcomingReminder != null)
         {
-            var timeReminders = GenerateTimeBasedReminders(
-                schedule, vehicle, serviceTasks, assignmentDate, currentDate, bufferEndDate);
-            reminders.AddRange(timeReminders);
-        }
-
-        // Generate mileage-based reminders
-        if (schedule.MileageInterval.HasValue)
-        {
-            var mileageReminders = GenerateMileageBasedReminders(
-                schedule, vehicle, serviceTasks, assignmentDate, currentDate);
-            reminders.AddRange(mileageReminders);
+            reminders.Add(nextUpcomingReminder);
         }
 
         return reminders;
     }
 
-    private List<ServiceReminderDTO> GenerateTimeBasedReminders(
+    private List<ServiceReminderDTO> GenerateOverdueAndDueSoonReminders(
         ServiceSchedule schedule,
         Vehicle vehicle,
         List<ServiceTask> serviceTasks,
         DateTime assignmentDate,
-        DateTime currentDate,
-        DateTime bufferEndDate)
+        DateTime currentDate)
+    {
+        var reminders = new List<ServiceReminderDTO>();
+
+        // Generate time-based overdue and due soon reminders
+        if (schedule.TimeIntervalValue.HasValue && schedule.TimeIntervalUnit.HasValue)
+        {
+            var overdueReminders = GenerateTimeBasedOverdueReminders(
+                schedule, vehicle, serviceTasks, assignmentDate, currentDate);
+            reminders.AddRange(overdueReminders);
+
+            var dueSoonReminders = GenerateTimeBasedDueSoonReminders(
+                schedule, vehicle, serviceTasks, assignmentDate, currentDate);
+            reminders.AddRange(dueSoonReminders);
+        }
+
+        // Generate mileage-based overdue and due soon reminders
+        if (schedule.MileageInterval.HasValue)
+        {
+            var overdueMileageReminders = GenerateMileageBasedOverdueReminders(
+                schedule, vehicle, serviceTasks, assignmentDate, currentDate);
+            reminders.AddRange(overdueMileageReminders);
+
+            var dueSoonMileageReminders = GenerateMileageBasedDueSoonReminders(
+                schedule, vehicle, serviceTasks, assignmentDate, currentDate);
+            reminders.AddRange(dueSoonMileageReminders);
+        }
+
+        return reminders;
+    }
+
+    private List<ServiceReminderDTO> GenerateTimeBasedOverdueReminders(
+        ServiceSchedule schedule,
+        Vehicle vehicle,
+        List<ServiceTask> serviceTasks,
+        DateTime assignmentDate,
+        DateTime currentDate)
     {
         var reminders = new List<ServiceReminderDTO>();
 
         // Determine start date for calculations
         var startDate = schedule.FirstServiceDate ?? assignmentDate;
 
-        // Generate reminders for each occurrence until we pass the buffer end date
+        // Generate reminders for each occurrence until we find all overdue reminders
         var occurrenceNumber = 1;
         var currentOccurrenceDate = startDate;
 
-        while (currentOccurrenceDate <= bufferEndDate)
+        while (currentOccurrenceDate <= currentDate.AddDays(365)) // Look ahead 1 year for overdue reminders
         {
             var status = CalculateTimeBasedStatus(currentOccurrenceDate, currentDate, schedule);
 
-            // Only include if it's overdue, due soon, or upcoming (skip far future ones)
-            if (status != ServiceReminderStatusEnum.UPCOMING || currentOccurrenceDate <= bufferEndDate)
+            // Only include overdue reminders
+            if (status == ServiceReminderStatusEnum.OVERDUE)
             {
                 var reminder = CreateServiceReminderDTO(
                     schedule, vehicle, serviceTasks, currentOccurrenceDate, null,
@@ -482,7 +412,7 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
             occurrenceNumber++;
 
             // Safety check to prevent infinite loops
-            if (occurrenceNumber > 100)
+            if (occurrenceNumber > MaxOccurrenceCount)
             {
                 break;
             }
@@ -491,7 +421,55 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
         return reminders;
     }
 
-    private List<ServiceReminderDTO> GenerateMileageBasedReminders(
+    private List<ServiceReminderDTO> GenerateTimeBasedDueSoonReminders(
+        ServiceSchedule schedule,
+        Vehicle vehicle,
+        List<ServiceTask> serviceTasks,
+        DateTime assignmentDate,
+        DateTime currentDate)
+    {
+        var reminders = new List<ServiceReminderDTO>();
+
+        // Determine start date for calculations
+        var startDate = schedule.FirstServiceDate ?? assignmentDate;
+
+        // Generate reminders for each occurrence until we find all due soon reminders
+        var occurrenceNumber = 1;
+        var currentOccurrenceDate = startDate;
+
+        while (currentOccurrenceDate <= currentDate.AddDays(365)) // Look ahead 1 year for due soon reminders
+        {
+            var status = CalculateTimeBasedStatus(currentOccurrenceDate, currentDate, schedule);
+
+            // Only include due soon reminders
+            if (status == ServiceReminderStatusEnum.DUE_SOON)
+            {
+                var reminder = CreateServiceReminderDTO(
+                    schedule, vehicle, serviceTasks, currentOccurrenceDate, null,
+                    status, occurrenceNumber, isTimeBasedReminder: true,
+                    isMileageBasedReminder: false);
+
+                reminders.Add(reminder);
+            }
+
+            // Calculate next occurrence
+            currentOccurrenceDate = AddTimeInterval(
+                currentOccurrenceDate,
+                schedule.TimeIntervalValue!.Value,
+                schedule.TimeIntervalUnit!.Value);
+            occurrenceNumber++;
+
+            // Safety check to prevent infinite loops
+            if (occurrenceNumber > MaxOccurrenceCount)
+            {
+                break;
+            }
+        }
+
+        return reminders;
+    }
+
+    private List<ServiceReminderDTO> GenerateMileageBasedOverdueReminders(
         ServiceSchedule schedule,
         Vehicle vehicle,
         List<ServiceTask> serviceTasks,
@@ -508,32 +486,206 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
         var currentOccurrenceMileage = startMileage;
 
         // Calculate how far ahead to look based on buffer
-        var mileageBuffer = schedule.MileageBuffer ?? 1000; // Default 1000km buffer
+        var mileageBuffer = schedule.MileageBuffer ?? DefaultMileageBufferKm;
         var maxMileage = vehicle.Mileage + mileageBuffer;
 
         while (currentOccurrenceMileage <= maxMileage)
         {
             var status = CalculateMileageBasedStatus(currentOccurrenceMileage, vehicle.Mileage, schedule);
 
-            var reminder = CreateServiceReminderDTO(
-                schedule, vehicle, serviceTasks, null, currentOccurrenceMileage,
-                status, occurrenceNumber, isTimeBasedReminder: false,
-                isMileageBasedReminder: true);
+            // Only include overdue reminders
+            if (status == ServiceReminderStatusEnum.OVERDUE)
+            {
+                var reminder = CreateServiceReminderDTO(
+                    schedule, vehicle, serviceTasks, null, currentOccurrenceMileage,
+                    status, occurrenceNumber, isTimeBasedReminder: false,
+                    isMileageBasedReminder: true);
 
-            reminders.Add(reminder);
+                reminders.Add(reminder);
+            }
 
             // Calculate next occurrence
             currentOccurrenceMileage += schedule.MileageInterval!.Value;
             occurrenceNumber++;
 
             // Safety check to prevent infinite loops
-            if (occurrenceNumber > 100)
+            if (occurrenceNumber > MaxOccurrenceCount)
             {
                 break;
             }
         }
 
         return reminders;
+    }
+
+    private List<ServiceReminderDTO> GenerateMileageBasedDueSoonReminders(
+        ServiceSchedule schedule,
+        Vehicle vehicle,
+        List<ServiceTask> serviceTasks,
+        DateTime assignmentDate,
+        DateTime currentDate)
+    {
+        var reminders = new List<ServiceReminderDTO>();
+
+        // Determine start mileage for calculations
+        var startMileage = schedule.FirstServiceMileage ?? vehicle.Mileage;
+
+        // Generate reminders for each mileage occurrence
+        var occurrenceNumber = 1;
+        var currentOccurrenceMileage = startMileage;
+
+        // Calculate how far ahead to look based on buffer
+        var mileageBuffer = schedule.MileageBuffer ?? DefaultMileageBufferKm;
+        var maxMileage = vehicle.Mileage + mileageBuffer;
+
+        while (currentOccurrenceMileage <= maxMileage)
+        {
+            var status = CalculateMileageBasedStatus(currentOccurrenceMileage, vehicle.Mileage, schedule);
+
+            // Only include due soon reminders
+            if (status == ServiceReminderStatusEnum.DUE_SOON)
+            {
+                var reminder = CreateServiceReminderDTO(
+                    schedule, vehicle, serviceTasks, null, currentOccurrenceMileage,
+                    status, occurrenceNumber, isTimeBasedReminder: false,
+                    isMileageBasedReminder: true);
+
+                reminders.Add(reminder);
+            }
+
+            // Calculate next occurrence
+            currentOccurrenceMileage += schedule.MileageInterval!.Value;
+            occurrenceNumber++;
+
+            // Safety check to prevent infinite loops
+            if (occurrenceNumber > MaxOccurrenceCount)
+            {
+                break;
+            }
+        }
+
+        return reminders;
+    }
+
+    private ServiceReminderDTO? GenerateNextUpcomingReminder(
+        ServiceSchedule schedule,
+        Vehicle vehicle,
+        List<ServiceTask> serviceTasks,
+        DateTime assignmentDate,
+        DateTime currentDate)
+    {
+        DateTime? nextTimeOccurrence = null;
+        double? nextMileageOccurrence = null;
+        int timeOccurrenceNumber = 0;
+        int mileageOccurrenceNumber = 0;
+
+        // Calculate next time-based occurrence
+        if (schedule.TimeIntervalValue.HasValue && schedule.TimeIntervalUnit.HasValue)
+        {
+            var startDate = schedule.FirstServiceDate ?? assignmentDate;
+            var currentOccurrenceDate = startDate;
+            var occurrenceNumber = 1;
+
+            // Find the next occurrence that's truly upcoming (not overdue or due soon)
+            while (occurrenceNumber <= MaxOccurrenceCount)
+            {
+                // Check if this occurrence is in the future and outside the buffer
+                if (currentOccurrenceDate > currentDate)
+                {
+                    var status = CalculateTimeBasedStatus(currentOccurrenceDate, currentDate, schedule);
+
+                    if (status == ServiceReminderStatusEnum.UPCOMING)
+                    {
+                        nextTimeOccurrence = currentOccurrenceDate;
+                        timeOccurrenceNumber = occurrenceNumber;
+                        break;
+                    }
+                }
+
+                currentOccurrenceDate = AddTimeInterval(
+                    currentOccurrenceDate,
+                    schedule.TimeIntervalValue.Value,
+                    schedule.TimeIntervalUnit.Value);
+                occurrenceNumber++;
+            }
+        }
+
+        // Calculate next mileage-based occurrence
+        if (schedule.MileageInterval.HasValue)
+        {
+            var startMileage = schedule.FirstServiceMileage ?? vehicle.Mileage;
+            var currentOccurrenceMileage = startMileage;
+            var occurrenceNumber = 1;
+            var mileageBuffer = schedule.MileageBuffer ?? DefaultMileageBufferKm;
+            var maxMileage = vehicle.Mileage + mileageBuffer;
+
+            // Find the next occurrence that's truly upcoming (not overdue or due soon)
+            while (currentOccurrenceMileage <= maxMileage && occurrenceNumber <= MaxOccurrenceCount)
+            {
+                // Check if this occurrence is in the future and outside the buffer
+                if (currentOccurrenceMileage > vehicle.Mileage)
+                {
+                    var status = CalculateMileageBasedStatus(currentOccurrenceMileage, vehicle.Mileage, schedule);
+                    if (status == ServiceReminderStatusEnum.UPCOMING)
+                    {
+                        nextMileageOccurrence = currentOccurrenceMileage;
+                        mileageOccurrenceNumber = occurrenceNumber;
+                        break;
+                    }
+                }
+
+                currentOccurrenceMileage += schedule.MileageInterval.Value;
+                occurrenceNumber++;
+            }
+        }
+
+        // Determine which comes first and create the appropriate reminder
+        if (nextTimeOccurrence.HasValue && nextMileageOccurrence.HasValue)
+        {
+            // Both time and mileage are provided - determine which comes first
+            // For simplicity, we'll use a more realistic approach: calculate estimated days until each
+            var timeDaysUntilDue = (nextTimeOccurrence.Value - currentDate).TotalDays;
+
+            // Estimate days until mileage based on current vehicle usage
+            // Use a conservative estimate for comparison
+            var mileageDaysUntilDue = (nextMileageOccurrence.Value - vehicle.Mileage) / DefaultDailyMileageEstimate;
+
+            if (timeDaysUntilDue <= mileageDaysUntilDue)
+            {
+                // Time comes first
+                return CreateServiceReminderDTO(
+                    schedule, vehicle, serviceTasks, nextTimeOccurrence.Value, null,
+                    ServiceReminderStatusEnum.UPCOMING, timeOccurrenceNumber,
+                    isTimeBasedReminder: true, isMileageBasedReminder: false);
+            }
+            else
+            {
+                // Mileage comes first
+                return CreateServiceReminderDTO(
+                    schedule, vehicle, serviceTasks, null, nextMileageOccurrence.Value,
+                    ServiceReminderStatusEnum.UPCOMING, mileageOccurrenceNumber,
+                    isTimeBasedReminder: false, isMileageBasedReminder: true);
+            }
+        }
+        else if (nextTimeOccurrence.HasValue)
+        {
+            // Only time-based
+            return CreateServiceReminderDTO(
+                schedule, vehicle, serviceTasks, nextTimeOccurrence.Value, null,
+                ServiceReminderStatusEnum.UPCOMING, timeOccurrenceNumber,
+                isTimeBasedReminder: true, isMileageBasedReminder: false);
+        }
+        else if (nextMileageOccurrence.HasValue)
+        {
+            // Only mileage-based
+            return CreateServiceReminderDTO(
+                schedule, vehicle, serviceTasks, null, nextMileageOccurrence.Value,
+                ServiceReminderStatusEnum.UPCOMING, mileageOccurrenceNumber,
+                isTimeBasedReminder: false, isMileageBasedReminder: true);
+        }
+
+        // No upcoming reminders found
+        return null;
     }
 
     private ServiceReminderDTO CreateServiceReminderDTO(
@@ -645,7 +797,7 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
         {
             TimeUnitEnum.Hours => date.AddHours(value),
             TimeUnitEnum.Days => date.AddDays(value),
-            TimeUnitEnum.Weeks => date.AddDays(value * 7),
+            TimeUnitEnum.Weeks => date.AddDays(value * DaysPerWeek),
             _ => throw new ArgumentException($"Unsupported time unit: {unit}")
         };
     }
@@ -656,7 +808,7 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
         {
             TimeUnitEnum.Hours => (int)Math.Ceiling(value / 24.0),
             TimeUnitEnum.Days => value,
-            TimeUnitEnum.Weeks => value * 7,
+            TimeUnitEnum.Weeks => value * DaysPerWeek,
             _ => throw new ArgumentException($"Unsupported time unit: {unit}")
         };
     }
@@ -664,5 +816,99 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
     public async Task<IReadOnlyList<ServiceReminder>> GetServiceRemindersByWorkOrderIdAsync(int workOrderID)
     {
         return await _dbSet.Where(sr => sr.WorkOrderID == workOrderID).ToListAsync();
+    }
+
+    public async Task<PagedResult<ServiceReminder>> GetAllServiceRemindersPagedAsync(PaginationParameters parameters)
+    {
+        var query = _dbSet.AsQueryable();
+
+        // Include related data
+        query = query
+            .Include(sr => sr.Vehicle)
+            .Include(sr => sr.ServiceProgram)
+            .Include(sr => sr.ServiceSchedule)
+            .Include(sr => sr.WorkOrder);
+
+        // Apply search filter
+        query = ApplySearchFilter(query, parameters.Search);
+
+        // Apply sorting
+        query = ApplySorting(query, parameters.SortBy, parameters.SortDescending);
+
+        var totalCount = await query.CountAsync();
+        var items = await query
+            .Skip((parameters.PageNumber - 1) * parameters.PageSize)
+            .Take(parameters.PageSize)
+            .ToListAsync();
+
+        return new PagedResult<ServiceReminder>
+        {
+            Items = items,
+            TotalCount = totalCount,
+            PageNumber = parameters.PageNumber,
+            PageSize = parameters.PageSize
+        };
+    }
+
+    private static IQueryable<ServiceReminder> ApplySearchFilter(IQueryable<ServiceReminder> query, string? searchText)
+    {
+        if (string.IsNullOrWhiteSpace(searchText)) return query;
+
+        string searchPattern = $"%{searchText.Trim().ToLowerInvariant()}%";
+
+        return query.Where(sr =>
+            EF.Functions.Like(sr.ServiceScheduleName, searchPattern) ||
+            EF.Functions.Like(sr.ServiceProgramName ?? string.Empty, searchPattern) ||
+            EF.Functions.Like(sr.Vehicle.Name, searchPattern) ||
+            EF.Functions.Like(sr.Vehicle.Make, searchPattern) ||
+            EF.Functions.Like(sr.Vehicle.Model, searchPattern) ||
+            EF.Functions.Like(sr.Vehicle.LicensePlate, searchPattern)
+        );
+    }
+
+    private static IQueryable<ServiceReminder> ApplySorting(IQueryable<ServiceReminder> query, string? sortBy, bool sortDescending)
+    {
+        if (string.IsNullOrWhiteSpace(sortBy))
+        {
+            return query.OrderBy(sr => sr.Status == ServiceReminderStatusEnum.OVERDUE ? 0 :
+                              sr.Status == ServiceReminderStatusEnum.DUE_SOON ? 1 : 2)
+                        .ThenBy(sr => sr.DueDate ?? DateTime.MaxValue); // Default sort: overdue first, then by due date
+        }
+
+        var sortByLower = sortBy.ToLower();
+        return sortByLower switch
+        {
+            "vehiclename" => sortDescending
+                ? query.OrderByDescending(sr => sr.Vehicle.Name)
+                : query.OrderBy(sr => sr.Vehicle.Name),
+
+            "serviceschedulename" => sortDescending
+                ? query.OrderByDescending(sr => sr.ServiceScheduleName)
+                : query.OrderBy(sr => sr.ServiceScheduleName),
+            "serviceprogramname" => sortDescending
+                ? query.OrderByDescending(sr => sr.ServiceProgramName)
+                : query.OrderBy(sr => sr.ServiceProgramName),
+            "duedate" => sortDescending
+                ? query.OrderByDescending(sr => sr.DueDate)
+                : query.OrderBy(sr => sr.DueDate),
+            "duemileage" => sortDescending
+                ? query.OrderByDescending(sr => sr.DueMileage)
+                : query.OrderBy(sr => sr.DueMileage),
+            "status" => sortDescending
+                ? query.OrderByDescending(sr => sr.Status)
+                : query.OrderBy(sr => sr.Status),
+            "prioritylevel" => sortDescending
+                ? query.OrderByDescending(sr => sr.PriorityLevel)
+                : query.OrderBy(sr => sr.PriorityLevel),
+            "createdat" => sortDescending
+                ? query.OrderByDescending(sr => sr.CreatedAt)
+                : query.OrderBy(sr => sr.CreatedAt),
+            "updatedat" => sortDescending
+                ? query.OrderByDescending(sr => sr.UpdatedAt)
+                : query.OrderBy(sr => sr.UpdatedAt),
+            _ => query.OrderBy(sr => sr.Status == ServiceReminderStatusEnum.OVERDUE ? 0 :
+                              sr.Status == ServiceReminderStatusEnum.DUE_SOON ? 1 : 2)
+                      .ThenBy(sr => sr.DueDate ?? DateTime.MaxValue) // Default sort for unrecognized fields
+        };
     }
 }

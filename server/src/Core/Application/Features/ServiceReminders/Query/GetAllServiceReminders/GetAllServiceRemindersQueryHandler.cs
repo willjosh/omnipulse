@@ -3,8 +3,6 @@ using Application.Contracts.Persistence;
 using Application.Exceptions;
 using Application.Models.PaginationModels;
 
-using AutoMapper;
-
 using FluentValidation;
 
 using MediatR;
@@ -16,18 +14,15 @@ public class GetAllServiceRemindersQueryHandler : IRequestHandler<GetAllServiceR
     private readonly IServiceReminderRepository _serviceReminderRepository;
     private readonly IValidator<GetAllServiceRemindersQuery> _validator;
     private readonly IAppLogger<GetAllServiceRemindersQueryHandler> _logger;
-    private readonly IMapper _mapper;
 
     public GetAllServiceRemindersQueryHandler(
         IServiceReminderRepository serviceReminderRepository,
         IValidator<GetAllServiceRemindersQuery> validator,
-        IAppLogger<GetAllServiceRemindersQueryHandler> logger,
-        IMapper mapper)
+        IAppLogger<GetAllServiceRemindersQueryHandler> logger)
     {
         _serviceReminderRepository = serviceReminderRepository;
         _validator = validator;
         _logger = logger;
-        _mapper = mapper;
     }
 
     public async Task<PagedResult<ServiceReminderDTO>> Handle(GetAllServiceRemindersQuery request, CancellationToken cancellationToken)
@@ -43,10 +38,10 @@ public class GetAllServiceRemindersQueryHandler : IRequestHandler<GetAllServiceR
             throw new BadRequestException(errorMessages);
         }
 
-        // Get calculated service reminders from repository
-        var result = await _serviceReminderRepository.GetAllCalculatedServiceRemindersPagedAsync(request.Parameters);
+        // Get calculated service reminders from the repository
+        var pagedResult = await _serviceReminderRepository.GetAllCalculatedServiceRemindersPagedAsync(request.Parameters);
 
-        _logger.LogInformation($"Returning {result.TotalCount} service reminders for page {result.PageNumber} with page size {result.PageSize}");
-        return result;
+        _logger.LogInformation($"Returning {pagedResult.TotalCount} service reminders for page {pagedResult.PageNumber} with page size {pagedResult.PageSize}");
+        return pagedResult;
     }
 }
