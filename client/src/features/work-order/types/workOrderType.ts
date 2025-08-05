@@ -53,6 +53,8 @@ export interface WorkOrder {
   status: WorkOrderStatusEnum;
   scheduledStartDate?: string | null;
   actualStartDate?: string | null;
+  scheduledCompletionDate?: string | null;
+  actualCompletionDate?: string | null;
   startOdometer: number;
   endOdometer?: number | null;
   totalCost?: number | null;

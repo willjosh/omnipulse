@@ -52,6 +52,8 @@ export const convertWorkOrderData = (
   statusEnum: workOrder.status as WorkOrderStatusEnum,
   scheduledStartDate: formatDate(workOrder.scheduledStartDate),
   actualStartDate: formatDate(workOrder.actualStartDate),
+  scheduledCompletionDate: formatDate(workOrder.scheduledCompletionDate),
+  actualCompletionDate: formatDate(workOrder.actualCompletionDate),
   workOrderLineItems: workOrder.workOrderLineItems.map(
     convertWorkOrderLineItemData,
   ),
