@@ -460,38 +460,76 @@ public class GetAllServiceRemindersQueryHandler : IRequestHandler<GetAllServiceR
     };
 
     /// <summary>
-    /// Convert ServiceReminder entities back to ServiceReminderDTO for API response
+    /// Convert ServiceReminder entities to ServiceReminderDTO for API response
     /// </summary>
     private static List<ServiceReminderDTO> MapEntitiesToDTOs(IReadOnlyList<ServiceReminder> entities)
     {
-        return entities.Select(entity => new ServiceReminderDTO
+        return entities.Select(entity =>
         {
-            VehicleID = entity.VehicleID,
-            VehicleName = entity.Vehicle?.Name ?? "Unknown",
-            ServiceScheduleID = entity.ServiceScheduleID,
-            ServiceScheduleName = entity.ServiceScheduleName,
-            ServiceProgramID = entity.ServiceProgramID,
-            ServiceProgramName = entity.ServiceProgramName,
-            DueDate = entity.DueDate,
-            DueMileage = entity.DueMileage,
-            Status = entity.Status,
-            PriorityLevel = entity.PriorityLevel,
-            CurrentMileage = entity.Vehicle?.Mileage ?? 0,
-            MileageVariance = entity.MeterVariance,
-            DaysUntilDue = entity.DueDate?.Subtract(DateTime.UtcNow).Days,
-            TimeIntervalValue = entity.TimeIntervalValue,
-            TimeIntervalUnit = entity.TimeIntervalUnit,
-            MileageInterval = entity.MileageInterval,
-            TimeBufferValue = entity.TimeBufferValue,
-            TimeBufferUnit = entity.TimeBufferUnit,
-            MileageBuffer = entity.MileageBuffer,
-            ServiceTasks = new List<ServiceTaskInfoDTO>(), // Can populate from ServiceSchedule if needed
-            TotalEstimatedLabourHours = 0, // Calculate from service tasks if needed
-            TotalEstimatedCost = 0, // Calculate from service tasks if needed
-            TaskCount = 0, // Calculate from service tasks if needed
-            OccurrenceNumber = 1, // Could be calculated based on history if needed
-            IsTimeBasedReminder = entity.TimeIntervalValue.HasValue,
-            IsMileageBasedReminder = entity.MileageInterval.HasValue
+            // Get service tasks from the ServiceSchedule navigation property
+            var serviceTasks = entity.ServiceSchedule?.XrefServiceScheduleServiceTasks?
+                .Select(xsst => new ServiceTaskInfoDTO
+                {
+                    ServiceTaskID = xsst.ServiceTask.ID,
+                    ServiceTaskName = xsst.ServiceTask.Name,
+                    ServiceTaskCategory = xsst.ServiceTask.Category,
+                    EstimatedLabourHours = xsst.ServiceTask.EstimatedLabourHours,
+                    EstimatedCost = xsst.ServiceTask.EstimatedCost,
+                    Description = xsst.ServiceTask.Description,
+                    IsRequired = true
+                }).ToList() ?? new List<ServiceTaskInfoDTO>();
+
+            return new ServiceReminderDTO
+            {
+                VehicleID = entity.VehicleID,
+                VehicleName = entity.Vehicle?.Name ?? "Unknown",
+                ServiceScheduleID = entity.ServiceScheduleID,
+                ServiceScheduleName = entity.ServiceScheduleName,
+                ServiceProgramID = entity.ServiceProgramID,
+                ServiceProgramName = entity.ServiceProgramName,
+                DueDate = entity.DueDate,
+                DueMileage = entity.DueMileage,
+                Status = entity.Status,
+                PriorityLevel = entity.PriorityLevel,
+                CurrentMileage = entity.Vehicle?.Mileage ?? 0,
+                MileageVariance = entity.MeterVariance,
+                DaysUntilDue = entity.DueDate?.Subtract(DateTime.UtcNow).Days,
+                TimeIntervalValue = entity.TimeIntervalValue,
+                TimeIntervalUnit = entity.TimeIntervalUnit,
+                MileageInterval = entity.MileageInterval,
+                TimeBufferValue = entity.TimeBufferValue,
+                TimeBufferUnit = entity.TimeBufferUnit,
+                MileageBuffer = entity.MileageBuffer,
+                ServiceTasks = serviceTasks,
+                TotalEstimatedLabourHours = serviceTasks.Sum(t => t.EstimatedLabourHours),
+                TotalEstimatedCost = serviceTasks.Sum(t => t.EstimatedCost),
+                TaskCount = serviceTasks.Count,
+                OccurrenceNumber = CalculateOccurrenceNumber(entity, entities),
+                IsTimeBasedReminder = entity.TimeIntervalValue.HasValue,
+                IsMileageBasedReminder = entity.MileageInterval.HasValue
+            };
         }).ToList();
+    }
+
+    /// <summary>
+    /// Calculate the occurrence number for a reminder based on its position among reminders
+    /// for the same vehicle and service schedule, ordered by due date/mileage
+    /// </summary>
+    private static int CalculateOccurrenceNumber(ServiceReminder currentReminder, IReadOnlyList<ServiceReminder> allReminders)
+    {
+        // Get all reminders for the same vehicle and service schedule
+        var sameScheduleReminders = allReminders
+            .Where(r => r.VehicleID == currentReminder.VehicleID &&
+                       r.ServiceScheduleID == currentReminder.ServiceScheduleID)
+            .OrderBy(r => r.DueDate ?? DateTime.MaxValue)
+            .ThenBy(r => r.DueMileage ?? double.MaxValue)
+            .ThenBy(r => r.ID) // Use ID as tiebreaker for consistent ordering
+            .ToList();
+
+        // Find the position of the current reminder (1-based index)
+        var occurrenceNumber = sameScheduleReminders.FindIndex(r => r.ID == currentReminder.ID) + 1;
+
+        // Return at least 1 if not found (shouldn't happen in normal cases tho)
+        return occurrenceNumber > 0 ? occurrenceNumber : 1;
     }
 }

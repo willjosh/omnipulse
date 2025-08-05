@@ -251,11 +251,13 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
     {
         var query = _dbSet.AsQueryable();
 
-        // Include related data
+        // Include related data for MapEntitiesToDTOs method
         query = query
             .Include(sr => sr.Vehicle)
             .Include(sr => sr.ServiceProgram)
             .Include(sr => sr.ServiceSchedule)
+                .ThenInclude(ss => ss.XrefServiceScheduleServiceTasks)
+                .ThenInclude(xsst => xsst.ServiceTask)
             .Include(sr => sr.WorkOrder);
 
         // Apply search filter
