@@ -29,8 +29,8 @@ const TechnicianProfilePage = () => {
           <p className="text-gray-600 mb-4">
             {"The technician you're looking for doesn't exist."}
           </p>
-          <PrimaryButton onClick={() => router.push("/contacts")}>
-            Back to Contacts
+          <PrimaryButton onClick={() => router.push("/technician")}>
+            Back to Technicians
           </PrimaryButton>
         </div>
       </div>
@@ -46,12 +46,11 @@ const TechnicianProfilePage = () => {
   ];
 
   const handleEdit = () => {
-    console.log("Edit technician:", technician.id);
-    router.push(`/contacts/${technicianId}/edit`);
+    router.push(`/technician/${technicianId}/edit`);
   };
 
   const handleBack = () => {
-    router.push("/contacts");
+    router.push("/technician");
   };
 
   const getInitials = (firstName: string, lastName: string) => {
@@ -141,9 +140,7 @@ const TechnicianProfilePage = () => {
             <span className="text-sm font-medium text-gray-600">
               Employee ID
             </span>
-            <span className="text-sm text-gray-900 font-mono">
-              {technician.id}
-            </span>
+            <span className="text-sm text-gray-900">{technician.id}</span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
             <span className="text-sm font-medium text-gray-600">
@@ -170,7 +167,7 @@ const TechnicianProfilePage = () => {
             </div>
           </div>
           <div className="p-4 text-center text-gray-500">
-            <p className="text-sm">No recent work orders</p>
+            <p className="text-sm">{`No recent work orders ${"(Future Implementation)"}`}</p>
           </div>
         </div>
         <div className="bg-white rounded-3xl border border-gray-200">
@@ -185,10 +182,16 @@ const TechnicianProfilePage = () => {
             </div>
           </div>
           <div className="p-4 text-center text-gray-500">
-            <p className="text-sm">No vehicles currently assigned</p>
+            <p className="text-sm">{`No vehicles currently assigned ${"(Future Implementation)"}`}</p>
           </div>
         </div>
       </div>
+    </div>
+  );
+
+  const renderOtherTabs = (text: string) => (
+    <div className="bg-white rounded-3xl border border-gray-200 p-8 text-center">
+      <p className="text-gray-500">{text}</p>
     </div>
   );
 
@@ -197,17 +200,18 @@ const TechnicianProfilePage = () => {
       case "details":
         return renderDetailTab();
       case "assignments":
+        return renderOtherTabs("Vehicle assignments coming soon");
       case "workorders":
+        return renderOtherTabs("Work orders coming soon");
       case "performance":
+        return renderOtherTabs("Performance coming soon");
       case "documents":
-      default:
-        return <div>empty</div>;
+        return renderOtherTabs("Documents coming soon");
     }
   };
 
   return (
     <div className="min-h-screen max-w-7xl mx-auto bg-gray-50">
-      {/* Header */}
       <div className="bg-white border-b border-gray-200 px-8 py-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
