@@ -70,17 +70,17 @@ export default function InspectionListPage() {
       ),
     },
     {
-      key: "inspectionStartTime",
+      key: "inspectionEndTime",
       header: "Submission Time",
       sortable: true,
       width: "160px",
       render: (item: InspectionWithLabels) => (
         <div>
           <div className="font-medium">
-            {new Date(item.inspectionStartTime).toLocaleDateString()}
+            {new Date(item.inspectionEndTime).toLocaleDateString()}
           </div>
           <div className="text-sm text-gray-500">
-            {new Date(item.inspectionStartTime).toLocaleTimeString()}
+            {new Date(item.inspectionEndTime).toLocaleTimeString()}
           </div>
         </div>
       ),
@@ -196,7 +196,7 @@ export default function InspectionListPage() {
           Inspection History
         </h1>
         <PrimaryButton onClick={() => setShowSelectFormModal(true)}>
-          <Plus size={18} className="mr-2" />
+          <Plus size={18} />
           Start Inspection
         </PrimaryButton>
       </div>

@@ -120,7 +120,7 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({
         notify("Technician updated successfully!", "success");
       }
 
-      router.push("/contacts");
+      router.push("/technician");
     } catch (error: any) {
       console.error(
         mode === "create"
@@ -160,7 +160,7 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({
   };
 
   const handleCancel = () => {
-    router.push("/contacts");
+    router.push("/technician");
   };
 
   return (

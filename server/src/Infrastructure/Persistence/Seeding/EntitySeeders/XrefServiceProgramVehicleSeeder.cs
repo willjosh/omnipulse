@@ -44,11 +44,15 @@ public class XrefServiceProgramVehicleSeeder : IEntitySeeder
             var userId = SeedingHelper.ProjectEntityByIndex<User, string>(_dbContext, u => u.Id, i - 1, _logger); // TODO
             if (string.IsNullOrEmpty(userId)) continue;
 
+            var vehicle = _dbContext.Vehicles.FirstOrDefault(v => v.ID == vehicleId);
+            if (vehicle == null) continue;
+
             xrefs.Add(new XrefServiceProgramVehicle
             {
                 ServiceProgramID = serviceProgramId,
                 VehicleID = vehicleId,
                 AddedAt = now.AddDays(-i),
+                VehicleMileageAtAssignment = vehicle.Mileage,
                 ServiceProgram = null!,
                 Vehicle = null!,
                 // User = null! // TODO XrefServiceProgramVehicle User

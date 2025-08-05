@@ -32,10 +32,10 @@ const Notification: React.FC<NotificationProps> = ({
 
   return (
     <div
-      className={`fixed top-16 right-6 z-50 px-4 py-3 rounded shadow border ${typeStyles[type]} ${className}`}
+      className={`fixed top-16 right-6 z-[110] px-4 py-3 flex rounded shadow border max-w-md break-words ${typeStyles[type]} ${className}`}
       role="alert"
     >
-      <span>{message}</span>
+      <span className="block">{message}</span>
       {onClose && (
         <button
           className="ml-4 text-lg font-bold text-gray-400 hover:text-gray-700 focus:outline-none"

@@ -8,6 +8,7 @@ public class XrefServiceProgramVehicle
 
     // public required string AddedByUserID { get; set; } // FK // TODO XrefServiceProgramVehicle User
     public required DateTime AddedAt { get; set; } = DateTime.UtcNow;
+    public required double? VehicleMileageAtAssignment { get; set; }
 
     // Navigation Properties
     public required ServiceProgram ServiceProgram { get; set; }

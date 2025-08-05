@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import {
   useCreateInventoryItem,
   useUpdateInventoryItem,
-} from "../hooks/useInventoryItems";
+} from "../hooks/useInventoryItem";
 import {
   CreateInventoryItemCommand,
   UpdateInventoryItemCommand,
@@ -243,7 +243,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Item Number
+                  Item Number <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -258,7 +258,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Item Name
+                  Item Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -272,7 +272,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Description
+                Description <span className="text-red-500">*</span>
               </label>
               <textarea
                 value={formData.description || ""}
@@ -285,7 +285,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Category
+                  Category <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={formData.category ?? InventoryItemCategoryEnum.ENGINE}
@@ -304,7 +304,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Manufacturer
+                  Manufacturer <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -320,7 +320,8 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Manufacturer Part Number
+                  Manufacturer Part Number{" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -334,7 +335,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Universal Product Code
+                  Universal Product Code <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -350,13 +351,13 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Unit Cost
+                  Unit Cost <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
                   step="0.01"
                   min="0"
-                  value={formData.unitCost ?? 0}
+                  value={formData.unitCost ? Number(formData.unitCost) : ""}
                   onChange={e =>
                     handleInputChange(
                       "unitCost",
@@ -369,7 +370,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Unit Cost Measurement
+                  Unit Cost Measurement <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={
@@ -396,7 +397,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Supplier
+                  Supplier <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -408,13 +409,13 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Weight (KG)
+                  Weight (KG) <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
                   step="0.01"
                   min="0"
-                  value={formData.weightKG ?? 0}
+                  value={formData.weightKG ? Number(formData.weightKG) : ""}
                   onChange={e =>
                     handleInputChange(
                       "weightKG",
