@@ -356,6 +356,10 @@ export const useVehicleFormValidation = () => {
   const validationErrors = useVehicleFormStore(state => state.validationErrors);
   const isFormValid = useVehicleFormStore(state => state.isFormValid());
 
+  console.log("showValidation: ", showValidation);
+  console.log("validationErrors: ", validationErrors);
+  console.log("isFormValid: ", isFormValid);
+
   return { showValidation, validationErrors, isFormValid };
 };
 export const useVehicleFormStatus = () => {

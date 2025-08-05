@@ -10,7 +10,7 @@ export const vehicleTableColumns = [
   {
     key: "name",
     header: "Name",
-    sortable: false,
+    sortable: true,
     render: (vehicle: VehicleWithLabels) => (
       <div className="flex items-center">
         <div className="flex-shrink-0">
@@ -29,7 +29,7 @@ export const vehicleTableColumns = [
   {
     key: "year",
     header: "Year",
-    sortable: false,
+    sortable: true,
     render: (vehicle: VehicleWithLabels) => vehicle.year,
   },
   { key: "make", header: "Make", sortable: false },
@@ -37,6 +37,7 @@ export const vehicleTableColumns = [
   {
     key: "vin",
     header: "VIN",
+    sortable: false,
     render: (vehicle: VehicleWithLabels) => (
       <span className="text-sm">{vehicle.vin}</span>
     ),
@@ -65,6 +66,7 @@ export const vehicleTableColumns = [
   {
     key: "mileage",
     header: "Meter",
+    sortable: true,
     render: (vehicle: VehicleWithLabels) => (
       <span className="text-primary hover:text-blue-800 cursor-pointer underline">
         {vehicle.mileage.toLocaleString()} mi{" "}
@@ -75,6 +77,7 @@ export const vehicleTableColumns = [
   {
     key: "assignedTechnicianName",
     header: "Operator",
+    sortable: false,
     render: (vehicle: VehicleWithLabels) =>
       vehicle.assignedTechnicianName ? (
         <div className="flex items-center">

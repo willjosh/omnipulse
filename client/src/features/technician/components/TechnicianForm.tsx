@@ -13,6 +13,7 @@ import {
   CreateTechnicianCommand,
   UpdateTechnicianCommand,
 } from "../types/technicianType";
+import { getErrorMessage, getErrorFields } from "@/utils/fieldErrorUtils";
 
 interface TechnicianFormProps {
   mode: "create" | "edit";
@@ -65,43 +66,8 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({
     }
   };
 
-  const validateForm = (): boolean => {
-    const newErrors: Partial<CreateTechnicianCommand> = {};
-
-    if (!formData.firstName.trim()) {
-      newErrors.firstName = "First name is required";
-    }
-    if (!formData.lastName.trim()) {
-      newErrors.lastName = "Last name is required";
-    }
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Email format is invalid";
-    }
-
-    if (mode === "create") {
-      if (!formData.password.trim()) {
-        newErrors.password = "Password is required";
-      } else if (formData.password.length < 6) {
-        newErrors.password = "Password must be at least 6 characters";
-      }
-    }
-
-    if (!formData.hireDate) {
-      newErrors.hireDate = "Hire date is required";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
 
     try {
       if (mode === "create") {
@@ -116,45 +82,32 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({
           isActive: formData.isActive,
         };
 
+        // not working correctly
         await updateTechnicianMutation.mutateAsync(updateData);
         notify("Technician updated successfully!", "success");
       }
 
       router.push("/technician");
     } catch (error: any) {
-      console.error(
-        mode === "create"
-          ? "Error creating technician:"
-          : "Error updating technician:",
-        error,
-      );
-
       let errorMessage =
         mode === "create"
-          ? "Failed to create technician. Please check your input and try again."
-          : "Failed to update technician. Please check your input and try again.";
+          ? getErrorMessage(
+              error,
+              "Failed to create technician. Please check your input and try again.",
+            )
+          : getErrorMessage(
+              error,
+              "Failed to update technician. Please check your input and try again.",
+            );
 
-      if (error?.response?.data) {
-        const errorData = error.response.data;
-        if (errorData.errors && typeof errorData.errors === "object") {
-          const validationMessages = [];
-          for (const [field, messages] of Object.entries(errorData.errors)) {
-            if (Array.isArray(messages)) {
-              validationMessages.push(...messages);
-            } else if (typeof messages === "string") {
-              validationMessages.push(messages);
-            }
-          }
-          if (validationMessages.length > 0) {
-            errorMessage = validationMessages.join(" ");
-          }
-        } else if (errorData.message) {
-          errorMessage = errorData.message;
-        } else if (errorData.title) {
-          errorMessage = errorData.detail || errorData.title;
-        }
-      }
-
+      const fieldErrors = getErrorFields(error, [
+        "firstName",
+        "lastName",
+        "email",
+        "hireDate",
+        "password",
+      ]);
+      setErrors(fieldErrors);
       notify(errorMessage, "error");
     }
   };
@@ -166,85 +119,70 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-2 gap-4">
-        <FormField
-          label="First Name"
-          htmlFor="firstName"
-          required
-          error={errors.firstName}
-        >
+        <FormField label="First Name" htmlFor="firstName" required>
           <input
             id="firstName"
             type="text"
             value={formData.firstName}
             onChange={e => handleInputChange("firstName", e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+              errors.firstName ? "border-red-300" : "border-gray-300"
+            }`}
             placeholder="Enter first name"
           />
         </FormField>
 
-        <FormField
-          label="Last Name"
-          htmlFor="lastName"
-          required
-          error={errors.lastName}
-        >
+        <FormField label="Last Name" htmlFor="lastName" required>
           <input
             id="lastName"
             type="text"
             value={formData.lastName}
             onChange={e => handleInputChange("lastName", e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+              errors.lastName ? "border-red-300" : "border-gray-300"
+            }`}
             placeholder="Enter last name"
           />
         </FormField>
       </div>
 
-      <FormField
-        label="Email Address"
-        htmlFor="email"
-        required
-        error={errors.email}
-      >
+      <FormField label="Email Address" htmlFor="email" required>
         <input
           id="email"
           type="email"
           value={formData.email}
           onChange={e => handleInputChange("email", e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+            errors.email ? "border-red-300" : "border-gray-300"
+          }`}
           placeholder="Enter email address"
         />
       </FormField>
 
       {mode === "create" && (
-        <FormField
-          label="Password"
-          htmlFor="password"
-          required
-          error={errors.password}
-        >
+        <FormField label="Password" htmlFor="password" required>
           <input
             id="password"
             type="password"
             value={formData.password}
             onChange={e => handleInputChange("password", e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+              errors.password ? "border-red-300" : "border-gray-300"
+            }`}
             placeholder="Enter password (minimum 6 characters)"
           />
         </FormField>
       )}
 
-      <FormField
-        label="Hire Date"
-        htmlFor="hireDate"
-        required
-        error={errors.hireDate}
-      >
+      <FormField label="Hire Date" htmlFor="hireDate" required>
         <input
           id="hireDate"
           type="date"
           value={formData.hireDate}
           onChange={e => handleInputChange("hireDate", e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+            errors.hireDate ? "border-red-300" : "border-gray-300"
+          }`}
         />
       </FormField>
 
