@@ -1,5 +1,3 @@
-using System;
-
 namespace Application.Features.Issues.Query.GetOpenIssueData;
 
 public class GetOpenIssueDataDTO
