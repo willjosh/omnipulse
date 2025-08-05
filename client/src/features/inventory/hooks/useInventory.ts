@@ -47,6 +47,16 @@ export function useInventory(id: number) {
   return { inventory: data, isPending, isError, isSuccess, error };
 }
 
+export function useCreateInventory() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: inventoryApi.createInventory,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["inventories"] });
+    },
+  });
+}
+
 export function useUpdateInventory() {
   const queryClient = useQueryClient();
   return useMutation({

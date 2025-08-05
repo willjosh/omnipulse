@@ -37,6 +37,11 @@ export const inventoryApi = {
     return data;
   },
 
+  createInventory: async (command: any) => {
+    const { data } = await agent.post(`/api/Inventories`, command);
+    return data;
+  },
+
   updateInventory: async (command: UpdateInventoryCommand) => {
     const { data } = await agent.put(
       `/api/Inventories/${command.inventoryID}`,

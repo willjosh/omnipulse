@@ -108,7 +108,7 @@ const InventoryList = () => {
         label: INVENTORY_ACTION_CONFIG[InventoryActionType.EDIT].label,
         icon: <Edit />,
         onClick: (item: Inventory) => {
-          console.log("Edit inventory:", item.id);
+          router.push(`/inventory/${item.id}/edit`);
         },
       },
       {
@@ -197,6 +197,7 @@ const InventoryList = () => {
           fixedLayout={false}
           loading={isPending}
           getItemId={item => {
+            // Use the most unique fields available
             const name = item?.inventoryItemName || "unknown";
             const cost = item?.unitCost || 0;
             const qty = item?.quantityOnHand || 0;
