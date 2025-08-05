@@ -1,10 +1,9 @@
 "use client";
 import React from "react";
-import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, MoreHorizontal, Printer } from "lucide-react";
+import { useParams } from "next/navigation";
+import { Printer } from "lucide-react";
 import InspectionHeader from "@/features/inspection/components/InspectionHeader";
 import { useInspection } from "@/features/inspection/hooks/useInspections";
-import PrimaryButton from "@/components/ui/Button/PrimaryButton";
 import SecondaryButton from "@/components/ui/Button/SecondaryButton";
 import FormContainer from "@/components/ui/Form/FormContainer";
 import DetailFieldRow from "@/components/ui/Detail/DetailFieldRow";
@@ -12,19 +11,11 @@ import { format } from "date-fns";
 
 export default function InspectionDetailsPage() {
   const params = useParams();
-  const router = useRouter();
   const inspectionId = Number(params.id);
 
   const { inspection, isPending, isError } = useInspection(inspectionId);
 
-  const breadcrumbs = [
-    { label: "Inspection History", href: "/inspections" },
-    { label: `Submission #${inspectionId}`, href: "#" },
-  ];
-
-  const handleBack = () => {
-    router.push("/inspections");
-  };
+  const breadcrumbs = [{ label: "Inspection History", href: "/inspections" }];
 
   const handlePrint = () => {
     window.print();
@@ -80,10 +71,6 @@ export default function InspectionDetailsPage() {
       >
         <Printer className="w-4 h-4" />
         Print
-      </SecondaryButton>
-      <SecondaryButton className="flex items-center gap-2">
-        <MoreHorizontal className="w-4 h-4" />
-        More options
       </SecondaryButton>
     </>
   );
