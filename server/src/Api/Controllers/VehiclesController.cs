@@ -2,7 +2,9 @@ using Application.Features.Vehicles.Command.CreateVehicle;
 using Application.Features.Vehicles.Command.DeactivateVehicle;
 using Application.Features.Vehicles.Command.UpdateVehicle;
 using Application.Features.Vehicles.Query.GetAllVehicle;
+using Application.Features.Vehicles.Query.GetVehicleAssignedData;
 using Application.Features.Vehicles.Query.GetVehicleDetails;
+using Application.Features.Vehicles.Query.GetVehicleStatusData; // ✅ Add this using
 using Application.Models.PaginationModels;
 
 using Domain.Entities;
@@ -22,6 +24,8 @@ namespace Api.Controllers;
 /// <list type="bullet">
 /// <item><b>GET /api/vehicles</b> - <see cref="GetVehicles"/> - <see cref="GetAllVehicleQuery"/></item>
 /// <item><b>GET /api/vehicles/{id}</b> - <see cref="GetVehicle"/> - <see cref="GetVehicleDetailsQuery"/></item>
+/// <item><b>GET /api/vehicles/assigned-data</b> - <see cref="GetVehicleAssignedData"/> - <see cref="GetVehicleAssignedDataQuery"/></item>
+/// <item><b>GET /api/vehicles/status-data</b> - <see cref="GetVehicleStatusData"/> - <see cref="GetVehicleStatusDataQuery"/></item>
 /// <item><b>POST /api/vehicles</b> - <see cref="CreateVehicle"/> - <see cref="CreateVehicleCommand"/></item>
 /// <item><b>PUT /api/vehicles/{id}</b> - <see cref="UpdateVehicle"/> - <see cref="UpdateVehicleCommand"/></item>
 /// <item><b>PATCH /api/vehicles/{id}/deactivate</b> - <see cref="DeactivateVehicle"/> - <see cref="DeactivateVehicleCommand"/></item>
@@ -212,6 +216,68 @@ public sealed class VehiclesController : ControllerBase
             var vehicleId = await _mediator.Send(command, cancellationToken);
 
             return Ok(vehicleId);
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Retrieves vehicle assignment statistics (assigned vs unassigned counts).
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>Vehicle assignment data including counts of assigned and unassigned vehicles.</returns>
+    /// <response code="200">Returns the vehicle assignment statistics.</response>
+    /// <response code="401">Unauthorized access.</response>
+    /// <response code="500">Internal server error occurred.</response>
+    [HttpGet("assigned-data")]
+    [ProducesResponseType(typeof(GetVehicleAssignedDataDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Authorize(Policy = "FleetManager")]
+    public async Task<ActionResult<GetVehicleAssignedDataDTO>> GetVehicleAssignedData(
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            _logger.LogInformation($"{nameof(GetVehicleAssignedData)}() - Called");
+
+            var query = new GetVehicleAssignedDataQuery();
+            var result = await _mediator.Send(query, cancellationToken);
+
+            return Ok(result);
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Retrieves vehicle status statistics (active, maintenance, out of service, inactive counts).
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>Vehicle status data including counts of vehicles by status.</returns>
+    /// <response code="200">Returns the vehicle status statistics.</response>
+    /// <response code="401">Unauthorized access.</response>
+    /// <response code="500">Internal server error occurred.</response>
+    [HttpGet("status-data")]
+    [ProducesResponseType(typeof(GetVehicleStatusDataDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Authorize(Policy = "FleetManager")]
+    public async Task<ActionResult<GetVehicleStatusDataDTO>> GetVehicleStatusData(
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            _logger.LogInformation($"{nameof(GetVehicleStatusData)}() - Called");
+
+            var query = new GetVehicleStatusDataQuery();
+            var result = await _mediator.Send(query, cancellationToken);
+
+            return Ok(result);
         }
         catch (Exception)
         {

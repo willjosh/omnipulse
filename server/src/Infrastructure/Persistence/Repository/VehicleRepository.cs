@@ -1,3 +1,4 @@
+
 using Application.Contracts.Persistence;
 using Application.Models.PaginationModels;
 
@@ -135,4 +136,41 @@ public class VehicleRepository : GenericRepository<Vehicle>, IVehicleRepository
             _ => query.OrderBy(v => v.ID) // Default sorting by ID
         };
     }
+
+    public async Task<int> GetAllAssignedVehicleAsync()
+    {
+        return await _dbSet.Where(v => v.AssignedTechnicianID != null)
+            .CountAsync();
+    }
+
+    public async Task<int> GetAllUnassignedVehicleAsync()
+    {
+        return await _dbSet.Where(v => v.AssignedTechnicianID == null)
+            .CountAsync();
+    }
+
+    public async Task<int> GetActiveVehicleCountAsync()
+    {
+        return await _dbSet
+            .CountAsync(v => v.Status == VehicleStatusEnum.ACTIVE);
+    }
+
+    public async Task<int> GetMaintenanceVehicleCountAsync()
+    {
+        return await _dbSet
+            .CountAsync(v => v.Status == VehicleStatusEnum.MAINTENANCE);
+    }
+
+    public async Task<int> GetOutOfServiceVehicleCountAsync()
+    {
+        return await _dbSet
+            .CountAsync(v => v.Status == VehicleStatusEnum.OUT_OF_SERVICE);
+    }
+
+    public async Task<int> GetInactiveVehicleCountAsync()
+    {
+        return await _dbSet
+            .CountAsync(v => v.Status == VehicleStatusEnum.INACTIVE);
+    }
+
 }

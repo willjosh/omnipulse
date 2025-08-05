@@ -25,7 +25,7 @@ export default function WorkOrdersPage() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
-  const [sortBy, setSortBy] = useState("Title");
+  const [sortBy, setSortBy] = useState("id");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;

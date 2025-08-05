@@ -7,6 +7,7 @@ using Application.Features.WorkOrders.Command.UpdateWorkOrder;
 using Application.Features.WorkOrders.Query.GetAllWorkOrder;
 using Application.Features.WorkOrders.Query.GetWorkOrderDetail;
 using Application.Features.WorkOrders.Query.GetWorkOrderInvoicePdf;
+using Application.Features.WorkOrders.Query.GetWorkOrderStatusData; // ✅ Add this using
 using Application.Models.PaginationModels;
 
 using Domain.Entities;
@@ -26,6 +27,7 @@ namespace Api.Controllers;
 /// <list type="bullet">
 /// <item><b>GET /api/workorders</b> - <see cref="GetWorkOrders"/> - <see cref="GetAllWorkOrderQuery"/></item>
 /// <item><b>GET /api/workorders/{id}</b> - <see cref="GetWorkOrder"/> - <see cref="GetWorkOrderDetailQuery"/></item>
+/// <item><b>GET /api/workorders/status-data</b> - <see cref="GetWorkOrderStatusData"/> - <see cref="GetWorkOrderStatusDataQuery"/></item>
 /// <item><b>POST /api/workorders</b> - <see cref="CreateWorkOrder"/> - <see cref="CreateWorkOrderCommand"/></item>
 /// <item><b>PUT /api/workorders/{id}</b> - <see cref="UpdateWorkOrder"/> - <see cref="UpdateWorkOrderCommand"/></item>
 /// <item><b>DELETE /api/workorders/{id}</b> - <see cref="DeleteWorkOrder"/> - <see cref="DeleteWorkOrderCommand"/></item>
@@ -294,6 +296,37 @@ public sealed class WorkOrdersController : ControllerBase
             // Return PDF as file download
             var fileName = $"workorder{id}-invoice.pdf";
             return File(pdfBytes, "application/pdf", fileName);
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Retrieves work order status statistics (created and in-progress counts).
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>Work order status data including counts of created and in-progress work orders.</returns>
+    /// <response code="200">Returns the work order status statistics.</response>
+    /// <response code="401">Unauthorized access.</response>
+    /// <response code="500">Internal server error occurred.</response>
+    [HttpGet("status-data")]
+    [ProducesResponseType(typeof(GetWorkOrderStatusDataDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Authorize(Policy = "AllRoles")]
+    public async Task<ActionResult<GetWorkOrderStatusDataDTO>> GetWorkOrderStatusData(
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            _logger.LogInformation($"{nameof(GetWorkOrderStatusData)}() - Called");
+
+            var query = new GetWorkOrderStatusDataQuery();
+            var result = await _mediator.Send(query, cancellationToken);
+
+            return Ok(result);
         }
         catch (Exception)
         {

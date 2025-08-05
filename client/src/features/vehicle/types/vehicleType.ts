@@ -94,3 +94,15 @@ export interface VehicleFilter {
   SortDescending?: boolean;
   Search?: string;
 }
+
+export interface VehicleAssignedData {
+  assignedVehicleCount: number;
+  unassignedVehicleCount: number;
+}
+
+export interface VehicleStatusData {
+  activeVehicleCount: number;
+  inactiveVehicleCount: number;
+  maintenanceVehicleCount: number;
+  outOfServiceVehicleCount: number;
+}

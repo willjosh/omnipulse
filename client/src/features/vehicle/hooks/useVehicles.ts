@@ -1,6 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { vehicleApi, convertVehicleData } from "../api/vehicleApi";
-import { VehicleWithLabels, VehicleFilter } from "../types/vehicleType";
+import {
+  VehicleWithLabels,
+  VehicleFilter,
+  VehicleAssignedData,
+  VehicleStatusData,
+} from "../types/vehicleType";
 import { useDebounce } from "@/hooks/useDebounce";
 
 export function useVehicles(filter: VehicleFilter = {}) {
@@ -56,6 +61,48 @@ export function useCreateVehicle() {
       await queryClient.invalidateQueries({ queryKey: ["vehicles"] });
     },
   });
+}
+
+export function useVehicleAssignedData() {
+  const { data, isPending, isError, isSuccess, error } =
+    useQuery<VehicleAssignedData>({
+      queryKey: ["vehicleAssignedData"],
+      queryFn: async () => {
+        const data = await vehicleApi.getVehicleAssignedData();
+        return data;
+      },
+    });
+
+  return {
+    assignedVehicleCount: data?.assignedVehicleCount ?? 0,
+    unassignedVehicleCount: data?.unassignedVehicleCount ?? 0,
+    isAssignedVehicleDataLoading: isPending,
+    isError,
+    isSuccess,
+    error,
+  };
+}
+
+export function useVehicleStatusData() {
+  const { data, isPending, isError, isSuccess, error } =
+    useQuery<VehicleStatusData>({
+      queryKey: ["vehicleStatusData"],
+      queryFn: async () => {
+        const data = await vehicleApi.getVehicleStatusData();
+        return data;
+      },
+    });
+
+  return {
+    activeVehicleCount: data?.activeVehicleCount ?? 0,
+    inactiveVehicleCount: data?.inactiveVehicleCount ?? 0,
+    maintenanceVehicleCount: data?.maintenanceVehicleCount ?? 0,
+    outOfServiceVehicleCount: data?.outOfServiceVehicleCount ?? 0,
+    isVehicleStatusDataLoading: isPending,
+    isError,
+    isSuccess,
+    error,
+  };
 }
 
 export function useUpdateVehicle() {

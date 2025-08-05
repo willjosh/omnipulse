@@ -8,4 +8,5 @@ public interface IIssueRepository : IGenericRepository<Issue>
 {
     public Task<PagedResult<Issue>> GetAllIssuesPagedAsync(PaginationParameters parameters);
     public Task<Issue?> GetIssueWithDetailsAsync(int issueID);
+    public Task<int> GetAllOpenIssuesCountAsync();
 }

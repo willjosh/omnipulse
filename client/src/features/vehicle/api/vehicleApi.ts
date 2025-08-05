@@ -5,6 +5,8 @@ import {
   VehicleFilter,
   CreateVehicleCommand,
   UpdateVehicleCommand,
+  VehicleAssignedData,
+  VehicleStatusData,
 } from "../types/vehicleType";
 import {
   getVehicleTypeLabel,
@@ -53,6 +55,20 @@ export const vehicleApi = {
 
   getVehicle: async (id: string) => {
     const { data } = await agent.get<Vehicle>(`/api/Vehicles/${id}`);
+    return data;
+  },
+
+  getVehicleAssignedData: async () => {
+    const { data } = await agent.get<VehicleAssignedData>(
+      `/api/Vehicles/assigned-data`,
+    );
+    return data;
+  },
+
+  getVehicleStatusData: async (): Promise<VehicleStatusData> => {
+    const { data } = await agent.get<VehicleStatusData>(
+      `/api/Vehicles/status-data`,
+    );
     return data;
   },
 

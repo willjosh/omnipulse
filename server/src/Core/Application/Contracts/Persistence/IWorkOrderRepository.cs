@@ -8,4 +8,6 @@ public interface IWorkOrderRepository : IGenericRepository<WorkOrder>
 {
     public Task<WorkOrder?> GetWorkOrderWithDetailsAsync(int workOrderId);
     public Task<PagedResult<WorkOrder>> GetAllWorkOrderPagedAsync(PaginationParameters parameters);
+    public Task<int> GetAllCreatedWorkOrdersCountAsync();
+    public Task<int> GetAllInProgressWorkOrdersCountAsync();
 }

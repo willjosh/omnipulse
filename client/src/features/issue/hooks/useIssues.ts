@@ -1,6 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { issueApi, convertIssueData } from "../api/issueApi";
-import { IssueWithLabels, IssueFilter } from "../types/issueType";
+import {
+  IssueWithLabels,
+  IssueFilter,
+  OpenIssueData,
+} from "../types/issueType";
 import { useDebounce } from "@/hooks/useDebounce";
 
 export function useIssues(filter: IssueFilter) {
@@ -46,6 +50,25 @@ export function useIssue(id: number) {
     });
 
   return { issue: data, isPending, isError, isSuccess, error };
+}
+
+export function useOpenIssueData() {
+  const { data, isPending, isError, isSuccess, error } =
+    useQuery<OpenIssueData>({
+      queryKey: ["openIssueData"],
+      queryFn: async () => {
+        const data = await issueApi.getOpenIssueData();
+        return data;
+      },
+    });
+
+  return {
+    openIssueCount: data?.openIssueCount ?? 0,
+    isLoadingOpenIssueData: isPending,
+    isError,
+    isSuccess,
+    error,
+  };
 }
 
 export function useCreateIssue() {

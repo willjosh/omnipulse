@@ -22,57 +22,6 @@ namespace Persistence.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Domain.Entities.CheckListItem", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
-
-                    b.Property<string>("Category")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<int>("InputType")
-                        .HasColumnType("int");
-
-                    b.Property<int>("InspectionTypeID")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsMandatory")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("ItemName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("Category");
-
-                    b.HasIndex("InspectionTypeID");
-
-                    b.HasIndex("IsMandatory");
-
-                    b.HasIndex("InspectionTypeID", "ItemName")
-                        .IsUnique();
-
-                    b.ToTable("CheckListItems", (string)null);
-                });
-
             modelBuilder.Entity("Domain.Entities.FuelPurchase", b =>
                 {
                     b.Property<int>("ID")
@@ -154,7 +103,7 @@ namespace Persistence.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Domain.Entities.InspectionAttachment", b =>
+            modelBuilder.Entity("Domain.Entities.Inspection", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
@@ -162,96 +111,74 @@ namespace Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
-                    b.Property<int>("CheckListItemID")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                    b.Property<DateTime>("InspectionEndTime")
+                        .HasColumnType("datetime2");
 
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                    b.Property<int>("InspectionFormID")
+                        .HasColumnType("int");
 
-                    b.Property<string>("FilePath")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                    b.Property<DateTime>("InspectionStartTime")
+                        .HasColumnType("datetime2");
 
-                    b.Property<string>("FileSize")
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<double?>("OdometerReading")
+                        .HasColumnType("float");
+
+                    b.Property<string>("SnapshotFormDescription")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SnapshotFormTitle")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("FileType")
-                        .HasColumnType("int");
+                    b.Property<string>("TechnicianID")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("VehicleInspectionID")
+                    b.Property<int>("VehicleCondition")
+                        .HasColumnType("int");
+
+                    b.Property<int>("VehicleID")
                         .HasColumnType("int");
 
                     b.HasKey("ID");
 
-                    b.HasIndex("CheckListItemID");
+                    b.HasIndex("InspectionFormID");
 
-                    b.HasIndex("CreatedAt");
+                    b.HasIndex("InspectionStartTime");
 
-                    b.HasIndex("FileType");
+                    b.HasIndex("TechnicianID");
 
-                    b.HasIndex("VehicleInspectionID");
+                    b.HasIndex("VehicleCondition");
 
-                    b.HasIndex("VehicleInspectionID", "CheckListItemID");
+                    b.HasIndex("VehicleID");
 
-                    b.ToTable("InspectionAttachments", null, t =>
+                    b.HasIndex("InspectionFormID", "InspectionStartTime");
+
+                    b.HasIndex("TechnicianID", "InspectionStartTime");
+
+                    b.HasIndex("VehicleID", "InspectionStartTime");
+
+                    b.ToTable("Inspections", null, t =>
                         {
-                            t.HasCheckConstraint("CK_InspectionAttachment_FileSize", "FileSize > 0");
+                            t.HasCheckConstraint("CK_Inspection_InspectionStartTime", "InspectionStartTime >= '2000-01-01' AND InspectionStartTime <= GETDATE()");
+
+                            t.HasCheckConstraint("CK_Inspection_OdometerReading", "OdometerReading >= 0");
+
+                            t.HasCheckConstraint("CK_Inspection_Times", "InspectionEndTime >= InspectionStartTime");
                         });
                 });
 
-            modelBuilder.Entity("Domain.Entities.InspectionChecklistResponse", b =>
-                {
-                    b.Property<int>("VehicleInspectionID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ChecklistItemID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Note")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<bool>("RequiresAttention")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("ResponseDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<string>("TextResponse")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.HasKey("VehicleInspectionID", "ChecklistItemID");
-
-                    b.HasIndex("ChecklistItemID");
-
-                    b.HasIndex("RequiresAttention");
-
-                    b.HasIndex("ResponseDate");
-
-                    b.HasIndex("Status");
-
-                    b.ToTable("InspectionChecklistResponses", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.Entities.InspectionType", b =>
+            modelBuilder.Entity("Domain.Entities.InspectionForm", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
@@ -269,10 +196,10 @@ namespace Persistence.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -281,10 +208,103 @@ namespace Persistence.Migrations
 
                     b.HasIndex("CreatedAt");
 
-                    b.HasIndex("Name")
+                    b.HasIndex("IsActive");
+
+                    b.HasIndex("Title")
                         .IsUnique();
 
-                    b.ToTable("InspectionTypes", (string)null);
+                    b.ToTable("InspectionForms", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.InspectionFormItem", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("InspectionFormID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("InspectionFormItemTypeEnum")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsRequired")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ItemDescription")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("ItemInstructions")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("ItemLabel")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("InspectionFormID");
+
+                    b.HasIndex("IsRequired");
+
+                    b.HasIndex("InspectionFormID", "ItemLabel")
+                        .IsUnique();
+
+                    b.ToTable("InspectionFormItems", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.InspectionPassFailItem", b =>
+                {
+                    b.Property<int>("InspectionID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("InspectionFormItemID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Comment")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<bool>("Passed")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("SnapshotInspectionFormItemTypeEnum")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("SnapshotIsRequired")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("SnapshotItemDescription")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SnapshotItemInstructions")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SnapshotItemLabel")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("InspectionID", "InspectionFormItemID");
+
+                    b.HasIndex("InspectionFormItemID");
+
+                    b.HasIndex("Passed");
+
+                    b.ToTable("InspectionPassFailItems", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Inventory", b =>
@@ -688,7 +708,7 @@ namespace Persistence.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<int>("IssueNumber")
+                    b.Property<int?>("InspectionID")
                         .HasColumnType("int");
 
                     b.Property<int>("PriorityLevel")
@@ -734,8 +754,7 @@ namespace Persistence.Migrations
 
                     b.HasIndex("CreatedAt");
 
-                    b.HasIndex("IssueNumber")
-                        .IsUnique();
+                    b.HasIndex("InspectionID");
 
                     b.HasIndex("PriorityLevel");
 
@@ -955,41 +974,51 @@ namespace Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Description")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<DateTime>("DueDate")
+                    b.Property<DateTime?>("DueDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<double>("DueEngineHours")
+                    b.Property<double?>("DueMileage")
                         .HasColumnType("float");
 
-                    b.Property<double>("DueMileage")
+                    b.Property<double?>("MeterVariance")
                         .HasColumnType("float");
 
-                    b.Property<bool>("IsCompleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("LastNotificationSentDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("NotificationCount")
+                    b.Property<int?>("MileageBuffer")
                         .HasColumnType("int");
+
+                    b.Property<double?>("MileageInterval")
+                        .HasColumnType("float");
 
                     b.Property<int>("PriorityLevel")
                         .HasColumnType("int");
 
+                    b.Property<int?>("ServiceProgramID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ServiceProgramName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("ServiceScheduleID")
                         .HasColumnType("int");
+
+                    b.Property<string>("ServiceScheduleName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                    b.Property<int?>("TimeBufferUnit")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TimeBufferValue")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TimeIntervalUnit")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TimeIntervalValue")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -997,13 +1026,16 @@ namespace Persistence.Migrations
                     b.Property<int>("VehicleID")
                         .HasColumnType("int");
 
+                    b.Property<int?>("WorkOrderID")
+                        .HasColumnType("int");
+
                     b.HasKey("ID");
 
                     b.HasIndex("DueDate");
 
-                    b.HasIndex("IsCompleted");
-
                     b.HasIndex("PriorityLevel");
+
+                    b.HasIndex("ServiceProgramID");
 
                     b.HasIndex("ServiceScheduleID");
 
@@ -1011,25 +1043,19 @@ namespace Persistence.Migrations
 
                     b.HasIndex("VehicleID");
 
-                    b.HasIndex("IsCompleted", "DueDate");
+                    b.HasIndex("WorkOrderID");
 
                     b.HasIndex("Status", "DueDate");
 
                     b.HasIndex("VehicleID", "DueDate");
 
-                    b.HasIndex("VehicleID", "IsCompleted");
-
                     b.ToTable("ServiceReminders", null, t =>
                         {
-                            t.HasCheckConstraint("CK_ServiceReminder_CompletedDate", "CompletedDate IS NULL OR (IsCompleted = 1 AND CompletedDate >= CreatedAt)");
+                            t.HasCheckConstraint("CK_ServiceReminder_CompletedDate", "CompletedDate IS NULL OR CompletedDate >= CreatedAt");
 
                             t.HasCheckConstraint("CK_ServiceReminder_DueDate", "DueDate >= CreatedAt");
 
-                            t.HasCheckConstraint("CK_ServiceReminder_DueEngineHours", "DueEngineHours >= 0");
-
                             t.HasCheckConstraint("CK_ServiceReminder_DueMileage", "DueMileage >= 0");
-
-                            t.HasCheckConstraint("CK_ServiceReminder_NotificationCount", "NotificationCount >= 0");
                         });
                 });
 
@@ -1044,13 +1070,10 @@ namespace Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("FirstServiceDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<int?>("FirstServiceMileage")
-                        .HasColumnType("int");
-
-                    b.Property<string>("FirstServiceTimeUnit")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("FirstServiceTimeValue")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsActive")
@@ -1103,8 +1126,6 @@ namespace Persistence.Migrations
                     b.ToTable("ServiceSchedules", null, t =>
                         {
                             t.HasCheckConstraint("CK_ServiceSchedule_FirstServiceMileage", "FirstServiceMileage >= 0");
-
-                            t.HasCheckConstraint("CK_ServiceSchedule_FirstServiceTimeValue", "FirstServiceTimeValue >= 0");
 
                             t.HasCheckConstraint("CK_ServiceSchedule_MileageBuffer", "MileageBuffer >= 0");
 
@@ -1701,83 +1722,6 @@ namespace Persistence.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Domain.Entities.VehicleInspection", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("EndTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("InspectionDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("InspectionTypeID")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsPassed")
-                        .HasColumnType("bit");
-
-                    b.Property<double>("MileageAtInspection")
-                        .HasColumnType("float");
-
-                    b.Property<string>("Notes")
-                        .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
-
-                    b.Property<int>("OverallStatus")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("StartTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("TechnicianID")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("VehicleID")
-                        .HasColumnType("int");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("InspectionDate");
-
-                    b.HasIndex("InspectionTypeID");
-
-                    b.HasIndex("IsPassed");
-
-                    b.HasIndex("OverallStatus");
-
-                    b.HasIndex("TechnicianID");
-
-                    b.HasIndex("VehicleID");
-
-                    b.HasIndex("InspectionTypeID", "InspectionDate");
-
-                    b.HasIndex("TechnicianID", "InspectionDate");
-
-                    b.HasIndex("VehicleID", "InspectionDate");
-
-                    b.ToTable("VehicleInspections", null, t =>
-                        {
-                            t.HasCheckConstraint("CK_VehicleInspection_InspectionDate", "InspectionDate >= '2000-01-01' AND InspectionDate <= GETDATE()");
-
-                            t.HasCheckConstraint("CK_VehicleInspection_MileageAtInspection", "MileageAtInspection >= 0");
-
-                            t.HasCheckConstraint("CK_VehicleInspection_Times", "EndTime >= StartTime");
-                        });
-                });
-
             modelBuilder.Entity("Domain.Entities.WorkOrder", b =>
                 {
                     b.Property<int>("ID")
@@ -1815,9 +1759,6 @@ namespace Persistence.Migrations
                     b.Property<DateTime?>("ScheduledStartDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("ServiceReminderID")
-                        .HasColumnType("int");
-
                     b.Property<double>("StartOdometer")
                         .HasColumnType("float");
 
@@ -1854,8 +1795,6 @@ namespace Persistence.Migrations
 
                     b.HasIndex("ScheduledStartDate");
 
-                    b.HasIndex("ServiceReminderID");
-
                     b.HasIndex("Status");
 
                     b.HasIndex("VehicleID");
@@ -1872,10 +1811,6 @@ namespace Persistence.Migrations
 
                     b.ToTable("WorkOrders", null, t =>
                         {
-                            t.HasCheckConstraint("CK_WorkOrder_CompletionDates", "ActualCompletionDate IS NULL OR ScheduledCompletionDate IS NULL OR ActualCompletionDate >= ScheduledCompletionDate");
-
-                            t.HasCheckConstraint("CK_WorkOrder_Dates", "ActualStartDate IS NULL OR ScheduledStartDate IS NULL OR ActualStartDate >= ScheduledStartDate");
-
                             t.HasCheckConstraint("CK_WorkOrder_EndOdometer", "EndOdometer IS NULL OR EndOdometer >= StartOdometer");
 
                             t.HasCheckConstraint("CK_WorkOrder_StartOdometer", "StartOdometer >= 0");
@@ -1994,6 +1929,9 @@ namespace Persistence.Migrations
 
                     b.Property<DateTime>("AddedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<double?>("VehicleMileageAtAssignment")
+                        .HasColumnType("float");
 
                     b.HasKey("ServiceProgramID", "VehicleID");
 
@@ -2173,17 +2111,6 @@ namespace Persistence.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.CheckListItem", b =>
-                {
-                    b.HasOne("Domain.Entities.InspectionType", "Inspection")
-                        .WithMany()
-                        .HasForeignKey("InspectionTypeID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Inspection");
-                });
-
             modelBuilder.Entity("Domain.Entities.FuelPurchase", b =>
                 {
                     b.HasOne("Domain.Entities.User", "User")
@@ -2203,42 +2130,61 @@ namespace Persistence.Migrations
                     b.Navigation("Vehicle");
                 });
 
-            modelBuilder.Entity("Domain.Entities.InspectionAttachment", b =>
+            modelBuilder.Entity("Domain.Entities.Inspection", b =>
                 {
-                    b.HasOne("Domain.Entities.CheckListItem", "CheckListItem")
-                        .WithMany()
-                        .HasForeignKey("CheckListItemID")
+                    b.HasOne("Domain.Entities.InspectionForm", "InspectionForm")
+                        .WithMany("Inspections")
+                        .HasForeignKey("InspectionFormID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.VehicleInspection", "VehicleInspection")
-                        .WithMany()
-                        .HasForeignKey("VehicleInspectionID")
-                        .OnDelete(DeleteBehavior.Cascade)
+                    b.HasOne("Domain.Entities.User", "User")
+                        .WithMany("Inspections")
+                        .HasForeignKey("TechnicianID")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("CheckListItem");
+                    b.HasOne("Domain.Entities.Vehicle", "Vehicle")
+                        .WithMany("Inspections")
+                        .HasForeignKey("VehicleID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
-                    b.Navigation("VehicleInspection");
+                    b.Navigation("InspectionForm");
+
+                    b.Navigation("User");
+
+                    b.Navigation("Vehicle");
                 });
 
-            modelBuilder.Entity("Domain.Entities.InspectionChecklistResponse", b =>
+            modelBuilder.Entity("Domain.Entities.InspectionFormItem", b =>
                 {
-                    b.HasOne("Domain.Entities.CheckListItem", "CheckListItem")
-                        .WithMany()
-                        .HasForeignKey("ChecklistItemID")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.VehicleInspection", "VehicleInspection")
-                        .WithMany()
-                        .HasForeignKey("VehicleInspectionID")
+                    b.HasOne("Domain.Entities.InspectionForm", "InspectionForm")
+                        .WithMany("InspectionFormItems")
+                        .HasForeignKey("InspectionFormID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("CheckListItem");
+                    b.Navigation("InspectionForm");
+                });
 
-                    b.Navigation("VehicleInspection");
+            modelBuilder.Entity("Domain.Entities.InspectionPassFailItem", b =>
+                {
+                    b.HasOne("Domain.Entities.InspectionFormItem", "InspectionFormItem")
+                        .WithMany()
+                        .HasForeignKey("InspectionFormItemID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Inspection", "Inspection")
+                        .WithMany("InspectionPassFailItems")
+                        .HasForeignKey("InspectionID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Inspection");
+
+                    b.Navigation("InspectionFormItem");
                 });
 
             modelBuilder.Entity("Domain.Entities.Inventory", b =>
@@ -2402,6 +2348,10 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.ServiceReminder", b =>
                 {
+                    b.HasOne("Domain.Entities.ServiceProgram", "ServiceProgram")
+                        .WithMany()
+                        .HasForeignKey("ServiceProgramID");
+
                     b.HasOne("Domain.Entities.ServiceSchedule", "ServiceSchedule")
                         .WithMany()
                         .HasForeignKey("ServiceScheduleID")
@@ -2414,9 +2364,17 @@ namespace Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Domain.Entities.WorkOrder", "WorkOrder")
+                        .WithMany()
+                        .HasForeignKey("WorkOrderID");
+
+                    b.Navigation("ServiceProgram");
+
                     b.Navigation("ServiceSchedule");
 
                     b.Navigation("Vehicle");
+
+                    b.Navigation("WorkOrder");
                 });
 
             modelBuilder.Entity("Domain.Entities.ServiceSchedule", b =>
@@ -2525,33 +2483,6 @@ namespace Persistence.Migrations
                     b.Navigation("Vehicle");
                 });
 
-            modelBuilder.Entity("Domain.Entities.VehicleInspection", b =>
-                {
-                    b.HasOne("Domain.Entities.InspectionType", "InspectionType")
-                        .WithMany("VehicleInspections")
-                        .HasForeignKey("InspectionTypeID")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.User", "User")
-                        .WithMany("VehicleInspections")
-                        .HasForeignKey("TechnicianID")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.Vehicle", "Vehicle")
-                        .WithMany("VehicleInspections")
-                        .HasForeignKey("VehicleID")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("InspectionType");
-
-                    b.Navigation("User");
-
-                    b.Navigation("Vehicle");
-                });
-
             modelBuilder.Entity("Domain.Entities.WorkOrder", b =>
                 {
                     b.HasOne("Domain.Entities.User", "User")
@@ -2559,10 +2490,6 @@ namespace Persistence.Migrations
                         .HasForeignKey("AssignedToUserID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("Domain.Entities.ServiceReminder", null)
-                        .WithMany("WorkOrders")
-                        .HasForeignKey("ServiceReminderID");
 
                     b.HasOne("Domain.Entities.Vehicle", "Vehicle")
                         .WithMany()
@@ -2716,9 +2643,16 @@ namespace Persistence.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Domain.Entities.InspectionType", b =>
+            modelBuilder.Entity("Domain.Entities.Inspection", b =>
                 {
-                    b.Navigation("VehicleInspections");
+                    b.Navigation("InspectionPassFailItems");
+                });
+
+            modelBuilder.Entity("Domain.Entities.InspectionForm", b =>
+                {
+                    b.Navigation("InspectionFormItems");
+
+                    b.Navigation("Inspections");
                 });
 
             modelBuilder.Entity("Domain.Entities.Inventory", b =>
@@ -2752,11 +2686,6 @@ namespace Persistence.Migrations
                     b.Navigation("XrefServiceProgramVehicles");
                 });
 
-            modelBuilder.Entity("Domain.Entities.ServiceReminder", b =>
-                {
-                    b.Navigation("WorkOrders");
-                });
-
             modelBuilder.Entity("Domain.Entities.ServiceSchedule", b =>
                 {
                     b.Navigation("XrefServiceScheduleServiceTasks");
@@ -2773,6 +2702,8 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.User", b =>
                 {
+                    b.Navigation("Inspections");
+
                     b.Navigation("InventoryTransactions");
 
                     b.Navigation("IssueAttachments");
@@ -2783,13 +2714,13 @@ namespace Persistence.Migrations
 
                     b.Navigation("VehicleDocuments");
 
-                    b.Navigation("VehicleInspections");
-
                     b.Navigation("Vehicles");
                 });
 
             modelBuilder.Entity("Domain.Entities.Vehicle", b =>
                 {
+                    b.Navigation("Inspections");
+
                     b.Navigation("Issues");
 
                     b.Navigation("ServiceReminders");
@@ -2799,8 +2730,6 @@ namespace Persistence.Migrations
                     b.Navigation("VehicleDocuments");
 
                     b.Navigation("VehicleImages");
-
-                    b.Navigation("VehicleInspections");
 
                     b.Navigation("XrefServiceProgramVehicles");
                 });

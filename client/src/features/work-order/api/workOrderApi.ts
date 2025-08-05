@@ -7,6 +7,7 @@ import {
   CreateWorkOrderCommand,
   UpdateWorkOrderCommand,
   WorkOrderFilter,
+  WorkOrderStatusData,
 } from "../types/workOrderType";
 import {
   getLineItemTypeLabel,
@@ -19,6 +20,7 @@ import {
   WorkOrderStatusEnum,
   WorkTypeEnum,
 } from "../types/workOrderEnum";
+import { get } from "http";
 
 function formatDate(date?: string | null): string {
   if (!date) return "Unknown";
@@ -79,6 +81,13 @@ export const workOrderApi = {
     return data;
   },
 
+  getWorkOrderStatusData: async () => {
+    const { data } = await agent.get<WorkOrderStatusData>(
+      "/api/WorkOrders/status-data",
+    );
+    return data;
+  },
+
   getWorkOrder: async (id: number) => {
     const { data } = await agent.get<WorkOrder>(`/api/WorkOrders/${id}`);
     return data;
@@ -100,5 +109,19 @@ export const workOrderApi = {
   deleteWorkOrder: async (id: number) => {
     const { data } = await agent.delete(`/api/WorkOrders/${id}`);
     return data;
+  },
+
+  // Complete a work order
+  completeWorkOrder: async (id: number) => {
+    const { data } = await agent.patch(`/api/WorkOrders/${id}/complete`);
+    return data;
+  },
+
+  // Get invoice PDF for a work order
+  getWorkOrderInvoicePdf: async (id: number) => {
+    const response = await agent.get(`/api/WorkOrders/${id}/invoice.pdf`, {
+      responseType: "blob",
+    });
+    return response.data;
   },
 };

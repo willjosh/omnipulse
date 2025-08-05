@@ -143,6 +143,7 @@ public class GetAllServiceProgramVehicleQueryHandlerTest
             ServiceProgramID = serviceProgramId,
             VehicleID = vehicleId,
             AddedAt = FixedDate,
+            VehicleMileageAtAssignment = 10000,
             ServiceProgram = CreateServiceProgram(serviceProgramId),
             Vehicle = vehicle ?? CreateVehicle(vehicleId),
             // User = new User // TODO XrefServiceProgramVehicle User
