@@ -18,6 +18,7 @@ import { X } from "lucide-react";
 import { PrimaryButton, SecondaryButton } from "@/components/ui/Button";
 import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
 import ModalPortal from "@/components/ui/Modal/ModalPortal";
+import { getErrorMessage, getErrorFields } from "@/utils/fieldErrorUtils";
 
 interface InventoryModalProps {
   isOpen: boolean;
@@ -33,6 +34,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
   item,
 }) => {
   const notify = useNotification();
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState({
     itemNumber: "",
     itemName: "",
@@ -89,6 +91,10 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    // Clear errors for this field when user starts typing
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: "" }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -115,38 +121,32 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
 
       onClose();
     } catch (error: any) {
-      console.error(
-        `Error ${mode === "create" ? "creating" : "updating"} inventory item:`,
-        error,
-      );
-
       let errorMessage =
         mode === "create"
-          ? "Failed to create inventory item. Please check your input and try again."
-          : "Failed to update inventory item. Please check your input and try again.";
+          ? getErrorMessage(
+              error,
+              "Failed to create inventory item. Please check your input and try again.",
+            )
+          : getErrorMessage(
+              error,
+              "Failed to create inventory item. Please check your input and try again.",
+            );
 
-      if (error?.response?.data) {
-        const errorData = error.response.data;
+      const fieldErrors = getErrorFields(error, [
+        "itemNumber",
+        "itemName",
+        "description",
+        "category",
+        "manufacturer",
+        "manufacturerPartNumber",
+        "universalProductCode",
+        "unitCost",
+        "unitCostMeasurementUnit",
+        "supplier",
+        "weightKG",
+      ]);
 
-        if (errorData.errors && typeof errorData.errors === "object") {
-          const validationMessages = [];
-          for (const [field, messages] of Object.entries(errorData.errors)) {
-            if (Array.isArray(messages)) {
-              validationMessages.push(...messages);
-            } else if (typeof messages === "string") {
-              validationMessages.push(messages);
-            }
-          }
-          if (validationMessages.length > 0) {
-            errorMessage = validationMessages.join(" ");
-          }
-        } else if (errorData.message) {
-          errorMessage = errorData.message;
-        } else if (errorData.title) {
-          errorMessage = errorData.detail || errorData.title;
-        }
-      }
-
+      setErrors(fieldErrors);
       notify(errorMessage, "error");
     }
   };
@@ -251,7 +251,9 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
                   onChange={e =>
                     handleInputChange("itemNumber", e.target.value)
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    errors.itemNumber ? "border-red-300" : "border-gray-300"
+                  }`}
                   required
                 />
               </div>
@@ -264,7 +266,9 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
                   type="text"
                   value={formData.itemName || ""}
                   onChange={e => handleInputChange("itemName", e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    errors.itemName ? "border-red-300" : "border-gray-300"
+                  }`}
                   required
                 />
               </div>
@@ -278,7 +282,9 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
                 value={formData.description || ""}
                 onChange={e => handleInputChange("description", e.target.value)}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  errors.description ? "border-red-300" : "border-gray-300"
+                }`}
               />
             </div>
 
@@ -292,7 +298,9 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
                   onChange={e =>
                     handleInputChange("category", parseInt(e.target.value))
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    errors.category ? "border-red-300" : "border-gray-300"
+                  }`}
                 >
                   {categoryOptions.map(option => (
                     <option key={option.value} value={option.value}>
@@ -312,7 +320,9 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
                   onChange={e =>
                     handleInputChange("manufacturer", e.target.value)
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    errors.manufacturer ? "border-red-300" : "border-gray-300"
+                  }`}
                 />
               </div>
             </div>
@@ -329,7 +339,11 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
                   onChange={e =>
                     handleInputChange("manufacturerPartNumber", e.target.value)
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    errors.manufacturerPartNumber
+                      ? "border-red-300"
+                      : "border-gray-300"
+                  }`}
                 />
               </div>
 
@@ -343,7 +357,11 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
                   onChange={e =>
                     handleInputChange("universalProductCode", e.target.value)
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    errors.universalProductCode
+                      ? "border-red-300"
+                      : "border-gray-300"
+                  }`}
                 />
               </div>
             </div>
@@ -364,7 +382,9 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
                       parseFloat(e.target.value) || 0,
                     )
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    errors.unitCost ? "border-red-300" : "border-gray-300"
+                  }`}
                 />
               </div>
 
@@ -383,7 +403,11 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
                       parseInt(e.target.value),
                     )
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    errors.unitCostMeasurementUnit
+                      ? "border-red-300"
+                      : "border-gray-300"
+                  }`}
                 >
                   {unitOptions.map(option => (
                     <option key={option.value} value={option.value}>
@@ -403,7 +427,9 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
                   type="text"
                   value={formData.supplier || ""}
                   onChange={e => handleInputChange("supplier", e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    errors.supplier ? "border-red-300" : "border-gray-300"
+                  }`}
                 />
               </div>
 
@@ -422,7 +448,9 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
                       parseFloat(e.target.value) || 0,
                     )
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    errors.weightKG ? "border-red-300" : "border-gray-300"
+                  }`}
                 />
               </div>
             </div>

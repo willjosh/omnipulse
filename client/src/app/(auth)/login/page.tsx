@@ -5,6 +5,7 @@ import { PrimaryButton, SecondaryButton } from "@/components/ui/Button";
 import { EyeOpen, EyeClosed } from "@/components/ui/Icons";
 import { useLogin } from "@/features/auth/hooks/useAuth";
 import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
+import { getErrorFields, getErrorMessage } from "@/utils/fieldErrorUtils";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -19,27 +20,8 @@ export default function LoginPage() {
     general?: string;
   }>({});
 
-  const validate = () => {
-    const newErrors: typeof errors = {};
-
-    if (!form.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(form.email)) {
-      newErrors.email = "Please enter a valid email address";
-    }
-
-    if (!form.password) {
-      newErrors.password = "Password is required";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!validate()) return;
 
     login(
       { email: form.email, password: form.password },
@@ -50,12 +32,15 @@ export default function LoginPage() {
         },
         onError: (error: any) => {
           console.error("Login failed:", error);
-          setErrors({
-            general:
-              error.response?.data?.message ||
-              "Login failed. Please check your credentials.",
-          });
-          notify("Login failed. Please check your credentials.", "error");
+
+          const errorMessage = getErrorMessage(
+            error,
+            "Login failed. Please check your credentials.",
+          );
+          const fieldErrors = getErrorFields(error, ["email", "password"]);
+
+          setErrors(fieldErrors);
+          notify(errorMessage, "error");
         },
       },
     );
@@ -78,12 +63,6 @@ export default function LoginPage() {
 
       <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
         <form className="space-y-6" onSubmit={handleSubmit}>
-          {errors.general && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
-              {errors.general}
-            </div>
-          )}
-
           <div>
             <label
               htmlFor="email"
@@ -106,9 +85,6 @@ export default function LoginPage() {
                 placeholder="Enter your email"
               />
             </div>
-            {errors.email && (
-              <p className="mt-2 text-sm text-red-600">{errors.email}</p>
-            )}
           </div>
 
           <div>
@@ -154,9 +130,6 @@ export default function LoginPage() {
                 {showPassword ? <EyeClosed /> : <EyeOpen />}
               </button>
             </div>
-            {errors.password && (
-              <p className="mt-2 text-sm text-red-600">{errors.password}</p>
-            )}
           </div>
 
           <div className="pt-2">

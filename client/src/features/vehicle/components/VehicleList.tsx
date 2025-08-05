@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { DataTable, PaginationControls } from "@/components/ui/Table";
 import { OptionButton, PrimaryButton } from "@/components/ui/Button";
@@ -19,17 +19,32 @@ import {
   VehicleActionType,
   VEHICLE_ACTION_CONFIG,
 } from "../config/vehicleActions";
+import { DEFAULT_PAGE_SIZE } from "@/components/ui/Table/constants";
 
 const VehicleList: React.FC = () => {
   const router = useRouter();
   const [selectedVehicles, setSelectedVehicles] = useState<string[]>([]);
-  const [filters, setFilters] = useState({
-    PageNumber: 1,
-    PageSize: 10,
-    SortBy: "name",
-    SortDescending: false,
-    Search: "",
-  });
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+  const [sortBy, setSortBy] = useState("name");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, sortBy, sortOrder]);
+
+  const filters = useMemo(
+    () => ({
+      PageNumber: page,
+      PageSize: pageSize,
+      SortBy: sortBy,
+      SortDescending: sortOrder === "desc",
+      Search: search,
+    }),
+    [page, pageSize, sortBy, sortOrder, search],
+  );
+
   const { vehicles, pagination, isPending, isError, error } =
     useVehicles(filters);
   const { mutateAsync: deactivateVehicle, isPending: isDeactivating } =
@@ -104,24 +119,27 @@ const VehicleList: React.FC = () => {
   };
 
   const handleSort = (sortKey: string) => {
-    setFilters(prev => ({
-      ...prev,
-      SortBy: sortKey,
-      SortDescending: prev.SortBy === sortKey ? !prev.SortDescending : false,
-      PageNumber: 1,
-    }));
+    if (sortBy === sortKey) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(sortKey);
+      setSortOrder("asc");
+    }
+    setPage(1);
   };
 
   const handleSearch = (searchTerm: string) => {
-    setFilters(prev => ({ ...prev, Search: searchTerm, PageNumber: 1 }));
+    setSearch(searchTerm);
+    // Page reset is handled by useEffect
   };
 
   const handlePageChange = (newPage: number) => {
-    setFilters(prev => ({ ...prev, PageNumber: newPage }));
+    setPage(newPage);
   };
 
   const handlePageSizeChange = (newPageSize: number) => {
-    setFilters(prev => ({ ...prev, PageSize: newPageSize, PageNumber: 1 }));
+    setPageSize(newPageSize);
+    setPage(1);
   };
 
   const handleRowClick = (vehicle: Vehicle) => {
@@ -129,32 +147,30 @@ const VehicleList: React.FC = () => {
   };
 
   const emptyState = (
-    <div className="text-center">
+    <div className="text-center py-8">
       <p className="text-gray-500 mb-2">No vehicles found.</p>
       <button
-        onClick={() => console.log("Clear filters")}
+        onClick={() => setSearch("")}
         className="text-blue-600 hover:text-blue-800 text-sm"
       >
-        Clear filters
+        Clear search
       </button>
     </div>
   );
 
-  if (isPending || isDeactivating) {
-    return <div className="text-center py-10">Loading vehicles...</div>;
-  }
-
   if (isError) {
     return (
-      <div className="text-center py-10 text-red-600">
-        Error loading vehicles: {error?.message || "Unknown error"}
+      <div className="p-6 w-full max-w-none">
+        <div className="text-center py-10 text-red-600">
+          Error loading vehicles: {error?.message || "Unknown error"}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="p-6 w-full max-w-none min-h-screen">
-      <div className="flex items-center justify-between mb-2">
+    <div className="p-6 w-full max-w-none">
+      <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-semibold text-gray-900">Vehicles</h1>
         <div className="flex items-center gap-3">
           <OptionButton />
@@ -165,25 +181,23 @@ const VehicleList: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex items-center justify-between mb-4">
-        {/* Filter tabs not yet implemented */}
-        {/* <TabNavigation tabs={vehicleTabConfig} activeTab={filters} /> */}
-
+      <div className="flex items-end justify-between mb-4">
         <FilterBar
-          searchValue={filters.Search}
+          searchValue={search}
           onSearchChange={handleSearch}
-          searchPlaceholder="Search vehicles"
-          // filters={"placeholder"}
-          onFilterChange={() => console.log("Filter change")}
+          searchPlaceholder="Search vehicles..."
+          onFilterChange={() => {}}
         />
 
         <PaginationControls
-          currentPage={filters.PageNumber}
+          currentPage={page}
           totalPages={pagination?.totalPages || 0}
           totalItems={pagination?.totalCount || 0}
-          itemsPerPage={filters.PageSize}
-          onNextPage={() => handlePageChange(filters.PageNumber + 1)}
-          onPreviousPage={() => handlePageChange(filters.PageNumber - 1)}
+          itemsPerPage={pageSize}
+          onNextPage={() => handlePageChange(page + 1)}
+          onPreviousPage={() => handlePageChange(page - 1)}
+          onPageChange={setPage}
+          onPageSizeChange={handlePageSizeChange}
         />
       </div>
 
@@ -200,6 +214,9 @@ const VehicleList: React.FC = () => {
         loading={isPending || isDeactivating}
         getItemId={vehicle => vehicle.id.toString()}
         emptyState={emptyState}
+        onSort={handleSort}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
       />
 
       <ConfirmModal
