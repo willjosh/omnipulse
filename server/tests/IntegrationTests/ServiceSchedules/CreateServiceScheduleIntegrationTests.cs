@@ -47,10 +47,10 @@ public class CreateServiceScheduleIntegrationTests : BaseIntegrationTest
             TimeIntervalUnit: TimeUnitEnum.Days,
             TimeBufferValue: 5,
             TimeBufferUnit: TimeUnitEnum.Days,
-            MileageInterval: 5000,
-            MileageBuffer: 500,
+            MileageInterval: null, // XOR: time-based only
+            MileageBuffer: null,
             FirstServiceDate: DateTime.Today.AddDays(7),
-            FirstServiceMileage: 1000,
+            FirstServiceMileage: null, // XOR: time-based only
             IsActive: true
         );
 
@@ -67,9 +67,9 @@ public class CreateServiceScheduleIntegrationTests : BaseIntegrationTest
         createdServiceScheduleEntity.TimeIntervalUnit.Should().Be(createCommand.TimeIntervalUnit);
         createdServiceScheduleEntity.TimeBufferValue.Should().Be(createCommand.TimeBufferValue);
         createdServiceScheduleEntity.TimeBufferUnit.Should().Be(createCommand.TimeBufferUnit);
-        createdServiceScheduleEntity.MileageInterval.Should().Be(createCommand.MileageInterval);
-        createdServiceScheduleEntity.MileageBuffer.Should().Be(createCommand.MileageBuffer);
-        createdServiceScheduleEntity.FirstServiceMileage.Should().Be(createCommand.FirstServiceMileage);
+        createdServiceScheduleEntity.MileageInterval.Should().BeNull();
+        createdServiceScheduleEntity.MileageBuffer.Should().BeNull();
+        createdServiceScheduleEntity.FirstServiceMileage.Should().BeNull();
         createdServiceScheduleEntity.IsActive.Should().Be(createCommand.IsActive);
     }
 

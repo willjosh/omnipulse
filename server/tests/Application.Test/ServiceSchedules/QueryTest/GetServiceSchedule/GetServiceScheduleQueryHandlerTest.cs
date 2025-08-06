@@ -59,10 +59,10 @@ public class GetServiceScheduleQueryHandlerTest
             TimeIntervalUnit = TimeUnitEnum.Days,
             TimeBufferValue = 2,
             TimeBufferUnit = TimeUnitEnum.Days,
-            MileageInterval = 1000,
-            MileageBuffer = 100,
+            MileageInterval = null, // XOR: time-based only
+            MileageBuffer = null,
             FirstServiceDate = DateTime.Today.AddDays(5),
-            FirstServiceMileage = 500,
+            FirstServiceMileage = null, // XOR: time-based only
             IsActive = true,
             ServiceProgram = serviceProgram,
             XrefServiceScheduleServiceTasks =
@@ -123,9 +123,9 @@ public class GetServiceScheduleQueryHandlerTest
         Assert.Equal(serviceSchedule.TimeIntervalUnit, result.TimeIntervalUnit);
         Assert.Equal(serviceSchedule.TimeBufferValue, result.TimeBufferValue);
         Assert.Equal(serviceSchedule.TimeBufferUnit, result.TimeBufferUnit);
-        Assert.Equal(serviceSchedule.MileageInterval, result.MileageInterval);
-        Assert.Equal(serviceSchedule.MileageBuffer, result.MileageBuffer);
-        Assert.Equal(serviceSchedule.FirstServiceMileage, result.FirstServiceMileage);
+        Assert.Null(result.MileageInterval); // XOR: time-based only
+        Assert.Null(result.MileageBuffer);
+        Assert.Null(result.FirstServiceMileage); // XOR: time-based only
         Assert.Equal(serviceSchedule.IsActive, result.IsActive);
         Assert.NotNull(result.ServiceTasks);
         Assert.Equal(2, result.ServiceTasks.Count);

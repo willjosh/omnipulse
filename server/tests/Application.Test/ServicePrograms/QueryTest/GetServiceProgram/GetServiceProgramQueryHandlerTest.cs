@@ -72,7 +72,7 @@ public class GetServiceProgramQueryHandlerTest
                     Name = "Oil Change Schedule",
                     TimeIntervalValue = 3,
                     TimeIntervalUnit = TimeUnitEnum.Weeks,
-                    MileageInterval = 5000,
+                    MileageInterval = null, // XOR: time-based only
                     IsActive = true,
                     XrefServiceScheduleServiceTasks = [],
                     ServiceProgram = null!
