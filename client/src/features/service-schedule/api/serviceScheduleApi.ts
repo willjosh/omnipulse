@@ -1,10 +1,34 @@
 import { agent } from "@/lib/axios/agent";
 import {
   ServiceSchedule,
+  ServiceScheduleWithLabels,
   ServiceScheduleFilter,
   CreateServiceScheduleCommand,
   UpdateServiceScheduleCommand,
 } from "../types/serviceScheduleType";
+import { TimeUnitEnum } from "../types/serviceScheduleEnum";
+import { getTimeUnitEnumLabel } from "../utils/serviceScheduleEnumHelper";
+import { convertServiceTaskData } from "../../service-task/hooks/useServiceTasks";
+
+function formatDate(date?: string | null): string | null {
+  if (!date) return null;
+  const d = new Date(date);
+  return isNaN(d.getTime()) ? null : d.toLocaleString();
+}
+
+export const convertServiceScheduleData = (
+  schedule: ServiceSchedule,
+): ServiceScheduleWithLabels => ({
+  ...schedule,
+  firstServiceDate: formatDate(schedule.firstServiceDate),
+  serviceTasks: schedule.serviceTasks.map(convertServiceTaskData),
+  timeIntervalUnit: schedule.timeIntervalUnit as number,
+  timeIntervalUnitLabel: getTimeUnitEnumLabel(schedule.timeIntervalUnit),
+  timeIntervalUnitEnum: schedule.timeIntervalUnit as TimeUnitEnum,
+  timeBufferUnit: schedule.timeBufferUnit as number,
+  timeBufferUnitLabel: getTimeUnitEnumLabel(schedule.timeBufferUnit),
+  timeBufferUnitEnum: schedule.timeBufferUnit as TimeUnitEnum,
+});
 
 export const serviceScheduleApi = {
   getServiceSchedules: async (filter: ServiceScheduleFilter = {}) => {

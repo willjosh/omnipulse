@@ -143,16 +143,8 @@ export default function ServiceScheduleDetailPage() {
           <DetailFieldRow
             label="First Service"
             value={
-              serviceSchedule.firstServiceTimeValue &&
-              serviceSchedule.firstServiceTimeUnitLabel ? (
-                `${serviceSchedule.firstServiceTimeValue} ${
-                  serviceSchedule.firstServiceTimeValue === 1
-                    ? serviceSchedule.firstServiceTimeUnitLabel.replace(
-                        /s$/,
-                        "",
-                      )
-                    : serviceSchedule.firstServiceTimeUnitLabel
-                }`
+              serviceSchedule.firstServiceDate ? (
+                new Date(serviceSchedule.firstServiceDate).toLocaleDateString()
               ) : serviceSchedule.firstServiceMileage ? (
                 `${serviceSchedule.firstServiceMileage} km`
               ) : (
@@ -160,15 +152,6 @@ export default function ServiceScheduleDetailPage() {
               )
             }
           />
-          {/*
-          <DetailFieldRow
-            label="First Service Date"
-              serviceSchedule.firstServiceDate
-                ? new Date(serviceSchedule.firstServiceDate).toLocaleDateString()
-                ? new Date(schedule.FirstServiceDate).toLocaleDateString()
-                : <span className="text-gray-400">-</span>
-            }
-          */}
           <DetailFieldRow
             label="Active"
             value={serviceSchedule.isActive ? "Yes" : "No"}

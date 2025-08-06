@@ -22,8 +22,7 @@ const initialForm: ServiceScheduleDetailsFormValues = {
   timeBufferValue: "",
   timeBufferUnit: "",
   mileageBuffer: "",
-  firstServiceTimeValue: "",
-  firstServiceTimeUnit: "",
+  firstServiceDate: "",
   firstServiceMileage: "",
   serviceTaskIDs: [],
   isActive: true,
@@ -120,10 +119,7 @@ function CreateServiceScheduleForm() {
     if (form.mileageInterval)
       payload.mileageInterval = Number(form.mileageInterval);
     if (form.mileageBuffer) payload.mileageBuffer = Number(form.mileageBuffer);
-    if (form.firstServiceTimeValue)
-      payload.firstServiceTimeValue = Number(form.firstServiceTimeValue);
-    if (form.firstServiceTimeUnit)
-      payload.firstServiceTimeUnit = Number(form.firstServiceTimeUnit);
+    if (form.firstServiceDate) payload.firstServiceDate = form.firstServiceDate;
     if (form.firstServiceMileage)
       payload.firstServiceMileage = Number(form.firstServiceMileage);
     createServiceSchedule(payload, {

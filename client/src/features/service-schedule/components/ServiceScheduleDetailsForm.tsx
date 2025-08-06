@@ -1,6 +1,10 @@
 import React from "react";
 import FormContainer from "@/components/ui/Form/FormContainer";
 import FormField from "@/components/ui/Form/FormField";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { Autocomplete, TextField } from "@mui/material";
 import { TimeUnitEnum } from "../types/serviceScheduleEnum";
 import { ServiceTaskWithLabels } from "../../service-task/types/serviceTaskType";
 import { Vehicle } from "../../vehicle/types/vehicleType";
@@ -12,6 +16,11 @@ import {
   ComboboxOptions,
   ComboboxOption,
 } from "@headlessui/react";
+import {
+  getTimeOptions,
+  combineDateAndTime,
+  extractTimeFromISO,
+} from "@/utils/dateTimeUtils";
 
 export interface ServiceScheduleDetailsFormValues {
   name: string;
@@ -21,8 +30,7 @@ export interface ServiceScheduleDetailsFormValues {
   timeBufferValue?: number | string;
   timeBufferUnit?: TimeUnitEnum | "";
   mileageBuffer?: number | string;
-  firstServiceTimeValue?: number | string;
-  firstServiceTimeUnit?: TimeUnitEnum | "";
+  firstServiceDate?: string;
   firstServiceMileage?: number | string;
   serviceTaskIDs: number[];
   isActive: boolean;
@@ -57,6 +65,16 @@ const ServiceScheduleDetailsForm: React.FC<ServiceScheduleDetailsFormProps> = ({
   availableServiceTasks,
   availableServicePrograms,
 }) => {
+  const timeOptions = getTimeOptions();
+
+  // Local state for time selection
+  const [firstServiceTime, setFirstServiceTime] = React.useState<string>("");
+
+  // Prefill time when date changes
+  React.useEffect(() => {
+    setFirstServiceTime(extractTimeFromISO(value.firstServiceDate));
+  }, [value.firstServiceDate]);
+
   // Service Task Multi-Select Combobox
   const [taskSearch, setTaskSearch] = React.useState("");
   const filteredTasks = React.useMemo(() => {
@@ -74,8 +92,6 @@ const ServiceScheduleDetailsForm: React.FC<ServiceScheduleDetailsFormProps> = ({
   const [timeIntervalUnitSearch, setTimeIntervalUnitSearch] =
     React.useState("");
   const [timeBufferUnitSearch, setTimeBufferUnitSearch] = React.useState("");
-  const [firstServiceTimeUnitSearch, setFirstServiceTimeUnitSearch] =
-    React.useState("");
 
   const filteredTimeIntervalUnitOptions = React.useMemo(() => {
     if (!timeIntervalUnitSearch) return timeUnitOptions;
@@ -91,21 +107,11 @@ const ServiceScheduleDetailsForm: React.FC<ServiceScheduleDetailsFormProps> = ({
       opt.label.toLowerCase().includes(searchLower),
     );
   }, [timeBufferUnitSearch]);
-  const filteredFirstServiceTimeUnitOptions = React.useMemo(() => {
-    if (!firstServiceTimeUnitSearch) return timeUnitOptions;
-    const searchLower = firstServiceTimeUnitSearch.toLowerCase();
-    return timeUnitOptions.filter(opt =>
-      opt.label.toLowerCase().includes(searchLower),
-    );
-  }, [firstServiceTimeUnitSearch]);
 
   const selectedTimeIntervalUnit =
     timeUnitOptions.find(opt => opt.value === value.timeIntervalUnit) || null;
   const selectedTimeBufferUnit =
     timeUnitOptions.find(opt => opt.value === value.timeBufferUnit) || null;
-  const selectedFirstServiceTimeUnit =
-    timeUnitOptions.find(opt => opt.value === value.firstServiceTimeUnit) ||
-    null;
 
   // Add search state for Service Program
   const [serviceProgramSearch, setServiceProgramSearch] = React.useState("");
@@ -129,7 +135,7 @@ const ServiceScheduleDetailsForm: React.FC<ServiceScheduleDetailsFormProps> = ({
           disabled={disabled}
         />
       </FormField>
-      {/* Frequency Section */}
+      {/* Time and Mileage Intervals Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField label="Time Interval" error={errors.timeIntervalValue}>
           <div className="flex gap-2">
@@ -214,20 +220,6 @@ const ServiceScheduleDetailsForm: React.FC<ServiceScheduleDetailsFormProps> = ({
             </Combobox>
           </div>
         </FormField>
-        <FormField label="Mileage Interval (km)" error={errors.mileageInterval}>
-          <input
-            type="number"
-            min={0}
-            value={value.mileageInterval || ""}
-            onChange={e => onChange("mileageInterval", e.target.value)}
-            placeholder="e.g. 10000"
-            className="w-full border border-gray-300 rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-            disabled={disabled}
-          />
-        </FormField>
-      </div>
-      {/* Buffer Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField label="Time Buffer" error={errors.timeBufferValue}>
           <div className="flex gap-2">
             <input
@@ -311,6 +303,20 @@ const ServiceScheduleDetailsForm: React.FC<ServiceScheduleDetailsFormProps> = ({
             </Combobox>
           </div>
         </FormField>
+      </div>
+      {/* Mileage Intervals and Buffers Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <FormField label="Mileage Interval (km)" error={errors.mileageInterval}>
+          <input
+            type="number"
+            min={0}
+            value={value.mileageInterval || ""}
+            onChange={e => onChange("mileageInterval", e.target.value)}
+            placeholder="e.g. 10000"
+            className="w-full border border-gray-300 rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            disabled={disabled}
+          />
+        </FormField>
         <FormField label="Mileage Buffer (km)" error={errors.mileageBuffer}>
           <input
             type="number"
@@ -324,110 +330,77 @@ const ServiceScheduleDetailsForm: React.FC<ServiceScheduleDetailsFormProps> = ({
         </FormField>
       </div>
       {/* First Service Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <FormField
-          label="First Service Time"
-          error={errors.firstServiceTimeValue}
-        >
-          <div className="flex gap-2">
-            <input
-              type="number"
-              min={0}
-              value={value.firstServiceTimeValue || ""}
-              onChange={e => onChange("firstServiceTimeValue", e.target.value)}
-              placeholder="e.g. 12"
-              className="w-24 border border-gray-300 rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-              disabled={disabled}
-            />
-            <Combobox
-              value={selectedFirstServiceTimeUnit}
-              onChange={opt =>
-                onChange("firstServiceTimeUnit", opt?.value || "")
-              }
-              disabled={disabled}
-            >
-              <div className="relative">
-                <ComboboxInput
-                  className="w-32 border border-gray-300 rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                  displayValue={(opt: { label?: string } | undefined) =>
-                    opt?.label || ""
+      <div className="w-2/3">
+        <FormField label="First Service Date" error={errors.firstServiceDate}>
+          <div className="flex">
+            <div className="w-1/2 mr-2">
+              <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <DatePicker
+                  value={
+                    value.firstServiceDate &&
+                    !isNaN(new Date(value.firstServiceDate).getTime())
+                      ? new Date(value.firstServiceDate)
+                      : null
                   }
-                  onChange={e => setFirstServiceTimeUnitSearch(e.target.value)}
-                  placeholder="Select unit..."
+                  onChange={date => {
+                    let newTime = firstServiceTime;
+                    if (!newTime) {
+                      newTime = timeOptions[0];
+                      setFirstServiceTime(newTime);
+                    }
+                    const iso = combineDateAndTime(
+                      date ? date.toISOString() : "",
+                      newTime,
+                    );
+                    onChange("firstServiceDate", iso);
+                  }}
+                  slotProps={{ textField: { size: "small" } }}
                   disabled={disabled}
                 />
-                <ComboboxButton className="absolute inset-y-0 right-0 flex items-center pr-2">
-                  <svg
-                    className="h-5 w-5 text-gray-400"
-                    viewBox="0 0 20 20"
-                    fill="none"
-                    stroke="currentColor"
-                  >
-                    <path
-                      d="M7 7l3-3 3 3m0 6l-3 3-3-3"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </ComboboxButton>
-                <ComboboxOptions className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-3xl shadow-lg max-h-60 overflow-auto">
-                  {filteredFirstServiceTimeUnitOptions.length === 0 ? (
-                    <div className="px-4 py-2 text-gray-500">
-                      No units found.
-                    </div>
-                  ) : (
-                    filteredFirstServiceTimeUnitOptions.map(opt => (
-                      <ComboboxOption
-                        key={opt.value}
-                        value={opt}
-                        className={({ active, selected }) =>
-                          `cursor-pointer select-none px-4 py-2 flex items-center ${active ? "bg-blue-100" : ""}`
-                        }
-                      >
-                        {({ selected }) => (
-                          <>
-                            <span className="flex-1">{opt.label}</span>
-                            {selected && (
-                              <svg
-                                className="h-5 w-5 text-blue-600 ml-2"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M5 13l4 4L19 7"
-                                />
-                              </svg>
-                            )}
-                          </>
-                        )}
-                      </ComboboxOption>
-                    ))
-                  )}
-                </ComboboxOptions>
-              </div>
-            </Combobox>
+              </LocalizationProvider>
+            </div>
+            <div className="w-1/2">
+              <Autocomplete
+                options={timeOptions}
+                value={firstServiceTime}
+                onChange={(_e, newValue) => {
+                  setFirstServiceTime(newValue || "");
+                  if (value.firstServiceDate && newValue) {
+                    const iso = combineDateAndTime(
+                      value.firstServiceDate,
+                      newValue,
+                    );
+                    onChange("firstServiceDate", iso);
+                  }
+                }}
+                renderInput={params => (
+                  <TextField
+                    {...params}
+                    placeholder="Select time"
+                    size="small"
+                  />
+                )}
+                disabled={disabled}
+                ListboxProps={{ style: { maxHeight: 200, overflowY: "auto" } }}
+              />
+            </div>
           </div>
         </FormField>
-        <FormField
-          label="First Service Mileage (km)"
-          error={errors.firstServiceMileage}
-        >
-          <input
-            type="number"
-            min={0}
-            value={value.firstServiceMileage || ""}
-            onChange={e => onChange("firstServiceMileage", e.target.value)}
-            placeholder="e.g. 5000"
-            className="w-full border border-gray-300 rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-            disabled={disabled}
-          />
-        </FormField>
       </div>
+      <FormField
+        label="First Service Mileage (km)"
+        error={errors.firstServiceMileage}
+      >
+        <input
+          type="number"
+          min={0}
+          value={value.firstServiceMileage || ""}
+          onChange={e => onChange("firstServiceMileage", e.target.value)}
+          placeholder="e.g. 5000"
+          className="w-full border border-gray-300 rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+          disabled={disabled}
+        />
+      </FormField>
       {/* Service Tasks Selection */}
       <FormField label="Service Tasks" required error={errors.serviceTaskIDs}>
         <Combobox
