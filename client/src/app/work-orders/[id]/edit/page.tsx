@@ -11,7 +11,9 @@ import PrimaryButton from "@/components/ui/Button/PrimaryButton";
 import {
   useWorkOrder,
   useUpdateWorkOrder,
+  useCompleteWorkOrder,
 } from "@/features/work-order/hooks/useWorkOrders";
+import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
 import { CreateWorkOrderLineItem } from "@/features/work-order/types/workOrderType";
 import {
   WorkOrderFormState,
@@ -39,6 +41,11 @@ export default function EditWorkOrderPage() {
   // Update work order mutation
   const { mutate: updateWorkOrder, isPending: isUpdating } =
     useUpdateWorkOrder();
+
+  // Complete work order mutation
+  const { mutateAsync: completeWorkOrder, isPending: isCompleting } =
+    useCompleteWorkOrder();
+  const notify = useNotification();
 
   // Load work order data into form when data is available
   useEffect(() => {
@@ -97,13 +104,46 @@ export default function EditWorkOrderPage() {
   });
 
   // Save Work Order handler
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!validate()) return;
-    updateWorkOrder(toUpdateWorkOrderCommand(), {
-      onSuccess: () => {
-        router.push(`/work-orders/${workOrderId}`);
-      },
-    });
+
+    // Check if status is being changed to "Completed"
+    const isCompleting = form.status === 5; // WorkOrderStatusEnum.COMPLETED
+
+    try {
+      if (isCompleting) {
+        // First complete the work order
+        await completeWorkOrder(workOrderId);
+        console.log("Work order completed successfully");
+        notify("Work order completed successfully!", "success");
+      }
+
+      // Then update the work order with all other changes
+      updateWorkOrder(toUpdateWorkOrderCommand(), {
+        onSuccess: () => {
+          router.push(`/work-orders/${workOrderId}`);
+        },
+      });
+    } catch (error: any) {
+      console.error("Error saving work order:", error);
+
+      // Handle specific error cases based on the API response
+      let errorMessage = "Failed to save work order.";
+
+      if (error?.response?.status === 400) {
+        errorMessage =
+          "Work order is not ready for completion or validation failed.";
+      } else if (error?.response?.status === 404) {
+        errorMessage = "Work order not found.";
+      } else if (error?.response?.status === 409) {
+        errorMessage = "Work order is already completed.";
+      } else if (error?.response?.data?.detail) {
+        errorMessage = error.response.data.detail;
+      }
+
+      // Show error notification
+      notify(errorMessage, "error");
+    }
   };
 
   // Handle loading and error states
@@ -113,6 +153,28 @@ export default function EditWorkOrderPage() {
 
   if (!workOrder) {
     return <div>Work order not found</div>;
+  }
+
+  // Prevent editing completed work orders
+  if (workOrder.status === 5) {
+    // WorkOrderStatusEnum.COMPLETED
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <p className="text-red-600 mb-2">
+              Cannot edit completed work orders
+            </p>
+            <SecondaryButton
+              onClick={() => router.push(`/work-orders/${workOrderId}`)}
+              className="mt-4"
+            >
+              Back to Work Order
+            </SecondaryButton>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const breadcrumbs: BreadcrumbItem[] = [
@@ -130,8 +192,11 @@ export default function EditWorkOrderPage() {
             <SecondaryButton onClick={() => router.back()}>
               Cancel
             </SecondaryButton>
-            <PrimaryButton onClick={handleSave} disabled={isUpdating}>
-              {isUpdating ? "Saving..." : "Save Changes"}
+            <PrimaryButton
+              onClick={handleSave}
+              disabled={isUpdating || isCompleting}
+            >
+              {isUpdating || isCompleting ? "Saving..." : "Save Changes"}
             </PrimaryButton>
           </>
         }
@@ -141,7 +206,7 @@ export default function EditWorkOrderPage() {
         value={form}
         errors={errors}
         onChange={handleFormChange}
-        disabled={isUpdating}
+        disabled={isUpdating || isCompleting}
         showStatus={true}
         statusEditable={true}
       />
@@ -150,7 +215,7 @@ export default function EditWorkOrderPage() {
         value={{ issueIdList: form.issueIdList }}
         errors={errors}
         onChange={handleFormChange}
-        disabled={isUpdating}
+        disabled={isUpdating || isCompleting}
         vehicleID={form.vehicleID}
       />
 
@@ -159,7 +224,7 @@ export default function EditWorkOrderPage() {
         value={{ workOrderLineItems: form.workOrderLineItems }}
         errors={errors}
         onChange={handleFormChange}
-        disabled={isUpdating}
+        disabled={isUpdating || isCompleting}
       />
 
       {/* Footer Actions */}
@@ -170,8 +235,11 @@ export default function EditWorkOrderPage() {
             Cancel
           </SecondaryButton>
           <div className="flex gap-3">
-            <PrimaryButton onClick={handleSave} disabled={isUpdating}>
-              {isUpdating ? "Saving..." : "Save Changes"}
+            <PrimaryButton
+              onClick={handleSave}
+              disabled={isUpdating || isCompleting}
+            >
+              {isUpdating || isCompleting ? "Saving..." : "Save Changes"}
             </PrimaryButton>
           </div>
         </div>
