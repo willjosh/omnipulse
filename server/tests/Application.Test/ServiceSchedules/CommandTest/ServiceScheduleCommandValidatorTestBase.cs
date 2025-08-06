@@ -25,8 +25,8 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         TimeUnitEnum? timeIntervalUnit = TimeUnitEnum.Weeks,
         int? timeBufferValue = 1,
         TimeUnitEnum? timeBufferUnit = TimeUnitEnum.Days,
-        int? mileageInterval = 5000,
-        int? mileageBuffer = 250,
+        int? mileageInterval = null,
+        int? mileageBuffer = null,
         DateTime? firstServiceDate = null,
         int? firstServiceMileage = null,
         bool isActive = true);
@@ -406,10 +406,10 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
 
     [Trait("Category", "FirstService")]
     [Theory]
-    [InlineData(true, true, true, true)]     // All valid
-    [InlineData(false, true, true, false)]   // Missing time interval
-    [InlineData(true, false, true, false)]   // Missing mileage interval
-    [InlineData(false, false, false, false)] // Missing all intervals
+    [InlineData(true, false, true, true)]     // Time-based with first service date - valid
+    [InlineData(false, true, true, true)]     // Mileage-based with first service mileage - valid
+    [InlineData(false, false, true, false)]   // No intervals but has first service - invalid
+    [InlineData(false, false, false, false)]  // No intervals and no first service - invalid
     public async Task Validator_Should_Handle_FirstService_Dependencies(
         bool hasTimeInterval,
         bool hasMileageInterval,
@@ -420,9 +420,12 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
         var command = CreateValidCommand(
             timeIntervalValue: hasTimeInterval ? 6 : null,
             timeIntervalUnit: hasTimeInterval ? TimeUnitEnum.Days : null,
+            timeBufferValue: null,
+            timeBufferUnit: null,
             mileageInterval: hasMileageInterval ? 5000 : null,
-            firstServiceDate: hasFirstService ? DateTime.Today.AddDays(3) : null,
-            firstServiceMileage: hasFirstService ? 2500 : null);
+            mileageBuffer: null,
+            firstServiceDate: hasFirstService && hasTimeInterval ? DateTime.Today.AddDays(3) : null,
+            firstServiceMileage: hasFirstService && hasMileageInterval ? 2500 : null);
 
         // Act
         var result = await Validator.ValidateAsync(command);
@@ -461,29 +464,31 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
     [Fact]
     public async Task Validator_Should_Fail_When_FirstServiceDate_Without_TimeInterval()
     {
-        // Arrange
+        // Arrange - Use mileage interval to test first service date validation
         var command = CreateValidCommand(
             firstServiceDate: DateTime.Today.AddDays(7),
             timeIntervalValue: null,
-            timeIntervalUnit: null);
+            timeIntervalUnit: null,
+            mileageInterval: 5000);
 
         // Act
         var result = await Validator.ValidateAsync(command);
 
         // Assert
         Assert.False(result.IsValid);
-        Assert.Contains(result.Errors, e => e.ErrorMessage.Contains("First service date requires TimeIntervalValue and TimeIntervalUnit to be set"));
+        Assert.Contains(result.Errors, e => e.ErrorMessage.Contains("First service date cannot be used with mileage-based schedules"));
     }
 
     [Fact]
     public async Task Validator_Should_Fail_When_FirstServiceTime_Without_TimeInterval()
     {
-        // Arrange
+        // Arrange - Use mileage interval to test first service date validation
         var command = CreateValidCommand(
             timeIntervalValue: null,
             timeIntervalUnit: null,
             timeBufferValue: null,
             timeBufferUnit: null,
+            mileageInterval: 5000,
             firstServiceDate: DateTime.Today.AddDays(2));
 
         // Act
@@ -514,8 +519,12 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
     [Fact]
     public async Task Validator_Should_Pass_When_FirstServiceMileage_Is_Zero()
     {
-        // Arrange
-        var command = CreateValidCommand(firstServiceMileage: 0);
+        // Arrange - Use mileage-based schedule to test first service mileage
+        var command = CreateValidCommand(
+            timeIntervalValue: null,
+            timeIntervalUnit: null,
+            mileageInterval: 5000,
+            firstServiceMileage: 0);
 
         // Act
         var result = await Validator.ValidateAsync(command);
@@ -549,16 +558,16 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
     [Trait("Category", "Positive")]
     public async Task Validator_Should_Pass_With_All_Fields_Provided()
     {
-        // Arrange
+        // Arrange - Time-based only
         var command = CreateValidCommand(
             timeIntervalValue: 6,
             timeIntervalUnit: TimeUnitEnum.Days,
             timeBufferValue: 1,
             timeBufferUnit: TimeUnitEnum.Days,
-            mileageInterval: 5000,
-            mileageBuffer: 250,
+            mileageInterval: null,
+            mileageBuffer: null,
             firstServiceDate: DateTime.Today.AddDays(3),
-            firstServiceMileage: 2500);
+            firstServiceMileage: null);
 
         // Act
         var result = await Validator.ValidateAsync(command);
@@ -656,16 +665,16 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
     [Fact]
     public async Task Validator_Should_Pass_With_Maximum_Valid_Configuration()
     {
-        // Arrange
+        // Arrange - Time-based only
         var command = CreateValidCommand(
             timeIntervalValue: 12,
             timeIntervalUnit: TimeUnitEnum.Days,
             timeBufferValue: 11,
             timeBufferUnit: TimeUnitEnum.Days,
-            mileageInterval: 10000,
-            mileageBuffer: 9999,
+            mileageInterval: null,
+            mileageBuffer: null,
             firstServiceDate: DateTime.Today.AddDays(6),
-            firstServiceMileage: 5000);
+            firstServiceMileage: null);
 
         // Act
         var result = await Validator.ValidateAsync(command);
@@ -716,12 +725,15 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
     [Fact]
     public async Task Validator_Should_Pass_With_Unicode_Name()
     {
-        // Arrange
+        // Arrange - Time-based only
         var command = CreateValidCommand(
             name: "˜ˆç˙ø¬åß Âå††˙´∑ Íå∑",
+            timeIntervalValue: 6,
+            timeIntervalUnit: TimeUnitEnum.Days,
             timeBufferValue: 1,
             timeBufferUnit: TimeUnitEnum.Days,
-            mileageBuffer: 250);
+            mileageInterval: null,
+            mileageBuffer: null);
 
         // Act
         var result = await Validator.ValidateAsync(command);
@@ -734,12 +746,15 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
     [Fact]
     public async Task Validator_Should_Pass_With_Shortest_Valid_Name()
     {
-        // Arrange
+        // Arrange - Time-based only
         var command = CreateValidCommand(
             name: "A",
+            timeIntervalValue: 6,
+            timeIntervalUnit: TimeUnitEnum.Days,
             timeBufferValue: 1,
             timeBufferUnit: TimeUnitEnum.Days,
-            mileageBuffer: 250);
+            mileageInterval: null,
+            mileageBuffer: null);
 
         // Act
         var result = await Validator.ValidateAsync(command);
@@ -879,16 +894,16 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
     [Fact]
     public async Task Validator_Should_Pass_When_FirstService_Properties_Match_Available_Intervals()
     {
-        // Arrange
+        // Arrange - Time-based only
         var command = CreateValidCommand(
             timeIntervalValue: 6,
             timeIntervalUnit: TimeUnitEnum.Days,
             timeBufferValue: null,
             timeBufferUnit: null,
-            mileageInterval: 5000,
+            mileageInterval: null,
             mileageBuffer: null,
             firstServiceDate: DateTime.Today.AddDays(3),
-            firstServiceMileage: 2500);
+            firstServiceMileage: null);
 
         // Act
         var result = await Validator.ValidateAsync(command);
@@ -901,15 +916,16 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
     [Fact]
     public async Task Validator_Should_Pass_With_FirstService_Equal_To_Interval()
     {
-        // Arrange
+        // Arrange - Time-based only
         var command = CreateValidCommand(
             timeIntervalValue: 6,
             timeIntervalUnit: TimeUnitEnum.Days,
             timeBufferValue: null,
             timeBufferUnit: null,
+            mileageInterval: null,
+            mileageBuffer: null,
             firstServiceDate: DateTime.Today.AddDays(6),
-            mileageInterval: 5000,
-            firstServiceMileage: 5000);
+            firstServiceMileage: null);
 
         // Act
         var result = await Validator.ValidateAsync(command);
@@ -922,15 +938,16 @@ public abstract class ServiceScheduleCommandValidatorTestBase<TCommand, TValidat
     [Fact]
     public async Task Validator_Should_Pass_With_FirstService_Greater_Than_Interval()
     {
-        // Arrange
+        // Arrange - Time-based only
         var command = CreateValidCommand(
             timeIntervalValue: 6,
             timeIntervalUnit: TimeUnitEnum.Days,
             timeBufferValue: null,
             timeBufferUnit: null,
+            mileageInterval: null,
+            mileageBuffer: null,
             firstServiceDate: DateTime.Today.AddDays(12),
-            mileageInterval: 5000,
-            firstServiceMileage: 10000);
+            firstServiceMileage: null);
 
         // Act
         var result = await Validator.ValidateAsync(command);

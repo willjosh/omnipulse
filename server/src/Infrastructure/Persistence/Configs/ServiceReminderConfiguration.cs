@@ -27,7 +27,6 @@ public class ServiceReminderConfiguration : IEntityTypeConfiguration<ServiceRemi
         builder.ToTable(t => t.HasCheckConstraint("CK_ServiceReminder_DueMileage", "DueMileage >= 0"));
         builder.ToTable(t => t.HasCheckConstraint("CK_ServiceReminder_CompletedDate",
             "CompletedDate IS NULL OR CompletedDate >= CreatedAt"));
-        builder.ToTable(t => t.HasCheckConstraint("CK_ServiceReminder_DueDate", "DueDate >= CreatedAt"));
 
         // Table Relationships
         builder

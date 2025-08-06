@@ -150,8 +150,8 @@ public class GetAllServiceRemindersQueryHandlerTest
     {
         return new ServiceReminderDTO
         {
-            ID = 1,
-            WorkOrderID = null,
+            ID = 1, // Test ID
+            WorkOrderID = null, // Test with no work order assigned
             VehicleID = vehicleId,
             VehicleName = vehicleName,
             ServiceScheduleID = 1,
@@ -164,8 +164,7 @@ public class GetAllServiceRemindersQueryHandlerTest
             PriorityLevel = PriorityLevelEnum.MEDIUM,
             CurrentMileage = 10000.0,
             OccurrenceNumber = 1,
-            IsTimeBasedReminder = true,
-            IsMileageBasedReminder = false
+            ScheduleType = ServiceScheduleTypeEnum.TIME
         };
     }
 }

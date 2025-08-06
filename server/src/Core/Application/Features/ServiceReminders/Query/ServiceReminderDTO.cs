@@ -7,7 +7,12 @@ namespace Application.Features.ServiceReminders.Query;
 /// </summary>
 public class ServiceReminderDTO
 {
+    /// <summary>The ID of this service reminder.</summary>
+    /// <example>1</example>
     public required int ID { get; set; }
+
+    /// <summary>Optional ID of the work order this reminder is linked to (set when AddServiceReminderToExistingWorkOrderCommand is called).</summary>
+    /// <example>1</example>
     public int? WorkOrderID { get; set; }
 
     /// <summary>Vehicle ID this reminder applies to.</summary>
@@ -105,11 +110,7 @@ public class ServiceReminderDTO
     /// <example>2</example>
     public required int OccurrenceNumber { get; set; }
 
-    /// <summary>Whether this reminder was calculated based on time intervals.</summary>
-    /// <example>true</example>
-    public required bool IsTimeBasedReminder { get; set; }
-
-    /// <summary>Whether this reminder was calculated based on mileage intervals.</summary>
-    /// <example>false</example>
-    public required bool IsMileageBasedReminder { get; set; }
+    /// <summary>The type of schedule (TIME or MILEAGE) - enforces XOR constraint.</summary>
+    /// <example>1</example>
+    public required ServiceScheduleTypeEnum ScheduleType { get; set; }
 }

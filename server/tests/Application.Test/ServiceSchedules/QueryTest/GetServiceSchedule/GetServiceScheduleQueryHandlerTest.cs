@@ -7,6 +7,7 @@ using Application.MappingProfiles;
 using AutoMapper;
 
 using Domain.Entities;
+using Domain.Entities.Enums;
 
 using Moq;
 
@@ -55,13 +56,13 @@ public class GetServiceScheduleQueryHandlerTest
             ServiceProgramID = 2,
             Name = "Test Schedule",
             TimeIntervalValue = 10,
-            TimeIntervalUnit = Domain.Entities.Enums.TimeUnitEnum.Days,
+            TimeIntervalUnit = TimeUnitEnum.Days,
             TimeBufferValue = 2,
-            TimeBufferUnit = Domain.Entities.Enums.TimeUnitEnum.Days,
-            MileageInterval = 1000,
-            MileageBuffer = 100,
+            TimeBufferUnit = TimeUnitEnum.Days,
+            MileageInterval = null, // XOR: time-based only
+            MileageBuffer = null,
             FirstServiceDate = DateTime.Today.AddDays(5),
-            FirstServiceMileage = 500,
+            FirstServiceMileage = null, // XOR: time-based only
             IsActive = true,
             ServiceProgram = serviceProgram,
             XrefServiceScheduleServiceTasks =
@@ -79,7 +80,7 @@ public class GetServiceScheduleQueryHandlerTest
                         Name = "Task 1",
                         EstimatedLabourHours = 1.0,
                         EstimatedCost = 100,
-                        Category = Domain.Entities.Enums.ServiceTaskCategoryEnum.PREVENTIVE,
+                        Category = ServiceTaskCategoryEnum.PREVENTIVE,
                         IsActive = true,
                         XrefServiceScheduleServiceTasks = [],
                         MaintenanceHistories = [],
@@ -99,7 +100,7 @@ public class GetServiceScheduleQueryHandlerTest
                         Name = "Task 2",
                         EstimatedLabourHours = 2.0,
                         EstimatedCost = 200,
-                        Category = Domain.Entities.Enums.ServiceTaskCategoryEnum.CORRECTIVE,
+                        Category = ServiceTaskCategoryEnum.CORRECTIVE,
                         IsActive = true,
                         XrefServiceScheduleServiceTasks = [],
                         MaintenanceHistories = [],
@@ -122,9 +123,9 @@ public class GetServiceScheduleQueryHandlerTest
         Assert.Equal(serviceSchedule.TimeIntervalUnit, result.TimeIntervalUnit);
         Assert.Equal(serviceSchedule.TimeBufferValue, result.TimeBufferValue);
         Assert.Equal(serviceSchedule.TimeBufferUnit, result.TimeBufferUnit);
-        Assert.Equal(serviceSchedule.MileageInterval, result.MileageInterval);
-        Assert.Equal(serviceSchedule.MileageBuffer, result.MileageBuffer);
-        Assert.Equal(serviceSchedule.FirstServiceMileage, result.FirstServiceMileage);
+        Assert.Null(result.MileageInterval); // XOR: time-based only
+        Assert.Null(result.MileageBuffer);
+        Assert.Null(result.FirstServiceMileage); // XOR: time-based only
         Assert.Equal(serviceSchedule.IsActive, result.IsActive);
         Assert.NotNull(result.ServiceTasks);
         Assert.Equal(2, result.ServiceTasks.Count);
@@ -165,6 +166,8 @@ public class GetServiceScheduleQueryHandlerTest
             UpdatedAt = now,
             ServiceProgramID = 4,
             Name = "Nav Test",
+            TimeIntervalValue = 6,
+            TimeIntervalUnit = TimeUnitEnum.Weeks,
             IsActive = true,
             ServiceProgram = navServiceProgram,
             XrefServiceScheduleServiceTasks =
@@ -182,7 +185,7 @@ public class GetServiceScheduleQueryHandlerTest
                         Name = "Task 3",
                         EstimatedLabourHours = 1.5,
                         EstimatedCost = 150,
-                        Category = Domain.Entities.Enums.ServiceTaskCategoryEnum.INSPECTION,
+                        Category = ServiceTaskCategoryEnum.INSPECTION,
                         IsActive = true,
                         XrefServiceScheduleServiceTasks = [],
                         MaintenanceHistories = [],
@@ -202,7 +205,7 @@ public class GetServiceScheduleQueryHandlerTest
                         Name = "Task 4",
                         EstimatedLabourHours = 2.5,
                         EstimatedCost = 250,
-                        Category = Domain.Entities.Enums.ServiceTaskCategoryEnum.WARRANTY,
+                        Category = ServiceTaskCategoryEnum.WARRANTY,
                         IsActive = true,
                         XrefServiceScheduleServiceTasks = [],
                         MaintenanceHistories = [],
@@ -222,7 +225,7 @@ public class GetServiceScheduleQueryHandlerTest
                         Name = "Task 5",
                         EstimatedLabourHours = 3.5,
                         EstimatedCost = 350,
-                        Category = Domain.Entities.Enums.ServiceTaskCategoryEnum.EMERGENCY,
+                        Category = ServiceTaskCategoryEnum.EMERGENCY,
                         IsActive = true,
                         XrefServiceScheduleServiceTasks = [],
                         MaintenanceHistories = [],

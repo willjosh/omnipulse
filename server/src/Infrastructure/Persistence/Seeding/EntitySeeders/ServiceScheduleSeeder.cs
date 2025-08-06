@@ -40,25 +40,39 @@ public class ServiceScheduleSeeder : IEntitySeeder
             );
             if (serviceProgramId == 0) continue;
 
-            serviceSchedules.Add(new ServiceSchedule
+            // Alternate between time-based and mileage-based schedules
+            var isTimeBased = i % 2 == 1; // Odd numbers are time-based, even numbers are mileage-based
+
+            var serviceSchedule = new ServiceSchedule
             {
                 ID = 0,
                 ServiceProgramID = serviceProgramId,
                 Name = $"Service Schedule {i} Name",
-                TimeIntervalValue = 6 * i,
-                TimeIntervalUnit = TimeUnitEnum.Days,
-                TimeBufferValue = 1,
-                TimeBufferUnit = TimeUnitEnum.Days,
-                MileageInterval = 10000 * i,
-                MileageBuffer = 1000,
-                FirstServiceDate = now.AddDays(i * 30), // First service 30, 60, 90 days from now
-                FirstServiceMileage = 15000 + (100 * i), // Absolute mileage: 15100, 15200, 15300, etc.
                 IsActive = true,
                 CreatedAt = now,
                 UpdatedAt = now,
                 XrefServiceScheduleServiceTasks = [],
                 ServiceProgram = null!
-            });
+            };
+
+            if (isTimeBased)
+            {
+                // Time-based schedule
+                serviceSchedule.TimeIntervalValue = 6 * i;
+                serviceSchedule.TimeIntervalUnit = TimeUnitEnum.Days;
+                serviceSchedule.TimeBufferValue = 1;
+                serviceSchedule.TimeBufferUnit = TimeUnitEnum.Days;
+                serviceSchedule.FirstServiceDate = now.AddDays(i * 30);
+            }
+            else
+            {
+                // Mileage-based schedule
+                serviceSchedule.MileageInterval = 10000 * i;
+                serviceSchedule.MileageBuffer = 1000;
+                serviceSchedule.FirstServiceMileage = 15000 + (100 * i);
+            }
+
+            serviceSchedules.Add(serviceSchedule);
         }
 
         _logger.LogInformation("{MethodName}() - Created {Count} Service Schedules: {@ServiceSchedules}", nameof(CreateServiceSchedules), serviceSchedules.Count, serviceSchedules);

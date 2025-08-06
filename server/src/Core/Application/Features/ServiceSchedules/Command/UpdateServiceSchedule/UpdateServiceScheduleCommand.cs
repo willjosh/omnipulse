@@ -11,6 +11,11 @@ namespace Application.Features.ServiceSchedules.Command.UpdateServiceSchedule;
 /// </summary>
 /// <remarks>
 /// Validation rules mirror <see cref="CreateServiceScheduleCommand"/> with the additional requirement of a positive <see cref="ServiceScheduleID"/>.
+/// <list type="bullet">
+/// <item>Exactly one of the following recurrence options must be provided: time-based (TimeIntervalValue &amp; TimeIntervalUnit) OR mileage-based (MileageInterval).</item>
+/// <item>Buffer values are optional but, if provided, cannot be greater than or equal to their corresponding interval.</item>
+/// <item>First service properties are optional. If provided, they require their related interval fields to be set.</item>
+/// </list>
 /// </remarks>
 /// <param name="ServiceScheduleID">The ID of the service schedule to update.</param>
 /// <param name="ServiceProgramID">The ID of the service program this schedule belongs to.</param>
