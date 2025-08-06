@@ -17,8 +17,8 @@ public class UpdateServiceScheduleCommandValidatorTest
         TimeUnitEnum? timeIntervalUnit = TimeUnitEnum.Weeks,
         int? timeBufferValue = 1,
         TimeUnitEnum? timeBufferUnit = TimeUnitEnum.Days,
-        int? mileageInterval = 5000,
-        int? mileageBuffer = 250,
+        int? mileageInterval = null,
+        int? mileageBuffer = null,
         DateTime? firstServiceDate = null,
         int? firstServiceMileage = null,
         bool isActive = true) => new(
