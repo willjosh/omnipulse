@@ -110,11 +110,7 @@ public class ServiceReminderDTO
     /// <example>2</example>
     public required int OccurrenceNumber { get; set; }
 
-    /// <summary>Whether this reminder was calculated based on time intervals only (XOR constraint).</summary>
-    /// <example>true</example>
-    public required bool IsTimeBasedReminder { get; set; }
-
-    /// <summary>Whether this reminder was calculated based on mileage intervals only (XOR constraint).</summary>
-    /// <example>false</example>
-    public required bool IsMileageBasedReminder { get; set; }
+    /// <summary>The type of schedule (TIME or MILEAGE) - enforces XOR constraint.</summary>
+    /// <example>1</example>
+    public required ServiceScheduleTypeEnum ScheduleType { get; set; }
 }
