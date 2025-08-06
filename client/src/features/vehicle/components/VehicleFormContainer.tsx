@@ -100,6 +100,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
   } = useVehicleFormStore();
 
   useEffect(() => {
+    setErrors({});
     if (mode === "create") {
       initializeForCreate();
     } else if (mode === "edit") {
@@ -121,15 +122,100 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
 
   const handleInputChange = (field: string, value: any) => {
     updateFormData({ [field]: value });
-    // Clear errors for this field when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: "" }));
     }
   };
 
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    // Required text fields
+    if (!formData.vehicleName.trim()) {
+      newErrors.vehicleName = "Vehicle name is required";
+    }
+    if (!formData.make.trim()) {
+      newErrors.make = "Make is required";
+    }
+    if (!formData.model.trim()) {
+      newErrors.model = "Model is required";
+    }
+    if (!formData.trim.trim()) {
+      newErrors.trim = "Trim is required";
+    }
+    if (!formData.vin.trim()) {
+      newErrors.vin = "VIN is required";
+    }
+    if (!formData.licensePlate.trim()) {
+      newErrors.licensePlate = "License plate is required";
+    }
+    if (!formData.licensePlateExpirationDate) {
+      newErrors.licensePlateExpirationDate =
+        "License plate expiration date is required";
+    }
+    if (!formData.location.trim()) {
+      newErrors.location = "Location is required";
+    }
+    if (!formData.purchaseDate) {
+      newErrors.purchaseDate = "Purchase date is required";
+    }
+
+    // Required number fields
+    if (!formData.year || formData.year <= 0) {
+      newErrors.year = "Valid year is required";
+    }
+    if (formData.mileage === null || formData.mileage < 0) {
+      newErrors.mileage = "Valid mileage is required";
+    }
+    if (formData.engineHours === null || formData.engineHours < 0) {
+      newErrors.engineHours = "Valid engine hours is required";
+    }
+    if (formData.fuelCapacity === null || formData.fuelCapacity <= 0) {
+      newErrors.fuelCapacity = "Valid fuel capacity is required";
+    }
+    if (formData.purchasePrice === null || formData.purchasePrice < 0) {
+      newErrors.purchasePrice = "Valid purchase price is required";
+    }
+
+    // Required dropdown fields
+    if (formData.type === "") {
+      newErrors.type = "Vehicle type is required";
+    }
+    if (formData.fuelType === "") {
+      newErrors.fuelType = "Fuel type is required";
+    }
+    if (formData.status === "") {
+      newErrors.status = "Status is required";
+    }
+    if (!formData.vehicleGroupID || formData.vehicleGroupID === 0) {
+      newErrors.vehicleGroupID = "Vehicle group is required";
+    }
+    if (!formData.assignedTechnicianID) {
+      newErrors.assignedTechnicianID = "Assigned technician is required";
+    }
+
+    return newErrors;
+  };
+
   const handleSaveVehicle = async () => {
     try {
       setLoading(true);
+
+      // Validate form before attempting to save
+      const validationErrors = validateForm();
+      if (Object.keys(validationErrors).length > 0) {
+        setErrors(validationErrors);
+
+        // Create a summary of missing fields
+        const missingFields = Object.values(validationErrors);
+        const errorMessage = `Please fill in the following required fields:\n• ${missingFields.join("\n• ")}`;
+
+        notify(errorMessage, "error");
+        return;
+      }
+
+      // Clear any existing errors
+      setErrors({});
 
       if (onSave) {
         const commandData =
@@ -187,6 +273,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
 
   const handleCancel = () => {
     resetForm();
+    setErrors({});
 
     if (onCancel) {
       onCancel();
@@ -254,15 +341,18 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                 <input
                   type="number"
                   id="year"
-                  value={formData.year}
-                  onChange={e =>
-                    handleInputChange("year", parseInt(e.target.value) || 0)
-                  }
+                  value={formData.year > 0 ? formData.year : ""}
+                  onChange={e => {
+                    const value = e.target.value;
+                    const yearValue = value === "" ? 0 : parseInt(value);
+                    handleInputChange("year", yearValue);
+                  }}
                   min="1900"
                   max={new Date().getFullYear() + 1}
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                     errors.year ? "border-red-300" : "border-gray-300"
                   }`}
+                  placeholder="Enter year"
                 />
               </div>
 
@@ -535,7 +625,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                   htmlFor="assignedTechnicianID"
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  Assigned Technician
+                  Assigned Technician <span className="text-red-500">*</span>
                 </label>
                 <select
                   id="assignedTechnicianID"
@@ -551,9 +641,13 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                       tech ? `${tech.firstName} ${tech.lastName}` : "",
                     );
                   }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                    errors.assignedTechnicianID
+                      ? "border-red-300"
+                      : "border-gray-300"
+                  }`}
                 >
-                  <option value="">No technician assigned</option>
+                  <option value="">Select technician</option>
                   {(apiTechnicians || []).map(tech => (
                     <option key={tech.id} value={tech.id}>
                       {`${tech.firstName} ${tech.lastName}`}

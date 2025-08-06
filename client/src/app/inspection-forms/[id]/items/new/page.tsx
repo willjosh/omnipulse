@@ -11,6 +11,7 @@ import { useCreateInspectionFormItem } from "@/features/inspection-form/hooks/us
 import { useInspectionForm } from "@/features/inspection-form/hooks/useInspectionForms";
 import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
 import { InspectionFormItemTypeEnum } from "@/features/inspection-form/types/inspectionFormEnum";
+import Loading from "@/components/ui/Feedback/Loading";
 
 const initialForm: InspectionFormItemDetailsFormValues = {
   itemLabel: "",
@@ -126,11 +127,7 @@ export default function AddInspectionItemPage() {
   };
 
   if (isFormLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-      </div>
-    );
+    return <Loading />;
   }
 
   if (!inspectionForm) {
