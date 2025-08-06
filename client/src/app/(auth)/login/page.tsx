@@ -20,8 +20,41 @@ export default function LoginPage() {
     general?: string;
   }>({});
 
+  const validateForm = () => {
+    const newErrors: typeof errors = {};
+
+    // Required text fields
+    if (!form.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(form.email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
+
+    if (!form.password.trim()) {
+      newErrors.password = "Password is required";
+    }
+
+    return newErrors;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate form before attempting to login
+    const validationErrors = validateForm();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+
+      // Create a summary of missing fields
+      const missingFields = Object.values(validationErrors);
+      const errorMessage = `Please fix the following issues:\n• ${missingFields.join("\n• ")}`;
+
+      notify(errorMessage, "error");
+      return;
+    }
+
+    // Clear any existing errors
+    setErrors({});
 
     login(
       { email: form.email, password: form.password },

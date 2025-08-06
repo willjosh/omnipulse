@@ -79,7 +79,15 @@ const InventoryFormContainer: React.FC<InventoryFormContainerProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validate()) return;
+    if (!validate()) {
+      // Create a summary of validation errors
+      const validationErrors = Object.values(errors).filter(Boolean);
+      if (validationErrors.length > 0) {
+        const errorMessage = `Please fix the following issues:\n• ${validationErrors.join("\n• ")}`;
+        notify(errorMessage, "error");
+      }
+      return;
+    }
 
     try {
       const command: UpdateInventoryCommand = {

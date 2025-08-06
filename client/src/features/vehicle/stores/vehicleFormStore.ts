@@ -20,12 +20,12 @@ interface VehicleFormData {
   make: string;
   model: string;
   vin: string;
-  type: VehicleTypeEnum;
+  type: VehicleTypeEnum | "";
   licensePlate: string;
   licensePlateExpirationDate: string;
-  fuelType: FuelTypeEnum;
+  fuelType: FuelTypeEnum | "";
   trim: string;
-  status: VehicleStatusEnum;
+  status: VehicleStatusEnum | "";
 
   // Vehicle group and assignment
   vehicleGroupID: number;
@@ -81,16 +81,16 @@ interface VehicleFormStore {
 // Create empty form data - changed to use null for numeric fields
 const createEmptyFormData = (): VehicleFormData => ({
   vehicleName: "",
-  year: new Date().getFullYear(),
+  year: 0,
   make: "",
   model: "",
   vin: "",
-  type: VehicleTypeEnum.CAR,
+  type: "",
   licensePlate: "",
   licensePlateExpirationDate: "",
-  fuelType: FuelTypeEnum.PETROL,
+  fuelType: "",
   trim: "",
-  status: VehicleStatusEnum.ACTIVE,
+  status: "",
   vehicleGroupID: 0,
   vehicleGroupName: "",
   assignedTechnicianID: null,
@@ -291,6 +291,18 @@ export const useVehicleFormStore = create<VehicleFormStore>()(
 
     toCreateCommand: (): CreateVehicleCommand => {
       const { formData } = get();
+
+      // Validate required enum fields
+      if (formData.type === "") {
+        throw new Error("Vehicle type is required");
+      }
+      if (formData.fuelType === "") {
+        throw new Error("Fuel type is required");
+      }
+      if (formData.status === "") {
+        throw new Error("Status is required");
+      }
+
       return {
         name: formData.vehicleName,
         make: formData.make,
@@ -299,16 +311,16 @@ export const useVehicleFormStore = create<VehicleFormStore>()(
         vin: formData.vin,
         licensePlate: formData.licensePlate,
         licensePlateExpirationDate: formData.licensePlateExpirationDate,
-        vehicleType: formData.type,
+        vehicleType: formData.type as VehicleTypeEnum,
         vehicleGroupID: formData.vehicleGroupID,
         trim: formData.trim,
         mileage: formData.mileage ?? 0,
         engineHours: formData.engineHours ?? 0,
         fuelCapacity: formData.fuelCapacity ?? 0,
-        fuelType: formData.fuelType,
+        fuelType: formData.fuelType as FuelTypeEnum,
         purchaseDate: formData.purchaseDate,
         purchasePrice: formData.purchasePrice ?? 0,
-        status: formData.status,
+        status: formData.status as VehicleStatusEnum,
         location: formData.location,
         assignedTechnicianID: formData.assignedTechnicianID,
       };
@@ -320,6 +332,17 @@ export const useVehicleFormStore = create<VehicleFormStore>()(
         throw new Error("Vehicle ID is required for update");
       }
 
+      // Validate required enum fields
+      if (formData.type === "") {
+        throw new Error("Vehicle type is required");
+      }
+      if (formData.fuelType === "") {
+        throw new Error("Fuel type is required");
+      }
+      if (formData.status === "") {
+        throw new Error("Status is required");
+      }
+
       return {
         vehicleID: vehicleId,
         name: formData.vehicleName,
@@ -329,16 +352,16 @@ export const useVehicleFormStore = create<VehicleFormStore>()(
         vin: formData.vin,
         licensePlate: formData.licensePlate,
         licensePlateExpirationDate: formData.licensePlateExpirationDate,
-        vehicleType: formData.type,
+        vehicleType: formData.type as VehicleTypeEnum,
         vehicleGroupID: formData.vehicleGroupID,
         trim: formData.trim,
         mileage: formData.mileage ?? 0,
         engineHours: formData.engineHours ?? 0,
         fuelCapacity: formData.fuelCapacity ?? 0,
-        fuelType: formData.fuelType,
+        fuelType: formData.fuelType as FuelTypeEnum,
         purchaseDate: formData.purchaseDate,
         purchasePrice: formData.purchasePrice ?? 0,
-        status: formData.status,
+        status: formData.status as VehicleStatusEnum,
         location: formData.location,
         assignedTechnicianID: formData.assignedTechnicianID,
       };

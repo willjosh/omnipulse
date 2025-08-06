@@ -54,6 +54,8 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
   const updateInventoryMutation = useUpdateInventoryItem();
 
   useEffect(() => {
+    setErrors({});
+
     if (mode === "edit" && item) {
       setFormData({
         itemNumber: item.itemNumber || "",
@@ -91,19 +93,74 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    // Clear errors for this field when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: "" }));
     }
   };
 
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    // Required text fields
+    if (!formData.itemNumber.trim()) {
+      newErrors.itemNumber = "Item Number is required";
+    }
+    if (!formData.itemName.trim()) {
+      newErrors.itemName = "Item Name is required";
+    }
+    if (!formData.description.trim()) {
+      newErrors.description = "Description is required";
+    }
+    if (!formData.manufacturer.trim()) {
+      newErrors.manufacturer = "Manufacturer is required";
+    }
+    if (!formData.manufacturerPartNumber.trim()) {
+      newErrors.manufacturerPartNumber = "Manufacturer Part Number is required";
+    }
+    if (!formData.universalProductCode.trim()) {
+      newErrors.universalProductCode = "Universal Product Code is required";
+    }
+    if (!formData.supplier.trim()) {
+      newErrors.supplier = "Supplier is required";
+    }
+
+    // Required number fields
+    if (formData.unitCost <= 0) {
+      newErrors.unitCost = "Valid unit cost is required";
+    }
+    if (formData.weightKG <= 0) {
+      newErrors.weightKG = "Valid weight is required";
+    }
+
+    // Required dropdown fields
+    if (formData.category === null || formData.category === undefined) {
+      newErrors.category = "Category is required";
+    }
+    if (
+      formData.unitCostMeasurementUnit === null ||
+      formData.unitCostMeasurementUnit === undefined
+    ) {
+      newErrors.unitCostMeasurementUnit = "Unit Cost Measurement is required";
+    }
+
+    return newErrors;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.itemNumber.trim() || !formData.itemName.trim()) {
-      notify("Item Number and Item Name are required", "error");
+    const validationErrors = validateForm();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+
+      const missingFields = Object.values(validationErrors);
+      const errorMessage = `Please fill in the following required fields:\n• ${missingFields.join("\n• ")}`;
+
+      notify(errorMessage, "error");
       return;
     }
+
+    setErrors({});
 
     try {
       if (mode === "create") {
@@ -129,7 +186,7 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
             )
           : getErrorMessage(
               error,
-              "Failed to create inventory item. Please check your input and try again.",
+              "Failed to update inventory item. Please check your input and try again.",
             );
 
       const fieldErrors = getErrorFields(error, [
@@ -152,6 +209,8 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
   };
 
   const handleClose = () => {
+    setErrors({});
+
     if (mode === "create") {
       setFormData({
         itemNumber: "",

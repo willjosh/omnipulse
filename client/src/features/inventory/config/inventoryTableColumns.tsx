@@ -35,9 +35,9 @@ export const inventoryTableColumns: Column<Inventory>[] = [
     sortable: true,
     width: "120px",
     render: (item: Inventory) => {
-      let colorClass = "text-gray-900";
+      let colorClass = "text-gray-900 ";
       if (item.quantityOnHand <= item.minStockLevel) {
-        colorClass = "text-red-600 font-semibold";
+        colorClass = "text-red-600";
       } else if (item.quantityOnHand >= item.maxStockLevel) {
         colorClass = "text-blue-600";
       } else {
