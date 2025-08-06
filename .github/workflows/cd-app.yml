@@ -49,7 +49,12 @@ jobs:
           az containerapp update \
             --name omnipulse-backend \
             --resource-group ${{ env.RESOURCE_GROUP }} \
-            --image omnipulse.azurecr.io/omnipulse-server:v1
+            --image omnipulse.azurecr.io/omnipulse-server:v1 \
+            --set-env-vars \
+              JWT__Key="${{ secrets.JWT_KEY }}" \
+              JWT__Issuer="${{ secrets.JWT_ISSUER }}" \
+              JWT__Audience="${{ secrets.JWT_AUDIENCE }}" \
+              JWT__DurationInMinutes="60"
 
       - name: Update frontend container app
         run: |
