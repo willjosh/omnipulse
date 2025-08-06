@@ -4,6 +4,11 @@ import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuthContext } from "@/features/auth/context/AuthContext";
 import {
+  getUserInitials,
+  getUserDisplayName,
+  getFormattedRole,
+} from "@/utils/userUtils";
+import {
   LayoutDashboard,
   Car,
   Wrench,
@@ -101,24 +106,6 @@ const SideBar = () => {
     {},
   );
 
-  // Generate user initials from first and last name
-  const getUserInitials = (firstName?: string, lastName?: string) => {
-    if (!firstName || !lastName) return "NN"; // fallback to current initials
-    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
-  };
-
-  // Get user display name
-  const getUserDisplayName = () => {
-    if (!user?.firstName || !user?.lastName) return "No Name"; // fallback
-    return `${user.firstName} ${user.lastName}`;
-  };
-
-  // Format user role for display
-  const getFormattedRole = () => {
-    if (!user?.role) return "No Role"; // fallback
-    return user.role === "FleetManager" ? "Fleet Manager" : user.role;
-  };
-
   useEffect(() => {
     if (activeParent) {
       const activeParentItem = navItems.find(
@@ -185,9 +172,9 @@ const SideBar = () => {
           {getUserInitials(user?.firstName, user?.lastName)}
         </div>
         <div>
-          <div className="text-xs text-gray-500">{getFormattedRole()}</div>
+          <div className="text-xs text-gray-500">{getFormattedRole(user)}</div>
           <div className="text-sm font-medium text-gray-700">
-            {getUserDisplayName()}
+            {getUserDisplayName(user)}
           </div>
         </div>
       </div>

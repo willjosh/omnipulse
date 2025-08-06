@@ -10,7 +10,6 @@ import {
   useInspectionFormItems,
   useDeactivateInspectionFormItem,
 } from "@/features/inspection-form/hooks/useInspectionFormItems";
-import InspectionFormHeader from "@/features/inspection-form/components/InspectionFormHeader";
 import { PrimaryButton, SecondaryButton } from "@/components/ui/Button";
 import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
 import { getInspectionFormItemTypeLabel } from "@/features/inspection-form/utils/inspectionFormEnumHelper";
@@ -18,8 +17,9 @@ import {
   Edit as EditIcon,
   Archive as ArchiveIcon,
 } from "@/components/ui/Icons";
-import { Plus } from "lucide-react";
+import { Plus, ArrowLeft } from "lucide-react";
 import { ConfirmModal } from "@/components/ui/Modal";
+import Loading from "@/components/ui/Feedback/Loading";
 
 export default function InspectionFormDetailsPage() {
   const params = useParams();
@@ -58,11 +58,7 @@ export default function InspectionFormDetailsPage() {
   } = useInspectionFormItems(inspectionFormId);
 
   if (isFormLoading || isItemsLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-      </div>
-    );
+    return <Loading />;
   }
 
   if (isFormError || !inspectionForm) {
@@ -83,12 +79,12 @@ export default function InspectionFormDetailsPage() {
     );
   }
 
-  const breadcrumbs = [
-    { label: "Inspection Forms", href: "/inspection-forms" },
-  ];
-
   const handleEdit = () => {
     router.push(`/inspection-forms/${inspectionFormId}/edit`);
+  };
+
+  const handleBack = () => {
+    router.push("/inspection-forms");
   };
 
   const handleAddItem = () => {
@@ -144,31 +140,50 @@ export default function InspectionFormDetailsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <InspectionFormHeader
-        title={inspectionForm.title}
-        description={inspectionForm.description || undefined}
-        showDescription={true}
-        breadcrumbs={breadcrumbs}
-        actions={
-          <>
-            <PrimaryButton
-              onClick={handleArchive}
-              disabled={isDeactivating}
-              className="bg-red-600 hover:bg-red-700 text-white border-red-600"
+    <div className="min-h-screen max-w-7xl shadow border-b border-gray-200 bg-gray-50">
+      <div className="bg-white">
+        <div className="px-6 py-4">
+          <div className="flex items-center space-x-4 mb-4">
+            <button
+              onClick={handleBack}
+              className="flex items-center text-gray-600 hover:text-gray-900"
             >
-              <ArchiveIcon /> Archive
-            </PrimaryButton>
-            <PrimaryButton onClick={handleEdit}>
-              <EditIcon /> Edit
-            </PrimaryButton>
-          </>
-        }
-      />
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              <span className="text-sm">Inspection Forms</span>
+            </button>
+          </div>
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <h1 className="text-2xl font-bold text-gray-900 mb-1">
+                {inspectionForm.title}
+              </h1>
+              {inspectionForm.description && (
+                <p className="text-gray-600 mb-2">
+                  {inspectionForm.description}
+                </p>
+              )}
+            </div>
+            <div className="flex items-center space-x-3">
+              <PrimaryButton
+                onClick={handleArchive}
+                disabled={isDeactivating}
+                className="bg-red-600 hover:bg-red-700 text-white border-red-600"
+              >
+                <ArchiveIcon />
+                Archive
+              </PrimaryButton>
+              <PrimaryButton onClick={handleEdit}>
+                <EditIcon />
+                Edit
+              </PrimaryButton>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      <div className="px-6 pb-12 mt-4 max-w-6xl mx-auto">
+      <div className="px-6 pb-12 pt-4 max-w-6xl mx-auto">
         {/* Inspection Items Section */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="bg-white rounded-3xl border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-xl font-semibold text-gray-900">
@@ -191,19 +206,19 @@ export default function InspectionFormDetailsPage() {
           ) : inspectionFormItems?.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-gray-500 mb-4">No inspection items found</p>
-              <div className="flex justify-center">
+              {/* <div className="flex justify-center">
                 <PrimaryButton onClick={handleAddItem}>
                   <Plus size={16} />
                   Add Item
                 </PrimaryButton>
-              </div>
+              </div> */}
             </div>
           ) : (
             <div className="space-y-4">
               {inspectionFormItems?.map((item: any, index: number) => (
                 <div
                   key={item.id}
-                  className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors"
+                  className="border border-gray-200 rounded-3xl p-4 hover:border-gray-300 transition-colors"
                 >
                   <div className="flex justify-between items-start">
                     <div className="flex-1 min-w-0 pr-4 overflow-hidden">
