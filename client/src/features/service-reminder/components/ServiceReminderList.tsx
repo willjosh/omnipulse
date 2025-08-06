@@ -246,7 +246,7 @@ const ServiceReminderList: React.FC = () => {
         <div className="text-center">
           <div className="font-medium">{reminder.occurrenceNumber}</div>
           <div className="text-xs text-gray-500">
-            {reminder.isTimeBasedReminder ? "time-based" : "mileage-based"}
+            {reminder.scheduleTypeLabel}-based
           </div>
         </div>
       ),
@@ -290,13 +290,8 @@ const ServiceReminderList: React.FC = () => {
     if (!selectedReminder) return;
 
     try {
-      // Create a unique service reminder ID using the combination of fields
-      const serviceReminderId = parseInt(
-        `${selectedReminder.vehicleID}${selectedReminder.serviceScheduleID}${selectedReminder.occurrenceNumber}`,
-      );
-
       await addWorkOrderToServiceReminder({
-        serviceReminderId,
+        serviceReminderId: selectedReminder.id,
         workOrderId: workOrder.id,
       });
 
@@ -388,9 +383,7 @@ const ServiceReminderList: React.FC = () => {
         showActions={true}
         fixedLayout={false}
         loading={isPending}
-        getItemId={reminder =>
-          `${reminder.vehicleID}-${reminder.serviceScheduleID}-${reminder.occurrenceNumber}`
-        }
+        getItemId={reminder => reminder.id.toString()}
         emptyState={emptyState}
         onSort={handleSort}
         sortBy={sortBy}

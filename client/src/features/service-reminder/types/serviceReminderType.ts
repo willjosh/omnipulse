@@ -3,6 +3,7 @@ import {
   PriorityLevelEnum,
   TimeUnitEnum,
   ServiceTaskCategoryEnum,
+  ServiceScheduleTypeEnum,
 } from "./serviceReminderEnum";
 
 export interface ServiceTaskInfo {
@@ -23,6 +24,8 @@ export interface ServiceTaskInfoWithLabels
 }
 
 export interface ServiceReminder {
+  id: number;
+  workOrderID?: number | null;
   vehicleID: number;
   vehicleName: string;
   serviceProgramID?: number | null;
@@ -47,8 +50,7 @@ export interface ServiceReminder {
   mileageVariance?: number | null;
   daysUntilDue?: number | null;
   occurrenceNumber: number;
-  isTimeBasedReminder: boolean;
-  isMileageBasedReminder: boolean;
+  scheduleType: ServiceScheduleTypeEnum;
 }
 
 export interface ServiceReminderWithLabels
@@ -59,6 +61,7 @@ export interface ServiceReminderWithLabels
     | "priorityLevel"
     | "timeIntervalUnit"
     | "timeBufferUnit"
+    | "scheduleType"
   > {
   serviceTasks: ServiceTaskInfoWithLabels[];
   status: number;
@@ -73,6 +76,9 @@ export interface ServiceReminderWithLabels
   timeBufferUnit: number;
   timeBufferUnitLabel: string;
   timeBufferUnitEnum: TimeUnitEnum;
+  scheduleType: number;
+  scheduleTypeLabel: string;
+  scheduleTypeEnum: ServiceScheduleTypeEnum;
 }
 
 export interface ServiceReminderFilter {

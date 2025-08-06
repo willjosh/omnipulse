@@ -3,6 +3,7 @@ import {
   PriorityLevelEnum,
   TimeUnitEnum,
   ServiceTaskCategoryEnum,
+  ServiceScheduleTypeEnum,
 } from "../types/serviceReminderEnum";
 
 export const getServiceReminderStatusLabel = (
@@ -71,6 +72,19 @@ export const getServiceTaskCategoryLabel = (
       return "Inspection";
     case ServiceTaskCategoryEnum.WARRANTY:
       return "Warranty";
+    default:
+      return "Unknown";
+  }
+};
+
+export const getServiceScheduleTypeLabel = (
+  scheduleType: ServiceScheduleTypeEnum | number,
+): string => {
+  switch (scheduleType) {
+    case ServiceScheduleTypeEnum.TIME:
+      return "Time";
+    case ServiceScheduleTypeEnum.MILEAGE:
+      return "Mileage";
     default:
       return "Unknown";
   }
