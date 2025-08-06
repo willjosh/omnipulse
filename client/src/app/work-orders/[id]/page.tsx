@@ -2,9 +2,13 @@
 
 import React from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Edit, Trash2, Printer } from "lucide-react";
+import { Edit, Printer } from "lucide-react";
 import WorkOrderHeader from "@/features/work-order/components/WorkOrderHeader";
-import { useWorkOrder } from "@/features/work-order/hooks/useWorkOrders";
+import StatusDropdown from "@/features/work-order/components/StatusDropdown";
+import {
+  useWorkOrder,
+  useUpdateWorkOrder,
+} from "@/features/work-order/hooks/useWorkOrders";
 import { useIssue } from "@/features/issue/hooks/useIssues";
 import { workOrderApi } from "@/features/work-order/api/workOrderApi";
 import PrimaryButton from "@/components/ui/Button/PrimaryButton";
@@ -39,6 +43,7 @@ export default function WorkOrderPage() {
   const workOrderId = Number(params.id);
 
   const { workOrder, isPending, isError } = useWorkOrder(workOrderId);
+  const { mutate: updateWorkOrder } = useUpdateWorkOrder();
 
   if (isPending) {
     return (
@@ -71,18 +76,47 @@ export default function WorkOrderPage() {
     );
   }
 
-  const handleStatusChange = (status: string) => {
-    // TODO: Implement status change logic
-    console.log("Status changed to:", status);
+  const handleStatusChange = (newStatus: number) => {
+    // Status change is handled by the StatusDropdown component
+    console.log("Status changed to:", newStatus);
+  };
+
+  const handleUpdateWorkOrder = (newStatus: number) => {
+    // Create a complete update command with all current work order data
+    const updateCommand = {
+      workOrderID: workOrderId,
+      title: workOrder.title,
+      description: workOrder.description,
+      vehicleID: workOrder.vehicleID,
+      workOrderType: workOrder.workOrderTypeEnum,
+      priorityLevel: workOrder.priorityLevelEnum,
+      status: newStatus, // Use the new status
+      assignedToUserID: workOrder.assignedToUserID,
+      scheduledStartDate: workOrder.scheduledStartDate,
+      actualStartDate: workOrder.actualStartDate,
+      scheduledCompletionDate: workOrder.scheduledCompletionDate,
+      actualCompletionDate: workOrder.actualCompletionDate,
+      startOdometer: workOrder.startOdometer,
+      endOdometer: workOrder.endOdometer,
+      issueIdList: workOrder.issueIDs,
+      workOrderLineItems: workOrder.workOrderLineItems.map(item => ({
+        itemType: item.itemTypeEnum,
+        quantity: item.quantity,
+        description: item.description,
+        inventoryItemID: item.inventoryItemID,
+        assignedToUserID: item.assignedToUserID,
+        serviceTaskID: item.serviceTaskID,
+        unitPrice: item.unitPrice,
+        hourlyRate: item.hourlyRate,
+        laborHours: item.laborHours,
+      })),
+    };
+
+    updateWorkOrder(updateCommand);
   };
 
   const handleEdit = () => {
     router.push(`/work-orders/${workOrderId}/edit`);
-  };
-
-  const handleDelete = () => {
-    // TODO: Implement delete logic
-    console.log("Delete work order");
   };
 
   const handlePrint = async () => {
@@ -176,16 +210,20 @@ export default function WorkOrderPage() {
         <Printer className="w-4 h-4" />
         Print
       </SecondaryButton>
-      <PrimaryButton onClick={handleEdit} className="flex items-center gap-2">
+      <StatusDropdown
+        currentStatus={workOrder.status}
+        workOrderId={workOrder.id}
+        onStatusChange={handleStatusChange}
+        onUpdateWorkOrder={handleUpdateWorkOrder}
+        disabled={workOrder.status === 5} // Disable if completed
+      />
+      <PrimaryButton
+        onClick={handleEdit}
+        className="flex items-center gap-2"
+        disabled={workOrder.status === 5} // Disable if completed
+      >
         <Edit className="w-4 h-4" />
         Edit
-      </PrimaryButton>
-      <PrimaryButton
-        onClick={handleDelete}
-        className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white border-red-600 hover:border-red-700"
-      >
-        <Trash2 className="w-4 h-4" />
-        Delete
       </PrimaryButton>
     </>
   );
