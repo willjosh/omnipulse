@@ -76,6 +76,13 @@ public sealed class AddServiceReminderToExistingWorkOrderCommandHandler : IReque
             workOrder.Status == WorkOrderStatusEnum.CANCELLED)
             throw new BadRequestException($"Cannot link reminder to a work order with {workOrder.Status} status.");
 
+        // Check if the vehicle associated with the work order matches the vehicle for the service reminder
+        if (serviceReminder.VehicleID != workOrder.VehicleID)
+        {
+            _logger.LogError($"Vehicle mismatch: ServiceReminder {request.ServiceReminderID} is for Vehicle {serviceReminder.VehicleID}, but WorkOrder {request.WorkOrderID} is for Vehicle {workOrder.VehicleID}.");
+            throw new BadRequestException($"Cannot link service reminder to a work order for a different vehicle.");
+        }
+
         // Link service reminder to work order
         serviceReminder.WorkOrderID = request.WorkOrderID;
         serviceReminder.WorkOrder = workOrder;
