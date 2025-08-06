@@ -34,9 +34,14 @@ public class ServiceReminder : BaseEntity
     public double? MileageInterval { get; set; }
 
     // ===== Buffer =====
+    /// <summary>The buffer value (in time units) before the due date for "due soon" status.</summary>
     public int? TimeBufferValue { get; set; }
+
+    /// <summary>The unit for the time buffer (e.g., Days, Weeks).</summary>
     public TimeUnitEnum? TimeBufferUnit { get; set; }
-    public int? MileageBuffer { get; set; } // km
+
+    /// <summary>The buffer value (in kilometres) before the due mileage for "due soon" status.</summary>
+    public int? MileageBuffer { get; set; }
 
     /// <summary>Difference between the vehicle's current meter and the DueMileage. Negative = distance left until due, Positive = overdue.</summary>
     public double? MeterVariance { get; set; }
@@ -188,6 +193,7 @@ public static class ServiceReminderExtensions
 
         return serviceReminder.TimeIntervalUnit.Value switch
         {
+            TimeUnitEnum.Hours => serviceReminder.DueDate.Value.AddHours(serviceReminder.TimeIntervalValue.Value),
             TimeUnitEnum.Days => serviceReminder.DueDate.Value.AddDays(serviceReminder.TimeIntervalValue.Value),
             TimeUnitEnum.Weeks => serviceReminder.DueDate.Value.AddDays(serviceReminder.TimeIntervalValue.Value * 7),
             _ => null
@@ -376,7 +382,8 @@ public static class ServiceReminderExtensions
     /// <returns>The next occurrence mileage, or null if not mileage-based or calculation not possible.</returns>
     public static double? GetNextScheduledMileage(this ServiceReminder serviceReminder)
     {
-        if (!serviceReminder.IsMileageBased() || !serviceReminder.DueMileage.HasValue) return null;
-        return serviceReminder.DueMileage.Value + serviceReminder.MileageInterval!.Value;
+        if (!serviceReminder.IsMileageBased() || !serviceReminder.DueMileage.HasValue || !serviceReminder.MileageInterval.HasValue)
+            return null;
+        return serviceReminder.DueMileage.Value + serviceReminder.MileageInterval.Value;
     }
 }
