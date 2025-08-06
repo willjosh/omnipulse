@@ -111,8 +111,8 @@ export const mapFormToCreateWorkOrderCommand = (
     scheduledCompletionDate: form.scheduledCompletionDate,
     actualCompletionDate: form.actualCompletionDate,
     startOdometer: form.startOdometer || 0,
-    endOdometer: form.endOdometer,
-    issueIdList: form.issueIdList || [],
+    endOdometer: form.endOdometer || null,
+    issueIdList: form.issueIdList?.length > 0 ? form.issueIdList : null,
     workOrderLineItems:
       form.workOrderLineItems.length > 0 ? form.workOrderLineItems : null,
   };
