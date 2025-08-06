@@ -121,7 +121,20 @@ export default function EditWorkOrderPage() {
       // Then update the work order with all other changes
       updateWorkOrder(toUpdateWorkOrderCommand(), {
         onSuccess: () => {
+          notify("Work order updated successfully!", "success");
           router.push(`/work-orders/${workOrderId}`);
+        },
+        onError: (error: any) => {
+          console.error("Error updating work order:", error);
+          let errorMessage = "Failed to update work order.";
+
+          if (error?.response?.data?.detail) {
+            errorMessage = error.response.data.detail;
+          } else if (error?.message) {
+            errorMessage = error.message;
+          }
+
+          notify(errorMessage, "error");
         },
       });
     } catch (error: any) {

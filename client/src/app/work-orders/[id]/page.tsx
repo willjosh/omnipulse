@@ -13,6 +13,7 @@ import { useIssue } from "@/features/issue/hooks/useIssues";
 import { workOrderApi } from "@/features/work-order/api/workOrderApi";
 import PrimaryButton from "@/components/ui/Button/PrimaryButton";
 import SecondaryButton from "@/components/ui/Button/SecondaryButton";
+import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
 
 // Separate component to handle individual issue items
 const IssueItem: React.FC<{ issueId: number; router: any }> = ({
@@ -39,6 +40,7 @@ export default function WorkOrderPage() {
   const router = useRouter();
   const params = useParams();
   const workOrderId = Number(params.id);
+  const notify = useNotification();
 
   const { workOrder, isPending, isError } = useWorkOrder(workOrderId);
   const { mutate: updateWorkOrder } = useUpdateWorkOrder();
@@ -110,7 +112,24 @@ export default function WorkOrderPage() {
       })),
     };
 
-    updateWorkOrder(updateCommand);
+    updateWorkOrder(updateCommand, {
+      onSuccess: () => {
+        // The cache will be automatically invalidated by the useUpdateWorkOrder hook
+        console.log("Work order status updated successfully");
+      },
+      onError: (error: any) => {
+        console.error("Error updating work order status:", error);
+        let errorMessage = "Failed to update work order status.";
+
+        if (error?.response?.data?.detail) {
+          errorMessage = error.response.data.detail;
+        } else if (error?.message) {
+          errorMessage = error.message;
+        }
+
+        // Note: We don't need to show a notification here because StatusDropdown handles it
+      },
+    });
   };
 
   const handleEdit = () => {
