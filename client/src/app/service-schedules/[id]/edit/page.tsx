@@ -51,9 +51,7 @@ export default function EditServiceSchedulePage() {
         timeBufferValue: serviceSchedule.timeBufferValue?.toString() || "",
         timeBufferUnit: serviceSchedule.timeBufferUnit || "",
         mileageBuffer: serviceSchedule.mileageBuffer?.toString() || "",
-        firstServiceTimeValue:
-          serviceSchedule.firstServiceTimeValue?.toString() || "",
-        firstServiceTimeUnit: serviceSchedule.firstServiceTimeUnit || "",
+        firstServiceDate: serviceSchedule.firstServiceDate || "",
         firstServiceMileage:
           serviceSchedule.firstServiceMileage?.toString() || "",
         serviceTaskIDs: serviceSchedule.serviceTasks.map(task => task.id),
@@ -115,12 +113,7 @@ export default function EditServiceSchedulePage() {
         mileageBuffer: form.mileageBuffer
           ? Number(form.mileageBuffer)
           : undefined,
-        firstServiceTimeValue: form.firstServiceTimeValue
-          ? Number(form.firstServiceTimeValue)
-          : undefined,
-        firstServiceTimeUnit: form.firstServiceTimeUnit
-          ? Number(form.firstServiceTimeUnit)
-          : undefined,
+        firstServiceDate: form.firstServiceDate || undefined,
         firstServiceMileage: form.firstServiceMileage
           ? Number(form.firstServiceMileage)
           : undefined,

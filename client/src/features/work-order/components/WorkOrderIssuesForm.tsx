@@ -184,7 +184,7 @@ const WorkOrderIssuesForm: React.FC<WorkOrderIssuesFormProps> = ({
                       </span>
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
-                      #{issue.issueNumber}
+                      #{issue.id}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-900 max-w-xs truncate">
                       {issue.title}

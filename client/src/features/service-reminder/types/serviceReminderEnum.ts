@@ -26,3 +26,8 @@ export enum ServiceTaskCategoryEnum {
   INSPECTION = 4,
   WARRANTY = 5,
 }
+
+export enum ServiceScheduleTypeEnum {
+  TIME = 1,
+  MILEAGE = 2,
+}

@@ -3,7 +3,6 @@ import { DataTable } from "@/components/ui/Table";
 
 export interface IssueRow {
   id: number;
-  issueNumber: number;
   title: string;
   vehicleName: string;
   categoryLabel: string;
@@ -23,7 +22,6 @@ interface IssueListTableProps {
 }
 
 const columns = [
-  { key: "issueNumber", header: "Issue #" },
   { key: "title", header: "Title", width: "280px" },
   { key: "vehicleName", header: "Vehicle", width: "180px" },
   { key: "categoryLabel", header: "Category" },

@@ -29,9 +29,7 @@ const IssueItem: React.FC<{ issueId: number; router: any }> = ({
       onClick={() => router.push(`/issues/${issueId}`)}
     >
       <div className="flex items-center gap-3">
-        <span className="text-sm font-medium text-blue-600">
-          #{issue.issueNumber} · {issue.title}
-        </span>
+        <span className="text-sm font-medium text-blue-600">{issue.title}</span>
       </div>
     </div>
   );

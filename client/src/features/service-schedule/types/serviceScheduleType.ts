@@ -15,8 +15,7 @@ export interface ServiceSchedule {
   timeBufferUnit?: TimeUnitEnum | null;
   mileageInterval?: number | null;
   mileageBuffer?: number | null;
-  firstServiceTimeValue?: number | null;
-  firstServiceTimeUnit?: TimeUnitEnum | null;
+  firstServiceDate?: string | null;
   firstServiceMileage?: number | null;
   isActive: boolean;
 }
@@ -24,10 +23,7 @@ export interface ServiceSchedule {
 export interface ServiceScheduleWithLabels
   extends Omit<
     ServiceSchedule,
-    | "serviceTasks"
-    | "timeIntervalUnit"
-    | "timeBufferUnit"
-    | "firstServiceTimeUnit"
+    "serviceTasks" | "timeIntervalUnit" | "timeBufferUnit"
   > {
   serviceTasks: ServiceTaskWithLabels[];
   timeIntervalUnit?: number | null;
@@ -36,9 +32,6 @@ export interface ServiceScheduleWithLabels
   timeBufferUnit?: number | null;
   timeBufferUnitLabel?: string | null;
   timeBufferUnitEnum?: TimeUnitEnum | null;
-  firstServiceTimeUnit?: number | null;
-  firstServiceTimeUnitLabel?: string | null;
-  firstServiceTimeUnitEnum?: TimeUnitEnum | null;
 }
 
 export interface CreateServiceScheduleCommand {
@@ -51,8 +44,7 @@ export interface CreateServiceScheduleCommand {
   timeBufferUnit?: TimeUnitEnum | null;
   mileageInterval?: number | null;
   mileageBuffer?: number | null;
-  firstServiceTimeValue?: number | null;
-  firstServiceTimeUnit?: TimeUnitEnum | null;
+  firstServiceDate?: string | null;
   firstServiceMileage?: number | null;
   isActive: boolean;
 }

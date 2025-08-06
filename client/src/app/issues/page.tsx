@@ -30,7 +30,6 @@ export default function IssuesPage() {
     () =>
       issues.map((issue: IssueWithLabels) => ({
         id: issue.id,
-        issueNumber: issue.issueNumber,
         title: issue.title,
         vehicleName: issue.vehicleName,
         categoryLabel: issue.categoryLabel,
