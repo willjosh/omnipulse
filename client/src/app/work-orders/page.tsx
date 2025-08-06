@@ -138,7 +138,7 @@ export default function WorkOrdersPage() {
   );
 
   return (
-    <div className="p-6 w-full max-w-none min-h-screen">
+    <div className="p-6 w-full max-w-none">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-semibold text-gray-900">Work Orders</h1>
         <PrimaryButton onClick={() => router.push("/work-orders/new")}>
