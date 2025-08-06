@@ -50,5 +50,18 @@ public class ServiceScheduleConfiguration : IEntityTypeConfiguration<ServiceSche
             .WithMany(sp => sp.ServiceSchedules)
             .HasForeignKey(ss => ss.ServiceProgramID)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // Add these performance indexes for service reminder queries
+        builder.HasIndex(ss => new { ss.IsActive, ss.TimeIntervalValue, ss.TimeIntervalUnit })
+            .HasDatabaseName("IX_ServiceSchedules_TimeBasedActive");
+
+        builder.HasIndex(ss => new { ss.IsActive, ss.MileageInterval })
+            .HasDatabaseName("IX_ServiceSchedules_MileageBasedActive");
+
+        builder.HasIndex(ss => new { ss.ServiceProgramID, ss.IsActive, ss.TimeIntervalValue })
+            .HasDatabaseName("IX_ServiceSchedules_ProgramTimeActive");
+
+        builder.HasIndex(ss => new { ss.ServiceProgramID, ss.IsActive, ss.MileageInterval })
+            .HasDatabaseName("IX_ServiceSchedules_ProgramMileageActive");
     }
 }

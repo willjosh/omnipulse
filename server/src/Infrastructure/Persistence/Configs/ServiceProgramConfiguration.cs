@@ -23,5 +23,10 @@ public class ServiceProgramConfiguration : IEntityTypeConfiguration<ServiceProgr
 
         // Query Filter for soft deletes
         builder.HasQueryFilter(sp => sp.IsActive);
+
+        // Index for active service programs with name
+        builder.HasIndex(sp => sp.IsActive)
+            .IncludeProperties(sp => sp.Name)
+            .HasDatabaseName("IX_ServicePrograms_ActiveWithName");
     }
 }
