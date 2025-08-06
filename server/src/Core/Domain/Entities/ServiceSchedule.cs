@@ -6,13 +6,13 @@ namespace Domain.Entities;
 /// Represents a service schedule that defines the cadence at which maintenance tasks should be performed for vehicles by mapping intervals to <see cref="ServiceTask"/>s.
 /// </summary>
 /// <remarks>
-/// A service schedule can be configured by time, mileage, or a combination of both.
+/// A service schedule can be configured by time OR mileage, but not both.
 /// It belongs to a single <see cref="ServiceProgram"/>.
 /// 1:N <see cref="XrefServiceScheduleServiceTask"/>s.
 ///
 /// <list type="bullet">
 ///   <item>Must reference exactly one ServiceProgram via <see cref="ServiceProgramID"/>.</item>
-///   <item>At least one of the following recurrence options must be provided:
+///   <item>Exactly one of the following recurrence options must be provided:
 ///     <list type="bullet">
 ///       <item>Time-based (<see cref="TimeIntervalValue"/> &amp; <see cref="TimeIntervalUnit"/>)</item>
 ///       <item>Mileage-based (<see cref="MileageInterval"/>)</item>
@@ -57,15 +57,15 @@ public static class ServiceScheduleExtensions
     /// </summary>
     /// <param name="schedule">The service schedule.</param>
     /// <returns>The determined schedule type.</returns>
-    /// <exception cref="InvalidOperationException">Thrown when neither time nor mileage is configured.</exception>
+    /// <exception cref="InvalidOperationException">Thrown when neither time nor mileage is configured, or when both are configured (violates XOR constraint).</exception>
     public static ServiceScheduleTypeEnum GetScheduleType(this ServiceSchedule schedule)
     {
-        if (schedule.TimeIntervalValue.HasValue && schedule.TimeIntervalUnit.HasValue)
+        if (schedule.IsTimeBased() && !schedule.IsMileageBased())
             return ServiceScheduleTypeEnum.TIME;
-        if (schedule.MileageInterval.HasValue)
+        if (!schedule.IsTimeBased() && schedule.IsMileageBased())
             return ServiceScheduleTypeEnum.MILEAGE;
 
-        throw new InvalidOperationException("Service schedule must have either time or mileage configured");
+        throw new InvalidOperationException("Service schedule must have exactly one schedule type configured (either time OR mileage, not both or neither)");
     }
 
     /// <summary>

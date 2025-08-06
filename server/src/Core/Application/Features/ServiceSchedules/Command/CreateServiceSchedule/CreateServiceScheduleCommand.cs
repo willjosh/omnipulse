@@ -10,7 +10,7 @@ namespace Application.Features.ServiceSchedules.Command.CreateServiceSchedule;
 /// </summary>
 /// <remarks>
 /// <list type="bullet">
-/// <item>At least one of the following recurrence options must be provided: time-based (TimeIntervalValue &amp; TimeIntervalUnit) or mileage-based (MileageInterval).</item>
+/// <item>Exactly one of the following recurrence options must be provided: time-based (TimeIntervalValue &amp; TimeIntervalUnit) OR mileage-based (MileageInterval).</item>
 /// <item>Buffer values are optional but, if provided, cannot be greater than or equal to their corresponding interval.</item>
 /// <item>First service properties are optional. If provided, they require their related interval fields to be set.</item>
 /// </list>
