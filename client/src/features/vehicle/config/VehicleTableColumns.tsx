@@ -32,8 +32,8 @@ export const vehicleTableColumns = [
     sortable: true,
     render: (vehicle: VehicleWithLabels) => vehicle.year,
   },
-  { key: "make", header: "Make", sortable: false },
-  { key: "model", header: "Model", sortable: false },
+  { key: "make", header: "Make", sortable: true },
+  { key: "model", header: "Model", sortable: true },
   {
     key: "vin",
     header: "VIN",
@@ -45,7 +45,7 @@ export const vehicleTableColumns = [
   {
     key: "status",
     header: "Status",
-    sortable: false,
+    sortable: true,
     render: (vehicle: VehicleWithLabels) => (
       <div className="flex items-center">
         <div
