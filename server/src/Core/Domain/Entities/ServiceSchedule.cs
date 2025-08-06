@@ -117,4 +117,53 @@ public static class ServiceScheduleExtensions
     {
         return !schedule.IsTimeBased() && schedule.IsMileageBased();
     }
+
+    /// <summary>
+    /// Calculates service reminder status based on schedule configuration and current state.
+    /// </summary>
+    /// <param name="schedule">The service schedule.</param>
+    /// <param name="dueDate">The due date for the reminder.</param>
+    /// <param name="dueMileage">The due mileage for the reminder.</param>
+    /// <param name="currentDate">The current date.</param>
+    /// <param name="currentMileage">The current vehicle mileage.</param>
+    /// <returns>The calculated status.</returns>
+    public static ServiceReminderStatusEnum CalculateReminderStatus(this ServiceSchedule schedule, DateTime? dueDate, double? dueMileage, DateTime currentDate, double currentMileage)
+    {
+        // Overdue checks
+        bool isOverdueByTime = dueDate.HasValue && currentDate > dueDate.Value;
+        bool isOverdueByMileage = dueMileage.HasValue && currentMileage > dueMileage.Value;
+
+        if (isOverdueByTime || isOverdueByMileage) return ServiceReminderStatusEnum.OVERDUE;
+
+        // Due soon checks
+        bool isDueSoonByTime = dueDate.HasValue &&
+                               schedule.TimeBufferValue.HasValue &&
+                               schedule.TimeBufferUnit.HasValue &&
+                               currentDate >= dueDate.Value.AddDays(-ConvertToDays(schedule.TimeBufferValue.Value, schedule.TimeBufferUnit.Value)) &&
+                               currentDate < dueDate.Value;
+
+        bool isDueSoonByMileage = dueMileage.HasValue &&
+                                  schedule.MileageBuffer.HasValue &&
+                                  currentMileage >= (dueMileage.Value - schedule.MileageBuffer.Value) &&
+                                  currentMileage < dueMileage.Value;
+
+        if (isDueSoonByTime || isDueSoonByMileage) return ServiceReminderStatusEnum.DUE_SOON;
+
+        // Otherwise, it's just upcoming
+        return ServiceReminderStatusEnum.UPCOMING;
+    }
+
+    /// <summary>
+    /// Helper: Convert time units to days
+    /// </summary>
+    private static int ConvertToDays(int value, TimeUnitEnum unit)
+    {
+        return unit switch
+        {
+            TimeUnitEnum.Hours => (int)Math.Ceiling(value / 24.0),
+            TimeUnitEnum.Days => value,
+            TimeUnitEnum.Weeks => value * 7,
+            _ => throw new ArgumentException($"Unsupported time unit: {unit}")
+        };
+    }
 }

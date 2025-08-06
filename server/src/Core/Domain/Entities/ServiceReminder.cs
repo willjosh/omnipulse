@@ -102,8 +102,10 @@ public static class ServiceReminderExtensions
         if (isOverdueByTime || isOverdueByMileage) return ServiceReminderStatusEnum.OVERDUE;
 
         // Due soon checks
-        bool isDueSoonByTime = serviceReminder.DueDate.HasValue && serviceReminder.TimeBufferValue.HasValue &&
-                               now >= serviceReminder.DueDate.Value.AddDays(-serviceReminder.TimeBufferValue.Value) &&
+        bool isDueSoonByTime = serviceReminder.DueDate.HasValue &&
+                               serviceReminder.TimeBufferValue.HasValue &&
+                               serviceReminder.TimeBufferUnit.HasValue &&
+                               now >= serviceReminder.DueDate.Value.AddDays(-ConvertToDays(serviceReminder.TimeBufferValue.Value, serviceReminder.TimeBufferUnit.Value)) &&
                                now < serviceReminder.DueDate.Value;
 
         bool isDueSoonByMileage = serviceReminder.DueMileage.HasValue &&
@@ -116,6 +118,20 @@ public static class ServiceReminderExtensions
 
         // Otherwise, it's just upcoming
         return ServiceReminderStatusEnum.UPCOMING;
+    }
+
+    /// <summary>
+    /// Helper: Convert time units to days
+    /// </summary>
+    private static int ConvertToDays(int value, TimeUnitEnum unit)
+    {
+        return unit switch
+        {
+            TimeUnitEnum.Hours => (int)Math.Ceiling(value / 24.0),
+            TimeUnitEnum.Days => value,
+            TimeUnitEnum.Weeks => value * 7,
+            _ => throw new ArgumentException($"Unsupported time unit: {unit}")
+        };
     }
 
     /// <summary>

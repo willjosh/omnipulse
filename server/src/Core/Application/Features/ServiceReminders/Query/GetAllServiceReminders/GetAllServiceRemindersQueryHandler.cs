@@ -222,8 +222,8 @@ public class GetAllServiceRemindersQueryHandler : IRequestHandler<GetAllServiceR
             // Stop if we're too far in the future
             if (dueDate > currentDate.AddYears(MaxUpcomingLookaheadYears)) break;
 
-            // Calculate status directly using simplified logic (avoiding temporary entity creation)
-            var status = CalculateTimeBasedStatus(dueDate, currentDate, schedule);
+            // Calculate status using domain logic
+            var status = schedule.CalculateReminderStatus(dueDate, null, currentDate, vehicle.Mileage);
 
             // Filter based on excludeUpcoming flag
             if (excludeUpcoming && status == ServiceReminderStatusEnum.UPCOMING) continue;
@@ -263,8 +263,8 @@ public class GetAllServiceRemindersQueryHandler : IRequestHandler<GetAllServiceR
             var maxLookAheadMileage = vehicle.Mileage + (schedule.MileageBuffer ?? DefaultMileageBufferKm);
             if (dueMileage > maxLookAheadMileage) break;
 
-            // Calculate status directly using simplified logic
-            var status = CalculateMileageBasedStatus(dueMileage, vehicle.Mileage, schedule);
+            // Calculate status using domain logic
+            var status = schedule.CalculateReminderStatus(null, dueMileage, currentDate, vehicle.Mileage);
 
             // Filter based on excludeUpcoming flag
             if (excludeUpcoming && status == ServiceReminderStatusEnum.UPCOMING) continue;
@@ -276,54 +276,6 @@ public class GetAllServiceRemindersQueryHandler : IRequestHandler<GetAllServiceR
         }
 
         return reminders;
-    }
-
-    /// <summary>Helper: Calculate time-based status</summary>
-    private static ServiceReminderStatusEnum CalculateTimeBasedStatus(DateTime dueDate, DateTime currentDate, ServiceSchedule schedule)
-    {
-        if (currentDate > dueDate)
-            return ServiceReminderStatusEnum.OVERDUE;
-
-        if (schedule.TimeBufferValue.HasValue && schedule.TimeBufferUnit.HasValue)
-        {
-            var dueSoonThreshold = dueDate.AddDays(-ConvertToDays(schedule.TimeBufferValue.Value, schedule.TimeBufferUnit.Value));
-            if (currentDate >= dueSoonThreshold)
-                return ServiceReminderStatusEnum.DUE_SOON;
-        }
-
-        return ServiceReminderStatusEnum.UPCOMING;
-    }
-
-    /// <summary>
-    /// Helper: Calculate mileage-based status
-    /// </summary>
-    private static ServiceReminderStatusEnum CalculateMileageBasedStatus(double dueMileage, double currentMileage, ServiceSchedule schedule)
-    {
-        if (currentMileage > dueMileage)
-            return ServiceReminderStatusEnum.OVERDUE;
-
-        if (schedule.MileageBuffer.HasValue)
-        {
-            var dueSoonThreshold = dueMileage - schedule.MileageBuffer.Value;
-            if (currentMileage >= dueSoonThreshold)
-                return ServiceReminderStatusEnum.DUE_SOON;
-        }
-
-        return ServiceReminderStatusEnum.UPCOMING;
-    }
-
-    /// <summary>
-    /// Helper: Convert time units to days
-    /// </summary>
-    private static int ConvertToDays(int value, TimeUnitEnum unit)
-    {
-        return unit switch
-        {
-            TimeUnitEnum.Hours => (int)Math.Ceiling(value / 24.0),
-            TimeUnitEnum.Days => value,
-            TimeUnitEnum.Weeks => value * DaysPerWeek,
-            _ => throw new ArgumentException($"Unsupported time unit: {unit}")
-        };
     }
 
     /// <summary>
@@ -362,7 +314,13 @@ public class GetAllServiceRemindersQueryHandler : IRequestHandler<GetAllServiceR
         }).ToList();
 
         // Calculate priority level and other computed values directly
-        var priorityLevel = CalculatePriorityLevel(status);
+        var priorityLevel = status switch
+        {
+            ServiceReminderStatusEnum.OVERDUE => PriorityLevelEnum.HIGH,
+            ServiceReminderStatusEnum.DUE_SOON => PriorityLevelEnum.MEDIUM,
+            ServiceReminderStatusEnum.UPCOMING => PriorityLevelEnum.LOW,
+            _ => PriorityLevelEnum.LOW
+        };
         var mileageVariance = dueMileage.HasValue ? vehicle.Mileage - dueMileage.Value : (double?)null;
         var daysUntilDue = dueDate.HasValue ? (int)(dueDate.Value - currentDate).TotalDays : (int?)null;
 
@@ -395,20 +353,6 @@ public class GetAllServiceRemindersQueryHandler : IRequestHandler<GetAllServiceR
             DaysUntilDue = daysUntilDue,
             OccurrenceNumber = occurrenceNumber,
             ScheduleType = scheduleType
-        };
-    }
-
-    /// <summary>
-    /// Helper: Calculate priority level from status
-    /// </summary>
-    private static PriorityLevelEnum CalculatePriorityLevel(ServiceReminderStatusEnum status)
-    {
-        return status switch
-        {
-            ServiceReminderStatusEnum.OVERDUE => PriorityLevelEnum.HIGH,
-            ServiceReminderStatusEnum.DUE_SOON => PriorityLevelEnum.MEDIUM,
-            ServiceReminderStatusEnum.UPCOMING => PriorityLevelEnum.LOW,
-            _ => PriorityLevelEnum.LOW
         };
     }
 
