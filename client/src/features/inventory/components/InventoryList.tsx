@@ -126,7 +126,7 @@ const InventoryList = () => {
 
   if (isError) {
     return (
-      <div className="mt-20 p-6 w-full max-w-none min-h-screen">
+      <div className="p-6 w-full max-w-none">
         <EmptyState
           icon="⚠️"
           title="Error Loading Inventory"
@@ -153,7 +153,7 @@ const InventoryList = () => {
   );
 
   return (
-    <div className="p-6 w-full max-w-none min-h-screen">
+    <div className="p-6 w-full max-w-none">
       <div className="flex items-center justify-between mb-2">
         <h1 className="text-2xl font-semibold text-gray-900">Inventory</h1>
         <div className="flex items-center gap-3">

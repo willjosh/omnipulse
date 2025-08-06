@@ -355,6 +355,9 @@ public class GetAllServiceRemindersQueryHandler : IRequestHandler<GetAllServiceR
 
         return new ServiceReminderDTO
         {
+            // Generate a unique ID for calculated reminders (negative to distinguish from persisted ones)
+            ID = -(schedule.ID * 1000000 + vehicle.ID * 1000 + occurrenceNumber),
+            WorkOrderID = null, // Calculated reminders don't have work orders initially
             VehicleID = vehicle.ID,
             VehicleName = vehicle.Name,
             ServiceProgramID = schedule.ServiceProgramID,
@@ -481,6 +484,8 @@ public class GetAllServiceRemindersQueryHandler : IRequestHandler<GetAllServiceR
 
             return new ServiceReminderDTO
             {
+                ID = entity.ID,
+                WorkOrderID = entity.WorkOrderID,
                 VehicleID = entity.VehicleID,
                 VehicleName = entity.Vehicle?.Name ?? "Unknown",
                 ServiceScheduleID = entity.ServiceScheduleID,

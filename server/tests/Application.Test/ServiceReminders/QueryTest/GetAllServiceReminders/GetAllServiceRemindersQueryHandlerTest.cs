@@ -150,6 +150,8 @@ public class GetAllServiceRemindersQueryHandlerTest
     {
         return new ServiceReminderDTO
         {
+            ID = 1,
+            WorkOrderID = null,
             VehicleID = vehicleId,
             VehicleName = vehicleName,
             ServiceScheduleID = 1,
