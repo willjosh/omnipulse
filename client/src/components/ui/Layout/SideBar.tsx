@@ -32,14 +32,15 @@ import { NavChild, NavItem } from "./types";
 
 const navItems: NavItem[] = [
   { label: "Dashboard", icon: LayoutDashboard, path: "/" },
-  {
-    label: "Vehicles",
-    icon: Car,
-    children: [
-      { label: "Vehicle List", path: "/vehicles" },
-      { label: "Vehicle Assignment", path: "/vehicles/assignment" },
-    ],
-  },
+  { label: "Vehicles", icon: Car, path: "/vehicles" },
+  // {
+  //   label: "Vehicles",
+  //   icon: Car,
+  //   children: [
+  //     { label: "Vehicle List", path: "/vehicles" },
+  //     { label: "Vehicle Assignment", path: "/vehicles/assignment" },
+  //   ],
+  // },
   // { label: "Equipment", icon: Wrench },
   {
     label: "Inspections",
@@ -73,7 +74,7 @@ const navItems: NavItem[] = [
     label: "Service",
     icon: UserCog,
     children: [
-      { label: "Service History", path: "/service/history" },
+      // { label: "Service History", path: "/service/history" },
       { label: "Work Orders", path: "/work-orders" },
       { label: "Service Tasks", path: "/service-tasks" },
       { label: "Service Schedules", path: "/service-schedules" },
@@ -106,9 +107,27 @@ const SideBar = () => {
     {},
   );
 
+  // Filter navigation items based on user role
+  const getFilteredNavItems = () => {
+    if (!user) return navItems;
+
+    // Items that Technicians cannot access
+    const restrictedForTechnicians = ["Issues", "Technicians"];
+
+    if (user.role === "Technician") {
+      return navItems.filter(
+        item => !restrictedForTechnicians.includes(item.label),
+      );
+    }
+
+    return navItems;
+  };
+
+  const filteredNavItems = getFilteredNavItems();
+
   useEffect(() => {
     if (activeParent) {
-      const activeParentItem = navItems.find(
+      const activeParentItem = filteredNavItems.find(
         item => item.label === activeParent,
       );
       if (activeParentItem?.children) {
@@ -120,7 +139,7 @@ const SideBar = () => {
         }
       }
     }
-  }, [pathname, activeParent]);
+  }, [pathname, activeParent, filteredNavItems]);
 
   const isSettingsPage = pathname.startsWith("/settings");
 
@@ -137,7 +156,7 @@ const SideBar = () => {
       setActiveParent(label);
       toggleExpand(label);
     } else {
-      const item = navItems.find(item => item.label === label);
+      const item = filteredNavItems.find(item => item.label === label);
       if (item?.path) {
         router.push(item.path);
       }
@@ -150,7 +169,7 @@ const SideBar = () => {
   };
 
   const isParentActive = (label: string) => {
-    const item = navItems.find(item => item.label === label);
+    const item = filteredNavItems.find(item => item.label === label);
 
     if (!item?.children) {
       return pathname === item?.path;
@@ -182,7 +201,7 @@ const SideBar = () => {
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto">
         <ul className="mt-4 space-y-1">
-          {navItems.map(({ label, icon: Icon, children }) => {
+          {filteredNavItems.map(({ label, icon: Icon, children }) => {
             const isActive = isParentActive(label);
             const isExpanded = expandedItems[label];
 
