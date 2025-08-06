@@ -7,6 +7,9 @@ namespace Application.Features.ServiceReminders.Query;
 /// </summary>
 public class ServiceReminderDTO
 {
+    public required int ID { get; set; }
+    public int? WorkOrderID { get; set; }
+
     /// <summary>Vehicle ID this reminder applies to.</summary>
     /// <example>1</example>
     public required int VehicleID { get; set; }
