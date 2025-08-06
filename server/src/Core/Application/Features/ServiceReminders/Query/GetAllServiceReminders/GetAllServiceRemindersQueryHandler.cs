@@ -355,6 +355,8 @@ public class GetAllServiceRemindersQueryHandler : IRequestHandler<GetAllServiceR
 
         return new ServiceReminderDTO
         {
+            ID = 0, // Placeholder ID for calculated reminders (will be set when persisted)
+            WorkOrderID = null, // Will be set when AddServiceReminderToExistingWorkOrderCommand is called
             VehicleID = vehicle.ID,
             VehicleName = vehicle.Name,
             ServiceProgramID = schedule.ServiceProgramID,
@@ -481,6 +483,8 @@ public class GetAllServiceRemindersQueryHandler : IRequestHandler<GetAllServiceR
 
             return new ServiceReminderDTO
             {
+                ID = entity.ID,
+                WorkOrderID = entity.WorkOrderID,
                 VehicleID = entity.VehicleID,
                 VehicleName = entity.Vehicle?.Name ?? "Unknown",
                 ServiceScheduleID = entity.ServiceScheduleID,
