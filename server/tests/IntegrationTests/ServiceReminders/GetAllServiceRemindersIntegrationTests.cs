@@ -162,8 +162,7 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
         specificReminder.DueDate.Should().BeCloseTo(DateTime.Today.AddDays(2), TimeSpan.FromHours(1));
         // XOR constraint: time-based only, no mileage data
         specificReminder.DueMileage.Should().BeNull();
-        specificReminder.IsTimeBasedReminder.Should().BeTrue();
-        specificReminder.IsMileageBasedReminder.Should().BeFalse();
+        specificReminder.ScheduleType.Should().Be(ServiceScheduleTypeEnum.TIME);
 
         // Verify pagination
         result.PageNumber.Should().Be(1);
@@ -344,8 +343,7 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
         overdueReminder.DueMileage.Should().Be(20000);
         overdueReminder.MileageVariance.Should().Be(5000); // 25k - 20k = 5k overdue
         overdueReminder.DueDate.Should().BeNull(); // XOR: mileage-based only
-        overdueReminder.IsTimeBasedReminder.Should().BeFalse();
-        overdueReminder.IsMileageBasedReminder.Should().BeTrue();
+        overdueReminder.ScheduleType.Should().Be(ServiceScheduleTypeEnum.MILEAGE);
     }
 
     [Fact]
@@ -461,8 +459,7 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
 
         // Verify time-based only (XOR constraint)
         upcomingReminder.DueMileage.Should().BeNull();
-        upcomingReminder.IsTimeBasedReminder.Should().BeTrue();
-        upcomingReminder.IsMileageBasedReminder.Should().BeFalse();
+        upcomingReminder.ScheduleType.Should().Be(ServiceScheduleTypeEnum.TIME);
     }
 
     [Fact]
@@ -579,8 +576,7 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
         // Verify mileage is within buffer
         dueSoonReminder.DueMileage.Should().Be(20000);
         dueSoonReminder.MileageVariance.Should().Be(-1000); // 19k - 20k = -1k (within 2k buffer)
-        dueSoonReminder.IsTimeBasedReminder.Should().BeFalse();
-        dueSoonReminder.IsMileageBasedReminder.Should().BeTrue();
+        dueSoonReminder.ScheduleType.Should().Be(ServiceScheduleTypeEnum.MILEAGE);
     }
 
     [Fact]
@@ -710,8 +706,7 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
         // Verify time-based only (XOR constraint)
         overdueReminder.DueMileage.Should().BeNull();
         overdueReminder.MileageVariance.Should().BeNull();
-        overdueReminder.IsTimeBasedReminder.Should().BeTrue();
-        overdueReminder.IsMileageBasedReminder.Should().BeFalse();
+        overdueReminder.ScheduleType.Should().Be(ServiceScheduleTypeEnum.TIME);
     }
 
     [Fact]

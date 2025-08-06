@@ -164,8 +164,7 @@ public class GetAllServiceRemindersQueryHandlerTest
             PriorityLevel = PriorityLevelEnum.MEDIUM,
             CurrentMileage = 10000.0,
             OccurrenceNumber = 1,
-            IsTimeBasedReminder = true,
-            IsMileageBasedReminder = false
+            ScheduleType = ServiceScheduleTypeEnum.TIME
         };
     }
 }
