@@ -46,3 +46,75 @@ public class ServiceSchedule : BaseEntity
     public required ICollection<XrefServiceScheduleServiceTask> XrefServiceScheduleServiceTasks { get; set; } = [];
     public required ServiceProgram ServiceProgram { get; set; }
 }
+
+/// <summary>
+/// Extension methods for ServiceSchedule
+/// </summary>
+public static class ServiceScheduleExtensions
+{
+    /// <summary>
+    /// Determines the schedule type based on configured intervals.
+    /// </summary>
+    /// <param name="schedule">The service schedule.</param>
+    /// <returns>The determined schedule type.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when neither time nor mileage is configured.</exception>
+    public static ServiceScheduleTypeEnum GetScheduleType(this ServiceSchedule schedule)
+    {
+        if (schedule.TimeIntervalValue.HasValue && schedule.TimeIntervalUnit.HasValue)
+            return ServiceScheduleTypeEnum.TIME;
+        if (schedule.MileageInterval.HasValue)
+            return ServiceScheduleTypeEnum.MILEAGE;
+
+        throw new InvalidOperationException("Service schedule must have either time or mileage configured");
+    }
+
+    /// <summary>
+    /// Checks if this schedule is time-based.
+    /// </summary>
+    /// <param name="schedule">The service schedule.</param>
+    /// <returns>True if the schedule is time-based.</returns>
+    public static bool IsTimeBased(this ServiceSchedule schedule)
+    {
+        return schedule.TimeIntervalValue.HasValue && schedule.TimeIntervalUnit.HasValue;
+    }
+
+    /// <summary>
+    /// Checks if this schedule is mileage-based.
+    /// </summary>
+    /// <param name="schedule">The service schedule.</param>
+    /// <returns>True if the schedule is mileage-based.</returns>
+    public static bool IsMileageBased(this ServiceSchedule schedule)
+    {
+        return schedule.MileageInterval.HasValue;
+    }
+
+    /// <summary>
+    /// Validates that the schedule has exactly one type configured.
+    /// </summary>
+    /// <param name="schedule">The service schedule.</param>
+    /// <returns>True if the schedule has exactly one type configured.</returns>
+    public static bool HasExactlyOneScheduleType(this ServiceSchedule schedule)
+    {
+        return schedule.IsTimeBased() != schedule.IsMileageBased(); // Exactly one must be true
+    }
+
+    /// <summary>
+    /// Checks if the schedule is time-based only.
+    /// </summary>
+    /// <param name="schedule">The service schedule.</param>
+    /// <returns>True if the schedule is time-based only.</returns>
+    public static bool IsTimeBasedOnly(this ServiceSchedule schedule)
+    {
+        return schedule.IsTimeBased() && !schedule.IsMileageBased();
+    }
+
+    /// <summary>
+    /// Checks if the schedule is mileage-based only.
+    /// </summary>
+    /// <param name="schedule">The service schedule.</param>
+    /// <returns>True if the schedule is mileage-based only.</returns>
+    public static bool IsMileageBasedOnly(this ServiceSchedule schedule)
+    {
+        return !schedule.IsTimeBased() && schedule.IsMileageBased();
+    }
+}
