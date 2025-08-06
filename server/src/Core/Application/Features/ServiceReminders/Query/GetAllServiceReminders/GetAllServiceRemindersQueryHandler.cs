@@ -140,6 +140,12 @@ public class GetAllServiceRemindersQueryHandler : IRequestHandler<GetAllServiceR
             return reminders;
         }
 
+        // Validate XOR constraint - ServiceSchedule must be either time-based OR mileage-based
+        if (!schedule.HasExactlyOneScheduleType())
+        {
+            throw new InvalidOperationException($"ServiceSchedule {schedule.ID} violates XOR constraint - must be either time-based OR mileage-based, not both or neither");
+        }
+
         // Generate overdue and due soon reminders (these can be multiple)
         var overdueAndDueSoonReminders = GenerateOverdueAndDueSoonReminders(
             schedule, vehicle, serviceTasks, assignmentDate, currentDate);
@@ -156,20 +162,18 @@ public class GetAllServiceRemindersQueryHandler : IRequestHandler<GetAllServiceR
         return reminders;
     }
 
-    /// <summary>Generate overdue and due soon reminders using domain extensions</summary>
+    /// <summary>Generate overdue and due soon reminders respecting XOR constraint</summary>
     private static List<ServiceReminderDTO> GenerateOverdueAndDueSoonReminders(ServiceSchedule schedule, Vehicle vehicle, List<ServiceTask> serviceTasks, DateTime assignmentDate, DateTime currentDate)
     {
         var reminders = new List<ServiceReminderDTO>();
 
-        // Generate time-based reminders if configured
-        if (schedule.TimeIntervalValue.HasValue && schedule.TimeIntervalUnit.HasValue)
+        // XOR constraint: Generate reminders based on exactly one schedule type
+        if (schedule.IsTimeBased())
         {
             var timeBasedReminders = GenerateTimeBasedReminders(schedule, vehicle, serviceTasks, assignmentDate, currentDate, excludeUpcoming: true);
             reminders.AddRange(timeBasedReminders);
         }
-
-        // Generate mileage-based reminders if configured
-        if (schedule.MileageInterval.HasValue)
+        else if (schedule.IsMileageBased())
         {
             var mileageBasedReminders = GenerateMileageBasedReminders(schedule, vehicle, serviceTasks, assignmentDate, currentDate, excludeUpcoming: true);
             reminders.AddRange(mileageBasedReminders);
@@ -178,30 +182,25 @@ public class GetAllServiceRemindersQueryHandler : IRequestHandler<GetAllServiceR
         return reminders;
     }
 
-    /// <summary>Generate next upcoming reminder using domain extensions</summary>
+    /// <summary>Generate next upcoming reminder respecting XOR constraint</summary>
     private static ServiceReminderDTO? GenerateNextUpcomingReminder(ServiceSchedule schedule, Vehicle vehicle, List<ServiceTask> serviceTasks, DateTime assignmentDate, DateTime currentDate)
     {
         var upcomingReminders = new List<ServiceReminderDTO>();
 
-        // Generate time-based upcoming reminder
-        if (schedule.TimeIntervalValue.HasValue && schedule.TimeIntervalUnit.HasValue)
+        // XOR constraint: Generate upcoming reminder based on exactly one schedule type
+        if (schedule.IsTimeBased())
         {
             var timeBasedReminders = GenerateTimeBasedReminders(schedule, vehicle, serviceTasks, assignmentDate, currentDate, excludeUpcoming: false);
             upcomingReminders.AddRange(timeBasedReminders.Where(r => r.Status == ServiceReminderStatusEnum.UPCOMING));
         }
-
-        // Generate mileage-based upcoming reminder
-        if (schedule.MileageInterval.HasValue)
+        else if (schedule.IsMileageBased())
         {
             var mileageBasedReminders = GenerateMileageBasedReminders(schedule, vehicle, serviceTasks, assignmentDate, currentDate, excludeUpcoming: false);
             upcomingReminders.AddRange(mileageBasedReminders.Where(r => r.Status == ServiceReminderStatusEnum.UPCOMING));
         }
 
-        // Return the earliest upcoming reminder (closest due date/mileage)
-        return upcomingReminders
-            .OrderBy(r => r.DueDate ?? DateTime.MaxValue)
-            .ThenBy(r => r.DueMileage ?? double.MaxValue)
-            .FirstOrDefault();
+        // Return the first upcoming reminder (there should only be one type due to XOR)
+        return upcomingReminders.FirstOrDefault();
     }
 
     /// <summary>
@@ -330,11 +329,17 @@ public class GetAllServiceRemindersQueryHandler : IRequestHandler<GetAllServiceR
     }
 
     /// <summary>
-    /// Helper: Create ServiceReminderDTO with all required properties
+    /// Helper: Create ServiceReminderDTO with all required properties (XOR constraint enforced)
     /// </summary>
     private static ServiceReminderDTO CreateServiceReminderDTO(ServiceSchedule schedule, Vehicle vehicle, List<ServiceTask> tasks, DateTime? dueDate, double? dueMileage, ServiceReminderStatusEnum status, int occurrenceNumber, bool isTimeBasedReminder, bool isMileageBasedReminder)
     {
         var currentDate = DateTime.UtcNow;
+
+        // Enforce XOR constraint: exactly one reminder type must be true
+        if (isTimeBasedReminder == isMileageBasedReminder)
+        {
+            throw new InvalidOperationException("ServiceReminderDTO must be exactly one type (XOR constraint): either time-based OR mileage-based, not both or neither");
+        }
 
         // Create ServiceTaskInfo DTOs
         var serviceTasks = tasks.Select(task => new ServiceTaskInfoDTO
@@ -371,12 +376,12 @@ public class GetAllServiceRemindersQueryHandler : IRequestHandler<GetAllServiceR
             DueMileage = dueMileage,
             Status = status,
             PriorityLevel = priorityLevel,
-            TimeIntervalValue = schedule.TimeIntervalValue,
-            TimeIntervalUnit = schedule.TimeIntervalUnit,
-            MileageInterval = schedule.MileageInterval,
-            TimeBufferValue = schedule.TimeBufferValue,
-            TimeBufferUnit = schedule.TimeBufferUnit,
-            MileageBuffer = schedule.MileageBuffer,
+            TimeIntervalValue = isTimeBasedReminder ? schedule.TimeIntervalValue : null, // XOR: only populate if time-based
+            TimeIntervalUnit = isTimeBasedReminder ? schedule.TimeIntervalUnit : null, // XOR: only populate if time-based
+            MileageInterval = isMileageBasedReminder ? schedule.MileageInterval : null, // XOR: only populate if mileage-based
+            TimeBufferValue = isTimeBasedReminder ? schedule.TimeBufferValue : null, // XOR: only populate if time-based
+            TimeBufferUnit = isTimeBasedReminder ? schedule.TimeBufferUnit : null, // XOR: only populate if time-based
+            MileageBuffer = isMileageBasedReminder ? schedule.MileageBuffer : null, // XOR: only populate if mileage-based
             CurrentMileage = vehicle.Mileage,
             MileageVariance = mileageVariance,
             DaysUntilDue = daysUntilDue,
@@ -509,8 +514,8 @@ public class GetAllServiceRemindersQueryHandler : IRequestHandler<GetAllServiceR
                 TotalEstimatedCost = serviceTasks.Sum(t => t.EstimatedCost),
                 TaskCount = serviceTasks.Count,
                 OccurrenceNumber = CalculateOccurrenceNumber(entity, entities),
-                IsTimeBasedReminder = entity.TimeIntervalValue.HasValue,
-                IsMileageBasedReminder = entity.MileageInterval.HasValue
+                IsTimeBasedReminder = entity.IsTimeBased() && !entity.IsMileageBased(), // XOR: time-based only
+                IsMileageBasedReminder = !entity.IsTimeBased() && entity.IsMileageBased() // XOR: mileage-based only
             };
         }).ToList();
     }

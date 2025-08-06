@@ -267,35 +267,52 @@ public static class ServiceReminderExtensions
     }
 
     /// <summary>
-    /// Checks if the reminder has both time and mileage based scheduling.
-    /// </summary>
-    /// <param name="serviceReminder">The service reminder to evaluate.</param>
-    /// <returns>True if the reminder uses both time and mileage intervals, false otherwise.</returns>
-    public static bool IsHybridSchedule(this ServiceReminder serviceReminder)
-    {
-        return serviceReminder.TimeIntervalValue.HasValue && serviceReminder.TimeIntervalUnit.HasValue &&
-               serviceReminder.MileageInterval.HasValue;
-    }
-
-    /// <summary>
     /// Checks if the reminder is time-based only (no mileage scheduling).
+    /// Reflects XOR constraint - ServiceReminders can only be time-based OR mileage-based, never both.
     /// </summary>
     /// <param name="serviceReminder">The service reminder to evaluate.</param>
     /// <returns>True if the reminder uses only time-based scheduling, false otherwise.</returns>
     public static bool IsTimeBasedOnly(this ServiceReminder serviceReminder)
     {
-        return serviceReminder.TimeIntervalValue.HasValue && serviceReminder.TimeIntervalUnit.HasValue &&
-               !serviceReminder.MileageInterval.HasValue;
+        return serviceReminder.IsTimeBased() && !serviceReminder.IsMileageBased();
     }
 
     /// <summary>
     /// Checks if the reminder is mileage-based only (no time scheduling).
+    /// Reflects XOR constraint - ServiceReminders can only be time-based OR mileage-based, never both.
     /// </summary>
     /// <param name="serviceReminder">The service reminder to evaluate.</param>
     /// <returns>True if the reminder uses only mileage-based scheduling, false otherwise.</returns>
     public static bool IsMileageBasedOnly(this ServiceReminder serviceReminder)
     {
-        return serviceReminder.MileageInterval.HasValue && (!serviceReminder.TimeIntervalValue.HasValue || !serviceReminder.TimeIntervalUnit.HasValue);
+        return !serviceReminder.IsTimeBased() && serviceReminder.IsMileageBased();
+    }
+
+    /// <summary>
+    /// Validates that the reminder has exactly one schedule type configured (XOR constraint).
+    /// ServiceReminders must be either time-based OR mileage-based, never both.
+    /// </summary>
+    /// <param name="serviceReminder">The service reminder to evaluate.</param>
+    /// <returns>True if the reminder has exactly one schedule type configured.</returns>
+    public static bool HasExactlyOneScheduleType(this ServiceReminder serviceReminder)
+    {
+        return serviceReminder.IsTimeBased() != serviceReminder.IsMileageBased(); // Exactly one must be true (XOR)
+    }
+
+    /// <summary>
+    /// Determines the schedule type based on configured intervals.
+    /// </summary>
+    /// <param name="serviceReminder">The service reminder to evaluate.</param>
+    /// <returns>The determined schedule type.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when neither time nor mileage is configured, or when both are configured (violates XOR constraint).</exception>
+    public static ServiceScheduleTypeEnum GetScheduleType(this ServiceReminder serviceReminder)
+    {
+        if (serviceReminder.IsTimeBased() && !serviceReminder.IsMileageBased())
+            return ServiceScheduleTypeEnum.TIME;
+        if (!serviceReminder.IsTimeBased() && serviceReminder.IsMileageBased())
+            return ServiceScheduleTypeEnum.MILEAGE;
+
+        throw new InvalidOperationException("ServiceReminder must have exactly one schedule type configured (either time OR mileage, not both or neither)");
     }
 
     /// <summary>
