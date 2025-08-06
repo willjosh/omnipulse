@@ -185,10 +185,12 @@ const InventoryFormContainer: React.FC<InventoryFormContainerProps> = ({
                 id="quantityOnHand"
                 min="0"
                 step="1"
-                value={formData.quantityOnHand}
-                onChange={e =>
-                  handleChange("quantityOnHand", parseInt(e.target.value) || 0)
-                }
+                value={formData.quantityOnHand || ""}
+                onChange={e => {
+                  const value =
+                    e.target.value === "" ? null : parseInt(e.target.value);
+                  handleChange("quantityOnHand", value || 0);
+                }}
                 className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
                   errors.quantityOnHand ? "border-red-300" : "border-gray-300"
                 }`}
@@ -237,10 +239,12 @@ const InventoryFormContainer: React.FC<InventoryFormContainerProps> = ({
                 id="minStockLevel"
                 min="0"
                 step="1"
-                value={formData.minStockLevel}
-                onChange={e =>
-                  handleChange("minStockLevel", parseInt(e.target.value) || 0)
-                }
+                value={formData.minStockLevel || ""}
+                onChange={e => {
+                  const value =
+                    e.target.value === "" ? null : parseInt(e.target.value);
+                  handleChange("minStockLevel", value || 0);
+                }}
                 className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
                   errors.minStockLevel ? "border-red-300" : "border-gray-300"
                 }`}
@@ -264,10 +268,12 @@ const InventoryFormContainer: React.FC<InventoryFormContainerProps> = ({
                 id="maxStockLevel"
                 min="0"
                 step="1"
-                value={formData.maxStockLevel}
-                onChange={e =>
-                  handleChange("maxStockLevel", parseInt(e.target.value) || 0)
-                }
+                value={formData.maxStockLevel || ""}
+                onChange={e => {
+                  const value =
+                    e.target.value === "" ? null : parseInt(e.target.value);
+                  handleChange("maxStockLevel", value || 0);
+                }}
                 className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
                   errors.maxStockLevel ? "border-red-300" : "border-gray-300"
                 }`}
