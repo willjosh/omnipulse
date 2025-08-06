@@ -59,7 +59,7 @@ const navItems: NavItem[] = [
   //     // { label: "Recalls", path: "/issues/recalls" },
   //   ],
   // },
-  { label: "Service Reminders", icon: Bell, path: "/reminders/service" },
+  { label: "Service Reminders", icon: Bell, path: "/service-reminders" },
   // {
   //   label: "Reminders",
   //   icon: Bell,
