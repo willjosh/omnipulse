@@ -43,11 +43,6 @@ public sealed class UpdateServiceScheduleCommandValidator : AbstractValidator<Up
             .When(x => x.MileageInterval.HasValue)
             .WithMessage("Mileage interval must be positive when provided");
 
-        // At least one interval must be provided
-        RuleFor(x => x)
-            .Must(x => (x.TimeIntervalValue.HasValue && x.TimeIntervalUnit.HasValue) || x.MileageInterval.HasValue)
-            .WithMessage("At least one recurrence option must be provided: time-based (TimeIntervalValue & TimeIntervalUnit) or mileage-based (MileageInterval)");
-
         // Time buffer validation
         RuleFor(x => x.TimeBufferValue)
             .GreaterThanOrEqualTo(0)
@@ -66,6 +61,7 @@ public sealed class UpdateServiceScheduleCommandValidator : AbstractValidator<Up
         // Time buffer cannot be greater than or equal to time interval
         RuleFor(x => x)
             .Must(IsTimeBufferValid)
+            .When(IsTimeBased)
             .WithMessage("Time buffer cannot be greater than or equal to time interval when units are considered");
 
         // Mileage buffer validation
@@ -77,14 +73,16 @@ public sealed class UpdateServiceScheduleCommandValidator : AbstractValidator<Up
         // Mileage buffer cannot be greater than or equal to mileage interval
         RuleFor(x => x)
             .Must(x => !x.MileageBuffer.HasValue || !x.MileageInterval.HasValue || x.MileageBuffer < x.MileageInterval)
+            .When(IsMileageBased)
             .WithMessage("Mileage buffer cannot be greater than or equal to mileage interval");
 
-        // First service date validation
+        // First service date validation (only for time-based schedules)
         RuleFor(x => x)
             .Must(x => !x.FirstServiceDate.HasValue || (x.TimeIntervalValue.HasValue && x.TimeIntervalUnit.HasValue))
+            .When(IsTimeBased)
             .WithMessage("First service date requires TimeIntervalValue and TimeIntervalUnit to be set");
 
-        // First service mileage validation
+        // First service mileage validation (only for mileage-based schedules)
         RuleFor(x => x.FirstServiceMileage)
             .GreaterThanOrEqualTo(0)
             .When(x => x.FirstServiceMileage.HasValue)
@@ -92,11 +90,46 @@ public sealed class UpdateServiceScheduleCommandValidator : AbstractValidator<Up
 
         RuleFor(x => x)
             .Must(x => !x.FirstServiceMileage.HasValue || x.MileageInterval.HasValue)
+            .When(IsMileageBased)
             .WithMessage("First service mileage requires MileageInterval to be set");
+
+        // Additional validation for invalid combinations
+        // First service date with mileage-based schedule (invalid)
+        RuleFor(x => x)
+            .Must(x => !x.FirstServiceDate.HasValue || !IsMileageBased(x))
+            .WithMessage("First service date cannot be used with mileage-based schedules");
+
+        // First service mileage with time-based schedule (invalid)
+        RuleFor(x => x)
+            .Must(x => !x.FirstServiceMileage.HasValue || !IsTimeBased(x))
+            .WithMessage("First service mileage cannot be used with time-based schedules");
 
         RuleFor(x => x.ServiceTaskIDs)
             .NotNull().WithMessage("Service task list is required")
             .NotEmpty().WithMessage("At least one service task must be selected");
+
+        // ENFORCE EITHER/OR: Exactly one type must be provided
+        RuleFor(x => x)
+            .Must(HaveExactlyOneScheduleType)
+            .WithMessage("Service schedule must have either time-based OR mileage-based configuration, not both.");
+    }
+
+    private static bool HaveExactlyOneScheduleType(UpdateServiceScheduleCommand command)
+    {
+        var hasTime = command.TimeIntervalValue.HasValue && command.TimeIntervalUnit.HasValue;
+        var hasMileage = command.MileageInterval.HasValue;
+
+        return hasTime != hasMileage; // Exactly one must be true
+    }
+
+    private static bool IsTimeBased(UpdateServiceScheduleCommand command)
+    {
+        return command.TimeIntervalValue.HasValue && command.TimeIntervalUnit.HasValue;
+    }
+
+    private static bool IsMileageBased(UpdateServiceScheduleCommand command)
+    {
+        return command.MileageInterval.HasValue;
     }
 
     private static bool IsTimeBufferValid(UpdateServiceScheduleCommand cmd)

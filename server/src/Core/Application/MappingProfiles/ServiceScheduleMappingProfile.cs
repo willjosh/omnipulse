@@ -5,6 +5,7 @@ using Application.Features.ServiceSchedules.Query;
 using AutoMapper;
 
 using Domain.Entities;
+using Domain.Entities.Enums;
 
 namespace Application.MappingProfiles;
 
@@ -30,6 +31,7 @@ public class ServiceScheduleMappingProfile : Profile
 
         // GetServiceSchedule & GetAllServiceSchedule
         CreateMap<ServiceSchedule, ServiceScheduleDTO>(MemberList.Destination)
-            .ForMember(dest => dest.ServiceTasks, opt => opt.Ignore());
+            .ForMember(dest => dest.ServiceTasks, opt => opt.Ignore())
+            .ForMember(dest => dest.ScheduleType, opt => opt.MapFrom(src => src.GetScheduleType()));
     }
 }
