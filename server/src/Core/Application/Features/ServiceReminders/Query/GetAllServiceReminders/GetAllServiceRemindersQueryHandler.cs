@@ -20,6 +20,7 @@ public class GetAllServiceRemindersQueryHandler : IRequestHandler<GetAllServiceR
     private const double DefaultDailyMileageEstimate = 30.0; // km/day for time vs mileage comparison
     private const int DaysPerWeek = 7;
     private const int MaxUpcomingLookaheadYears = 1;
+    private const int MaxUpcomingLookaheadKm = 10000; // 10,000 km lookahead (equivalent to ~1 year at 30 km/day)
 
     private readonly IServiceReminderRepository _serviceReminderRepository;
     private readonly IValidator<GetAllServiceRemindersQuery> _validator;
@@ -260,7 +261,7 @@ public class GetAllServiceRemindersQueryHandler : IRequestHandler<GetAllServiceR
             var dueMileage = startMileage + (schedule.MileageInterval!.Value * (occurrenceNumber - 1));
 
             // Stop if we're too far in the future (look ahead reasonable distance)
-            var maxLookAheadMileage = vehicle.Mileage + (schedule.MileageBuffer ?? DefaultMileageBufferKm);
+            var maxLookAheadMileage = vehicle.Mileage + MaxUpcomingLookaheadKm;
             if (dueMileage > maxLookAheadMileage) break;
 
             // Calculate status using domain logic
