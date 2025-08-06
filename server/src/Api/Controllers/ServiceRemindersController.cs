@@ -1,3 +1,4 @@
+using Application.Features.ServiceReminders.Command.AddServiceReminderToExistingWorkOrder;
 using Application.Features.ServiceReminders.Query;
 using Application.Features.ServiceReminders.Query.GetAllServiceReminders;
 using Application.Models.PaginationModels;
@@ -18,6 +19,7 @@ namespace Api.Controllers;
 /// <b>API Endpoints</b>:
 /// <list type="bullet">
 /// <item><b>GET /api/servicereminders</b> - <see cref="GetAllServiceReminders"/> - <see cref="GetAllServiceRemindersQuery"/></item>
+/// <item><b>PATCH /api/servicereminders/{id}</b> - <see cref="AddServiceReminderToExistingWorkOrder"/> - <see cref="AddServiceReminderToExistingWorkOrderCommand"/></item>
 /// </list>
 /// <b>Note</b>: ServiceReminders are calculated data generated from service schedules and vehicle assignments.
 /// They do not support CREATE or DELETE operations as they are computed dynamically.
@@ -69,6 +71,47 @@ public sealed class ServiceRemindersController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, $"{nameof(GetAllServiceReminders)}() - Error occurred while retrieving service reminders");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Links a service reminder to an existing work order.
+    /// </summary>
+    /// <param name="id">The ID of the service reminder to link.</param>
+    /// <param name="command">The command containing the work order ID to link to.</param>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>The ID of the work order that was linked.</returns>
+    /// <response code="200">Service reminder successfully linked to work order.</response>
+    /// <response code="400">Request data is invalid or validation failed.</response>
+    /// <response code="404">Service reminder or work order not found.</response>
+    /// <response code="409">Service reminder is already linked to a work order.</response>
+    /// <response code="500">Internal server error occurred.</response>
+    [HttpPatch("{id:int}")]
+    [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Authorize(Policy = "FleetManager")]
+    public async Task<ActionResult<int>> AddServiceReminderToExistingWorkOrder(
+        int id,
+        [FromBody] AddServiceReminderToExistingWorkOrderCommand command,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            _logger.LogInformation($"{nameof(AddServiceReminderToExistingWorkOrder)}() - Called for service reminder ID: {id}");
+
+            if (id != command.ServiceReminderID) return BadRequest($"Route {nameof(id)} and body {nameof(command.ServiceReminderID)} mismatch");
+            var result = await _mediator.Send(command with { ServiceReminderID = id }, cancellationToken);
+
+            _logger.LogInformation($"{nameof(AddServiceReminderToExistingWorkOrder)}() - Successfully linked service reminder {id} to work order {command.WorkOrderID}");
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"{nameof(AddServiceReminderToExistingWorkOrder)}() - Error occurred while linking service reminder {id} to work order {command.WorkOrderID}");
             throw;
         }
     }
