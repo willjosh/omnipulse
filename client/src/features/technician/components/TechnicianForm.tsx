@@ -44,6 +44,7 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({
   const [errors, setErrors] = useState<Partial<CreateTechnicianCommand>>({});
 
   useEffect(() => {
+    setErrors({});
     if (mode === "edit" && existingTechnician) {
       setFormData({
         email: existingTechnician.email,
@@ -66,8 +67,56 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({
     }
   };
 
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    // Required text fields
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = "First Name is required";
+    }
+    if (!formData.lastName.trim()) {
+      newErrors.lastName = "Last Name is required";
+    }
+
+    // Email validation (only for create mode)
+    if (mode === "create") {
+      if (!formData.email.trim()) {
+        newErrors.email = "Email is required";
+      } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+        newErrors.email = "Please enter a valid email address";
+      }
+    }
+
+    if (!formData.hireDate) {
+      newErrors.hireDate = "Hire Date is required";
+    }
+
+    // Password validation (only for create mode)
+    if (mode === "create") {
+      if (!formData.password.trim()) {
+        newErrors.password = "Password is required";
+      } else if (formData.password.length < 6) {
+        newErrors.password = "Password must be at least 6 characters long";
+      }
+    }
+
+    return newErrors;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const validationErrors = validateForm();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+
+      const missingFields = Object.values(validationErrors);
+      const errorMessage = `Please fix the following issues:\n• ${missingFields.join("\n• ")}`;
+      notify(errorMessage, "error");
+      return;
+    }
+
+    setErrors({});
 
     try {
       if (mode === "create") {
@@ -82,7 +131,6 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({
           isActive: formData.isActive,
         };
 
-        // not working correctly
         await updateTechnicianMutation.mutateAsync(updateData);
         notify("Technician updated successfully!", "success");
       }
@@ -113,6 +161,7 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({
   };
 
   const handleCancel = () => {
+    setErrors({});
     router.push("/technician");
   };
 
@@ -146,18 +195,31 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({
         </FormField>
       </div>
 
-      <FormField label="Email Address" htmlFor="email" required>
-        <input
-          id="email"
-          type="email"
-          value={formData.email}
-          onChange={e => handleInputChange("email", e.target.value)}
-          className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-            errors.email ? "border-red-300" : "border-gray-300"
-          }`}
-          placeholder="Enter email address"
-        />
-      </FormField>
+      {mode === "create" && (
+        <FormField label="Email Address" htmlFor="email" required>
+          <input
+            id="email"
+            type="email"
+            value={formData.email}
+            onChange={e => handleInputChange("email", e.target.value)}
+            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+              errors.email ? "border-red-300" : "border-gray-300"
+            }`}
+            placeholder="Enter email address"
+          />
+        </FormField>
+      )}
+
+      {mode === "edit" && (
+        <FormField label="Email Address" htmlFor="email">
+          <div className="w-full px-3 py-2 border border-gray-200 rounded-md bg-gray-50">
+            <span className="text-gray-600">{formData.email}</span>
+          </div>
+          <p className="text-xs text-gray-500 mt-1">
+            Email cannot be changed after account creation
+          </p>
+        </FormField>
+      )}
 
       {mode === "create" && (
         <FormField label="Password" htmlFor="password" required>

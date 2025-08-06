@@ -1,18 +1,18 @@
 "use client";
 
 import React, { useState } from "react";
-import {
-  useCurrentUser,
-  useUpdateUserProfile,
-} from "@/features/user/hooks/useUser";
-import { UpdateUserProfileCommand } from "@/features/user/types/userType";
+import { useAuthContext } from "@/features/auth/context/AuthContext";
 import { PrimaryButton, SecondaryButton } from "@/components/ui/Button";
 import { Loading } from "@/components/ui/Feedback";
-import { User, Mail, Calendar, Shield, Edit, Save, X } from "lucide-react";
+import { User, Mail, Shield, Edit, Save, X } from "lucide-react";
+import {
+  getUserInitials,
+  getUserDisplayName,
+  getFormattedRole,
+} from "@/utils/userUtils";
 
 export const UserProfile: React.FC = () => {
-  const { user, isPending } = useCurrentUser();
-  const { mutateAsync: updateUserProfile } = useUpdateUserProfile();
+  const { user, isLoading } = useAuthContext();
   const [isEditing, setIsEditing] = useState(false);
 
   const [profileForm, setProfileForm] = useState({
@@ -23,12 +23,13 @@ export const UserProfile: React.FC = () => {
   });
 
   React.useEffect(() => {
+    console.log("user", user);
     if (user) {
       setProfileForm({
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
-        userName: user.userName,
+        userName: user.email, // Use email as username since we don't have username in AuthUser
       });
     }
   }, [user]);
@@ -43,7 +44,7 @@ export const UserProfile: React.FC = () => {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
-        userName: user.userName,
+        userName: user.email,
       });
     }
     setIsEditing(false);
@@ -52,20 +53,12 @@ export const UserProfile: React.FC = () => {
   const handleSaveProfile = async () => {
     if (!user) return;
 
-    const updateData: UpdateUserProfileCommand = {
-      id: user.id,
-      ...profileForm,
-    };
-
-    try {
-      await updateUserProfile(updateData);
-      setIsEditing(false);
-    } catch (error) {
-      console.error("Error updating profile:", error);
-    }
+    // TODO: Implement backend API for updating user profile
+    console.log("Profile update not implemented yet:", profileForm);
+    setIsEditing(false);
   };
 
-  if (isPending) {
+  if (isLoading) {
     return <Loading />;
   }
 
@@ -77,27 +70,19 @@ export const UserProfile: React.FC = () => {
     );
   }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
   return (
     <div className="flex-1 p-6 max-w-4xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 rounded-full bg-[var(--primary-color)] flex items-center justify-center text-white text-xl font-semibold">
-            {user.initials}
+            {getUserInitials(user.firstName, user.lastName)}
           </div>
           <div>
             <h1 className="text-3xl font-bold text-gray-900">
-              {user.fullName}
+              {getUserDisplayName(user)}
             </h1>
-            <p className="text-gray-600">{user.roles?.join(", ") || "User"}</p>
+            <p className="text-gray-600">{getFormattedRole(user)}</p>
           </div>
         </div>
 
@@ -204,7 +189,7 @@ export const UserProfile: React.FC = () => {
                     className="w-full px-3 py-2 border border-[var(--border)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:border-transparent"
                   />
                 ) : (
-                  <p className="py-2 text-gray-900">@{user.userName}</p>
+                  <p className="py-2 text-gray-900">@{user.email}</p>
                 )}
               </div>
             </div>
@@ -221,10 +206,10 @@ export const UserProfile: React.FC = () => {
                 <PrimaryButton
                   onClick={handleSaveProfile}
                   className="flex items-center gap-2"
-                  disabled={isPending}
+                  disabled={false}
                 >
                   <Save size={14} />
-                  {isPending ? "Saving..." : "Save Changes"}
+                  Save Changes
                 </PrimaryButton>
               </div>
             )}
@@ -240,49 +225,37 @@ export const UserProfile: React.FC = () => {
             </h3>
             <div className="space-y-4">
               <div className="flex items-center gap-3">
-                <Calendar size={16} className="text-gray-500" />
+                <Shield size={16} className="text-gray-500" />
                 <div>
-                  <p className="text-sm text-gray-600">Hire Date</p>
-                  <p className="text-gray-900">{formatDate(user.hireDate)}</p>
+                  <p className="text-sm text-gray-600">Role</p>
+                  <p className="text-gray-900">{getFormattedRole(user)}</p>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
-                <Shield size={16} className="text-gray-500" />
+                <Mail size={16} className="text-gray-500" />
                 <div>
-                  <p className="text-sm text-gray-600">Status</p>
-                  <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      user.isActive
-                        ? "bg-green-100 text-green-800"
-                        : "bg-red-100 text-red-800"
-                    }`}
-                  >
-                    {user.isActive ? "Active" : "Inactive"}
-                  </span>
+                  <p className="text-sm text-gray-600">User ID</p>
+                  <p className="text-gray-900 font-mono text-sm">{user.id}</p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Roles */}
-          {user.roles && user.roles.length > 0 && (
-            <div className="bg-white rounded-lg border border-[var(--border)] p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Roles
-              </h3>
-              <div className="space-y-2">
-                {user.roles.map((role, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between p-2 bg-gray-50 rounded-md"
-                  >
-                    <span className="text-gray-900">{role}</span>
-                  </div>
-                ))}
+          {/* Role Information */}
+          <div className="bg-white rounded-lg border border-[var(--border)] p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Role Information
+            </h3>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between p-2 bg-gray-50 rounded-md">
+                <span className="text-gray-900">{getFormattedRole(user)}</span>
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                  Active
+                </span>
               </div>
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>

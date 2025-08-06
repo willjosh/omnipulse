@@ -33,8 +33,60 @@ export default function RegisterPage() {
     general?: string;
   }>({});
 
+  const validateForm = () => {
+    const newErrors: typeof errors = {};
+
+    // Required text fields
+    if (!form.firstName.trim()) {
+      newErrors.firstName = "First Name is required";
+    }
+    if (!form.lastName.trim()) {
+      newErrors.lastName = "Last Name is required";
+    }
+    if (!form.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(form.email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
+    if (!form.hireDate) {
+      newErrors.hireDate = "Hire Date is required";
+    }
+
+    // Password validation
+    if (!form.password.trim()) {
+      newErrors.password = "Password is required";
+    } else if (form.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters long";
+    }
+
+    // Confirm password validation
+    if (!form.confirmPassword.trim()) {
+      newErrors.confirmPassword = "Please confirm your password";
+    } else if (form.password !== form.confirmPassword) {
+      newErrors.confirmPassword = "Passwords do not match";
+    }
+
+    return newErrors;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate form before attempting to register
+    const validationErrors = validateForm();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+
+      // Create a summary of missing fields
+      const missingFields = Object.values(validationErrors);
+      const errorMessage = `Please fix the following issues:\n• ${missingFields.join("\n• ")}`;
+
+      notify(errorMessage, "error");
+      return;
+    }
+
+    // Clear any existing errors
+    setErrors({});
 
     register(
       {
