@@ -81,7 +81,7 @@ public class AddServiceReminderToExistingWorkOrderIntegrationTests : BaseIntegra
         );
         int serviceTaskId = await Sender.Send(createServiceTaskCommand);
 
-        // Arrange - Create ServiceSchedule
+        // Arrange - Create ServiceSchedule (time-based only - XOR constraint)
         var createServiceScheduleCommand = new CreateServiceScheduleCommand(
             ServiceProgramID: serviceProgramId,
             Name: $"Test ServiceSchedule {Faker.Random.AlphaNumeric(5)}",
@@ -90,10 +90,11 @@ public class AddServiceReminderToExistingWorkOrderIntegrationTests : BaseIntegra
             TimeIntervalUnit: TimeUnitEnum.Days,
             TimeBufferValue: 5,
             TimeBufferUnit: TimeUnitEnum.Days,
-            MileageInterval: 5000,
-            MileageBuffer: 500,
+            MileageInterval: null, // XOR: time-based only
+            MileageBuffer: null,
             FirstServiceDate: DateTime.Today.AddDays(3),
-            FirstServiceMileage: 15000
+            FirstServiceMileage: null, // XOR: time-based only
+            IsActive: true
         );
         int serviceScheduleId = await Sender.Send(createServiceScheduleCommand);
 

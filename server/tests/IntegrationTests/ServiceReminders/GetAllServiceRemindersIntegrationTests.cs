@@ -86,7 +86,7 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
         );
         int serviceTask2Id = await Sender.Send(createServiceTask2Command);
 
-        // Arrange - Create ServiceSchedule (due soon)
+        // Arrange - Create ServiceSchedule (time-based only - XOR constraint)
         var createServiceScheduleCommand = new CreateServiceScheduleCommand(
             ServiceProgramID: serviceProgramId,
             Name: $"Test ServiceSchedule {Faker.Random.AlphaNumeric(5)}",
@@ -95,10 +95,10 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
             TimeIntervalUnit: TimeUnitEnum.Days,
             TimeBufferValue: 5,
             TimeBufferUnit: TimeUnitEnum.Days,
-            MileageInterval: 5000,
-            MileageBuffer: 500,
-            FirstServiceDate: DateTime.Today.AddDays(3), // Due soon (within buffer)
-            FirstServiceMileage: 20000, // Vehicle at 15k, due at 20k
+            MileageInterval: null, // XOR: time-based only
+            MileageBuffer: null,
+            FirstServiceDate: DateTime.Today.AddDays(2), // Due soon (within 5-day buffer)
+            FirstServiceMileage: null, // XOR: time-based only
             IsActive: true
         );
         int serviceScheduleId = await Sender.Send(createServiceScheduleCommand);
@@ -157,10 +157,10 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
         tireRotationTask!.EstimatedCost.Should().Be(25.00m);
         tireRotationTask.EstimatedLabourHours.Should().Be(0.5);
 
-        // Verify due dates are calculated
+        // Verify due dates are calculated (time-based only due to XOR)
         specificReminder.DueDate.Should().NotBeNull();
-        specificReminder.DueDate.Should().BeCloseTo(DateTime.Today.AddDays(3), TimeSpan.FromHours(1));
-        // This is time-based only since vehicle mileage (15k) is below first service mileage (20k)
+        specificReminder.DueDate.Should().BeCloseTo(DateTime.Today.AddDays(2), TimeSpan.FromHours(1));
+        // XOR constraint: time-based only, no mileage data
         specificReminder.DueMileage.Should().BeNull();
         specificReminder.IsTimeBasedReminder.Should().BeTrue();
         specificReminder.IsMileageBasedReminder.Should().BeFalse();
@@ -287,18 +287,18 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
         );
         int serviceTaskId = await Sender.Send(createServiceTaskCommand);
 
-        // Arrange - Create ServiceSchedule that's overdue
+        // Arrange - Create ServiceSchedule that's overdue (mileage-based only - XOR constraint)
         var createServiceScheduleCommand = new CreateServiceScheduleCommand(
             ServiceProgramID: serviceProgramId,
             Name: $"Overdue ServiceSchedule {Faker.Random.AlphaNumeric(5)}",
             ServiceTaskIDs: [serviceTaskId],
-            TimeIntervalValue: 90,
-            TimeIntervalUnit: TimeUnitEnum.Days,
-            TimeBufferValue: 7,
-            TimeBufferUnit: TimeUnitEnum.Days,
+            TimeIntervalValue: null, // XOR: mileage-based only
+            TimeIntervalUnit: null,
+            TimeBufferValue: null,
+            TimeBufferUnit: null,
             MileageInterval: 10000,
             MileageBuffer: 1000,
-            FirstServiceDate: DateTime.Today.AddDays(-10), // Overdue by 10 days
+            FirstServiceDate: null, // XOR: mileage-based only
             FirstServiceMileage: 20000, // Vehicle at 25k, was due at 20k
             IsActive: true
         );
@@ -339,6 +339,13 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
         overdueReminder.ServiceScheduleName.Should().Contain("Overdue ServiceSchedule");
         overdueReminder.ServiceTasks.Should().HaveCount(1);
         overdueReminder.ServiceTasks.First().ServiceTaskName.Should().Contain("Brake Inspection");
+
+        // Verify mileage-based (XOR constraint)
+        overdueReminder.DueMileage.Should().Be(20000);
+        overdueReminder.MileageVariance.Should().Be(5000); // 25k - 20k = 5k overdue
+        overdueReminder.DueDate.Should().BeNull(); // XOR: mileage-based only
+        overdueReminder.IsTimeBasedReminder.Should().BeFalse();
+        overdueReminder.IsMileageBasedReminder.Should().BeTrue();
     }
 
     [Fact]
@@ -365,7 +372,7 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
             VehicleGroupID: vehicleGroupId,
             AssignedTechnicianID: null,
             Trim: "SV",
-            Mileage: 5000.0, // Low mileage
+            Mileage: 5000.0, // Low mileage for time-based test
             EngineHours: 200.0,
             FuelCapacity: 65.0,
             FuelType: FuelTypeEnum.PETROL,
@@ -395,7 +402,7 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
         );
         int serviceTaskId = await Sender.Send(createServiceTaskCommand);
 
-        // Arrange - Create ServiceSchedule that's upcoming (not due soon yet)
+        // Arrange - Create ServiceSchedule that's upcoming (time-based only - XOR constraint)
         var createServiceScheduleCommand = new CreateServiceScheduleCommand(
             ServiceProgramID: serviceProgramId,
             Name: $"Upcoming ServiceSchedule {Faker.Random.AlphaNumeric(5)}",
@@ -404,10 +411,10 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
             TimeIntervalUnit: TimeUnitEnum.Days,
             TimeBufferValue: 14,
             TimeBufferUnit: TimeUnitEnum.Days,
-            MileageInterval: 15000,
-            MileageBuffer: 1500,
-            FirstServiceDate: DateTime.Today.AddDays(30), // Due in 30 days (outside buffer)
-            FirstServiceMileage: 20000, // Vehicle at 5k, due at 20k
+            MileageInterval: null, // XOR: time-based only
+            MileageBuffer: null,
+            FirstServiceDate: DateTime.Today.AddDays(20), // Due in 20 days (outside 14-day buffer)
+            FirstServiceMileage: null, // XOR: time-based only
             IsActive: true
         );
         int serviceScheduleId = await Sender.Send(createServiceScheduleCommand);
@@ -449,10 +456,10 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
         upcomingReminder.ServiceTasks.First().ServiceTaskName.Should().Contain("Air Filter Replacement");
 
         // Verify due date is in the future but not within buffer
-        upcomingReminder.DueDate.Should().BeCloseTo(DateTime.Today.AddDays(30), TimeSpan.FromHours(1));
-        upcomingReminder.DaysUntilDue.Should().BeGreaterThan(14); // Outside buffer
+        upcomingReminder.DueDate.Should().BeCloseTo(DateTime.Today.AddDays(20), TimeSpan.FromHours(1));
+        upcomingReminder.DaysUntilDue.Should().BeGreaterThan(14); // Outside buffer (20 > 14)
 
-        // Verify it's not mileage-based yet (vehicle at 5k, due at 20k)
+        // Verify time-based only (XOR constraint)
         upcomingReminder.DueMileage.Should().BeNull();
         upcomingReminder.IsTimeBasedReminder.Should().BeTrue();
         upcomingReminder.IsMileageBasedReminder.Should().BeFalse();
@@ -482,7 +489,7 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
             VehicleGroupID: vehicleGroupId,
             AssignedTechnicianID: null,
             Trim: "Touring",
-            Mileage: 18500.0, // Close to due mileage
+            Mileage: 19000.0, // Within mileage buffer (due at 20k, buffer 2k, vehicle at 19k = within buffer)
             EngineHours: 600.0,
             FuelCapacity: 58.0,
             FuelType: FuelTypeEnum.PETROL,
@@ -512,18 +519,18 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
         );
         int serviceTaskId = await Sender.Send(createServiceTaskCommand);
 
-        // Arrange - Create ServiceSchedule that's due soon
+        // Arrange - Create ServiceSchedule that's due soon (mileage-based only - XOR constraint)
         var createServiceScheduleCommand = new CreateServiceScheduleCommand(
             ServiceProgramID: serviceProgramId,
             Name: $"Due Soon ServiceSchedule {Faker.Random.AlphaNumeric(5)}",
             ServiceTaskIDs: [serviceTaskId],
-            TimeIntervalValue: 365,
-            TimeIntervalUnit: TimeUnitEnum.Days,
-            TimeBufferValue: 7,
-            TimeBufferUnit: TimeUnitEnum.Days,
+            TimeIntervalValue: null, // XOR: mileage-based only
+            TimeIntervalUnit: null,
+            TimeBufferValue: null,
+            TimeBufferUnit: null,
             MileageInterval: 30000,
             MileageBuffer: 2000,
-            FirstServiceDate: DateTime.Today.AddDays(5), // Due in 5 days (within 7-day buffer)
+            FirstServiceDate: null, // XOR: mileage-based only
             FirstServiceMileage: 20000, // Vehicle at 18.5k, due at 20k (within 2k buffer)
             IsActive: true
         );
@@ -565,13 +572,15 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
         dueSoonReminder.ServiceTasks.Should().HaveCount(1);
         dueSoonReminder.ServiceTasks.First().ServiceTaskName.Should().Contain("Transmission Service");
 
-        // Verify due date is within buffer
-        dueSoonReminder.DueDate.Should().BeCloseTo(DateTime.Today.AddDays(5), TimeSpan.FromHours(1));
-        dueSoonReminder.DaysUntilDue.Should().BeInRange(0, 7); // Within buffer
+        // Verify mileage-based only (XOR constraint)
+        dueSoonReminder.DueDate.Should().BeNull(); // XOR: mileage-based only
+        dueSoonReminder.DaysUntilDue.Should().BeNull();
 
-        // Verify mileage is also within buffer
+        // Verify mileage is within buffer
         dueSoonReminder.DueMileage.Should().Be(20000);
-        dueSoonReminder.MileageVariance.Should().Be(-1500); // 18.5k - 20k = -1.5k (within 2k buffer)
+        dueSoonReminder.MileageVariance.Should().Be(-1000); // 19k - 20k = -1k (within 2k buffer)
+        dueSoonReminder.IsTimeBasedReminder.Should().BeFalse();
+        dueSoonReminder.IsMileageBasedReminder.Should().BeTrue();
     }
 
     [Fact]
@@ -638,7 +647,7 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
         );
         int serviceTask2Id = await Sender.Send(createServiceTask2Command);
 
-        // Arrange - Create ServiceSchedule that's severely overdue
+        // Arrange - Create ServiceSchedule that's severely overdue (time-based only - XOR constraint)
         var createServiceScheduleCommand = new CreateServiceScheduleCommand(
             ServiceProgramID: serviceProgramId,
             Name: $"Severely Overdue ServiceSchedule {Faker.Random.AlphaNumeric(5)}",
@@ -647,10 +656,10 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
             TimeIntervalUnit: TimeUnitEnum.Days,
             TimeBufferValue: 30,
             TimeBufferUnit: TimeUnitEnum.Days,
-            MileageInterval: 50000,
-            MileageBuffer: 5000,
+            MileageInterval: null, // XOR: time-based only
+            MileageBuffer: null,
             FirstServiceDate: DateTime.Today.AddDays(-60), // Overdue by 60 days
-            FirstServiceMileage: 60000, // Vehicle at 85k, was due at 60k
+            FirstServiceMileage: null, // XOR: time-based only
             IsActive: true
         );
         int serviceScheduleId = await Sender.Send(createServiceScheduleCommand);
@@ -694,20 +703,15 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
         overdueReminder.TotalEstimatedCost.Should().Be(3500.00m); // 2000 + 1500
         overdueReminder.TotalEstimatedLabourHours.Should().Be(14.0); // 8.0 + 6.0
 
-        // Verify time is overdue
+        // Verify time is overdue (XOR: time-based only)
         overdueReminder.DueDate.Should().BeCloseTo(DateTime.Today.AddDays(-60), TimeSpan.FromHours(1));
         overdueReminder.DaysUntilDue.Should().BeLessThan(-30); // Well past buffer
 
-        // Verify if mileage reminder is generated (vehicle at 85k, was due at 60k)
-        if (overdueReminder.DueMileage.HasValue)
-        {
-            overdueReminder.DueMileage.Should().Be(60000);
-            overdueReminder.MileageVariance.Should().Be(25000); // 85k - 60k = 25k overdue
-            overdueReminder.IsMileageBasedReminder.Should().BeTrue();
-        }
-
-        // At least time based
+        // Verify time-based only (XOR constraint)
+        overdueReminder.DueMileage.Should().BeNull();
+        overdueReminder.MileageVariance.Should().BeNull();
         overdueReminder.IsTimeBasedReminder.Should().BeTrue();
+        overdueReminder.IsMileageBasedReminder.Should().BeFalse();
     }
 
     [Fact]
@@ -785,24 +789,24 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
         int brakeServiceTaskId = await Sender.Send(brakeServiceTask);
 
         // Arrange - Create Multiple ServiceSchedules with different statuses
-        // Schedule 1: Overdue
+        // Schedule 1: Overdue (mileage-based only - XOR constraint)
         var overdueSchedule = new CreateServiceScheduleCommand(
             ServiceProgramID: serviceProgramId,
             Name: $"Oil Change Schedule {Faker.Random.AlphaNumeric(5)}",
             ServiceTaskIDs: [oilChangeTaskId],
-            TimeIntervalValue: 90,
-            TimeIntervalUnit: TimeUnitEnum.Days,
-            TimeBufferValue: 7,
-            TimeBufferUnit: TimeUnitEnum.Days,
+            TimeIntervalValue: null, // XOR: mileage-based only
+            TimeIntervalUnit: null,
+            TimeBufferValue: null,
+            TimeBufferUnit: null,
             MileageInterval: 5000,
             MileageBuffer: 500,
-            FirstServiceDate: DateTime.Today.AddDays(-15), // Overdue
-            FirstServiceMileage: 40000, // Vehicle at 45k, was due at 40k
+            FirstServiceDate: null, // XOR: mileage-based only
+            FirstServiceMileage: 42000, // Vehicle at 45k, was due at 42k (overdue by 3k > 500 buffer)
             IsActive: true
         );
         int overdueScheduleId = await Sender.Send(overdueSchedule);
 
-        // Schedule 2: Due Soon
+        // Schedule 2: Due Soon (time-based only - XOR constraint)
         var dueSoonSchedule = new CreateServiceScheduleCommand(
             ServiceProgramID: serviceProgramId,
             Name: $"Coolant Schedule {Faker.Random.AlphaNumeric(5)}",
@@ -811,27 +815,27 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
             TimeIntervalUnit: TimeUnitEnum.Days,
             TimeBufferValue: 14,
             TimeBufferUnit: TimeUnitEnum.Days,
-            MileageInterval: 30000,
-            MileageBuffer: 3000,
+            MileageInterval: null, // XOR: time-based only
+            MileageBuffer: null,
             FirstServiceDate: DateTime.Today.AddDays(10), // Due soon
-            FirstServiceMileage: 48000, // Vehicle at 45k, due at 48k (within buffer)
+            FirstServiceMileage: null, // XOR: time-based only
             IsActive: true
         );
         int dueSoonScheduleId = await Sender.Send(dueSoonSchedule);
 
-        // Schedule 3: Upcoming
+        // Schedule 3: Upcoming (mileage-based only - XOR constraint)
         var upcomingSchedule = new CreateServiceScheduleCommand(
             ServiceProgramID: serviceProgramId,
             Name: $"Brake Schedule {Faker.Random.AlphaNumeric(5)}",
             ServiceTaskIDs: [brakeServiceTaskId],
-            TimeIntervalValue: 730,
-            TimeIntervalUnit: TimeUnitEnum.Days,
-            TimeBufferValue: 30,
-            TimeBufferUnit: TimeUnitEnum.Days,
+            TimeIntervalValue: null, // XOR: mileage-based only
+            TimeIntervalUnit: null,
+            TimeBufferValue: null,
+            TimeBufferUnit: null,
             MileageInterval: 60000,
             MileageBuffer: 5000,
-            FirstServiceDate: DateTime.Today.AddDays(90), // Far future
-            FirstServiceMileage: 80000, // Vehicle at 45k, due at 80k
+            FirstServiceDate: null, // XOR: mileage-based only
+            FirstServiceMileage: 60000, // Vehicle at 45k, due at 60k (outside 5k buffer = upcoming)
             IsActive: true
         );
         int upcomingScheduleId = await Sender.Send(upcomingSchedule);
@@ -950,7 +954,7 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
             await Sender.Send(addVehicleCommand);
         }
 
-        // Create a schedule that applies to all vehicles
+        // Create a schedule that applies to all vehicles (time-based only - XOR constraint)
         var createServiceScheduleCommand = new CreateServiceScheduleCommand(
             ServiceProgramID: serviceProgramId,
             Name: $"Fleet Schedule {Faker.Random.AlphaNumeric(5)}",
@@ -959,10 +963,10 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
             TimeIntervalUnit: TimeUnitEnum.Days,
             TimeBufferValue: 7,
             TimeBufferUnit: TimeUnitEnum.Days,
-            MileageInterval: 10000,
-            MileageBuffer: 1000,
+            MileageInterval: null, // XOR: time-based only
+            MileageBuffer: null,
             FirstServiceDate: DateTime.Today.AddDays(5), // Due soon for all
-            FirstServiceMileage: 15000,
+            FirstServiceMileage: null, // XOR: time-based only
             IsActive: true
         );
         await Sender.Send(createServiceScheduleCommand);
@@ -1058,7 +1062,7 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
         );
         int serviceTaskId = await Sender.Send(createServiceTaskCommand);
 
-        // Arrange - Create INACTIVE ServiceSchedule
+        // Arrange - Create INACTIVE ServiceSchedule (time-based only - XOR constraint)
         var createServiceScheduleCommand = new CreateServiceScheduleCommand(
             ServiceProgramID: serviceProgramId,
             Name: $"Inactive ServiceSchedule {Faker.Random.AlphaNumeric(5)}",
@@ -1067,10 +1071,10 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
             TimeIntervalUnit: TimeUnitEnum.Days,
             TimeBufferValue: 5,
             TimeBufferUnit: TimeUnitEnum.Days,
-            MileageInterval: 5000,
-            MileageBuffer: 500,
+            MileageInterval: null, // XOR: time-based only
+            MileageBuffer: null,
             FirstServiceDate: DateTime.Today.AddDays(-5), // Would be overdue
-            FirstServiceMileage: 5000, // Would be overdue
+            FirstServiceMileage: null, // XOR: time-based only
             IsActive: false // INACTIVE
         );
         int serviceScheduleId = await Sender.Send(createServiceScheduleCommand);
