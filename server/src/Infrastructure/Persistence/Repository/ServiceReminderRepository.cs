@@ -154,6 +154,15 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
             .ToListAsync();
     }
 
+    public async Task<IReadOnlyList<ServiceReminder>> GetRemindersByStatusesAsync(IEnumerable<ServiceReminderStatusEnum> statuses)
+    {
+        var statusList = statuses.ToList();
+        return await _dbSet
+            .Include(sr => sr.Vehicle)
+            .Where(sr => statusList.Contains(sr.Status))
+            .ToListAsync();
+    }
+
     public async Task<IReadOnlyList<ServiceReminder>> GetRemindersByPriorityAsync(PriorityLevelEnum priority)
     {
         return await _dbSet
