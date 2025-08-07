@@ -28,6 +28,20 @@ public class ServiceReminderConfiguration : IEntityTypeConfiguration<ServiceRemi
         builder.ToTable(t => t.HasCheckConstraint("CK_ServiceReminder_CompletedDate",
             "CompletedDate IS NULL OR CompletedDate >= CreatedAt"));
 
+        // XOR Constraint: Must be either time-based OR mileage-based, not both or neither
+        builder.ToTable(t => t.HasCheckConstraint("CK_ServiceReminder_ScheduleType_XOR",
+            "(" +
+            "(TimeIntervalValue IS NOT NULL AND TimeIntervalUnit IS NOT NULL AND MileageInterval IS NULL) OR " +
+            "(MileageInterval IS NOT NULL AND TimeIntervalValue IS NULL AND TimeIntervalUnit IS NULL)" +
+            ")"
+        ));
+
+        builder.ToTable(t => t.HasCheckConstraint("CK_ServiceReminder_DueDate_Required_If_TimeBased",
+            "(TimeIntervalValue IS NULL OR DueDate IS NOT NULL)"));
+
+        builder.ToTable(t => t.HasCheckConstraint("CK_ServiceReminder_DueMileage_Required_If_MileageBased",
+            "(MileageInterval IS NULL OR DueMileage IS NOT NULL)"));
+
         // Table Relationships
         builder
             .HasOne(sr => sr.Vehicle)
