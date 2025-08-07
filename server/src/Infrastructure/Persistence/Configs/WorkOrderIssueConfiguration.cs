@@ -10,24 +10,45 @@ public class WorkOrderIssueConfiguration : IEntityTypeConfiguration<WorkOrderIss
     public void Configure(EntityTypeBuilder<WorkOrderIssue> builder)
     {
         builder.ToTable("WorkOrderIssues");
+        builder.HasKey(woi => new { woi.WorkOrderID, woi.IssueID });
 
-        builder.HasKey(wi => new { wi.WorkOrderID, wi.IssueID });
+        // ✅ BASIC INDEXES
+        builder.HasIndex(woi => woi.WorkOrderID)
+            .HasDatabaseName("IX_WorkOrderIssues_WorkOrderID");
 
-        // Regular Indexes 
-        builder.HasIndex(wi => wi.WorkOrderID);
-        builder.HasIndex(wi => wi.IssueID);
+        builder.HasIndex(woi => woi.IssueID)
+            .HasDatabaseName("IX_WorkOrderIssues_IssueID");
 
-        // Table Relationships
+        builder.HasIndex(woi => woi.AssignedDate)
+            .HasDatabaseName("IX_WorkOrderIssues_AssignedDate");
+
+        // ✅ COMPOSITE INDEXES
+        builder.HasIndex(woi => new { woi.WorkOrderID, woi.AssignedDate })
+            .HasDatabaseName("IX_WorkOrderIssues_WorkOrderAssignedDate");
+
+        builder.HasIndex(woi => new { woi.IssueID, woi.AssignedDate })
+            .HasDatabaseName("IX_WorkOrderIssues_IssueAssignedDate");
+
+        // ✅ COVERING INDEXES
+        builder.HasIndex(woi => woi.WorkOrderID)
+            .IncludeProperties(woi => new { woi.IssueID, woi.AssignedDate })
+            .HasDatabaseName("IX_WorkOrderIssues_WorkOrderCovering");
+
+        builder.HasIndex(woi => woi.IssueID)
+            .IncludeProperties(woi => new { woi.WorkOrderID, woi.AssignedDate })
+            .HasDatabaseName("IX_WorkOrderIssues_IssueCovering");
+
+        // Foreign Key Relationships
         builder
-            .HasOne(wi => wi.WorkOrder)
+            .HasOne(woi => woi.WorkOrder)
             .WithMany()
-            .HasForeignKey(wi => wi.WorkOrderID)
+            .HasForeignKey(woi => woi.WorkOrderID)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder
-            .HasOne(wi => wi.Issue)
+            .HasOne(woi => woi.Issue)
             .WithMany()
-            .HasForeignKey(wi => wi.IssueID)
+            .HasForeignKey(woi => woi.IssueID)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

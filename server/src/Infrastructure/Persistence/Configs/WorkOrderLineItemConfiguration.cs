@@ -26,21 +26,81 @@ public class WorkOrderLineItemConfiguration : IEntityTypeConfiguration<WorkOrder
         builder.Property(woli => woli.AssignedToUserID)
                .IsRequired(false);
 
-        // Configure computed property
-        // builder.Property(woli => woli.TotalCost)
-        //        .HasComputedColumnSql("Quantity * UnitCost");
-
-        // Regular Indexes
+        // ✅ EXISTING INDEXES (keeping all as they are)
         builder.HasIndex(woli => woli.WorkOrderID);
         builder.HasIndex(woli => woli.InventoryItemID);
         builder.HasIndex(woli => woli.ServiceTaskID);
         builder.HasIndex(woli => woli.ItemType);
         builder.HasIndex(woli => woli.CreatedAt);
+        builder.HasIndex(woli => woli.AssignedToUserID);
 
-        // Composite indexes for common queries
+        // Composite indexes for common queries (existing)
         builder.HasIndex(woli => new { woli.WorkOrderID, woli.ItemType });
 
-        // Check Constraints
+        // ✅ NEW PERFORMANCE INDEXES (adding only indexes)
+
+        // Cost analysis indexes
+        builder.HasIndex(woli => new { woli.WorkOrderID, woli.TotalCost })
+            .HasDatabaseName("IX_WorkOrderLineItems_WorkOrderTotalCost");
+
+        builder.HasIndex(woli => new { woli.ItemType, woli.TotalCost })
+            .HasDatabaseName("IX_WorkOrderLineItems_ItemTypeTotalCost");
+
+        // Labor tracking indexes
+        builder.HasIndex(woli => new { woli.AssignedToUserID, woli.LaborHours })
+            .HasDatabaseName("IX_WorkOrderLineItems_UserLaborHours");
+
+        builder.HasIndex(woli => new { woli.ServiceTaskID, woli.LaborHours })
+            .HasDatabaseName("IX_WorkOrderLineItems_ServiceTaskLaborHours");
+
+        // Inventory usage indexes
+        builder.HasIndex(woli => new { woli.InventoryItemID, woli.Quantity })
+            .HasDatabaseName("IX_WorkOrderLineItems_InventoryItemQuantity");
+
+        builder.HasIndex(woli => new { woli.InventoryItemID, woli.CreatedAt })
+            .HasDatabaseName("IX_WorkOrderLineItems_InventoryItemCreatedAt");
+
+        // Work order summary indexes
+        builder.HasIndex(woli => new { woli.WorkOrderID, woli.ItemType, woli.TotalCost })
+            .HasDatabaseName("IX_WorkOrderLineItems_WorkOrderItemTypeCost");
+
+        builder.HasIndex(woli => new { woli.WorkOrderID, woli.CreatedAt })
+            .HasDatabaseName("IX_WorkOrderLineItems_WorkOrderCreatedAt");
+
+        // Covering indexes for common queries
+        builder.HasIndex(woli => new { woli.WorkOrderID, woli.ItemType })
+            .IncludeProperties(woli => new
+            {
+                woli.Quantity,
+                woli.UnitPrice,
+                woli.TotalCost,
+                woli.LaborHours,
+                woli.ServiceTaskID,
+                woli.InventoryItemID
+            })
+            .HasDatabaseName("IX_WorkOrderLineItems_WorkOrderItemTypeCovering");
+
+        builder.HasIndex(woli => new { woli.ServiceTaskID, woli.CreatedAt })
+            .IncludeProperties(woli => new
+            {
+                woli.TotalCost,
+                woli.LaborHours,
+                woli.AssignedToUserID
+            })
+            .HasDatabaseName("IX_WorkOrderLineItems_ServiceTaskCreatedAtCovering");
+
+        // User assignment tracking
+        builder.HasIndex(woli => new { woli.AssignedToUserID, woli.CreatedAt })
+            .HasDatabaseName("IX_WorkOrderLineItems_UserCreatedAt");
+
+        // Financial analysis indexes
+        builder.HasIndex(woli => new { woli.UnitPrice, woli.Quantity })
+            .HasDatabaseName("IX_WorkOrderLineItems_UnitPriceQuantity");
+
+        builder.HasIndex(woli => new { woli.HourlyRate, woli.LaborHours })
+            .HasDatabaseName("IX_WorkOrderLineItems_HourlyRateLaborHours");
+
+        // Check Constraints (keeping all existing)
         builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrderLineItem_Quantity",
             "Quantity > 0"));
 
@@ -50,16 +110,13 @@ public class WorkOrderLineItemConfiguration : IEntityTypeConfiguration<WorkOrder
         builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrderLineItem_HourlyRate",
             "HourlyRate IS NULL OR HourlyRate >= 0"));
 
-        // builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrderLineItem_ServicePrice",
-        //     "ServicePrice IS NULL OR ServicePrice >= 0"));
-
         builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrderLineItem_LaborHours",
             "LaborHours IS NULL OR LaborHours > 0"));
 
         builder.ToTable(t => t.HasCheckConstraint("CK_WorkOrderLineItem_TotalCost",
             "TotalCost >= 0"));
 
-        // Table Relationships
+        // Table Relationships (keeping all existing exactly as they are)
         builder
             .HasOne(woli => woli.WorkOrder)
             .WithMany(wo => wo.WorkOrderLineItems)

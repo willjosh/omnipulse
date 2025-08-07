@@ -38,5 +38,16 @@ public class ServiceTaskConfiguration : IEntityTypeConfiguration<ServiceTask>
         builder.ToTable(t => t.HasCheckConstraint("CK_ServiceTask_EstimatedCost",
             "EstimatedCost >= 0"));
 
+        // Covering index for service reminder DTO creation
+        builder.HasIndex(st => st.IsActive)
+            .IncludeProperties(st => new
+            {
+                st.Name,
+                st.Category,
+                st.EstimatedLabourHours,
+                st.EstimatedCost,
+                st.Description
+            })
+            .HasDatabaseName("IX_ServiceTasks_ActiveWithDetails");
     }
 }

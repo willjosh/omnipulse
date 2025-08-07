@@ -228,15 +228,8 @@ export default function ServiceProgramDetailsPage() {
       header: "First Service",
       width: "150px",
       render: (schedule: ServiceScheduleWithLabels) => {
-        if (
-          schedule.firstServiceTimeValue &&
-          schedule.firstServiceTimeUnitLabel
-        ) {
-          return `${schedule.firstServiceTimeValue} ${
-            schedule.firstServiceTimeValue === 1
-              ? schedule.firstServiceTimeUnitLabel.replace(/s$/, "")
-              : schedule.firstServiceTimeUnitLabel
-          }`;
+        if (schedule.firstServiceDate) {
+          return new Date(schedule.firstServiceDate).toLocaleDateString();
         } else if (schedule.firstServiceMileage) {
           return `${schedule.firstServiceMileage} km`;
         }

@@ -95,14 +95,18 @@ const InventoryList = () => {
 
   const inventoryActions = useMemo(
     () => [
-      {
-        key: InventoryActionType.VIEW,
-        label: INVENTORY_ACTION_CONFIG[InventoryActionType.VIEW].label,
-        icon: <Details />,
-        onClick: (item: Inventory) => {
-          console.log("View inventory:", item.id);
-        },
-      },
+      // {
+      //   key: InventoryActionType.VIEW,
+      //   label: INVENTORY_ACTION_CONFIG[InventoryActionType.VIEW].label,
+      //   icon: <Details />,
+      //   onClick: (item: Inventory) => {
+      //     console.log("View inventory:", item.id);
+      //     notify(
+      //       "Viewing Inventory Details - Future Implementation",
+      //       "success",
+      //     );
+      //   },
+      // },
       {
         key: InventoryActionType.EDIT,
         label: INVENTORY_ACTION_CONFIG[InventoryActionType.EDIT].label,

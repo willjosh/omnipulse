@@ -40,6 +40,7 @@ export default function EditServiceSchedulePage() {
   const [errors, setErrors] = useState<
     Partial<Record<keyof ServiceScheduleDetailsFormValues, string>>
   >({});
+  const [formError, setFormError] = useState<string | null>(null);
 
   useEffect(() => {
     if (serviceSchedule) {
@@ -51,9 +52,7 @@ export default function EditServiceSchedulePage() {
         timeBufferValue: serviceSchedule.timeBufferValue?.toString() || "",
         timeBufferUnit: serviceSchedule.timeBufferUnit || "",
         mileageBuffer: serviceSchedule.mileageBuffer?.toString() || "",
-        firstServiceTimeValue:
-          serviceSchedule.firstServiceTimeValue?.toString() || "",
-        firstServiceTimeUnit: serviceSchedule.firstServiceTimeUnit || "",
+        firstServiceDate: serviceSchedule.firstServiceDate || "",
         firstServiceMileage:
           serviceSchedule.firstServiceMileage?.toString() || "",
         serviceTaskIDs: serviceSchedule.serviceTasks.map(task => task.id),
@@ -70,11 +69,34 @@ export default function EditServiceSchedulePage() {
 
   const validate = () => {
     const newErrors: typeof errors = {};
+    setFormError(null);
+
     if (!form?.name?.trim()) newErrors.name = "Name is required.";
     if (!form?.serviceTaskIDs.length)
       newErrors.serviceTaskIDs = "At least one service task is required.";
+
+    // Validate XOR constraint (time-based OR mileage-based, not both)
+    const hasTimeRecurrence = form?.timeIntervalValue && form?.timeIntervalUnit;
+    const hasMileageRecurrence = form?.mileageInterval;
+
+    if (!hasTimeRecurrence && !hasMileageRecurrence) {
+      setFormError(
+        "At least one recurrence option must be provided: time-based (Time Interval & Unit) or mileage-based (Mileage Interval).",
+      );
+    }
+
+    if (hasTimeRecurrence && hasMileageRecurrence) {
+      setFormError(
+        "Service schedule must have either time-based OR mileage-based configuration, not both.",
+      );
+    }
+
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return (
+      Object.keys(newErrors).length === 0 &&
+      (hasTimeRecurrence || hasMileageRecurrence) &&
+      !(hasTimeRecurrence && hasMileageRecurrence)
+    );
   };
 
   const handleChange = (
@@ -99,37 +121,36 @@ export default function EditServiceSchedulePage() {
         serviceTaskIDs: form.serviceTaskIDs,
         timeIntervalValue: form.timeIntervalValue
           ? Number(form.timeIntervalValue)
-          : undefined,
+          : null,
         timeIntervalUnit: form.timeIntervalUnit
           ? Number(form.timeIntervalUnit)
-          : undefined,
+          : null,
         timeBufferValue: form.timeBufferValue
           ? Number(form.timeBufferValue)
-          : undefined,
+          : null,
         timeBufferUnit: form.timeBufferUnit
           ? Number(form.timeBufferUnit)
-          : undefined,
+          : null,
         mileageInterval: form.mileageInterval
           ? Number(form.mileageInterval)
-          : undefined,
-        mileageBuffer: form.mileageBuffer
-          ? Number(form.mileageBuffer)
-          : undefined,
-        firstServiceTimeValue: form.firstServiceTimeValue
-          ? Number(form.firstServiceTimeValue)
-          : undefined,
-        firstServiceTimeUnit: form.firstServiceTimeUnit
-          ? Number(form.firstServiceTimeUnit)
-          : undefined,
+          : null,
+        mileageBuffer: form.mileageBuffer ? Number(form.mileageBuffer) : null,
+        firstServiceDate: form.firstServiceDate || null,
         firstServiceMileage: form.firstServiceMileage
           ? Number(form.firstServiceMileage)
-          : undefined,
+          : null,
         isActive: form.isActive,
       },
       {
         onSuccess: () => {
           notify("Service Schedule updated successfully!", "success");
           router.push(`/service-schedules/${id}`);
+        },
+        onError: error => {
+          notify(
+            `Failed to update service schedule: ${error?.message || "Unknown error"}`,
+            "error",
+          );
         },
       },
     );
@@ -165,6 +186,11 @@ export default function EditServiceSchedulePage() {
         }
       />
       <div className="px-6 pb-12 mt-4 max-w-2xl mx-auto">
+        {formError && (
+          <div className="mb-4 text-red-600 text-sm font-medium">
+            {formError}
+          </div>
+        )}
         <ServiceScheduleDetailsForm
           value={form}
           errors={errors}

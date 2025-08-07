@@ -8,7 +8,6 @@ export { IssueCategoryEnum, IssueStatusEnum, PriorityLevelEnum };
 
 export interface Issue {
   id: number;
-  issueNumber: number;
   vehicleID: number;
   vehicleName: string;
   title: string;

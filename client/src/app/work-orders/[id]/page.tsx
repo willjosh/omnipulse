@@ -2,13 +2,18 @@
 
 import React from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Edit, Trash2, Printer } from "lucide-react";
+import { Edit, Printer } from "lucide-react";
 import WorkOrderHeader from "@/features/work-order/components/WorkOrderHeader";
-import { useWorkOrder } from "@/features/work-order/hooks/useWorkOrders";
+import StatusDropdown from "@/features/work-order/components/StatusDropdown";
+import {
+  useWorkOrder,
+  useUpdateWorkOrder,
+} from "@/features/work-order/hooks/useWorkOrders";
 import { useIssue } from "@/features/issue/hooks/useIssues";
 import { workOrderApi } from "@/features/work-order/api/workOrderApi";
 import PrimaryButton from "@/components/ui/Button/PrimaryButton";
 import SecondaryButton from "@/components/ui/Button/SecondaryButton";
+import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
 
 // Separate component to handle individual issue items
 const IssueItem: React.FC<{ issueId: number; router: any }> = ({
@@ -25,9 +30,7 @@ const IssueItem: React.FC<{ issueId: number; router: any }> = ({
       onClick={() => router.push(`/issues/${issueId}`)}
     >
       <div className="flex items-center gap-3">
-        <span className="text-sm font-medium text-blue-600">
-          #{issue.issueNumber} · {issue.title}
-        </span>
+        <span className="text-sm font-medium text-blue-600">{issue.title}</span>
       </div>
     </div>
   );
@@ -37,8 +40,10 @@ export default function WorkOrderPage() {
   const router = useRouter();
   const params = useParams();
   const workOrderId = Number(params.id);
+  const notify = useNotification();
 
   const { workOrder, isPending, isError } = useWorkOrder(workOrderId);
+  const { mutate: updateWorkOrder } = useUpdateWorkOrder();
 
   if (isPending) {
     return (
@@ -71,18 +76,64 @@ export default function WorkOrderPage() {
     );
   }
 
-  const handleStatusChange = (status: string) => {
-    // TODO: Implement status change logic
-    console.log("Status changed to:", status);
+  const handleStatusChange = (newStatus: number) => {
+    // Status change is handled by the StatusDropdown component
+    console.log("Status changed to:", newStatus);
+  };
+
+  const handleUpdateWorkOrder = (newStatus: number) => {
+    // Create a complete update command with all current work order data
+    const updateCommand = {
+      workOrderID: workOrderId,
+      title: workOrder.title,
+      description: workOrder.description,
+      vehicleID: workOrder.vehicleID,
+      workOrderType: workOrder.workOrderTypeEnum,
+      priorityLevel: workOrder.priorityLevelEnum,
+      status: newStatus, // Use the new status
+      assignedToUserID: workOrder.assignedToUserID,
+      scheduledStartDate: workOrder.scheduledStartDate,
+      actualStartDate: workOrder.actualStartDate,
+      scheduledCompletionDate: workOrder.scheduledCompletionDate,
+      actualCompletionDate: workOrder.actualCompletionDate,
+      startOdometer: workOrder.startOdometer,
+      endOdometer: workOrder.endOdometer,
+      issueIdList: workOrder.issueIDs,
+      workOrderLineItems: workOrder.workOrderLineItems.map(item => ({
+        itemType: item.itemTypeEnum,
+        quantity: item.quantity,
+        description: item.description,
+        inventoryItemID: item.inventoryItemID,
+        assignedToUserID: item.assignedToUserID,
+        serviceTaskID: item.serviceTaskID,
+        unitPrice: item.unitPrice,
+        hourlyRate: item.hourlyRate,
+        laborHours: item.laborHours,
+      })),
+    };
+
+    updateWorkOrder(updateCommand, {
+      onSuccess: () => {
+        // The cache will be automatically invalidated by the useUpdateWorkOrder hook
+        console.log("Work order status updated successfully");
+      },
+      onError: (error: any) => {
+        console.error("Error updating work order status:", error);
+        let errorMessage = "Failed to update work order status.";
+
+        if (error?.response?.data?.detail) {
+          errorMessage = error.response.data.detail;
+        } else if (error?.message) {
+          errorMessage = error.message;
+        }
+
+        // Note: We don't need to show a notification here because StatusDropdown handles it
+      },
+    });
   };
 
   const handleEdit = () => {
     router.push(`/work-orders/${workOrderId}/edit`);
-  };
-
-  const handleDelete = () => {
-    // TODO: Implement delete logic
-    console.log("Delete work order");
   };
 
   const handlePrint = async () => {
@@ -176,16 +227,20 @@ export default function WorkOrderPage() {
         <Printer className="w-4 h-4" />
         Print
       </SecondaryButton>
-      <PrimaryButton onClick={handleEdit} className="flex items-center gap-2">
+      <StatusDropdown
+        currentStatus={workOrder.status}
+        workOrderId={workOrder.id}
+        onStatusChange={handleStatusChange}
+        onUpdateWorkOrder={handleUpdateWorkOrder}
+        disabled={workOrder.status === 5} // Disable if completed
+      />
+      <PrimaryButton
+        onClick={handleEdit}
+        className="flex items-center gap-2"
+        disabled={workOrder.status === 5} // Disable if completed
+      >
         <Edit className="w-4 h-4" />
         Edit
-      </PrimaryButton>
-      <PrimaryButton
-        onClick={handleDelete}
-        className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white border-red-600 hover:border-red-700"
-      >
-        <Trash2 className="w-4 h-4" />
-        Delete
       </PrimaryButton>
     </>
   );

@@ -33,5 +33,10 @@ public class XrefServiceScheduleServiceTaskConfiguration : IEntityTypeConfigurat
             .WithMany(ss => ss.XrefServiceScheduleServiceTasks)
             .HasForeignKey(xssst => xssst.ServiceTaskID)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // Covering index for service task retrieval
+        builder.HasIndex(xssst => xssst.ServiceScheduleID)
+            .IncludeProperties(xssst => xssst.ServiceTaskID)
+            .HasDatabaseName("IX_XrefServiceScheduleServiceTasks_ScheduleIncludeTask");
     }
 }

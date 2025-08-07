@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Persistence.DatabaseContext;
 
@@ -11,9 +12,11 @@ using Persistence.DatabaseContext;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(OmnipulseDatabaseContext))]
-    partial class OmnipulseDatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20250806042716_AddWorkOrderPerformanceIndexes")]
+    partial class AddWorkOrderPerformanceIndexes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -131,13 +134,11 @@ namespace Persistence.Migrations
                         .HasColumnType("float");
 
                     b.Property<string>("SnapshotFormDescription")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SnapshotFormTitle")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TechnicianID")
                         .IsRequired()
@@ -145,9 +146,6 @@ namespace Persistence.Migrations
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("VehicleCondition")
                         .HasColumnType("int");
@@ -157,92 +155,21 @@ namespace Persistence.Migrations
 
                     b.HasKey("ID");
 
-                    b.HasIndex("InspectionEndTime")
-                        .HasDatabaseName("IX_Inspections_InspectionEndTime");
+                    b.HasIndex("InspectionFormID");
 
-                    b.HasIndex("InspectionFormID")
-                        .HasDatabaseName("IX_Inspections_InspectionFormID");
+                    b.HasIndex("InspectionStartTime");
 
-                    b.HasIndex("InspectionStartTime")
-                        .HasDatabaseName("IX_Inspections_InspectionStartTime");
+                    b.HasIndex("TechnicianID");
 
-                    b.HasIndex("OdometerReading")
-                        .HasDatabaseName("IX_Inspections_OdometerReading");
+                    b.HasIndex("VehicleCondition");
 
-                    b.HasIndex("TechnicianID")
-                        .HasDatabaseName("IX_Inspections_TechnicianID");
+                    b.HasIndex("VehicleID");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("InspectionFormID", "InspectionStartTime");
 
-                    b.HasIndex("VehicleCondition")
-                        .HasDatabaseName("IX_Inspections_Condition_NotSafe")
-                        .HasFilter("VehicleCondition = 3");
+                    b.HasIndex("TechnicianID", "InspectionStartTime");
 
-                    b.HasIndex("VehicleID")
-                        .HasDatabaseName("IX_Inspections_VehicleID");
-
-                    b.HasIndex("CreatedAt", "VehicleCondition")
-                        .HasDatabaseName("IX_Inspections_CreatedAtCondition");
-
-                    b.HasIndex("InspectionFormID", "InspectionStartTime")
-                        .HasDatabaseName("IX_Inspections_FormStartTime");
-
-                    b.HasIndex("InspectionFormID", "TechnicianID")
-                        .HasDatabaseName("IX_Inspections_FormTechnician");
-
-                    b.HasIndex("InspectionFormID", "VehicleCondition")
-                        .HasDatabaseName("IX_Inspections_FormCondition");
-
-                    b.HasIndex("InspectionStartTime", "CreatedAt")
-                        .HasDatabaseName("IX_Inspections_StartTimeCreatedCovering");
-
-                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("InspectionStartTime", "CreatedAt"), new[] { "VehicleID", "TechnicianID", "VehicleCondition", "InspectionFormID", "OdometerReading", "SnapshotFormTitle" });
-
-                    b.HasIndex("InspectionStartTime", "InspectionEndTime")
-                        .HasDatabaseName("IX_Inspections_StartEndTime");
-
-                    b.HasIndex("InspectionStartTime", "VehicleCondition")
-                        .HasDatabaseName("IX_Inspections_StartTimeCondition");
-
-                    b.HasIndex("Notes", "InspectionStartTime")
-                        .HasDatabaseName("IX_Inspections_NotesStartTime");
-
-                    b.HasIndex("OdometerReading", "InspectionStartTime")
-                        .HasDatabaseName("IX_Inspections_OdometerStartTime");
-
-                    b.HasIndex("SnapshotFormTitle", "InspectionStartTime")
-                        .HasDatabaseName("IX_Inspections_FormTitleStartTime");
-
-                    b.HasIndex("TechnicianID", "InspectionEndTime")
-                        .HasDatabaseName("IX_Inspections_TechnicianEndTime");
-
-                    b.HasIndex("TechnicianID", "InspectionStartTime")
-                        .HasDatabaseName("IX_Inspections_TechnicianStartTimeCovering");
-
-                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("TechnicianID", "InspectionStartTime"), new[] { "VehicleID", "VehicleCondition", "InspectionEndTime", "OdometerReading", "SnapshotFormTitle" });
-
-                    b.HasIndex("TechnicianID", "VehicleCondition")
-                        .HasDatabaseName("IX_Inspections_TechnicianCondition");
-
-                    b.HasIndex("UpdatedAt", "InspectionStartTime")
-                        .HasDatabaseName("IX_Inspections_UpdatedAtStartTime");
-
-                    b.HasIndex("VehicleCondition", "InspectionStartTime")
-                        .HasDatabaseName("IX_Inspections_ConditionStartTime");
-
-                    b.HasIndex("VehicleID", "InspectionStartTime")
-                        .HasDatabaseName("IX_Inspections_VehicleStartTimeCovering");
-
-                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("VehicleID", "InspectionStartTime"), new[] { "TechnicianID", "VehicleCondition", "InspectionEndTime", "OdometerReading", "SnapshotFormTitle" });
-
-                    b.HasIndex("VehicleID", "OdometerReading")
-                        .HasDatabaseName("IX_Inspections_VehicleOdometer");
-
-                    b.HasIndex("VehicleID", "VehicleCondition")
-                        .HasDatabaseName("IX_Inspections_VehicleCondition");
-
-                    b.HasIndex("InspectionStartTime", "InspectionEndTime", "VehicleCondition")
-                        .HasDatabaseName("IX_Inspections_DateRangeCondition");
+                    b.HasIndex("VehicleID", "InspectionStartTime");
 
                     b.ToTable("Inspections", null, t =>
                         {
@@ -335,41 +262,10 @@ namespace Persistence.Migrations
 
                     b.HasIndex("InspectionFormID");
 
-                    b.HasIndex("InspectionFormItemTypeEnum")
-                        .HasDatabaseName("IX_InspectionFormItems_ItemType");
-
-                    b.HasIndex("IsActive")
-                        .HasDatabaseName("IX_InspectionFormItems_Active")
-                        .HasFilter("IsActive = 1");
-
                     b.HasIndex("IsRequired");
-
-                    b.HasIndex("CreatedAt", "InspectionFormID")
-                        .HasDatabaseName("IX_InspectionFormItems_CreatedAtForm");
-
-                    b.HasIndex("InspectionFormID", "InspectionFormItemTypeEnum")
-                        .HasDatabaseName("IX_InspectionFormItems_FormType");
-
-                    b.HasIndex("InspectionFormID", "IsActive")
-                        .HasDatabaseName("IX_InspectionFormItems_FormActiveCovering");
-
-                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("InspectionFormID", "IsActive"), new[] { "ItemLabel", "ItemDescription", "IsRequired", "InspectionFormItemTypeEnum", "CreatedAt" });
-
-                    b.HasIndex("InspectionFormID", "IsRequired")
-                        .HasDatabaseName("IX_InspectionFormItems_FormRequired_True")
-                        .HasFilter("IsRequired = 1");
 
                     b.HasIndex("InspectionFormID", "ItemLabel")
                         .IsUnique();
-
-                    b.HasIndex("IsRequired", "IsActive")
-                        .HasDatabaseName("IX_InspectionFormItems_RequiredActive");
-
-                    b.HasIndex("ItemLabel", "InspectionFormID")
-                        .HasDatabaseName("IX_InspectionFormItems_LabelForm");
-
-                    b.HasIndex("UpdatedAt", "IsActive")
-                        .HasDatabaseName("IX_InspectionFormItems_UpdatedAtActive");
 
                     b.ToTable("InspectionFormItems", (string)null);
                 });
@@ -396,69 +292,20 @@ namespace Persistence.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("SnapshotItemDescription")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SnapshotItemInstructions")
-                        .HasMaxLength(4000)
-                        .HasColumnType("nvarchar(4000)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SnapshotItemLabel")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("InspectionID", "InspectionFormItemID");
 
                     b.HasIndex("InspectionFormItemID");
 
-                    b.HasIndex("InspectionID")
-                        .HasDatabaseName("IX_InspectionPassFailItems_InspectionCovering");
-
-                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("InspectionID"), new[] { "InspectionFormItemID", "Passed", "Comment", "SnapshotItemLabel", "SnapshotIsRequired" });
-
-                    b.HasIndex("Passed")
-                        .HasDatabaseName("IX_InspectionPassFailItems_Failed")
-                        .HasFilter("Passed = 0");
-
-                    b.HasIndex("SnapshotInspectionFormItemTypeEnum")
-                        .HasDatabaseName("IX_InspectionPassFailItems_ItemType");
-
-                    b.HasIndex("Comment", "Passed")
-                        .HasDatabaseName("IX_InspectionPassFailItems_CommentPassed");
-
-                    b.HasIndex("InspectionFormItemID", "Passed")
-                        .HasDatabaseName("IX_InspectionPassFailItems_FormItemPassed");
-
-                    b.HasIndex("InspectionFormItemID", "SnapshotIsRequired")
-                        .HasDatabaseName("IX_InspectionPassFailItems_FormItemRequiredCovering");
-
-                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("InspectionFormItemID", "SnapshotIsRequired"), new[] { "Passed", "SnapshotItemLabel" });
-
-                    b.HasIndex("InspectionID", "Passed")
-                        .HasDatabaseName("IX_InspectionPassFailItems_InspectionFailed")
-                        .HasFilter("Passed = 0");
-
-                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("InspectionID", "Passed"), new[] { "SnapshotItemLabel", "Comment", "SnapshotIsRequired" });
-
-                    b.HasIndex("InspectionID", "SnapshotIsRequired")
-                        .HasDatabaseName("IX_InspectionPassFailItems_InspectionRequired")
-                        .HasFilter("SnapshotIsRequired = 1");
-
-                    b.HasIndex("Passed", "SnapshotIsRequired")
-                        .HasDatabaseName("IX_InspectionPassFailItems_PassedRequired");
-
-                    b.HasIndex("SnapshotInspectionFormItemTypeEnum", "Passed")
-                        .HasDatabaseName("IX_InspectionPassFailItems_TypePassed");
-
-                    b.HasIndex("SnapshotIsRequired", "Passed")
-                        .HasDatabaseName("IX_InspectionPassFailItems_RequiredPassed");
-
-                    b.HasIndex("SnapshotItemLabel", "Passed")
-                        .HasDatabaseName("IX_InspectionPassFailItems_LabelPassed");
-
-                    b.HasIndex("InspectionFormItemID", "Passed", "SnapshotIsRequired")
-                        .HasDatabaseName("IX_InspectionPassFailItems_FormItemPassedRequired");
+                    b.HasIndex("Passed");
 
                     b.ToTable("InspectionPassFailItems", (string)null);
                 });
@@ -2554,14 +2401,10 @@ namespace Persistence.Migrations
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.User", "User")
-                        .WithMany()
+                        .WithMany("Inspections")
                         .HasForeignKey("TechnicianID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("Domain.Entities.User", null)
-                        .WithMany("Inspections")
-                        .HasForeignKey("UserId");
 
                     b.HasOne("Domain.Entities.Vehicle", "Vehicle")
                         .WithMany("Inspections")

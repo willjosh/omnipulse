@@ -19,6 +19,13 @@ public class XrefServiceProgramVehicleConfiguration : IEntityTypeConfiguration<X
         builder.HasIndex(xspv => xspv.VehicleID);
         builder.HasIndex(xspv => xspv.AddedAt);
 
+        // Add indexes for service reminder generation
+        builder.HasIndex(xspv => new { xspv.ServiceProgramID, xspv.AddedAt })
+            .HasDatabaseName("IX_XrefServiceProgramVehicles_ProgramAdded");
+
+        builder.HasIndex(xspv => new { xspv.VehicleID, xspv.AddedAt })
+            .HasDatabaseName("IX_XrefServiceProgramVehicles_VehicleAdded");
+
         // Table Relationships
         // XrefServiceProgramVehicles N:1 ServiceProgram
         builder

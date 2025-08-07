@@ -13,6 +13,7 @@ import { BreadcrumbItem } from "@/components/ui/Layout/Breadcrumbs";
 import Loading from "@/components/ui/Feedback/Loading";
 import PrimaryButton from "@/components/ui/Button/PrimaryButton";
 import SecondaryButton from "@/components/ui/Button/SecondaryButton";
+import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
 
 const initialForm: ServiceScheduleDetailsFormValues = {
   name: "",
@@ -22,8 +23,7 @@ const initialForm: ServiceScheduleDetailsFormValues = {
   timeBufferValue: "",
   timeBufferUnit: "",
   mileageBuffer: "",
-  firstServiceTimeValue: "",
-  firstServiceTimeUnit: "",
+  firstServiceDate: "",
   firstServiceMileage: "",
   serviceTaskIDs: [],
   isActive: true,
@@ -34,6 +34,7 @@ function CreateServiceScheduleForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const serviceProgramId = searchParams.get("serviceProgramId");
+  const notify = useNotification();
 
   const [form, setForm] =
     useState<ServiceScheduleDetailsFormValues>(initialForm);
@@ -120,19 +121,63 @@ function CreateServiceScheduleForm() {
     if (form.mileageInterval)
       payload.mileageInterval = Number(form.mileageInterval);
     if (form.mileageBuffer) payload.mileageBuffer = Number(form.mileageBuffer);
-    if (form.firstServiceTimeValue)
-      payload.firstServiceTimeValue = Number(form.firstServiceTimeValue);
-    if (form.firstServiceTimeUnit)
-      payload.firstServiceTimeUnit = Number(form.firstServiceTimeUnit);
+    if (form.firstServiceDate) payload.firstServiceDate = form.firstServiceDate;
     if (form.firstServiceMileage)
       payload.firstServiceMileage = Number(form.firstServiceMileage);
     createServiceSchedule(payload, {
       onSuccess: () => {
+        notify("Service schedule created successfully!", "success");
         setForm(initialForm);
         setErrors({});
         if (serviceProgramId) {
           router.push(`/service-programs/${serviceProgramId}`);
         }
+      },
+      onError: error => {
+        notify(
+          `Failed to create service schedule: ${error?.message || "Unknown error"}`,
+          "error",
+        );
+      },
+    });
+  };
+
+  const handleSave = () => {
+    if (!validate()) return;
+    const payload: any = {
+      serviceProgramID: Number(form.serviceProgramID),
+      name: form.name,
+      serviceTaskIDs: form.serviceTaskIDs.map((id: any) => Number(id)),
+      isActive: form.isActive,
+    };
+    if (form.timeIntervalValue)
+      payload.timeIntervalValue = Number(form.timeIntervalValue);
+    if (form.timeIntervalUnit)
+      payload.timeIntervalUnit = Number(form.timeIntervalUnit);
+    if (form.timeBufferValue)
+      payload.timeBufferValue = Number(form.timeBufferValue);
+    if (form.timeBufferUnit)
+      payload.timeBufferUnit = Number(form.timeBufferUnit);
+    if (form.mileageInterval)
+      payload.mileageInterval = Number(form.mileageInterval);
+    if (form.mileageBuffer) payload.mileageBuffer = Number(form.mileageBuffer);
+    if (form.firstServiceDate) payload.firstServiceDate = form.firstServiceDate;
+    if (form.firstServiceMileage)
+      payload.firstServiceMileage = Number(form.firstServiceMileage);
+    createServiceSchedule(payload, {
+      onSuccess: () => {
+        notify("Service schedule created successfully!", "success");
+        if (serviceProgramId) {
+          router.push(`/service-programs/${serviceProgramId}`);
+        } else {
+          router.push("/service-schedules");
+        }
+      },
+      onError: error => {
+        notify(
+          `Failed to create service schedule: ${error?.message || "Unknown error"}`,
+          "error",
+        );
       },
     });
   };
@@ -190,10 +235,7 @@ function CreateServiceScheduleForm() {
             >
               {isCreating ? "Saving..." : "Save & Add Another"}
             </SecondaryButton>
-            <PrimaryButton
-              onClick={handleSaveAndAddAnother}
-              disabled={isCreating}
-            >
+            <PrimaryButton onClick={handleSave} disabled={isCreating}>
               {isCreating ? "Saving..." : "Save"}
             </PrimaryButton>
           </div>

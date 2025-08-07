@@ -89,8 +89,8 @@ const IssueDetailsPage = () => {
                 {issue.title}
               </h1>
               <p className="text-gray-600 mb-2">
-                Issue #{issue.issueNumber} • {issue.vehicleName} •{" "}
-                {issue.categoryLabel} • {issue.priorityLevelLabel}
+                {issue.vehicleName} • {issue.categoryLabel} •{" "}
+                {issue.priorityLevelLabel}
               </p>
               <div className="flex items-center space-x-4 text-sm">
                 <StatusBadge status={issue.statusLabel} />
@@ -132,7 +132,6 @@ const IssueDetailsPage = () => {
                   </h2>
                 </div>
                 <div className="p-3 space-y-2">
-                  <DetailFieldRow label="Issue #" value={issue.issueNumber} />
                   <DetailFieldRow
                     label="Status"
                     value={<StatusBadge status={issue.statusLabel} />}
