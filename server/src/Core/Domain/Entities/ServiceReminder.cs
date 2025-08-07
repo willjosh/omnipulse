@@ -2,7 +2,28 @@ using Domain.Entities.Enums;
 
 namespace Domain.Entities;
 
-/// <summary>Represents a single actionable service reminder for a vehicle, generated from a service schedule containing all associated service tasks.</summary>
+/// <summary>
+/// Represents a single actionable service reminder for a vehicle, generated from a service schedule containing all associated service tasks.
+/// </summary>
+/// <remarks>
+/// A service reminder is created from a <see cref="ServiceSchedule"/> and applies to a specific <see cref="Vehicle"/>.
+/// It can be configured by time OR mileage, but not both (XOR constraint).
+///
+/// <list type="bullet">
+///   <item>Must reference exactly one Vehicle via <see cref="VehicleID"/>.</item>
+///   <item>Must reference exactly one ServiceSchedule via <see cref="ServiceScheduleID"/>.</item>
+///   <item>Exactly one of the following scheduling options must be configured:
+///     <list type="bullet">
+///       <item>Time-based (<see cref="TimeIntervalValue"/> &amp; <see cref="TimeIntervalUnit"/>)</item>
+///       <item>Mileage-based (<see cref="MileageInterval"/>)</item>
+///     </list>
+///   </item>
+///   <item>Buffer values (<see cref="TimeBufferValue"/>, <see cref="MileageBuffer"/>) are optional and define when a reminder becomes "due soon".</item>
+///   <item>Due information (<see cref="DueDate"/>, <see cref="DueMileage"/>) represents when the service is actually due.</item>
+///   <item>The reminder can be linked to a <see cref="WorkOrder"/> when maintenance is scheduled.</item>
+///   <item>Status is automatically calculated based on current date/mileage and buffer thresholds.</item>
+/// </list>
+/// </remarks>
 public class ServiceReminder : BaseEntity
 {
     // ===== FKs =====
@@ -77,6 +98,9 @@ public class ServiceReminder : BaseEntity
     public required Vehicle Vehicle { get; set; }
 }
 
+/// <summary>
+/// Extension methods for ServiceReminder
+/// </summary>
 public static class ServiceReminderExtensions
 {
     /// <summary>
@@ -92,230 +116,151 @@ public static class ServiceReminderExtensions
         var now = currentDate ?? DateTime.UtcNow;
 
         // Preserve COMPLETED or CANCELLED state
-        if (serviceReminder.Status == ServiceReminderStatusEnum.COMPLETED ||
-            serviceReminder.Status == ServiceReminderStatusEnum.CANCELLED)
-        {
-            return serviceReminder.Status;
-        }
+        if (serviceReminder.IsFinalState()) return serviceReminder.Status;
 
-        // Overdue checks
-        bool isOverdueByTime = serviceReminder.DueDate.HasValue && now > serviceReminder.DueDate.Value;
-        bool isOverdueByMileage = serviceReminder.DueMileage.HasValue &&
-                                  currentOdometer.HasValue &&
-                                  currentOdometer.Value > serviceReminder.DueMileage.Value;
+        // ScheduleType XOR Constraint
+        if (!serviceReminder.HasExactlyOneScheduleType()) throw new InvalidOperationException("Reminder must be either time-based or mileage-based.");
 
-        if (isOverdueByTime || isOverdueByMileage) return ServiceReminderStatusEnum.OVERDUE;
+        // Check if overdue
+        if (serviceReminder.IsOverdueByTime(now) || (currentOdometer.HasValue && serviceReminder.IsOverdueByMileage(currentOdometer.Value)))
+            return ServiceReminderStatusEnum.OVERDUE;
 
-        // Due soon checks
-        bool isDueSoonByTime = serviceReminder.DueDate.HasValue &&
-                               serviceReminder.TimeBufferValue.HasValue &&
-                               serviceReminder.TimeBufferUnit.HasValue &&
-                               now >= serviceReminder.DueDate.Value.AddDays(-ConvertToDays(serviceReminder.TimeBufferValue.Value, serviceReminder.TimeBufferUnit.Value)) &&
-                               now < serviceReminder.DueDate.Value;
+        // Check if due soon
+        if (serviceReminder.IsDueSoonByTime(now) || (currentOdometer.HasValue && serviceReminder.IsDueSoonByMileage(currentOdometer.Value)))
+            return ServiceReminderStatusEnum.DUE_SOON;
 
-        bool isDueSoonByMileage = serviceReminder.DueMileage.HasValue &&
-                                  serviceReminder.MileageBuffer.HasValue &&
-                                  currentOdometer.HasValue &&
-                                  currentOdometer.Value >= (serviceReminder.DueMileage.Value - serviceReminder.MileageBuffer.Value) &&
-                                  currentOdometer.Value < serviceReminder.DueMileage.Value;
-
-        if (isDueSoonByTime || isDueSoonByMileage) return ServiceReminderStatusEnum.DUE_SOON;
+        // Check if upcoming
+        if (serviceReminder.IsUpcomingByTime(now) || (currentOdometer.HasValue && serviceReminder.IsUpcomingByMileage(currentOdometer.Value)))
+            return ServiceReminderStatusEnum.UPCOMING;
 
         // Otherwise, it's just upcoming
         return ServiceReminderStatusEnum.UPCOMING;
     }
 
     /// <summary>
-    /// Helper: Convert time units to days
+    /// Determines whether the service reminder is in a final state (e.g., completed or cancelled) and no longer actionable.
     /// </summary>
-    private static int ConvertToDays(int value, TimeUnitEnum unit)
+    /// <param name="serviceReminder">The service reminder to evaluate.</param>
+    /// <returns><c>true</c> if the reminder is in a final state; otherwise, <c>false</c>.</returns>
+    public static bool IsFinalState(this ServiceReminder serviceReminder)
     {
-        return unit switch
-        {
-            TimeUnitEnum.Hours => (int)Math.Ceiling(value / 24.0),
-            TimeUnitEnum.Days => value,
-            TimeUnitEnum.Weeks => value * 7,
-            _ => throw new ArgumentException($"Unsupported time unit: {unit}")
-        };
+        return serviceReminder.Status == ServiceReminderStatusEnum.COMPLETED ||
+               serviceReminder.Status == ServiceReminderStatusEnum.CANCELLED;
     }
 
+    // ===== Status =====
+
     /// <summary>
-    /// Calculates the number of days until this reminder is due.
-    /// Negative means overdue by X days.
+    /// Checks if the reminder is upcoming by time (current time is before the buffer period starts).
     /// </summary>
     /// <param name="serviceReminder">The service reminder to evaluate.</param>
     /// <param name="currentDate">The current date/time (UTC). Uses DateTime.UtcNow if not provided.</param>
-    /// <returns>Days until due (negative if overdue), or null if no due date is set.</returns>
-    public static int? DaysUntilDue(this ServiceReminder serviceReminder, DateTime? currentDate = null)
+    /// <returns>True if the reminder is upcoming by time, false otherwise.</returns>
+    public static bool IsUpcomingByTime(this ServiceReminder serviceReminder, DateTime? currentDate = null)
     {
-        if (!serviceReminder.DueDate.HasValue) return null;
-        var now = currentDate ?? DateTime.UtcNow;
-        return (int)(serviceReminder.DueDate.Value - now).TotalDays;
-    }
-
-    /// <summary>
-    /// Calculates the mileage variance between current odometer and the due mileage.
-    /// Negative = km until due, Positive = overdue by km.
-    /// </summary>
-    /// <param name="serviceReminder">The service reminder to evaluate.</param>
-    /// <param name="currentOdometer">The vehicle's current odometer reading (km).</param>
-    /// <returns>Mileage variance (negative if not yet due, positive if overdue), or null if due mileage or current odometer is not available.</returns>
-    public static double? CalculateMileageVariance(this ServiceReminder serviceReminder, double? currentOdometer)
-    {
-        if (!serviceReminder.DueMileage.HasValue || !currentOdometer.HasValue) return null;
-        return currentOdometer.Value - serviceReminder.DueMileage.Value;
-    }
-
-    /// <summary>
-    /// Calculates the priority level based on the reminder's current status.
-    /// </summary>
-    /// <param name="serviceReminder">The service reminder to evaluate.</param>
-    /// <returns>The calculated priority level.</returns>
-    public static PriorityLevelEnum CalculatePriorityLevel(this ServiceReminder serviceReminder)
-    {
-        return serviceReminder.Status switch
+        if (!serviceReminder.DueDate.HasValue ||
+            !serviceReminder.TimeBufferValue.HasValue ||
+            !serviceReminder.TimeBufferUnit.HasValue)
         {
-            ServiceReminderStatusEnum.OVERDUE => PriorityLevelEnum.HIGH,
-            ServiceReminderStatusEnum.DUE_SOON => PriorityLevelEnum.MEDIUM,
-            _ => PriorityLevelEnum.LOW
-        };
-    }
-
-    /// <summary>
-    /// Calculates the next due date based on the current due date and the time interval.
-    /// </summary>
-    /// <param name="serviceReminder">The service reminder to evaluate.</param>
-    /// <returns>The next due date, or null if calculation is not possible.</returns>
-    public static DateTime? CalculateNextDueDate(this ServiceReminder serviceReminder)
-    {
-        if (!serviceReminder.DueDate.HasValue || !serviceReminder.TimeIntervalValue.HasValue || !serviceReminder.TimeIntervalUnit.HasValue)
-            return null;
-
-        return serviceReminder.TimeIntervalUnit.Value switch
-        {
-            TimeUnitEnum.Hours => serviceReminder.DueDate.Value.AddHours(serviceReminder.TimeIntervalValue.Value),
-            TimeUnitEnum.Days => serviceReminder.DueDate.Value.AddDays(serviceReminder.TimeIntervalValue.Value),
-            TimeUnitEnum.Weeks => serviceReminder.DueDate.Value.AddDays(serviceReminder.TimeIntervalValue.Value * 7),
-            _ => null
-        };
-    }
-
-    /// <summary>
-    /// Calculates the next due mileage based on the current due mileage and mileage interval.
-    /// </summary>
-    /// <param name="serviceReminder">The service reminder to evaluate.</param>
-    /// <returns>The next due mileage, or null if calculation is not possible.</returns>
-    public static double? CalculateNextDueMileage(this ServiceReminder serviceReminder)
-    {
-        if (!serviceReminder.DueMileage.HasValue || !serviceReminder.MileageInterval.HasValue)
-            return null;
-
-        return serviceReminder.DueMileage.Value + serviceReminder.MileageInterval.Value;
-    }
-
-    /// <summary>
-    /// Checks if the reminder is active (not completed or cancelled).
-    /// </summary>
-    /// <param name="serviceReminder">The service reminder to evaluate.</param>
-    /// <returns>True if the reminder is active, false otherwise.</returns>
-    public static bool IsActive(this ServiceReminder serviceReminder)
-    {
-        return serviceReminder.Status != ServiceReminderStatusEnum.COMPLETED &&
-               serviceReminder.Status != ServiceReminderStatusEnum.CANCELLED;
-    }
-
-    /// <summary>
-    /// Checks if the reminder is due today.
-    /// </summary>
-    /// <param name="serviceReminder">The service reminder to evaluate.</param>
-    /// <param name="currentDate">The current date/time (UTC). Uses DateTime.UtcNow if not provided.</param>
-    /// <returns>True if the reminder is due today, false otherwise.</returns>
-    public static bool IsDueToday(this ServiceReminder serviceReminder, DateTime? currentDate = null)
-    {
-        if (!serviceReminder.DueDate.HasValue) return false;
-        var now = currentDate ?? DateTime.UtcNow;
-        return serviceReminder.DueDate.Value.Date == now.Date;
-    }
-
-    /// <summary>
-    /// Checks if the reminder is overdue (past its due date or mileage).
-    /// </summary>
-    /// <param name="serviceReminder">The service reminder to evaluate.</param>
-    /// <param name="currentOdometer">The vehicle's current odometer reading (km).</param>
-    /// <param name="currentDate">The current date/time (UTC). Uses DateTime.UtcNow if not provided.</param>
-    /// <returns>True if the reminder is overdue, false otherwise.</returns>
-    public static bool IsOverdue(this ServiceReminder serviceReminder, double? currentOdometer = null, DateTime? currentDate = null)
-    {
-        var now = currentDate ?? DateTime.UtcNow;
-
-        bool isOverdueByTime = serviceReminder.DueDate.HasValue && now > serviceReminder.DueDate.Value;
-        bool isOverdueByMileage = serviceReminder.DueMileage.HasValue &&
-                                  currentOdometer.HasValue &&
-                                  currentOdometer.Value > serviceReminder.DueMileage.Value;
-
-        return isOverdueByTime || isOverdueByMileage;
-    }
-
-    /// <summary>
-    /// Generates a human-readable summary of the reminder for display purposes.
-    /// </summary>
-    /// <param name="serviceReminder">The service reminder to evaluate.</param>
-    /// <param name="currentOdometer">The vehicle's current odometer reading (km).</param>
-    /// <param name="currentDate">The current date/time (UTC). Uses DateTime.UtcNow if not provided.</param>
-    /// <returns>A formatted summary string describing the reminder's urgency and details.</returns>
-    public static string GetDisplaySummary(this ServiceReminder serviceReminder, double? currentOdometer = null, DateTime? currentDate = null)
-    {
-        var status = serviceReminder.Status.ToString().Replace("_", " ").ToLowerInvariant();
-        var scheduleName = serviceReminder.ServiceScheduleName;
-
-        if (serviceReminder.Status == ServiceReminderStatusEnum.COMPLETED)
-        {
-            return $"{scheduleName} - Completed on {serviceReminder.CompletedDate?.ToString("MMM dd, yyyy")}";
+            return false;
         }
 
-        if (serviceReminder.Status == ServiceReminderStatusEnum.CANCELLED)
+        var now = currentDate ?? DateTime.UtcNow;
+        var bufferStartDate = serviceReminder.DueDate.Value.AddDays(-ConvertToDays(serviceReminder.TimeBufferValue.Value, serviceReminder.TimeBufferUnit.Value));
+
+        return now < bufferStartDate;
+    }
+
+    /// <summary>
+    /// Checks if the reminder is upcoming by mileage (current mileage is before the buffer period starts).
+    /// </summary>
+    /// <param name="serviceReminder">The service reminder to evaluate.</param>
+    /// <param name="currentOdometer">The vehicle's current odometer reading (km).</param>
+    /// <returns>True if the reminder is upcoming by mileage, false otherwise.</returns>
+    public static bool IsUpcomingByMileage(this ServiceReminder serviceReminder, double currentOdometer)
+    {
+        if (!serviceReminder.DueMileage.HasValue ||
+            !serviceReminder.MileageBuffer.HasValue)
         {
-            return $"{scheduleName} - Cancelled";
+            return false;
         }
 
-        var dueDateInfo = serviceReminder.DueDate.HasValue ? $"due {serviceReminder.DueDate.Value:MMM dd, yyyy}" : "";
-        var dueMileageInfo = serviceReminder.DueMileage.HasValue ? $"due at {serviceReminder.DueMileage.Value:N0} km" : "";
+        var bufferStartMileage = serviceReminder.DueMileage - serviceReminder.MileageBuffer;
 
-        var dueInfo = string.Join(" or ", new[] { dueDateInfo, dueMileageInfo }.Where(s => !string.IsNullOrEmpty(s)));
-
-        return string.IsNullOrEmpty(dueInfo)
-            ? $"{scheduleName} - {status}"
-            : $"{scheduleName} - {status} ({dueInfo})";
+        return currentOdometer < bufferStartMileage;
     }
 
     /// <summary>
-    /// Checks if the reminder is time-based only (no mileage scheduling).
-    /// Reflects XOR constraint - ServiceReminders can only be time-based OR mileage-based, never both.
+    /// Checks if the service reminder is due soon by time (within the buffer period).
     /// </summary>
     /// <param name="serviceReminder">The service reminder to evaluate.</param>
-    /// <returns>True if the reminder uses only time-based scheduling, false otherwise.</returns>
-    public static bool IsTimeBasedOnly(this ServiceReminder serviceReminder)
+    /// <param name="currentDate">The current date/time (UTC). Uses DateTime.UtcNow if not provided.</param>
+    /// <returns>True if due soon by time, false otherwise.</returns>
+    public static bool IsDueSoonByTime(this ServiceReminder serviceReminder, DateTime? currentDate = null)
     {
-        return serviceReminder.IsTimeBased() && !serviceReminder.IsMileageBased();
+        if (!serviceReminder.DueDate.HasValue ||
+            !serviceReminder.TimeBufferValue.HasValue ||
+            !serviceReminder.TimeBufferUnit.HasValue)
+        {
+            return false;
+        }
+
+        var now = currentDate ?? DateTime.UtcNow;
+        var bufferStartDate = serviceReminder.DueDate.Value.AddDays(-ConvertToDays(serviceReminder.TimeBufferValue.Value, serviceReminder.TimeBufferUnit.Value));
+
+        return now >= bufferStartDate && now < serviceReminder.DueDate;
     }
 
     /// <summary>
-    /// Checks if the reminder is mileage-based only (no time scheduling).
-    /// Reflects XOR constraint - ServiceReminders can only be time-based OR mileage-based, never both.
+    /// Checks if the service reminder is due soon by mileage (within the buffer period).
     /// </summary>
     /// <param name="serviceReminder">The service reminder to evaluate.</param>
-    /// <returns>True if the reminder uses only mileage-based scheduling, false otherwise.</returns>
-    public static bool IsMileageBasedOnly(this ServiceReminder serviceReminder)
+    /// <param name="currentOdometer">The vehicle's current odometer reading (km).</param>
+    /// <returns>True if due soon by mileage, false otherwise.</returns>
+    public static bool IsDueSoonByMileage(this ServiceReminder serviceReminder, double currentOdometer)
     {
-        return !serviceReminder.IsTimeBased() && serviceReminder.IsMileageBased();
+        if (!serviceReminder.DueMileage.HasValue ||
+            !serviceReminder.MileageBuffer.HasValue)
+        {
+            return false;
+        }
+
+        var bufferStartMileage = serviceReminder.DueMileage - serviceReminder.MileageBuffer;
+
+        return currentOdometer >= bufferStartMileage && currentOdometer < serviceReminder.DueMileage;
     }
+
+    /// <summary>
+    /// Checks if the service reminder is overdue by time.
+    /// </summary>
+    /// <param name="serviceReminder">The service reminder to evaluate.</param>
+    /// <param name="currentDate">The current date/time (UTC). Uses DateTime.UtcNow if not provided.</param>
+    /// <returns>True if overdue by time, false otherwise.</returns>
+    public static bool IsOverdueByTime(this ServiceReminder serviceReminder, DateTime? currentDate = null)
+    {
+        var now = currentDate ?? DateTime.UtcNow;
+        return serviceReminder.DueDate.HasValue && now > serviceReminder.DueDate;
+    }
+
+    /// <summary>
+    /// Checks if the service reminder is overdue by mileage.
+    /// </summary>
+    /// <param name="serviceReminder">The service reminder to evaluate.</param>
+    /// <param name="currentOdometer">The vehicle's current odometer reading (km).</param>
+    /// <returns>True if overdue by mileage, false otherwise.</returns>
+    public static bool IsOverdueByMileage(this ServiceReminder serviceReminder, double currentOdometer)
+    {
+        return serviceReminder.DueMileage.HasValue && currentOdometer > serviceReminder.DueMileage;
+    }
+
+    // ===== Type Checking Methods =====
 
     /// <summary>
     /// Validates that the reminder has exactly one schedule type configured (XOR constraint).
     /// ServiceReminders must be either time-based OR mileage-based, never both.
     /// </summary>
     /// <param name="serviceReminder">The service reminder to evaluate.</param>
-    /// <returns>True if the reminder has exactly one schedule type configured.</returns>
+    /// <returns><c>true</c> if exactly one schedule type is configured; otherwise, <c>false</c>.</returns>
     public static bool HasExactlyOneScheduleType(this ServiceReminder serviceReminder)
     {
         return serviceReminder.IsTimeBased() != serviceReminder.IsMileageBased(); // Exactly one must be true (XOR)
@@ -357,6 +302,50 @@ public static class ServiceReminderExtensions
         return serviceReminder.MileageInterval.HasValue;
     }
 
+    // ===== Calculation Methods =====
+
+    /// <summary>
+    /// Calculates the number of days until this reminder is due.
+    /// Negative means overdue by X days.
+    /// </summary>
+    /// <param name="serviceReminder">The service reminder to evaluate.</param>
+    /// <param name="currentDate">The current date/time (UTC). Uses DateTime.UtcNow if not provided.</param>
+    /// <returns>Days until due (negative if overdue), or null if no due date is set.</returns>
+    public static int? DaysUntilDue(this ServiceReminder serviceReminder, DateTime? currentDate = null)
+    {
+        if (!serviceReminder.DueDate.HasValue) return null;
+        var now = currentDate ?? DateTime.UtcNow;
+        return (int)(serviceReminder.DueDate.Value - now).TotalDays;
+    }
+
+    /// <summary>
+    /// Calculates the mileage variance between current odometer and the due mileage.
+    /// Negative = km until due, Positive = overdue by km.
+    /// </summary>
+    /// <param name="serviceReminder">The service reminder to evaluate.</param>
+    /// <param name="currentOdometer">The vehicle's current odometer reading (km).</param>
+    /// <returns>Mileage variance (negative if not yet due, positive if overdue), or null if due mileage is not available.</returns>
+    public static double? CalculateMileageVariance(this ServiceReminder serviceReminder, double currentOdometer)
+    {
+        if (!serviceReminder.DueMileage.HasValue) return null;
+        return currentOdometer - serviceReminder.DueMileage;
+    }
+
+    /// <summary>
+    /// Calculates the priority level based on the reminder's current status.
+    /// </summary>
+    /// <param name="serviceReminder">The service reminder to evaluate.</param>
+    /// <returns>The calculated priority level.</returns>
+    public static PriorityLevelEnum CalculatePriorityLevel(this ServiceReminder serviceReminder)
+    {
+        return serviceReminder.Status switch
+        {
+            ServiceReminderStatusEnum.OVERDUE => PriorityLevelEnum.HIGH,
+            ServiceReminderStatusEnum.DUE_SOON => PriorityLevelEnum.MEDIUM,
+            _ => PriorityLevelEnum.LOW
+        };
+    }
+
     /// <summary>
     /// Gets the next scheduled occurrence date for time-based reminders.
     /// </summary>
@@ -384,6 +373,22 @@ public static class ServiceReminderExtensions
     {
         if (!serviceReminder.IsMileageBased() || !serviceReminder.DueMileage.HasValue || !serviceReminder.MileageInterval.HasValue)
             return null;
-        return serviceReminder.DueMileage.Value + serviceReminder.MileageInterval.Value;
+        return serviceReminder.DueMileage + serviceReminder.MileageInterval;
+    }
+
+    // ===== Status Check Methods =====
+
+    /// <summary>
+    /// Helper: Convert time units to days
+    /// </summary>
+    private static int ConvertToDays(int value, TimeUnitEnum unit)
+    {
+        return unit switch
+        {
+            TimeUnitEnum.Hours => (int)Math.Ceiling(value / 24.0),
+            TimeUnitEnum.Days => value,
+            TimeUnitEnum.Weeks => value * 7,
+            _ => throw new ArgumentException($"Unsupported time unit: {unit}")
+        };
     }
 }
