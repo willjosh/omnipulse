@@ -23,6 +23,10 @@ namespace Domain.Entities;
 ///   <item>The reminder can be linked to a <see cref="WorkOrder"/> when maintenance is scheduled.</item>
 ///   <item>Status is automatically calculated based on current date/mileage and buffer thresholds.</item>
 /// </list>
+/// <strong>Business Rules:</strong>
+/// <list type="bullet">
+///   <item>Each <see cref="ServiceSchedule"/> and <see cref="Vehicle"/> pair may have at most one <see cref="ServiceReminder"/> with status <see cref="ServiceReminderStatusEnum.UPCOMING"/> at any given time.</item>
+/// </list>
 /// </remarks>
 public class ServiceReminder : BaseEntity
 {
