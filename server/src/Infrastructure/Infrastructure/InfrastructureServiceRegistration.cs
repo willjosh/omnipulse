@@ -3,6 +3,7 @@ using Application.Contracts.Logger;
 using Application.Contracts.Services;
 using Application.Contracts.UserServices;
 
+using Infrastructure.BackgroundServices;
 using Infrastructure.Logger;
 using Infrastructure.PdfGeneration;
 using Infrastructure.Services;
@@ -27,6 +28,9 @@ public static class InfrastructureServiceRegistration
 
         // Invoice PDF Generation Service
         services.AddScoped<IInvoicePdfService, HandlebarsPdfGenerator>();
+
+        // Register UpdateServiceReminderStatusBackgroundService
+        services.AddHostedService<UpdateServiceReminderStatusBackgroundService>();
 
         return services;
     }
