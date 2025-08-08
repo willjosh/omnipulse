@@ -5,8 +5,9 @@ using Application.Features.ServiceReminders.Query;
 using Application.Features.ServiceReminders.Query.GetAllServiceReminders;
 using Application.Models.PaginationModels;
 
+using AutoMapper;
+
 using Domain.Entities;
-using Domain.Entities.Enums;
 
 using FluentValidation;
 using FluentValidation.Results;
@@ -20,6 +21,7 @@ public class GetAllServiceRemindersQueryHandlerTest
     private readonly Mock<IServiceReminderRepository> _mockServiceReminderRepository;
     private readonly Mock<IValidator<GetAllServiceRemindersQuery>> _mockValidator;
     private readonly Mock<IAppLogger<GetAllServiceRemindersQueryHandler>> _mockLogger;
+    private readonly Mock<IMapper> _mockMapper;
     private readonly GetAllServiceRemindersQueryHandler _handler;
 
     public GetAllServiceRemindersQueryHandlerTest()
@@ -27,11 +29,13 @@ public class GetAllServiceRemindersQueryHandlerTest
         _mockServiceReminderRepository = new Mock<IServiceReminderRepository>();
         _mockValidator = new Mock<IValidator<GetAllServiceRemindersQuery>>();
         _mockLogger = new Mock<IAppLogger<GetAllServiceRemindersQueryHandler>>();
+        _mockMapper = new Mock<IMapper>();
 
         _handler = new GetAllServiceRemindersQueryHandler(
             _mockServiceReminderRepository.Object,
             _mockValidator.Object,
-            _mockLogger.Object);
+            _mockLogger.Object,
+            _mockMapper.Object);
     }
 
     [Fact]
@@ -44,15 +48,6 @@ public class GetAllServiceRemindersQueryHandlerTest
         _mockValidator.Setup(v => v.Validate(query))
             .Returns(new ValidationResult());
 
-        // Mock the new repository method that returns empty list of service schedules
-        var emptyServiceSchedules = new List<ServiceSchedule>();
-        _mockServiceReminderRepository.Setup(r => r.GetActiveServiceSchedulesWithDataAsync())
-            .ReturnsAsync(emptyServiceSchedules);
-
-        // Mock SyncRemindersAsync method
-        _mockServiceReminderRepository.Setup(r => r.SyncRemindersAsync(It.IsAny<List<ServiceReminderDTO>>()))
-            .Returns(Task.CompletedTask);
-
         // Mock GetAllServiceRemindersPagedAsync to return empty result
         var emptyPagedResult = new PagedResult<ServiceReminder>
         {
@@ -64,6 +59,10 @@ public class GetAllServiceRemindersQueryHandlerTest
         _mockServiceReminderRepository.Setup(r => r.GetAllServiceRemindersPagedAsync(It.IsAny<PaginationParameters>()))
             .ReturnsAsync(emptyPagedResult);
 
+        // Mock AutoMapper to return empty list
+        _mockMapper.Setup(m => m.Map<List<ServiceReminderDTO>>(It.IsAny<IReadOnlyList<ServiceReminder>>()))
+            .Returns(new List<ServiceReminderDTO>());
+
         // Act
         var result = await _handler.Handle(query, CancellationToken.None);
 
@@ -74,9 +73,9 @@ public class GetAllServiceRemindersQueryHandlerTest
         Assert.Equal(1, result.PageNumber);
         Assert.Equal(10, result.PageSize);
 
-        _mockServiceReminderRepository.Verify(r => r.GetActiveServiceSchedulesWithDataAsync(), Times.Once);
-        _mockServiceReminderRepository.Verify(r => r.SyncRemindersAsync(It.IsAny<List<ServiceReminderDTO>>()), Times.Once);
+        // Verify only the read operation was called
         _mockServiceReminderRepository.Verify(r => r.GetAllServiceRemindersPagedAsync(It.IsAny<PaginationParameters>()), Times.Once);
+        _mockMapper.Verify(m => m.Map<List<ServiceReminderDTO>>(It.IsAny<IReadOnlyList<ServiceReminder>>()), Times.Once);
     }
 
     [Fact]
@@ -89,17 +88,7 @@ public class GetAllServiceRemindersQueryHandlerTest
         _mockValidator.Setup(v => v.Validate(query))
             .Returns(new ValidationResult());
 
-        // Mock empty service schedules to avoid entity creation complexity in unit tests
-        // The business logic can be tested separately with proper integration tests
-        var emptyServiceSchedules = new List<ServiceSchedule>();
-        _mockServiceReminderRepository.Setup(r => r.GetActiveServiceSchedulesWithDataAsync())
-            .ReturnsAsync(emptyServiceSchedules);
-
-        // Mock SyncRemindersAsync method
-        _mockServiceReminderRepository.Setup(r => r.SyncRemindersAsync(It.IsAny<List<ServiceReminderDTO>>()))
-            .Returns(Task.CompletedTask);
-
-        // Mock GetAllServiceRemindersPagedAsync to return empty result
+        // Mock GetAllServiceRemindersPagedAsync to return empty result (simplified test)
         var emptyPagedResult = new PagedResult<ServiceReminder>
         {
             Items = new List<ServiceReminder>(),
@@ -110,19 +99,23 @@ public class GetAllServiceRemindersQueryHandlerTest
         _mockServiceReminderRepository.Setup(r => r.GetAllServiceRemindersPagedAsync(It.IsAny<PaginationParameters>()))
             .ReturnsAsync(emptyPagedResult);
 
+        // Mock AutoMapper to return empty list
+        _mockMapper.Setup(m => m.Map<List<ServiceReminderDTO>>(It.IsAny<IReadOnlyList<ServiceReminder>>()))
+            .Returns(new List<ServiceReminderDTO>());
+
         // Act
         var actualResult = await _handler.Handle(query, CancellationToken.None);
 
         // Assert
         Assert.NotNull(actualResult);
-        Assert.Empty(actualResult.Items); // Empty schedules should result in empty reminders
+        Assert.Empty(actualResult.Items);
         Assert.Equal(0, actualResult.TotalCount);
         Assert.Equal(1, actualResult.PageNumber);
         Assert.Equal(10, actualResult.PageSize);
 
-        _mockServiceReminderRepository.Verify(r => r.GetActiveServiceSchedulesWithDataAsync(), Times.Once);
-        _mockServiceReminderRepository.Verify(r => r.SyncRemindersAsync(It.IsAny<List<ServiceReminderDTO>>()), Times.Once);
+        // Verify the repository and mapper were called
         _mockServiceReminderRepository.Verify(r => r.GetAllServiceRemindersPagedAsync(It.IsAny<PaginationParameters>()), Times.Once);
+        _mockMapper.Verify(m => m.Map<List<ServiceReminderDTO>>(It.IsAny<IReadOnlyList<ServiceReminder>>()), Times.Once);
     }
 
     [Fact]
@@ -142,29 +135,6 @@ public class GetAllServiceRemindersQueryHandlerTest
         await Assert.ThrowsAsync<BadRequestException>(() => _handler.Handle(query, CancellationToken.None));
 
         // Verify repository was never called
-        _mockServiceReminderRepository.Verify(r => r.GetActiveServiceSchedulesWithDataAsync(), Times.Never);
-    }
-
-
-    private static ServiceReminderDTO CreateTestServiceReminderDTO(int vehicleId, string vehicleName, ServiceReminderStatusEnum status)
-    {
-        return new ServiceReminderDTO
-        {
-            ID = 1, // Test ID
-            WorkOrderID = null, // Test with no work order assigned
-            VehicleID = vehicleId,
-            VehicleName = vehicleName,
-            ServiceScheduleID = 1,
-            ServiceScheduleName = "Test Schedule",
-            ServiceTasks = [],
-            TotalEstimatedLabourHours = 2.0,
-            TotalEstimatedCost = 100.00m,
-            TaskCount = 1,
-            Status = status,
-            PriorityLevel = PriorityLevelEnum.MEDIUM,
-            CurrentMileage = 10000.0,
-            OccurrenceNumber = 1,
-            ScheduleType = ServiceScheduleTypeEnum.TIME
-        };
+        _mockServiceReminderRepository.Verify(r => r.GetAllServiceRemindersPagedAsync(It.IsAny<PaginationParameters>()), Times.Never);
     }
 }
