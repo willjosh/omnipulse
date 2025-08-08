@@ -77,19 +77,24 @@ function DataTable<T>({
     return total + 120;
   }, 0);
 
-  const checkboxWidth = 50;
   const actionsWidth = showActions ? 48 : 0;
-  const tableWidth = totalColumnWidth + checkboxWidth + actionsWidth;
+  const tableWidth = totalColumnWidth + actionsWidth;
 
   if (loading) {
-    return <Loading />;
+    return (
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="h-[calc(100vh-220px)] relative overflow-hidden flex items-center justify-center">
+          <Loading />
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="bg-white rounded-lg shadow overflow-hidden">
       <div
         ref={scrollContainerRef}
-        className={`h-[500px] relative ${data.length === 0 ? "overflow-hidden" : "overflow-x-auto"}`}
+        className="h-[calc(100vh-220px)] relative overflow-x-auto"
       >
         <table
           className="divide-y divide-gray-200"
@@ -101,20 +106,6 @@ function DataTable<T>({
         >
           <thead className="bg-gray-50 sticky top-0 z-10">
             <tr>
-              <th
-                className="px-4 py-3 text-left bg-gray-50"
-                style={{ width: `${checkboxWidth}px` }}
-              >
-                <input
-                  type="checkbox"
-                  className="size-4 text-blue-600 rounded border-gray-300"
-                  checked={allSelected}
-                  ref={el => {
-                    if (el) el.indeterminate = someSelected && !allSelected;
-                  }}
-                  onChange={onSelectAll}
-                />
-              </th>
               {columns.map(column => (
                 <th
                   key={String(column.key)}
@@ -151,18 +142,6 @@ function DataTable<T>({
                     onClick={() => onRowClick?.(item)}
                     className="hover:bg-gray-50 cursor-pointer"
                   >
-                    <td
-                      className="px-4 py-3 whitespace-nowrap"
-                      style={{ width: `${checkboxWidth}px` }}
-                    >
-                      <input
-                        type="checkbox"
-                        className="size-4 text-blue-600 rounded border-gray-300"
-                        checked={selectedItems.includes(itemId)}
-                        onChange={() => onSelectItem(itemId)}
-                        onClick={e => e.stopPropagation()}
-                      />
-                    </td>
                     {columns.map(column => (
                       <td
                         key={String(column.key)}
