@@ -1,4 +1,5 @@
 using Application.Features.ServiceReminders.Command.AddServiceReminderToExistingWorkOrder;
+using Application.Features.ServiceReminders.Command.GenerateServiceReminders;
 using Application.Features.ServiceReminders.Query;
 using Application.Features.ServiceReminders.Query.GetAllServiceReminders;
 using Application.Models.PaginationModels;
@@ -19,6 +20,7 @@ namespace Api.Controllers;
 /// <b>API Endpoints</b>:
 /// <list type="bullet">
 /// <item><b>GET /api/servicereminders</b> - <see cref="GetAllServiceReminders"/> - <see cref="GetAllServiceRemindersQuery"/></item>
+/// <item><b>POST /api/servicereminders/generate</b> - <see cref="GenerateServiceReminders"/> - <see cref="GenerateServiceRemindersCommand"/></item>
 /// <item><b>PATCH /api/servicereminders/{id}</b> - <see cref="AddServiceReminderToExistingWorkOrder"/> - <see cref="AddServiceReminderToExistingWorkOrderCommand"/></item>
 /// </list>
 /// <b>Note</b>: ServiceReminders are calculated data generated from service schedules and vehicle assignments.
@@ -42,11 +44,10 @@ public sealed class ServiceRemindersController : ControllerBase
 
     /// <summary>
     /// Retrieves a paginated list of all calculated service reminders for all vehicles in the system.
-    /// This generates multiple reminder rows for each service schedule occurrence (overdue, current, upcoming).
     /// </summary>
     /// <param name="parameters">Pagination parameters.</param>
     /// <param name="cancellationToken">Cancellation token for the operation.</param>
-    /// <returns>A paginated result containing calculated service reminders.</returns>
+    /// <returns>A paginated result containing service reminders.</returns>
     /// <response code="200">Returns the paginated list of service reminders.</response>
     /// <response code="400">Pagination parameters are invalid.</response>
     /// <response code="500">Internal server error occurred.</response>
@@ -71,6 +72,46 @@ public sealed class ServiceRemindersController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, $"{nameof(GetAllServiceReminders)}() - Error occurred while retrieving service reminders");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Generates and syncs service reminders from service schedules and vehicle assignments.
+    /// This should be called periodically or when service schedules/vehicle assignments change.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>The result of the generation process.</returns>
+    /// <response code="200">Service reminders generated successfully.</response>
+    /// <response code="500">Internal server error occurred during generation.</response>
+    [HttpPost("generate")]
+    [ProducesResponseType(typeof(GenerateServiceRemindersResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Authorize(Policy = "AllRoles")]
+    public async Task<ActionResult<GenerateServiceRemindersResponse>> GenerateServiceReminders(
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            _logger.LogInformation($"{nameof(GenerateServiceReminders)}() - Called");
+
+            var command = new GenerateServiceRemindersCommand();
+            var result = await _mediator.Send(command, cancellationToken);
+
+            if (result.Success)
+            {
+                _logger.LogInformation($"{nameof(GenerateServiceReminders)}() - Successfully generated {{GeneratedCount}} reminders", result.GeneratedCount);
+                return Ok(result);
+            }
+            else
+            {
+                _logger.LogError($"{nameof(GenerateServiceReminders)}() - Failed to generate reminders: {{ErrorMessage}}", result.ErrorMessage);
+                return StatusCode(StatusCodes.Status500InternalServerError, result);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"{nameof(GenerateServiceReminders)}() - Error occurred while generating service reminders");
             throw;
         }
     }
@@ -101,17 +142,17 @@ public sealed class ServiceRemindersController : ControllerBase
     {
         try
         {
-            _logger.LogInformation($"{nameof(AddServiceReminderToExistingWorkOrder)}() - Called for service reminder ID: {id}");
+            _logger.LogInformation($"{nameof(AddServiceReminderToExistingWorkOrder)}() - Called for reminder ID: {{ReminderId}}", id);
 
             if (id != command.ServiceReminderID) return BadRequest($"Route {nameof(id)} and body {nameof(command.ServiceReminderID)} mismatch");
             var result = await _mediator.Send(command with { ServiceReminderID = id }, cancellationToken);
 
-            _logger.LogInformation($"{nameof(AddServiceReminderToExistingWorkOrder)}() - Successfully linked service reminder {id} to work order {command.WorkOrderID}");
+            _logger.LogInformation($"{nameof(AddServiceReminderToExistingWorkOrder)}() - Successfully linked reminder {{ReminderId}} to work order {{WorkOrderId}}", id, result);
             return Ok(result);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"{nameof(AddServiceReminderToExistingWorkOrder)}() - Error occurred while linking service reminder {id} to work order {command.WorkOrderID}");
+            _logger.LogError(ex, $"{nameof(AddServiceReminderToExistingWorkOrder)}() - Error occurred while linking service reminder {{ReminderId}} to work order", id);
             throw;
         }
     }
