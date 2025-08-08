@@ -20,8 +20,11 @@ public class ServiceReminderConfiguration : IEntityTypeConfiguration<ServiceRemi
         builder.HasIndex(sr => sr.PriorityLevel);
 
         // Composite indexes for common queries
-        builder.HasIndex(sr => new { sr.VehicleID, sr.DueDate });
-        builder.HasIndex(sr => new { sr.Status, sr.DueDate });
+        builder.HasIndex(sr => new { sr.DueDate, sr.VehicleID });
+        builder.HasIndex(sr => new { sr.DueDate, sr.Status });
+        builder.HasIndex(sr => new { sr.DueMileage, sr.VehicleID });
+        builder.HasIndex(sr => new { sr.DueMileage, sr.Status });
+        builder.HasIndex(sr => new { sr.DueDate, sr.DueMileage, sr.VehicleID, sr.Status });
 
         // Check Constraints
         builder.ToTable(t => t.HasCheckConstraint("CK_ServiceReminder_DueMileage", "DueMileage >= 0"));
