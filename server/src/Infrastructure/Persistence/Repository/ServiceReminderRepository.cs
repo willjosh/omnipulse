@@ -35,6 +35,29 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
     }
 
     /// <summary>
+    /// Cancel future auto-generated reminders for a schedule. Affects only UPCOMING/DUE_SOON without WorkOrder.
+    /// </summary>
+    public async Task<int> CancelFutureRemindersForScheduleAsync(int serviceScheduleId)
+    {
+        var targetStatuses = new[] { ServiceReminderStatusEnum.UPCOMING, ServiceReminderStatusEnum.DUE_SOON };
+
+        var reminders = await _dbSet
+            .Where(sr => sr.ServiceScheduleID == serviceScheduleId)
+            .Where(sr => sr.WorkOrderID == null)
+            .Where(sr => targetStatuses.Contains(sr.Status))
+            .ToListAsync();
+
+        foreach (var reminder in reminders)
+        {
+            reminder.Status = ServiceReminderStatusEnum.CANCELLED;
+            reminder.UpdatedAt = DateTime.UtcNow;
+        }
+
+        await _dbContext.SaveChangesAsync();
+        return reminders.Count;
+    }
+
+    /// <summary>
     /// Sync calculated reminders to database for persistence
     /// </summary>
     public async Task SyncRemindersAsync(List<ServiceReminderDTO> calculatedReminders)
