@@ -62,10 +62,47 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
     /// </summary>
     public async Task SyncRemindersAsync(List<ServiceReminderDTO> calculatedReminders)
     {
+        // Validate: ensure at most one UPCOMING per vehicle-schedule pair
+        var upcomingGroups = calculatedReminders
+            .Where(r => r.Status == ServiceReminderStatusEnum.UPCOMING)
+            .GroupBy(r => new { r.VehicleID, r.ServiceScheduleID })
+            .Where(g => g.Count() > 1);
+
+        if (upcomingGroups.Any())
+        {
+            var firstGroup = upcomingGroups.First();
+            throw new InvalidOperationException(
+                $"Multiple UPCOMING reminders for VehicleID {firstGroup.Key.VehicleID}, " +
+                $"ServiceScheduleID {firstGroup.Key.ServiceScheduleID}. Only one is allowed.");
+        }
+
+        // BATCH 1: Get all existing reminders in one query
+        var existingReminders = await _dbSet
+            .Where(sr => calculatedReminders.Any(cr =>
+                sr.VehicleID == cr.VehicleID &&
+                sr.ServiceScheduleID == cr.ServiceScheduleID &&
+                sr.DueDate == cr.DueDate &&
+                sr.DueMileage == cr.DueMileage))
+            .ToListAsync();
+
+        // BATCH 2: Get all required vehicles and schedules in one query each
+        var vehicleIds = calculatedReminders.Select(cr => cr.VehicleID).Distinct().ToList();
+        var scheduleIds = calculatedReminders.Select(cr => cr.ServiceScheduleID).Distinct().ToList();
+
+        var vehicles = await _dbContext.Set<Vehicle>()
+            .Where(v => vehicleIds.Contains(v.ID))
+            .ToDictionaryAsync(v => v.ID);
+
+        var schedules = await _dbContext.Set<ServiceSchedule>()
+            .Where(s => scheduleIds.Contains(s.ID))
+            .ToDictionaryAsync(s => s.ID);
+
+        var remindersToAdd = new List<ServiceReminder>();
+        var remindersToUpdate = new List<ServiceReminder>();
+
         foreach (var calculated in calculatedReminders)
         {
-            // Find existing reminder with same key (Vehicle + Schedule + Due Date/Mileage)
-            var existing = await _dbSet.FirstOrDefaultAsync(sr =>
+            var existing = existingReminders.FirstOrDefault(sr =>
                 sr.VehicleID == calculated.VehicleID &&
                 sr.ServiceScheduleID == calculated.ServiceScheduleID &&
                 sr.DueDate == calculated.DueDate &&
@@ -73,13 +110,13 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
 
             if (existing == null)
             {
-                // CREATE: New reminder doesn't exist in database
-                // Load navigation properties for entity creation
-                var vehicle = await _dbContext.Set<Vehicle>().FindAsync(calculated.VehicleID);
-                var serviceSchedule = await _dbContext.Set<ServiceSchedule>().FindAsync(calculated.ServiceScheduleID);
+                if (!vehicles.TryGetValue(calculated.VehicleID, out var vehicle) ||
+                    !schedules.TryGetValue(calculated.ServiceScheduleID, out var serviceSchedule))
+                {
+                    continue;
+                }
 
-                if (vehicle == null || serviceSchedule == null) continue; // Skip if referenced entities don't exist
-
+                // CREATE: New reminder with minimal fields
                 var newReminder = new ServiceReminder
                 {
                     ID = 0, // Will be auto-generated
@@ -89,34 +126,31 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
                     Vehicle = vehicle,
                     ServiceScheduleID = calculated.ServiceScheduleID,
                     ServiceSchedule = serviceSchedule,
-                    ServiceProgramID = calculated.ServiceProgramID,
-                    ServiceScheduleName = calculated.ServiceScheduleName,
-                    ServiceProgramName = calculated.ServiceProgramName,
+                    WorkOrderID = calculated.WorkOrderID,
                     DueDate = calculated.DueDate,
                     DueMileage = calculated.DueMileage,
                     Status = calculated.Status,
-                    PriorityLevel = calculated.PriorityLevel,
-                    TimeIntervalValue = calculated.TimeIntervalValue,
-                    TimeIntervalUnit = calculated.TimeIntervalUnit,
-                    MileageInterval = calculated.MileageInterval,
-                    TimeBufferValue = calculated.TimeBufferValue,
-                    TimeBufferUnit = calculated.TimeBufferUnit,
-                    MileageBuffer = calculated.MileageBuffer,
-                    MeterVariance = calculated.MileageVariance
+                    CompletedDate = null,
+                    CancelReason = null
                 };
 
-                await _dbSet.AddAsync(newReminder);
+                remindersToAdd.Add(newReminder);
             }
             else if (existing.Status != ServiceReminderStatusEnum.COMPLETED)
             {
-                // UPDATE: Existing reminder (but preserve completed ones)
+                // UPDATE: Only update status (preserve completed ones)
                 existing.Status = calculated.Status;
-                existing.PriorityLevel = calculated.PriorityLevel;
-                existing.MeterVariance = calculated.MileageVariance;
-                // Don't update due dates - they're fixed when created
                 existing.UpdatedAt = DateTime.UtcNow;
+                remindersToUpdate.Add(existing);
             }
         }
+
+        // BATCH 3: Perform bulk operations
+        if (remindersToAdd.Count != 0)
+        {
+            await _dbSet.AddRangeAsync(remindersToAdd);
+        }
+        // EF Core tracks changes for remindersToUpdate automatically
 
         await _dbContext.SaveChangesAsync();
     }
@@ -125,9 +159,7 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
     {
         return await _dbSet
             .Include(sr => sr.Vehicle)
-            .Include(sr => sr.ServiceProgram)
             .Include(sr => sr.ServiceSchedule)
-
             .Include(sr => sr.WorkOrder)
             .FirstOrDefaultAsync(sr => sr.ID == serviceReminderId);
     }
@@ -182,19 +214,12 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
         var statusList = statuses.ToList();
         return await _dbSet
             .Include(sr => sr.Vehicle)
+            .Include(sr => sr.ServiceSchedule)
             .Where(sr => statusList.Contains(sr.Status))
             .ToListAsync();
     }
 
-    public async Task<IReadOnlyList<ServiceReminder>> GetRemindersByPriorityAsync(PriorityLevelEnum priority)
-    {
-        return await _dbSet
-            .Include(sr => sr.Vehicle)
-
-            .Where(sr => sr.PriorityLevel == priority)
-            .OrderBy(sr => sr.DueDate ?? DateTime.MaxValue)
-            .ToListAsync();
-    }
+    // Note: Priority is now calculated on demand from status, not stored in the entity
 
     // Query methods by service schedule
     public async Task<IReadOnlyList<ServiceReminder>> GetRemindersByServiceScheduleIdAsync(int serviceScheduleId)
@@ -286,7 +311,8 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
         // Include related data for MapEntitiesToDTOs method
         query = query
             .Include(sr => sr.Vehicle)
-            .Include(sr => sr.ServiceProgram)
+            .Include(sr => sr.ServiceSchedule)
+                .ThenInclude(ss => ss.ServiceProgram)
             .Include(sr => sr.ServiceSchedule)
                 .ThenInclude(ss => ss.XrefServiceScheduleServiceTasks)
                 .ThenInclude(xsst => xsst.ServiceTask)
@@ -320,8 +346,8 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
         string searchPattern = $"%{searchText.Trim().ToLowerInvariant()}%";
 
         return query.Where(sr =>
-            EF.Functions.Like(sr.ServiceScheduleName, searchPattern) ||
-            EF.Functions.Like(sr.ServiceProgramName ?? string.Empty, searchPattern) ||
+            EF.Functions.Like(sr.ServiceSchedule.Name, searchPattern) ||
+            EF.Functions.Like(sr.ServiceSchedule.ServiceProgram.Name ?? string.Empty, searchPattern) ||
             EF.Functions.Like(sr.Vehicle.Name, searchPattern) ||
             EF.Functions.Like(sr.Vehicle.Make, searchPattern) ||
             EF.Functions.Like(sr.Vehicle.Model, searchPattern) ||
@@ -346,11 +372,11 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
                 : query.OrderBy(sr => sr.Vehicle.Name),
 
             "serviceschedulename" => sortDescending
-                ? query.OrderByDescending(sr => sr.ServiceScheduleName)
-                : query.OrderBy(sr => sr.ServiceScheduleName),
+                ? query.OrderByDescending(sr => sr.ServiceSchedule.Name)
+                : query.OrderBy(sr => sr.ServiceSchedule.Name),
             "serviceprogramname" => sortDescending
-                ? query.OrderByDescending(sr => sr.ServiceProgramName)
-                : query.OrderBy(sr => sr.ServiceProgramName),
+                ? query.OrderByDescending(sr => sr.ServiceSchedule.ServiceProgram.Name)
+                : query.OrderBy(sr => sr.ServiceSchedule.ServiceProgram.Name),
             "duedate" => sortDescending
                 ? query.OrderByDescending(sr => sr.DueDate)
                 : query.OrderBy(sr => sr.DueDate),
@@ -360,9 +386,6 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
             "status" => sortDescending
                 ? query.OrderByDescending(sr => sr.Status)
                 : query.OrderBy(sr => sr.Status),
-            "prioritylevel" => sortDescending
-                ? query.OrderByDescending(sr => sr.PriorityLevel)
-                : query.OrderBy(sr => sr.PriorityLevel),
             "createdat" => sortDescending
                 ? query.OrderByDescending(sr => sr.CreatedAt)
                 : query.OrderBy(sr => sr.CreatedAt),

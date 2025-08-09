@@ -12,14 +12,39 @@ public class ServiceReminderMappingProfile : Profile
     {
         // ServiceReminder to ServiceReminderDTO mapping
         CreateMap<ServiceReminder, ServiceReminderDTO>(MemberList.Destination)
+            // Vehicle fields
             .ForMember(dest => dest.VehicleName, opt => opt.MapFrom(src => src.Vehicle != null ? src.Vehicle.Name : "Unknown"))
             .ForMember(dest => dest.CurrentMileage, opt => opt.MapFrom(src => src.Vehicle != null ? src.Vehicle.Mileage : 0))
-            .ForMember(dest => dest.MileageVariance, opt => opt.MapFrom(src => src.MeterVariance))
-            .ForMember(dest => dest.DaysUntilDue, opt => opt.MapFrom(src => src.DueDate.HasValue ? (int?)(src.DueDate.Value - DateTime.UtcNow).TotalDays : null))
+
+            // Service Program fields (from schedule navigation)
+            .ForMember(dest => dest.ServiceProgramID, opt => opt.MapFrom(src => src.ServiceSchedule != null ? src.ServiceSchedule.ServiceProgramID : (int?)null))
+            .ForMember(dest => dest.ServiceProgramName, opt => opt.MapFrom(src => src.ServiceSchedule != null && src.ServiceSchedule.ServiceProgram != null ? src.ServiceSchedule.ServiceProgram.Name : null))
+
+            // Schedule name
+            .ForMember(dest => dest.ServiceScheduleName, opt => opt.MapFrom(src => src.ServiceSchedule != null ? src.ServiceSchedule.Name : "Unknown"))
+
+            // Schedule configuration (from navigation property)
+            .ForMember(dest => dest.TimeIntervalValue, opt => opt.MapFrom(src => src.ServiceSchedule != null ? src.ServiceSchedule.TimeIntervalValue : null))
+            .ForMember(dest => dest.TimeIntervalUnit, opt => opt.MapFrom(src => src.ServiceSchedule != null ? src.ServiceSchedule.TimeIntervalUnit : null))
+            .ForMember(dest => dest.MileageInterval, opt => opt.MapFrom(src => src.ServiceSchedule != null ? src.ServiceSchedule.MileageInterval : null))
+            .ForMember(dest => dest.TimeBufferValue, opt => opt.MapFrom(src => src.ServiceSchedule != null ? src.ServiceSchedule.TimeBufferValue : null))
+            .ForMember(dest => dest.TimeBufferUnit, opt => opt.MapFrom(src => src.ServiceSchedule != null ? src.ServiceSchedule.TimeBufferUnit : null))
+            .ForMember(dest => dest.MileageBuffer, opt => opt.MapFrom(src => src.ServiceSchedule != null ? src.ServiceSchedule.MileageBuffer : null))
+
+            // Priority (calculate from status)
+            .ForMember(dest => dest.PriorityLevel, opt => opt.MapFrom(src => src.CalculatePriorityLevel()))
+
+            // Calculated fields
+            .ForMember(dest => dest.MileageVariance, opt => opt.MapFrom(src => src.Vehicle != null && src.DueMileage.HasValue ? src.Vehicle.Mileage - src.DueMileage : null))
+            .ForMember(dest => dest.DaysUntilDue, opt => opt.MapFrom(src => src.DaysUntilDue(DateTime.UtcNow)))
+
+            // Service tasks and aggregates
             .ForMember(dest => dest.ServiceTasks, opt => opt.MapFrom(src => MapServiceTasks(src.ServiceSchedule)))
             .ForMember(dest => dest.TotalEstimatedLabourHours, opt => opt.MapFrom(src => CalculateTotalLabourHours(src.ServiceSchedule)))
             .ForMember(dest => dest.TotalEstimatedCost, opt => opt.MapFrom(src => CalculateTotalCost(src.ServiceSchedule)))
             .ForMember(dest => dest.TaskCount, opt => opt.MapFrom(src => CalculateTaskCount(src.ServiceSchedule)))
+
+            // Other fields
             .ForMember(dest => dest.OccurrenceNumber, opt => opt.Ignore()) // Will be calculated in the handler
             .ForMember(dest => dest.ScheduleType, opt => opt.MapFrom(src => src.GetScheduleType()));
 

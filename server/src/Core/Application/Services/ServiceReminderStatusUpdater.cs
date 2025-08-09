@@ -27,6 +27,7 @@ public class ServiceReminderStatusUpdater : IServiceReminderStatusUpdater
     {
         _logger.LogDebug($"{nameof(UpdateAllReminderStatusesAsync)} - Starting service reminder {nameof(ServiceReminder.Status)} update");
 
+        // Get reminders with their schedule data included
         var activeReminders = await _serviceReminderRepository.GetRemindersByStatusesAsync(GetActiveStatuses());
         if (!activeReminders.Any())
         {
@@ -34,27 +35,31 @@ public class ServiceReminderStatusUpdater : IServiceReminderStatusUpdater
             return;
         }
 
-        var vehicleIds = activeReminders.Select(r => r.VehicleID).Distinct().ToList();
-        var vehicles = (await _vehicleRepository.GetByIdsAsync(vehicleIds)).ToDictionary(v => v.ID, v => v);
-
         var updatedCount = 0;
         var currentTime = DateTime.UtcNow;
 
         foreach (var reminder in activeReminders)
         {
-            if (!vehicles.TryGetValue(reminder.VehicleID, out var vehicle))
+            // Vehicle should already be loaded via include
+            if (reminder.Vehicle == null)
             {
-                _logger.LogWarning("Vehicle {VehicleId} not found for reminder {ReminderId}", reminder.VehicleID, reminder.ID);
+                _logger.LogWarning("Vehicle not loaded for reminder {ReminderId}", reminder.ID);
                 continue;
             }
 
-            var newStatus = reminder.DetermineServiceReminderStatus(vehicle.Mileage, currentTime);
+            // ServiceSchedule should already be loaded via include
+            if (reminder.ServiceSchedule == null)
+            {
+                _logger.LogWarning("ServiceSchedule not loaded for reminder {ReminderId}", reminder.ID);
+                continue;
+            }
+
+            var newStatus = reminder.DetermineServiceReminderStatus(reminder.Vehicle.Mileage, currentTime);
 
             if (reminder.Status != newStatus)
             {
                 var oldStatus = reminder.Status;
                 reminder.Status = newStatus;
-                reminder.PriorityLevel = reminder.CalculatePriorityLevel();
                 reminder.UpdatedAt = currentTime;
 
                 updatedCount++;
