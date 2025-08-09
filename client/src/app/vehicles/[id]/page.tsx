@@ -385,7 +385,7 @@ const VehicleDetailsPage = () => {
   };
 
   return (
-    <div className="min-h-screen max-w-7xl shadow border-b border-gray-200 bg-gray-50">
+    <div className="min-h-screen shadow border-b border-gray-200 bg-gray-50">
       <div className="bg-white">
         <div className="px-6 py-4">
           <div className="flex items-center space-x-4 mb-4">
@@ -448,7 +448,9 @@ const VehicleDetailsPage = () => {
             onTabChange={setActiveTab}
           />
         </div>
-        <div className="p-6">{renderTab()}</div>
+        <div className="flex justify-center bg-gray-50">
+          <div className="w-full max-w-7xl p-6">{renderTab()}</div>
+        </div>
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { DataTable, PaginationControls } from "@/components/ui/Table";
 import { OptionButton, PrimaryButton } from "@/components/ui/Button";
@@ -12,31 +12,50 @@ import {
   useDeactivateTechnician,
 } from "../hooks/useTechnicians";
 import { Technician } from "../types/technicianType";
+import { DEFAULT_PAGE_SIZE } from "@/components/ui/Table/constants";
 
 const TechnicianList: React.FC = () => {
   const router = useRouter();
   const [selectedTechnicians, setSelectedTechnicians] = useState<string[]>([]);
-  const [filters, setFilters] = useState({
-    PageNumber: 1,
-    PageSize: 10,
-    SortBy: "firstName",
-    SortDescending: false,
-    Search: "",
-  });
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+  const [sortBy, setSortBy] = useState("firstName");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
     technician?: Technician;
   }>({ isOpen: false });
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, sortBy, sortOrder]);
+
+  const filters = useMemo(
+    () => ({
+      PageNumber: page,
+      PageSize: pageSize,
+      SortBy: sortBy,
+      SortDescending: sortOrder === "desc",
+      Search: search,
+    }),
+    [page, pageSize, sortBy, sortOrder, search],
+  );
 
   const { technicians, pagination, isPending, isError } =
     useTechnicians(filters);
   const deactivateTechnicianMutation = useDeactivateTechnician();
 
   const handleSelectAll = () => {
-    if (selectedTechnicians.length === technicians.length) {
+    if (!technicians) return;
+    const allTechnicianIds = technicians.map(technician => technician.id);
+    const allSelected = allTechnicianIds.every(id =>
+      selectedTechnicians.includes(id),
+    );
+    if (allSelected) {
       setSelectedTechnicians([]);
     } else {
-      setSelectedTechnicians(technicians.map(t => t.id));
+      setSelectedTechnicians(allTechnicianIds);
     }
   };
 
@@ -49,27 +68,27 @@ const TechnicianList: React.FC = () => {
   };
 
   const handleSort = (sortKey: string) => {
-    setFilters(prev => ({
-      ...prev,
-      SortBy: sortKey,
-      SortDescending: prev.SortBy === sortKey ? !prev.SortDescending : false,
-    }));
+    if (sortBy === sortKey) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(sortKey);
+      setSortOrder("asc");
+    }
+    setPage(1);
   };
 
   const handleSearch = (searchTerm: string) => {
-    setFilters(prev => ({
-      ...prev,
-      Search: searchTerm,
-      PageNumber: 1, // Reset to first page when searching
-    }));
+    setSearch(searchTerm);
+    // Page reset is handled by useEffect
   };
 
   const handlePageChange = (newPage: number) => {
-    setFilters(prev => ({ ...prev, PageNumber: newPage }));
+    setPage(newPage);
   };
 
   const handlePageSizeChange = (newPageSize: number) => {
-    setFilters(prev => ({ ...prev, PageSize: newPageSize, PageNumber: 1 }));
+    setPageSize(newPageSize);
+    setPage(1);
   };
 
   const handleRowClick = (technician: Technician) => {
@@ -125,17 +144,17 @@ const TechnicianList: React.FC = () => {
     <div className="text-center py-8">
       <p className="text-gray-500 mb-2">No technicians found.</p>
       <button
-        onClick={() => handleSearch("")}
+        onClick={() => setSearch("")}
         className="text-blue-600 hover:text-blue-800 text-sm"
       >
-        Clear filters
+        Clear search
       </button>
     </div>
   );
 
   return (
     <div className="p-6 w-full max-w-none">
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-semibold text-gray-900">Technicians</h1>
         <div className="flex items-center gap-3">
           <OptionButton />
@@ -146,21 +165,23 @@ const TechnicianList: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-end justify-between mb-4">
         <FilterBar
-          searchValue={filters.Search}
+          searchValue={search}
           onSearchChange={handleSearch}
-          searchPlaceholder="Search technicians"
-          onFilterChange={() => console.log("Filter change")}
+          searchPlaceholder="Search technicians..."
+          onFilterChange={() => {}}
         />
 
         <PaginationControls
-          currentPage={filters.PageNumber}
+          currentPage={page}
           totalPages={pagination?.totalPages || 0}
           totalItems={pagination?.totalCount || 0}
-          itemsPerPage={filters.PageSize}
-          onNextPage={() => handlePageChange(filters.PageNumber + 1)}
-          onPreviousPage={() => handlePageChange(filters.PageNumber - 1)}
+          itemsPerPage={pageSize}
+          onNextPage={() => handlePageChange(page + 1)}
+          onPreviousPage={() => handlePageChange(page - 1)}
+          onPageChange={setPage}
+          onPageSizeChange={handlePageSizeChange}
         />
       </div>
 
@@ -172,8 +193,8 @@ const TechnicianList: React.FC = () => {
         onSelectAll={handleSelectAll}
         onRowClick={handleRowClick}
         onSort={handleSort}
-        sortBy={filters.SortBy}
-        sortOrder={filters.SortDescending ? "desc" : "asc"}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
         actions={getTechnicianActions}
         showActions={true}
         fixedLayout={false}

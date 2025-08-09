@@ -211,66 +211,72 @@ const TechnicianProfilePage = () => {
   };
 
   return (
-    <div className="min-h-screen max-w-7xl mx-auto bg-gray-50">
-      <div className="bg-white border-b border-gray-200 px-8 py-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
+    <div className="min-h-screen shadow border-b border-gray-200 bg-gray-50">
+      <div className="bg-white">
+        <div className="px-6 py-4">
+          <div className="flex items-center space-x-4 mb-4">
             <button
               onClick={handleBack}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="flex items-center text-gray-600 hover:text-gray-900"
             >
-              <ArrowLeft size={20} className="text-gray-600" />
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              <span className="text-sm">Technicians</span>
             </button>
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 rounded-full text-primary flex items-center justify-center text-white font-semibold text-lg">
+          </div>
+          <div className="flex items-start justify-between">
+            <div className="flex items-start space-x-4">
+              <div className="w-22 h-22 bg-primary rounded-3xl flex items-center justify-center text-white font-semibold text-lg">
                 {getInitials(technician.firstName, technician.lastName)}
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">
+                <h1 className="text-2xl font-bold text-gray-900 mb-1">
                   {`${technician.firstName} ${technician.lastName}`}
                 </h1>
-                <div className="flex items-center space-x-4 text-sm text-gray-500">
-                  <span className="flex items-center">
-                    <Mail size={14} className="mr-1" />
-                    {technician.email}
-                  </span>
-                  <span className="flex items-center">
-                    <Calendar size={14} className="mr-1" />
-                    Hired {formatDate(technician.hireDate)}
-                  </span>
+                <p className="text-gray-600 mb-2">
+                  {technician.email} • Hired {formatDate(technician.hireDate)}
+                </p>
+                <div className="flex items-center space-x-4 text-sm">
                   <span
-                    className={`flex items-center ${technician.isActive ? "text-green-600" : "text-red-600"}`}
+                    className={`flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                      technician.isActive
+                        ? "bg-green-100 text-green-800"
+                        : "bg-red-100 text-red-800"
+                    }`}
                   >
                     <div
-                      className={`w-2 h-2 rounded-full mr-1 ${
+                      className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
                         technician.isActive ? "bg-green-500" : "bg-red-500"
                       }`}
                     ></div>
                     {technician.isActive ? "Active" : "Inactive"}
                   </span>
+                  <span className="text-gray-600">
+                    {getYearsOfService(technician.hireDate)} years of service
+                  </span>
+                  <span className="text-gray-600">Maintenance</span>
+                  <span className="text-gray-500">Technician</span>
                 </div>
               </div>
             </div>
-          </div>
-          <div className="flex items-center space-x-3">
-            <PrimaryButton onClick={handleEdit} className="flex items-center">
-              <Edit size={16} className="mr-2" />
-              Edit Technician
-            </PrimaryButton>
+            <div className="flex items-center space-x-3">
+              <PrimaryButton onClick={handleEdit}>
+                <Edit className="w-4 h-4 mr-2" />
+                Edit Technician
+              </PrimaryButton>
+            </div>
           </div>
         </div>
-
-        <div className="mt-6">
+        <div className="w-full px-6">
           <TabNavigation
             tabs={tabs}
             activeTab={activeTab}
             onTabChange={setActiveTab}
           />
         </div>
+        <div className="flex justify-center bg-gray-50">
+          <div className="w-full max-w-7xl p-6">{renderTab()}</div>
+        </div>
       </div>
-
-      {/* Only details is rendered */}
-      <div className="px-8 py-6">{renderTab()}</div>
     </div>
   );
 };
