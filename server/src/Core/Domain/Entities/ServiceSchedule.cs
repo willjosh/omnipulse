@@ -26,6 +26,7 @@ namespace Domain.Entities;
 ///     </list>
 ///   </item>
 ///   <item>The schedule can be activated or deactivated using the <see cref="IsActive"/> flag. Inactive schedules are ignored when calculating upcoming service reminders.</item>
+///   <item>Soft deletion is supported via <see cref="IsSoftDeleted"/>. Soft-deleted schedules are excluded from queries and generation.</item>
 /// </list>
 /// </remarks>
 public class ServiceSchedule : BaseEntity
@@ -41,6 +42,7 @@ public class ServiceSchedule : BaseEntity
     public DateTime? FirstServiceDate { get; set; } // Absolute date for first service - requires TimeIntervalValue and TimeIntervalUnit if set
     public int? FirstServiceMileage { get; set; } // Absolute mileage for first service - requires MileageInterval if set
     public required bool IsActive { get; set; } = true;
+    public bool IsSoftDeleted { get; set; } = false;
 
     // Navigation Properties
     public required ICollection<XrefServiceScheduleServiceTask> XrefServiceScheduleServiceTasks { get; set; } = [];

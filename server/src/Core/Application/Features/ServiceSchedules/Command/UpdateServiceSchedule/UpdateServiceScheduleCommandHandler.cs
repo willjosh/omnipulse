@@ -1,6 +1,7 @@
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
+using Application.Features.ServiceReminders.Command.GenerateServiceReminders;
 
 using AutoMapper;
 
@@ -17,6 +18,8 @@ public sealed class UpdateServiceScheduleCommandHandler : IRequestHandler<Update
     private readonly IServiceScheduleRepository _serviceScheduleRepository;
     private readonly IServiceProgramRepository _serviceProgramRepository;
     private readonly IXrefServiceScheduleServiceTaskRepository _xrefServiceScheduleServiceTaskRepository;
+    private readonly IServiceReminderRepository _serviceReminderRepository;
+    private readonly ISender _sender;
     private readonly IValidator<UpdateServiceScheduleCommand> _validator;
     private readonly IAppLogger<UpdateServiceScheduleCommandHandler> _logger;
     private readonly IMapper _mapper;
@@ -25,6 +28,8 @@ public sealed class UpdateServiceScheduleCommandHandler : IRequestHandler<Update
         IServiceScheduleRepository serviceScheduleRepository,
         IServiceProgramRepository serviceProgramRepository,
         IXrefServiceScheduleServiceTaskRepository xrefServiceScheduleServiceTaskRepository,
+        IServiceReminderRepository serviceReminderRepository,
+        ISender sender,
         IValidator<UpdateServiceScheduleCommand> validator,
         IAppLogger<UpdateServiceScheduleCommandHandler> logger,
         IMapper mapper)
@@ -32,6 +37,8 @@ public sealed class UpdateServiceScheduleCommandHandler : IRequestHandler<Update
         _serviceScheduleRepository = serviceScheduleRepository;
         _serviceProgramRepository = serviceProgramRepository;
         _xrefServiceScheduleServiceTaskRepository = xrefServiceScheduleServiceTaskRepository;
+        _serviceReminderRepository = serviceReminderRepository;
+        _sender = sender;
         _validator = validator;
         _logger = logger;
         _mapper = mapper;
@@ -68,10 +75,8 @@ public sealed class UpdateServiceScheduleCommandHandler : IRequestHandler<Update
         // Map request to existing entity (updates properties)
         _mapper.Map(request, existingSchedule);
 
-        // Remove all existing xrefs for this schedule
+        // Replace all xrefs for this schedule
         await _xrefServiceScheduleServiceTaskRepository.RemoveAllForScheduleAsync(existingSchedule.ID);
-
-        // Add new xrefs for the provided ServiceTaskIDs
         var newXrefs = request.ServiceTaskIDs
             .Select(serviceTaskID => new XrefServiceScheduleServiceTask
             {
@@ -83,11 +88,20 @@ public sealed class UpdateServiceScheduleCommandHandler : IRequestHandler<Update
             .ToList();
         await _xrefServiceScheduleServiceTaskRepository.AddRangeAsync(newXrefs);
 
-        // Update entity
+        // Persist schedule changes
         _serviceScheduleRepository.Update(existingSchedule);
         await _serviceScheduleRepository.SaveChangesAsync();
 
         _logger.LogInformation($"Service schedule '{existingSchedule.Name}' updated successfully with ID: {existingSchedule.ID}");
+
+        // Business Rules after update:
+        // - Affect only future reminders: cancel UPCOMING/DUE_SOON without WorkOrder
+        var cancelledCount = await _serviceReminderRepository.CancelFutureRemindersForScheduleAsync(existingSchedule.ID);
+        _logger.LogInformation("Cancelled {Count} future reminders for schedule {ScheduleID}", cancelledCount, existingSchedule.ID);
+
+        // - Regenerate reminders for all affected vehicles from updated schedule
+        await _sender.Send(new GenerateServiceRemindersCommand(), cancellationToken);
+
         return existingSchedule.ID;
     }
 }

@@ -63,6 +63,8 @@ public sealed class ServiceRemindersController : ControllerBase
         {
             _logger.LogInformation($"{nameof(GetAllServiceReminders)}() - Called with parameters: {{@Parameters}}", parameters);
 
+            await _mediator.Send(new GenerateServiceRemindersCommand(), cancellationToken);
+
             var query = new GetAllServiceRemindersQuery(parameters);
             var result = await _mediator.Send(query, cancellationToken);
 

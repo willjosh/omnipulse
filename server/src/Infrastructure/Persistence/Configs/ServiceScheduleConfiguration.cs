@@ -23,6 +23,10 @@ public class ServiceScheduleConfiguration : IEntityTypeConfiguration<ServiceSche
         builder.HasIndex(ss => ss.ServiceProgramID);
         builder.HasIndex(ss => ss.IsActive);
         builder.HasIndex(ss => ss.Name);
+        builder.HasIndex(ss => ss.IsSoftDeleted);
+
+        // Global Query Filter: exclude soft-deleted schedules
+        builder.HasQueryFilter(ss => !ss.IsSoftDeleted);
 
         // Composite indexes for common queries
         builder.HasIndex(ss => new { ss.ServiceProgramID, ss.IsActive });
@@ -45,7 +49,6 @@ public class ServiceScheduleConfiguration : IEntityTypeConfiguration<ServiceSche
 
         // XOR Constraint: Exactly one of time-based OR mileage-based must be configured
         builder.ToTable(t => t.HasCheckConstraint("CK_ServiceSchedule_XOR_Constraint",
-            "(TimeIntervalValue IS NOT NULL AND TimeIntervalUnit IS NOT NULL AND MileageInterval IS NULL) OR " +
             "(TimeIntervalValue IS NULL AND TimeIntervalUnit IS NULL AND MileageInterval IS NOT NULL)"));
 
         // Table Relationships

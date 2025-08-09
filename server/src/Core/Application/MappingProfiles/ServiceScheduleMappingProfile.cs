@@ -18,6 +18,7 @@ public class ServiceScheduleMappingProfile : Profile
             .ForMember(dest => dest.ID, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+            .ForMember(dest => dest.IsSoftDeleted, opt => opt.Ignore())
             .ForMember(dest => dest.XrefServiceScheduleServiceTasks, opt => opt.Ignore())
             .ForMember(dest => dest.ServiceProgram, opt => opt.Ignore());
 
@@ -26,6 +27,7 @@ public class ServiceScheduleMappingProfile : Profile
             .ForMember(dest => dest.ID, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+            .ForMember(dest => dest.IsSoftDeleted, opt => opt.Ignore())
             .ForMember(dest => dest.XrefServiceScheduleServiceTasks, opt => opt.Ignore())
             .ForMember(dest => dest.ServiceProgram, opt => opt.Ignore());
 
