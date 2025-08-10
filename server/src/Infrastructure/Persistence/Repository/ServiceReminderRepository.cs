@@ -35,26 +35,19 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
     }
 
     /// <summary>
-    /// Cancel future auto-generated reminders for a schedule. Affects only UPCOMING/DUE_SOON without WorkOrder.
+    /// Hard delete non-final reminders for a schedule (any status that is not COMPLETED or CANCELLED),
+    /// excluding reminders linked to a WorkOrder.
     /// </summary>
-    public async Task<int> CancelFutureRemindersForScheduleAsync(int serviceScheduleId)
+    public async Task<int> DeleteNonFinalRemindersForScheduleAsync(int scheduleId, CancellationToken cancellationToken = default)
     {
-        var targetStatuses = new[] { ServiceReminderStatusEnum.UPCOMING, ServiceReminderStatusEnum.DUE_SOON };
+        // Delete non-final reminders. Exclude WorkOrder-linked.
+        var rows = await _dbSet
+            .Where(sr => sr.ServiceScheduleID == scheduleId &&
+                         sr.WorkOrderID == null &&
+                         !ServiceReminderExtensions.FinalStatuses.Contains(sr.Status))
+            .ExecuteDeleteAsync(cancellationToken);
 
-        var reminders = await _dbSet
-            .Where(sr => sr.ServiceScheduleID == serviceScheduleId)
-            .Where(sr => sr.WorkOrderID == null)
-            .Where(sr => targetStatuses.Contains(sr.Status))
-            .ToListAsync();
-
-        foreach (var reminder in reminders)
-        {
-            reminder.Status = ServiceReminderStatusEnum.CANCELLED;
-            reminder.UpdatedAt = DateTime.UtcNow;
-        }
-
-        await _dbContext.SaveChangesAsync();
-        return reminders.Count;
+        return rows;
     }
 
     /// <summary>
@@ -76,19 +69,15 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
                 $"ServiceScheduleID {firstGroup.Key.ServiceScheduleID}. Only one is allowed.");
         }
 
-        // BATCH 1: Get all existing reminders in one query
-        var existingReminders = await _dbSet
-            .Where(sr => calculatedReminders.Any(cr =>
-                sr.VehicleID == cr.VehicleID &&
-                sr.ServiceScheduleID == cr.ServiceScheduleID &&
-                sr.DueDate == cr.DueDate &&
-                sr.DueMileage == cr.DueMileage))
-            .ToListAsync();
-
-        // BATCH 2: Get all required vehicles and schedules in one query each
+        // BATCH 1: Get potential existing reminders by vehicle and schedule
         var vehicleIds = calculatedReminders.Select(cr => cr.VehicleID).Distinct().ToList();
         var scheduleIds = calculatedReminders.Select(cr => cr.ServiceScheduleID).Distinct().ToList();
 
+        var potentialReminders = await _dbSet
+            .Where(sr => vehicleIds.Contains(sr.VehicleID) && scheduleIds.Contains(sr.ServiceScheduleID))
+            .ToListAsync();
+
+        // BATCH 2: Get all required vehicles and schedules
         var vehicles = await _dbContext.Set<Vehicle>()
             .Where(v => vehicleIds.Contains(v.ID))
             .ToDictionaryAsync(v => v.ID);
@@ -102,7 +91,8 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
 
         foreach (var calculated in calculatedReminders)
         {
-            var existing = existingReminders.FirstOrDefault(sr =>
+            // Find existing in memory
+            var existing = potentialReminders.FirstOrDefault(sr =>
                 sr.VehicleID == calculated.VehicleID &&
                 sr.ServiceScheduleID == calculated.ServiceScheduleID &&
                 sr.DueDate == calculated.DueDate &&

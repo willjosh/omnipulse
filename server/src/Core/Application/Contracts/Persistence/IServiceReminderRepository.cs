@@ -49,12 +49,8 @@ public interface IServiceReminderRepository : IGenericRepository<ServiceReminder
 
     public Task<IReadOnlyList<ServiceReminder>> GetServiceRemindersByWorkOrderIdAsync(int workOrderId);
 
-    // Cancellation/update helpers
     /// <summary>
-    /// Cancels future auto-generated reminders for a schedule by setting Status to CANCELLED for reminders
-    /// with status UPCOMING or DUE_SOON and no linked WorkOrder.
+    /// Delete non-final reminders for a schedule (any status not COMPLETED or CANCELLED), excluding WorkOrder-linked reminders.
     /// </summary>
-    /// <param name="serviceScheduleId">Target schedule ID.</param>
-    /// <returns>The number of reminders updated.</returns>
-    Task<int> CancelFutureRemindersForScheduleAsync(int serviceScheduleId);
+    Task<int> DeleteNonFinalRemindersForScheduleAsync(int scheduleId, CancellationToken cancellationToken = default);
 }
