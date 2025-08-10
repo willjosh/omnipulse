@@ -50,12 +50,6 @@ export default function ServiceProgramsPage() {
       width: "260px",
     },
     {
-      key: "isActive",
-      header: "Active",
-      render: (item: ServiceProgram) => (item.isActive ? "Yes" : "No"),
-      width: "80px",
-    },
-    {
       key: "serviceScheduleCount",
       header: "# Schedules",
       render: (item: ServiceProgram) => item.serviceScheduleCount,
@@ -65,13 +59,6 @@ export default function ServiceProgramsPage() {
       key: "assignedVehicleCount",
       header: "# Vehicles",
       render: (item: ServiceProgram) => item.assignedVehicleCount,
-      width: "120px",
-    },
-    {
-      key: "createdAt",
-      header: "Created",
-      render: (item: ServiceProgram) =>
-        new Date(item.createdAt).toLocaleDateString(),
       width: "120px",
     },
     {

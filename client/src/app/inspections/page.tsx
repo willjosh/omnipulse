@@ -158,14 +158,6 @@ export default function InspectionListPage() {
           <span className="text-sm text-gray-400">-</span>
         ),
     },
-    {
-      key: "createdAt",
-      header: "Created",
-      sortable: true,
-      width: "120px",
-      render: (item: InspectionWithLabels) =>
-        new Date(item.createdAt).toLocaleDateString(),
-    },
   ];
 
   const handleRowClick = (row: InspectionWithLabels) => {

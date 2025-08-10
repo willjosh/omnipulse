@@ -53,13 +53,6 @@ export default function ServiceScheduleListPage() {
             : "-",
       width: "140px",
     },
-    {
-      key: "isActive",
-      header: "Active",
-      render: (item: ServiceScheduleWithLabels) =>
-        item.isActive ? "Yes" : "No",
-      width: "80px",
-    },
   ];
 
   const handleRowClick = (row: ServiceScheduleWithLabels) => {

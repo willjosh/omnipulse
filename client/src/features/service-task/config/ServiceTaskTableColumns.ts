@@ -4,5 +4,4 @@ export const serviceTaskTableColumns = [
   { key: "estimatedLabourHours", header: "Est. Labour Hours", width: "200px" },
   { key: "estimatedCost", header: "Est. Cost" },
   { key: "categoryLabel", header: "Category" },
-  { key: "isActive", header: "Active" },
 ];

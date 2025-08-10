@@ -59,27 +59,6 @@ export default function InspectionFormsPage() {
       ),
     },
     {
-      key: "isActive",
-      header: "Status",
-      sortable: true,
-      width: "100px",
-      render: (item: InspectionForm) => (
-        <div className="flex items-center gap-2">
-          {item.isActive ? (
-            <div className="flex items-center gap-1 text-green-600">
-              <CheckCircle size={16} />
-              <span className="text-sm font-medium">Active</span>
-            </div>
-          ) : (
-            <div className="flex items-center gap-1 text-red-600">
-              <XCircle size={16} />
-              <span className="text-sm font-medium">Inactive</span>
-            </div>
-          )}
-        </div>
-      ),
-    },
-    {
       key: "inspectionFormItemCount",
       header: "Checklist Items",
       sortable: true,
@@ -104,14 +83,6 @@ export default function InspectionFormsPage() {
           </span>
         </div>
       ),
-    },
-    {
-      key: "createdAt",
-      header: "Created",
-      sortable: true,
-      width: "120px",
-      render: (item: InspectionForm) =>
-        new Date(item.createdAt).toLocaleDateString(),
     },
     {
       key: "updatedAt",
