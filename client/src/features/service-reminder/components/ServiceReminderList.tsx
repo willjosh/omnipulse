@@ -3,6 +3,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { DataTable, PaginationControls } from "@/components/ui/Table";
 import { FilterBar } from "@/components/ui/Filter";
+import { formatEmptyValueWithUnknown } from "@/utils/emptyValueUtils";
 import { OptionButton } from "@/components/ui/Button";
 import { ConfirmModal } from "@/components/ui/Modal";
 import ModalPortal from "@/components/ui/Modal/ModalPortal";
@@ -105,7 +106,7 @@ const ServiceReminderList: React.FC = () => {
           <div className="font-medium">{reminder.serviceScheduleName}</div>
           {reminder.serviceProgramName && (
             <div className="text-sm text-gray-500">
-              {reminder.serviceProgramName}
+              {formatEmptyValueWithUnknown(reminder.serviceProgramName)}
             </div>
           )}
         </div>
@@ -147,7 +148,9 @@ const ServiceReminderList: React.FC = () => {
               {new Date(reminder.dueDate).toLocaleDateString()}
             </div>
           ) : (
-            <div className="text-gray-400">-</div>
+            <div className="text-gray-400">
+              {formatEmptyValueWithUnknown(reminder.dueDate)}
+            </div>
           )}
           {reminder.daysUntilDue !== null &&
             reminder.daysUntilDue !== undefined && (
@@ -181,7 +184,9 @@ const ServiceReminderList: React.FC = () => {
               {reminder.dueMileage.toLocaleString()} km
             </div>
           ) : (
-            <div className="text-gray-400">-</div>
+            <div className="text-gray-400">
+              {formatEmptyValueWithUnknown(reminder.dueMileage)}
+            </div>
           )}
           {reminder.mileageVariance !== null &&
             reminder.mileageVariance !== undefined && (

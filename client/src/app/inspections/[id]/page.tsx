@@ -8,6 +8,7 @@ import SecondaryButton from "@/components/ui/Button/SecondaryButton";
 import FormContainer from "@/components/ui/Form/FormContainer";
 import DetailFieldRow from "@/components/ui/Detail/DetailFieldRow";
 import { format } from "date-fns";
+import { formatEmptyValueWithUnknown } from "@/utils/emptyValueUtils";
 
 export default function InspectionDetailsPage() {
   const params = useParams();
@@ -110,14 +111,16 @@ export default function InspectionDetailsPage() {
 
               <DetailFieldRow
                 label="Form Title"
-                value={inspection.snapshotFormTitle}
+                value={formatEmptyValueWithUnknown(
+                  inspection.snapshotFormTitle,
+                )}
               />
-              {inspection.snapshotFormDescription && (
-                <DetailFieldRow
-                  label="Form Description"
-                  value={inspection.snapshotFormDescription}
-                />
-              )}
+              <DetailFieldRow
+                label="Form Description"
+                value={formatEmptyValueWithUnknown(
+                  inspection.snapshotFormDescription,
+                )}
+              />
               <DetailFieldRow
                 label="Started"
                 value={formatDateTime(inspection.inspectionStartTime)}
@@ -152,28 +155,30 @@ export default function InspectionDetailsPage() {
                       href={`/users/${inspection.technicianID}`}
                       className="text-blue-600 hover:text-blue-800 underline text-sm"
                     >
-                      {inspection.technicianName || "Unknown User"}
+                      {formatEmptyValueWithUnknown(inspection.technicianName)}
                     </a>
                   </div>
                 }
               />
-              {inspection.odometerReading && (
-                <DetailFieldRow
-                  label="Odometer Reading"
-                  value={`${inspection.odometerReading.toLocaleString()} km`}
-                />
-              )}
+              <DetailFieldRow
+                label="Odometer Reading"
+                value={formatEmptyValueWithUnknown(
+                  inspection.odometerReading
+                    ? `${inspection.odometerReading.toLocaleString()} km`
+                    : null,
+                )}
+              />
               <DetailFieldRow
                 label="Vehicle Condition"
-                value={inspection.vehicleConditionLabel}
+                value={formatEmptyValueWithUnknown(
+                  inspection.vehicleConditionLabel,
+                )}
               />
-              {inspection.notes && (
-                <DetailFieldRow
-                  label="Notes"
-                  value={inspection.notes}
-                  noBorder
-                />
-              )}
+              <DetailFieldRow
+                label="Notes"
+                value={formatEmptyValueWithUnknown(inspection.notes)}
+                noBorder
+              />
             </FormContainer>
           </div>
 
@@ -238,7 +243,7 @@ export default function InspectionDetailsPage() {
         {/* Footer */}
         <div className="mt-8 text-center">
           <p className="text-xs text-gray-500">
-            Created by {inspection.technicianName || "Unknown User"}{" "}
+            Created by {formatEmptyValueWithUnknown(inspection.technicianName)}{" "}
             {format(new Date(inspection.createdAt), "MMM dd, yyyy 'at' h:mma")}
           </p>
         </div>

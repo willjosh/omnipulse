@@ -151,7 +151,9 @@ function DataTable<T>({
                         <div className="truncate">
                           {column.render
                             ? column.render(item)
-                            : String((item as any)[column.key] || "")}
+                            : (item as any)[column.key] || (
+                                <span className="text-gray-400">—</span>
+                              )}
                         </div>
                       </td>
                     ))}

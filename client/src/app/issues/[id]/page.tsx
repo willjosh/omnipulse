@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Edit, ArrowLeft, Trash2 } from "lucide-react";
+import { Edit, Trash2 } from "lucide-react";
 import StatusBadge from "@/components/ui/Feedback/StatusBadge";
 import LoadingSpinner from "@/components/ui/Feedback/LoadingSpinner";
 import EmptyState from "@/components/ui/Feedback/EmptyState";
@@ -9,6 +9,9 @@ import DetailFieldRow from "@/components/ui/Detail/DetailFieldRow";
 import { useIssue } from "@/features/issue/hooks/useIssues";
 import { getTimeToResolve } from "@/features/issue/utils/issueEnumHelper";
 import { useDeleteIssue } from "@/features/issue/hooks/useIssues";
+import IssueHeader from "@/features/issue/components/IssueHeader";
+import { BreadcrumbItem } from "@/components/ui/Layout/Breadcrumbs";
+import { formatEmptyValueWithUnknown } from "@/utils/emptyValueUtils";
 
 const IssueDetailsPage = () => {
   const params = useParams();
@@ -48,13 +51,11 @@ const IssueDetailsPage = () => {
     );
   }
 
-  const handleBack = () => {
-    router.push("/issues");
-  };
-
   const handleEdit = () => {
     router.push(`/issues/${issue.id}/edit`);
   };
+
+  const breadcrumbs: BreadcrumbItem[] = [{ label: "Issues", href: "/issues" }];
 
   const handleDelete = () => {
     if (
@@ -72,56 +73,29 @@ const IssueDetailsPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="bg-white">
-        <div className="px-6 py-4">
-          <div className="flex items-center space-x-4 mb-4">
+      <IssueHeader
+        title={issue.title}
+        breadcrumbs={breadcrumbs}
+        actions={
+          <>
             <button
-              onClick={handleBack}
-              className="flex items-center text-gray-600 hover:text-gray-900"
+              onClick={handleEdit}
+              className="inline-flex items-center px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
             >
-              <ArrowLeft className="w-4 h-4 mr-1" />
-              <span className="text-sm">Issues</span>
+              <Edit className="w-4 h-4 mr-2" />
+              Edit
             </button>
-          </div>
-          <div className="flex items-start justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-1">
-                {issue.title}
-              </h1>
-              <p className="text-gray-600 mb-2">
-                {issue.vehicleName} • {issue.categoryLabel} •{" "}
-                {issue.priorityLevelLabel}
-              </p>
-              <div className="flex items-center space-x-4 text-sm">
-                <StatusBadge status={issue.statusLabel} />
-                <span className="text-gray-600">
-                  Reported by {issue.reportedByUserName}
-                </span>
-                <span className="text-gray-600">
-                  {issue.reportedDate ? issue.reportedDate : "Unknown"}
-                </span>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              <button
-                onClick={handleEdit}
-                className="inline-flex items-center px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
-              >
-                <Edit className="w-4 h-4 mr-2" />
-                Edit
-              </button>
-              <button
-                onClick={handleDelete}
-                className="inline-flex items-center px-4 py-2 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition"
-                disabled={isDeleting}
-              >
-                <Trash2 className="w-4 h-4 mr-2" />
-                {isDeleting ? "Deleting..." : "Delete"}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+            <button
+              onClick={handleDelete}
+              className="inline-flex items-center px-4 py-2 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition"
+              disabled={isDeleting}
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              {isDeleting ? "Deleting..." : "Delete"}
+            </button>
+          </>
+        }
+      />
 
       <div className="px-6 mt-4 mb-8">
         <div className="flex flex-col md:flex-row md:gap-6">
@@ -132,6 +106,10 @@ const IssueDetailsPage = () => {
                 <h2 className="text-lg font-semibold text-gray-900">Details</h2>
               </div>
               <div className="p-3 space-y-2">
+                <DetailFieldRow
+                  label="Description"
+                  value={formatEmptyValueWithUnknown(issue.description)}
+                />
                 <DetailFieldRow
                   label="Status"
                   value={<StatusBadge status={issue.statusLabel} />}
@@ -150,26 +128,12 @@ const IssueDetailsPage = () => {
                   }
                 />
                 <DetailFieldRow
-                  label="Assigned To"
-                  value={issue.resolvedByUserName || "Unassigned"}
-                />
-                <DetailFieldRow
                   label="Reported By"
                   value={issue.reportedByUserName}
                 />
                 <DetailFieldRow
                   label="Reported Date"
-                  value={issue.reportedDate ? issue.reportedDate : "Unknown"}
-                />
-                <DetailFieldRow
-                  label="Description"
-                  value={
-                    issue.description || (
-                      <span className="text-gray-400">
-                        No description provided.
-                      </span>
-                    )
-                  }
+                  value={formatEmptyValueWithUnknown(issue.reportedDate)}
                 />
               </div>
             </div>
@@ -186,24 +150,17 @@ const IssueDetailsPage = () => {
               <div className="p-3 space-y-2">
                 <DetailFieldRow
                   label="Resolved Date"
-                  value={issue.resolvedDate ? issue.resolvedDate : "Unknown"}
+                  value={formatEmptyValueWithUnknown(issue.resolvedDate)}
                 />
                 <DetailFieldRow
                   label="Time to Resolve"
-                  value={getTimeToResolve(
-                    issue.reportedDate,
-                    issue.resolvedDate,
+                  value={formatEmptyValueWithUnknown(
+                    getTimeToResolve(issue.reportedDate, issue.resolvedDate),
                   )}
                 />
                 <DetailFieldRow
                   label="Resolution Notes"
-                  value={
-                    issue.resolutionNotes || (
-                      <span className="text-gray-400">
-                        No resolution notes provided.
-                      </span>
-                    )
-                  }
+                  value={formatEmptyValueWithUnknown(issue.resolutionNotes)}
                 />
               </div>
             </div>
@@ -231,12 +188,12 @@ const IssueDetailsPage = () => {
                       Issue reported
                     </h3>
                     <p className="text-xs text-gray-500">
-                      {issue.reportedDate ? issue.reportedDate : "Unknown"} by{" "}
-                      {issue.reportedByUserName}
+                      {formatEmptyValueWithUnknown(issue.reportedDate)} by{" "}
+                      {formatEmptyValueWithUnknown(issue.reportedByUserName)}
                     </p>
                   </li>
-                  {/* Issue resolved event, only if resolved */}
-                  {issue.resolvedDate && (
+                  {/* Issue resolved event, show if issue is resolved or if any resolved-related fields have values */}
+                  {issue.statusEnum === 3 && (
                     <li className="ml-6">
                       <span className="absolute -left-3 flex items-center justify-center w-6 h-6 bg-green-100 rounded-full ring-8 ring-white">
                         <svg
@@ -251,8 +208,8 @@ const IssueDetailsPage = () => {
                         Issue resolved
                       </h3>
                       <p className="text-xs text-gray-500">
-                        {issue.resolvedDate} by{" "}
-                        {issue.resolvedByUserName || "Unassigned"}
+                        {formatEmptyValueWithUnknown(issue.resolvedDate)} by{" "}
+                        {formatEmptyValueWithUnknown(issue.resolvedByUserName)}
                       </p>
                     </li>
                   )}

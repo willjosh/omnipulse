@@ -7,6 +7,7 @@ import { PrimaryButton, OptionButton } from "@/components/ui/Button";
 import { Loading } from "@/components/ui/Feedback";
 import { useInventoryItem } from "@/features/inventory-item/hooks/useInventoryItem";
 import InventoryModal from "@/features/inventory-item/components/InventoryItemModal";
+import { formatEmptyValueWithUnknown } from "@/utils/emptyValueUtils";
 
 const InventoryItemDetailsPage = () => {
   const params = useParams();
@@ -98,13 +99,13 @@ const InventoryItemDetailsPage = () => {
               Description
             </span>
             <span className="text-sm text-gray-900">
-              {inventoryItem.description || "—"}
+              {formatEmptyValueWithUnknown(inventoryItem.description)}
             </span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
             <span className="text-sm font-medium text-gray-600">Category</span>
             <span className="text-sm text-blue-600">
-              {inventoryItem.categoryLabel || "—"}
+              {formatEmptyValueWithUnknown(inventoryItem.categoryLabel)}
             </span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
@@ -135,7 +136,7 @@ const InventoryItemDetailsPage = () => {
               Manufacturer
             </span>
             <span className="text-sm text-gray-900">
-              {inventoryItem.manufacturer || "—"}
+              {formatEmptyValueWithUnknown(inventoryItem.manufacturer)}
             </span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
@@ -143,7 +144,9 @@ const InventoryItemDetailsPage = () => {
               Manufacturer Part Number
             </span>
             <span className="text-sm text-gray-900">
-              {inventoryItem.manufacturerPartNumber || "—"}
+              {formatEmptyValueWithUnknown(
+                inventoryItem.manufacturerPartNumber,
+              )}
             </span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
@@ -151,19 +154,21 @@ const InventoryItemDetailsPage = () => {
               Universal Product Code
             </span>
             <span className="text-sm text-gray-900">
-              {inventoryItem.universalProductCode || "—"}
+              {formatEmptyValueWithUnknown(inventoryItem.universalProductCode)}
             </span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
             <span className="text-sm font-medium text-gray-600">Supplier</span>
             <span className="text-sm text-gray-900">
-              {inventoryItem.supplier || "—"}
+              {formatEmptyValueWithUnknown(inventoryItem.supplier)}
             </span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
             <span className="text-sm font-medium text-gray-600">Weight</span>
             <span className="text-sm text-gray-900">
-              {formatWeight(inventoryItem.weightKG)}
+              {formatEmptyValueWithUnknown(
+                inventoryItem.weightKG ? `${inventoryItem.weightKG} kg` : null,
+              )}
             </span>
           </div>
         </div>
@@ -182,7 +187,11 @@ const InventoryItemDetailsPage = () => {
         <div className="flex justify-between items-center py-3 border-b border-gray-100">
           <span className="text-sm font-medium text-gray-600">Unit Cost</span>
           <span className="text-sm text-gray-900 font-semibold">
-            {formatCurrency(inventoryItem.unitCost)}
+            {formatEmptyValueWithUnknown(
+              inventoryItem.unitCost
+                ? formatCurrency(inventoryItem.unitCost)
+                : null,
+            )}
           </span>
         </div>
         <div className="flex justify-between items-center py-3 border-b border-gray-100">
@@ -190,7 +199,9 @@ const InventoryItemDetailsPage = () => {
             Cost Measurement Unit
           </span>
           <span className="text-sm text-gray-900">
-            {inventoryItem.unitCostMeasurementUnitLabel || "—"}
+            {formatEmptyValueWithUnknown(
+              inventoryItem.unitCostMeasurementUnitLabel,
+            )}
           </span>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import { Inventory } from "../types/inventoryType";
+import { formatEmptyValueWithUnknown } from "@/utils/emptyValueUtils";
 
 interface Column<T> {
   key: keyof T | string;
@@ -102,9 +103,7 @@ export const inventoryTableColumns: Column<Inventory>[] = [
     width: "150px",
     render: (item: Inventory) => (
       <div className="text-sm text-gray-700">
-        {item.lastRestockedDate && item.lastRestockedDate !== "Unknown"
-          ? item.lastRestockedDate
-          : "—"}
+        {formatEmptyValueWithUnknown(item.lastRestockedDate)}
       </div>
     ),
   },

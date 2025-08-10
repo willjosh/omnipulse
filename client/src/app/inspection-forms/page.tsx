@@ -10,7 +10,7 @@ import {
 } from "@/features/inspection-form/hooks/useInspectionForms";
 import { InspectionForm } from "@/features/inspection-form/types/inspectionFormType";
 import { DEFAULT_PAGE_SIZE } from "@/components/ui/Table/constants";
-import { Plus, Trash2, CheckCircle, XCircle } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { ConfirmModal } from "@/components/ui/Modal";
 import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
 import ModalPortal from "@/components/ui/Modal/ModalPortal";
@@ -86,11 +86,19 @@ export default function InspectionFormsPage() {
     },
     {
       key: "updatedAt",
-      header: "Updated",
+      header: "Updated At",
       sortable: true,
-      width: "120px",
-      render: (item: InspectionForm) =>
-        new Date(item.updatedAt).toLocaleDateString(),
+      width: "160px",
+      render: (item: InspectionForm) => (
+        <div>
+          <div className="font-medium">
+            {new Date(item.updatedAt).toLocaleDateString()}
+          </div>
+          <div className="text-sm text-gray-500">
+            {new Date(item.updatedAt).toLocaleTimeString()}
+          </div>
+        </div>
+      ),
     },
   ];
 

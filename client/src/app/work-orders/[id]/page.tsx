@@ -14,6 +14,7 @@ import { workOrderApi } from "@/features/work-order/api/workOrderApi";
 import PrimaryButton from "@/components/ui/Button/PrimaryButton";
 import SecondaryButton from "@/components/ui/Button/SecondaryButton";
 import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
+import { formatEmptyValueWithUnknown } from "@/utils/emptyValueUtils";
 
 // Separate component to handle individual issue items
 const IssueItem: React.FC<{ issueId: number; router: any }> = ({
@@ -335,7 +336,9 @@ export default function WorkOrderPage() {
                       Scheduled Start Date
                     </span>
                     <span className="text-sm text-gray-900">
-                      {workOrder.scheduledStartDate || "—"}
+                      {formatEmptyValueWithUnknown(
+                        workOrder.scheduledStartDate,
+                      )}
                     </span>
                   </div>
 
@@ -344,7 +347,7 @@ export default function WorkOrderPage() {
                       Actual Start Date
                     </span>
                     <span className="text-sm text-gray-900">
-                      {workOrder.actualStartDate || "—"}
+                      {formatEmptyValueWithUnknown(workOrder.actualStartDate)}
                     </span>
                   </div>
 
@@ -353,7 +356,9 @@ export default function WorkOrderPage() {
                       Scheduled Completion Date
                     </span>
                     <span className="text-sm text-gray-900">
-                      {workOrder.scheduledCompletionDate || "—"}
+                      {formatEmptyValueWithUnknown(
+                        workOrder.scheduledCompletionDate,
+                      )}
                     </span>
                   </div>
 
@@ -362,7 +367,9 @@ export default function WorkOrderPage() {
                       Actual Completion Date
                     </span>
                     <span className="text-sm text-gray-900">
-                      {workOrder.actualCompletionDate || "—"}
+                      {formatEmptyValueWithUnknown(
+                        workOrder.actualCompletionDate,
+                      )}
                     </span>
                   </div>
 
@@ -380,9 +387,11 @@ export default function WorkOrderPage() {
                       End Odometer
                     </span>
                     <span className="text-sm text-gray-900">
-                      {workOrder.endOdometer
-                        ? workOrder.endOdometer.toLocaleString()
-                        : "—"}
+                      {formatEmptyValueWithUnknown(
+                        workOrder.endOdometer
+                          ? workOrder.endOdometer.toLocaleString()
+                          : null,
+                      )}
                     </span>
                   </div>
 
@@ -391,7 +400,7 @@ export default function WorkOrderPage() {
                       Description
                     </span>
                     <span className="text-sm text-gray-900">
-                      {workOrder.description || "—"}
+                      {formatEmptyValueWithUnknown(workOrder.description)}
                     </span>
                   </div>
                 </div>
@@ -448,19 +457,31 @@ export default function WorkOrderPage() {
                 <div className="text-center">
                   <div className="text-sm font-medium text-gray-600">Labor</div>
                   <div className="text-lg font-semibold text-gray-900">
-                    ${workOrder.totalLaborCost?.toFixed(2) || "0.00"}
+                    {formatEmptyValueWithUnknown(
+                      workOrder.totalLaborCost
+                        ? `$${workOrder.totalLaborCost.toFixed(2)}`
+                        : null,
+                    )}
                   </div>
                 </div>
                 <div className="text-center">
                   <div className="text-sm font-medium text-gray-600">Parts</div>
                   <div className="text-lg font-semibold text-gray-900">
-                    ${workOrder.totalItemCost?.toFixed(2) || "0.00"}
+                    {formatEmptyValueWithUnknown(
+                      workOrder.totalItemCost
+                        ? `$${workOrder.totalItemCost.toFixed(2)}`
+                        : null,
+                    )}
                   </div>
                 </div>
                 <div className="text-center">
                   <div className="text-sm font-medium text-gray-600">Total</div>
                   <div className="text-lg font-semibold text-gray-900">
-                    ${workOrder.totalCost?.toFixed(2) || "0.00"}
+                    {formatEmptyValueWithUnknown(
+                      workOrder.totalCost
+                        ? `$${workOrder.totalCost.toFixed(2)}`
+                        : null,
+                    )}
                   </div>
                 </div>
               </div>
@@ -503,19 +524,32 @@ export default function WorkOrderPage() {
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-600">Subtotal</span>
                     <span className="text-sm text-gray-900">
-                      + ${workOrder.totalCost?.toFixed(2) || "0.00"}
+                      +{" "}
+                      {formatEmptyValueWithUnknown(
+                        workOrder.totalCost
+                          ? `$${workOrder.totalCost.toFixed(2)}`
+                          : null,
+                      )}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-600">Labor</span>
                     <span className="text-sm text-gray-900">
-                      ${workOrder.totalLaborCost?.toFixed(2) || "0.00"}
+                      {formatEmptyValueWithUnknown(
+                        workOrder.totalLaborCost
+                          ? `$${workOrder.totalLaborCost.toFixed(2)}`
+                          : null,
+                      )}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-600">Parts</span>
                     <span className="text-sm text-gray-900">
-                      ${workOrder.totalItemCost?.toFixed(2) || "0.00"}
+                      {formatEmptyValueWithUnknown(
+                        workOrder.totalItemCost
+                          ? `$${workOrder.totalItemCost.toFixed(2)}`
+                          : null,
+                      )}
                     </span>
                   </div>
                   <div className="flex justify-between pt-2 border-t border-gray-200">
@@ -523,7 +557,11 @@ export default function WorkOrderPage() {
                       Total
                     </span>
                     <span className="text-lg font-semibold text-gray-900">
-                      ${workOrder.totalCost?.toFixed(2) || "0.00"}
+                      {formatEmptyValueWithUnknown(
+                        workOrder.totalCost
+                          ? `$${workOrder.totalCost.toFixed(2)}`
+                          : null,
+                      )}
                     </span>
                   </div>
                 </div>

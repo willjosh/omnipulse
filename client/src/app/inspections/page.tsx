@@ -9,7 +9,7 @@ import { useInspectionForms } from "@/features/inspection-form/hooks/useInspecti
 import { InspectionWithLabels } from "@/features/inspection/types/inspectionType";
 import { InspectionForm } from "@/features/inspection-form/types/inspectionFormType";
 import { DEFAULT_PAGE_SIZE } from "@/components/ui/Table/constants";
-import { AlertTriangle, CheckCircle, XCircle, Plus, X } from "lucide-react";
+import { AlertTriangle, CheckCircle, XCircle, Plus } from "lucide-react";
 import ModalPortal from "@/components/ui/Modal/ModalPortal";
 
 export default function InspectionListPage() {
@@ -41,7 +41,6 @@ export default function InspectionListPage() {
       render: (item: InspectionWithLabels) => (
         <div>
           <div className="font-medium">{item.vehicleName}</div>
-          <div className="text-sm text-gray-500">ID: {item.vehicleID}</div>
         </div>
       ),
     },
@@ -65,7 +64,6 @@ export default function InspectionListPage() {
       render: (item: InspectionWithLabels) => (
         <div>
           <div className="font-medium">{item.technicianName}</div>
-          <div className="text-sm text-gray-500">ID: {item.technicianID}</div>
         </div>
       ),
     },

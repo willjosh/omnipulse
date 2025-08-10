@@ -36,9 +36,9 @@ export default function IssuesPage() {
         priorityLevelLabel: issue.priorityLevelLabel,
         statusLabel: issue.statusLabel,
         reportedByUserName: issue.reportedByUserName,
-        reportedDate: issue.reportedDate || "Unknown",
-        resolvedByUserName: issue.resolvedByUserName || "Unassigned",
-        resolvedDate: issue.resolvedDate || "",
+        reportedDate: issue.reportedDate || null,
+        resolvedByUserName: issue.resolvedByUserName || null,
+        resolvedDate: issue.resolvedDate || null,
       })),
     [issues],
   );
