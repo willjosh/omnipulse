@@ -74,7 +74,7 @@ const navItems: NavItem[] = [
     label: "Service",
     icon: UserCog,
     children: [
-      // { label: "Service History", path: "/service/history" },
+      { label: "Maintenance History", path: "/service-entries" },
       { label: "Work Orders", path: "/work-orders" },
       { label: "Service Tasks", path: "/service-tasks" },
       { label: "Service Schedules", path: "/service-schedules" },
