@@ -88,7 +88,7 @@ export default function IssuesPage() {
         <FilterBar
           searchValue={search}
           onSearchChange={setSearch}
-          searchPlaceholder="Search issues"
+          searchPlaceholder="Search"
           onFilterChange={() => {}}
         />
         {pagination && (

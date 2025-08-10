@@ -317,7 +317,7 @@ export default function ServiceProgramDetailsPage() {
               <FilterBar
                 searchValue={search}
                 onSearchChange={setSearch}
-                searchPlaceholder="Search..."
+                searchPlaceholder="Search"
                 onFilterChange={() => {}}
               />
               {pagination && (
@@ -376,7 +376,7 @@ export default function ServiceProgramDetailsPage() {
               <FilterBar
                 searchValue={search}
                 onSearchChange={setSearch}
-                searchPlaceholder="Search vehicles..."
+                searchPlaceholder="Search"
                 onFilterChange={() => {}}
               />
               {vehiclesPagination && (

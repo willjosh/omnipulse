@@ -93,7 +93,7 @@ export default function ServiceScheduleListPage() {
         <FilterBar
           searchValue={search}
           onSearchChange={setSearch}
-          searchPlaceholder="Search service schedules..."
+          searchPlaceholder="Search"
           onFilterChange={() => {}}
         />
         {pagination && (

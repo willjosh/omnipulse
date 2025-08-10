@@ -49,7 +49,7 @@ export const IssueListFilters: React.FC<IssueListFiltersProps> = ({
       <FilterBar
         searchValue={searchValue}
         onSearchChange={onSearchChange}
-        searchPlaceholder="Search issues..."
+        searchPlaceholder="Search"
         onFilterChange={() => {}}
       />
     </div>

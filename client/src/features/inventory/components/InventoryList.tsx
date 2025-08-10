@@ -187,8 +187,8 @@ const InventoryList = () => {
       <div className="flex items-end justify-between mb-4">
         <FilterBar
           searchValue={search}
-          onSearchChange={handleSearch}
-          searchPlaceholder="Search inventory..."
+          onSearchChange={setSearch}
+          searchPlaceholder="Search"
           onFilterChange={() => {}}
         />
 

@@ -162,7 +162,7 @@ export default function ServiceProgramsPage() {
         <FilterBar
           searchValue={search}
           onSearchChange={setSearch}
-          searchPlaceholder="Search service programs..."
+          searchPlaceholder="Search"
           onFilterChange={() => {}}
         />
         {pagination && (

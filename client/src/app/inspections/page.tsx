@@ -204,7 +204,7 @@ export default function InspectionListPage() {
         <FilterBar
           searchValue={search}
           onSearchChange={setSearch}
-          searchPlaceholder="Search inspections..."
+          searchPlaceholder="Search"
           onFilterChange={() => {}}
         />
         {pagination && (

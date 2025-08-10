@@ -263,10 +263,6 @@ const ServiceReminderList: React.FC = () => {
     setPage(1);
   };
 
-  const handleSearch = (searchTerm: string) => {
-    setSearch(searchTerm);
-  };
-
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
   };
@@ -355,8 +351,8 @@ const ServiceReminderList: React.FC = () => {
       <div className="flex items-end justify-between mb-4">
         <FilterBar
           searchValue={search}
-          onSearchChange={handleSearch}
-          searchPlaceholder="Search service reminders..."
+          onSearchChange={setSearch}
+          searchPlaceholder="Search"
           onFilterChange={() => {}}
         />
 
