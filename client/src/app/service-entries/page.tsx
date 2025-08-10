@@ -2,20 +2,11 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { DataTable, PaginationControls } from "@/components/ui/Table";
-import { PrimaryButton } from "@/components/ui/Button";
 import { FilterBar } from "@/components/ui/Filter";
-import {
-  Plus,
-  Calendar,
-  Car,
-  Wrench,
-  DollarSign,
-  Clock,
-  FileText,
-} from "lucide-react";
 import { useMaintenanceHistories } from "@/features/maintenance-history/hooks/useMaintenanceHistory";
 import { MaintenanceHistoryWithFormattedDates } from "@/features/maintenance-history/types/maintenanceHistoryType";
 import { DEFAULT_PAGE_SIZE } from "@/components/ui/Table/constants";
+import { formatEmptyValueWithUnknown } from "@/utils/emptyValueUtils";
 
 export default function ServiceEntriesPage() {
   const router = useRouter();
@@ -43,10 +34,7 @@ export default function ServiceEntriesPage() {
       sortable: true,
       width: "180px",
       render: (item: MaintenanceHistoryWithFormattedDates) => (
-        <div className="flex items-center">
-          <Car size={16} className="mr-2 text-gray-500" />
-          {item.vehicleName}
-        </div>
+        <div>{item.vehicleName}</div>
       ),
     },
     {
@@ -55,8 +43,7 @@ export default function ServiceEntriesPage() {
       sortable: true,
       width: "140px",
       render: (item: MaintenanceHistoryWithFormattedDates) => (
-        <div className="flex items-center">
-          <Calendar size={16} className="mr-2 text-gray-500" />
+        <div>
           {item.serviceDateFormatted ||
             new Date(item.serviceDate).toLocaleDateString()}
         </div>
@@ -67,24 +54,21 @@ export default function ServiceEntriesPage() {
       header: "Service Tasks",
       width: "200px",
       render: (item: MaintenanceHistoryWithFormattedDates) => (
-        <div className="flex items-center">
-          <Wrench size={16} className="mr-2 text-gray-500" />
-          <div>
-            {item.serviceTaskName.length > 0 ? (
-              item.serviceTaskName.slice(0, 2).map((task, index) => (
-                <div key={index} className="text-sm">
-                  {task}
-                </div>
-              ))
-            ) : (
-              <span className="text-gray-400">-</span>
-            )}
-            {item.serviceTaskName.length > 2 && (
-              <div className="text-xs text-gray-500">
-                +{item.serviceTaskName.length - 2} more
+        <div>
+          {item.serviceTaskName.length > 0 ? (
+            item.serviceTaskName.slice(0, 2).map((task, index) => (
+              <div key={index} className="text-sm">
+                {task}
               </div>
-            )}
-          </div>
+            ))
+          ) : (
+            <span className="text-gray-400">-</span>
+          )}
+          {item.serviceTaskName.length > 2 && (
+            <div className="text-xs text-gray-500">
+              +{item.serviceTaskName.length - 2} more
+            </div>
+          )}
         </div>
       ),
     },
@@ -93,10 +77,7 @@ export default function ServiceEntriesPage() {
       header: "Technician",
       width: "150px",
       render: (item: MaintenanceHistoryWithFormattedDates) => (
-        <div className="flex items-center">
-          <Wrench size={16} className="mr-2 text-gray-500" />
-          {item.technicianName}
-        </div>
+        <div>{item.technicianName}</div>
       ),
     },
     {
@@ -116,10 +97,7 @@ export default function ServiceEntriesPage() {
       sortable: true,
       width: "120px",
       render: (item: MaintenanceHistoryWithFormattedDates) => (
-        <div className="flex items-center justify-end">
-          <DollarSign size={16} className="mr-1 text-gray-500" />
-          {`$${item.cost.toFixed(2)}`}
-        </div>
+        <div className="text-right">{`$${item.cost.toFixed(2)}`}</div>
       ),
     },
     {
@@ -128,10 +106,7 @@ export default function ServiceEntriesPage() {
       sortable: true,
       width: "130px",
       render: (item: MaintenanceHistoryWithFormattedDates) => (
-        <div className="flex items-center justify-end">
-          <Clock size={16} className="mr-2 text-gray-500" />
-          {item.labourHours.toFixed(1)}h
-        </div>
+        <div className="text-right">{item.labourHours.toFixed(1)}h</div>
       ),
     },
     {
@@ -139,10 +114,9 @@ export default function ServiceEntriesPage() {
       header: "Notes",
       width: "200px",
       render: (item: MaintenanceHistoryWithFormattedDates) => (
-        <div className="flex items-center">
-          <FileText size={16} className="mr-2 text-gray-500" />
+        <div>
           <div className="truncate max-w-[160px]" title={item.notes || ""}>
-            {item.notes || "-"}
+            {formatEmptyValueWithUnknown(item.notes)}
           </div>
         </div>
       ),
