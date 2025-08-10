@@ -42,7 +42,6 @@ public class ServiceReminderMappingProfile : Profile
             .ForMember(dest => dest.TaskCount, opt => opt.MapFrom(src => CalculateTaskCount(src.ServiceSchedule)))
 
             // Other fields
-            .ForMember(dest => dest.OccurrenceNumber, opt => opt.Ignore()) // Will be calculated in the handler
             .ForMember(dest => dest.ScheduleType, opt => opt.MapFrom(src => src.GetScheduleType()));
 
         // ServiceTask to ServiceTaskInfoDTO mapping

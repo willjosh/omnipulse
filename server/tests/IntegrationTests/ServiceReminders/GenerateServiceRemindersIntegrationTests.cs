@@ -168,7 +168,6 @@ public class GenerateServiceRemindersIntegrationTests : BaseIntegrationTest
         var reminders = await GetServiceRemindersAsync(vehicleId, scheduleId);
         gen.GeneratedCount.Should().Be(reminders.Count);
         reminders.Should().HaveCount(3);
-        reminders.Select(r => r.OccurrenceNumber).Should().OnlyHaveUniqueItems();
 
         // Pure time-based schedule invariants
         reminders.Should().OnlyContain(r => r.ScheduleType == ServiceScheduleTypeEnum.TIME
@@ -178,9 +177,6 @@ public class GenerateServiceRemindersIntegrationTests : BaseIntegrationTest
         // Sort by due date to reason about sequence
         var orderedReminders = reminders.OrderBy(r => r.DueDate).ToList();
         orderedReminders.Should().BeInAscendingOrder(r => r.DueDate);
-
-        // Occurrence numbers should be 1,2,3
-        orderedReminders.Select(r => r.OccurrenceNumber).Should().Equal(1, 2, 3);
 
         // Status counts
         reminders.Should().ContainSingle(r => r.Status == ServiceReminderStatusEnum.OVERDUE);

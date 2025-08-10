@@ -102,10 +102,6 @@ public class ServiceReminderDTO
     /// <example>-3</example>
     public int? DaysUntilDue { get; set; }
 
-    /// <summary>Occurrence number for this specific interval (1 = first occurrence, 2 = second, etc.).</summary>
-    /// <example>2</example>
-    public required int OccurrenceNumber { get; set; }
-
     /// <summary>The type of schedule (TIME or MILEAGE) - enforces XOR constraint.</summary>
     /// <example>1</example>
     public required ServiceScheduleTypeEnum ScheduleType { get; set; }

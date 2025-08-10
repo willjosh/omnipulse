@@ -169,7 +169,7 @@ public class GenerateServiceRemindersCommandHandler : IRequestHandler<GenerateSe
             {
                 if (status == ServiceReminderStatusEnum.UPCOMING)
                 {
-                    yield return CreateReminder(schedule, vehicle, tasks, dueDate, null, status, occurrence, ServiceScheduleTypeEnum.TIME, currentDateUtc);
+                    yield return CreateReminder(schedule, vehicle, tasks, dueDate, null, status, ServiceScheduleTypeEnum.TIME, currentDateUtc);
                     yield break; // only the next upcoming
                 }
 
@@ -180,7 +180,7 @@ public class GenerateServiceRemindersCommandHandler : IRequestHandler<GenerateSe
             {
                 if (status == ServiceReminderStatusEnum.OVERDUE || status == ServiceReminderStatusEnum.DUE_SOON)
                 {
-                    yield return CreateReminder(schedule, vehicle, tasks, dueDate, null, status, occurrence, ServiceScheduleTypeEnum.TIME, currentDateUtc);
+                    yield return CreateReminder(schedule, vehicle, tasks, dueDate, null, status, ServiceScheduleTypeEnum.TIME, currentDateUtc);
                 }
             }
         }
@@ -208,7 +208,7 @@ public class GenerateServiceRemindersCommandHandler : IRequestHandler<GenerateSe
             {
                 if (status == ServiceReminderStatusEnum.UPCOMING)
                 {
-                    yield return CreateReminder(schedule, vehicle, tasks, null, dueMileage, status, occurrence, ServiceScheduleTypeEnum.MILEAGE, currentDateUtc);
+                    yield return CreateReminder(schedule, vehicle, tasks, null, dueMileage, status, ServiceScheduleTypeEnum.MILEAGE, currentDateUtc);
                     yield break; // only the next upcoming
                 }
 
@@ -219,7 +219,7 @@ public class GenerateServiceRemindersCommandHandler : IRequestHandler<GenerateSe
             {
                 if (status == ServiceReminderStatusEnum.OVERDUE || status == ServiceReminderStatusEnum.DUE_SOON)
                 {
-                    yield return CreateReminder(schedule, vehicle, tasks, null, dueMileage, status, occurrence, ServiceScheduleTypeEnum.MILEAGE, currentDateUtc);
+                    yield return CreateReminder(schedule, vehicle, tasks, null, dueMileage, status, ServiceScheduleTypeEnum.MILEAGE, currentDateUtc);
                 }
             }
         }
@@ -247,7 +247,6 @@ public class GenerateServiceRemindersCommandHandler : IRequestHandler<GenerateSe
         DateTime? dueDate,
         double? dueMileage,
         ServiceReminderStatusEnum status,
-        int occurrenceNumber,
         ServiceScheduleTypeEnum scheduleType,
         DateTime currentDateUtc)
     {
@@ -291,7 +290,6 @@ public class GenerateServiceRemindersCommandHandler : IRequestHandler<GenerateSe
             CurrentMileage = vehicle.Mileage,
             MileageVariance = mileageVariance,
             DaysUntilDue = daysUntilDue,
-            OccurrenceNumber = occurrenceNumber,
             ScheduleType = scheduleType
         };
     }
