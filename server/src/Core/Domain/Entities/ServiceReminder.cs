@@ -212,19 +212,6 @@ public static class ServiceReminderExtensions
         return currentOdometer - serviceReminder.DueMileage.Value;
     }
 
-    /// <summary>
-    /// Calculates the priority level based on the reminder's current status.
-    /// </summary>
-    public static PriorityLevelEnum CalculatePriorityLevel(this ServiceReminder serviceReminder)
-    {
-        return serviceReminder.Status switch
-        {
-            ServiceReminderStatusEnum.OVERDUE => PriorityLevelEnum.HIGH,
-            ServiceReminderStatusEnum.DUE_SOON => PriorityLevelEnum.MEDIUM,
-            _ => PriorityLevelEnum.LOW
-        };
-    }
-
     // ===== Helper Methods =====
 
     /// <summary>

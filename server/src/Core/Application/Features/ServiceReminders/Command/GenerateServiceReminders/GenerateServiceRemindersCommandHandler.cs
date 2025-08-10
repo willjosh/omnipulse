@@ -85,14 +85,14 @@ public class GenerateServiceRemindersCommandHandler : IRequestHandler<GenerateSe
             {
                 if (assignment.Vehicle is null) continue;
 
-                reminders.AddRange(GenerateForVehicleSchedule(schedule, assignment.Vehicle, tasks, assignment.AddedAt, currentDateUtc));
+                reminders.AddRange(GenerateForVehicleAndSchedulePair(schedule, assignment.Vehicle, tasks, assignment.AddedAt, currentDateUtc));
             }
         }
 
         return reminders;
     }
 
-    private static IEnumerable<ServiceReminderDTO> GenerateForVehicleSchedule(
+    private static IEnumerable<ServiceReminderDTO> GenerateForVehicleAndSchedulePair(
         ServiceSchedule schedule,
         Vehicle vehicle,
         List<ServiceTask> tasks,
@@ -259,13 +259,6 @@ public class GenerateServiceRemindersCommandHandler : IRequestHandler<GenerateSe
             IsRequired = true
         }).ToList();
 
-        var priorityLevel = status switch
-        {
-            ServiceReminderStatusEnum.OVERDUE => PriorityLevelEnum.HIGH,
-            ServiceReminderStatusEnum.DUE_SOON => PriorityLevelEnum.MEDIUM,
-            _ => PriorityLevelEnum.LOW
-        };
-
         var mileageVariance = dueMileage.HasValue ? vehicle.Mileage - dueMileage.Value : (double?)null;
         var daysUntilDue = dueDate.HasValue ? (int)(dueDate.Value - currentDateUtc).TotalDays : (int?)null;
 
@@ -286,7 +279,6 @@ public class GenerateServiceRemindersCommandHandler : IRequestHandler<GenerateSe
             DueDate = dueDate,
             DueMileage = dueMileage,
             Status = status,
-            PriorityLevel = priorityLevel,
             TimeIntervalValue = scheduleType == ServiceScheduleTypeEnum.TIME ? schedule.TimeIntervalValue : null,
             TimeIntervalUnit = scheduleType == ServiceScheduleTypeEnum.TIME ? schedule.TimeIntervalUnit : null,
             MileageInterval = scheduleType == ServiceScheduleTypeEnum.MILEAGE ? schedule.MileageInterval : null,

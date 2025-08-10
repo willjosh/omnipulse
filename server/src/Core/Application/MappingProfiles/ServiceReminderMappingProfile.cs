@@ -31,9 +31,6 @@ public class ServiceReminderMappingProfile : Profile
             .ForMember(dest => dest.TimeBufferUnit, opt => opt.MapFrom(src => src.ServiceSchedule != null ? src.ServiceSchedule.TimeBufferUnit : null))
             .ForMember(dest => dest.MileageBuffer, opt => opt.MapFrom(src => src.ServiceSchedule != null ? src.ServiceSchedule.MileageBuffer : null))
 
-            // Priority (calculate from status)
-            .ForMember(dest => dest.PriorityLevel, opt => opt.MapFrom(src => src.CalculatePriorityLevel()))
-
             // Calculated fields
             .ForMember(dest => dest.MileageVariance, opt => opt.MapFrom(src => src.Vehicle != null && src.DueMileage.HasValue ? src.Vehicle.Mileage - src.DueMileage : null))
             .ForMember(dest => dest.DaysUntilDue, opt => opt.MapFrom(src => src.DaysUntilDue(DateTime.UtcNow)))

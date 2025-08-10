@@ -66,10 +66,6 @@ public class ServiceReminderDTO
     /// <example>2</example>
     public required ServiceReminderStatusEnum Status { get; set; }
 
-    /// <summary>Priority level calculated based on status and other factors.</summary>
-    /// <example>3</example>
-    public required PriorityLevelEnum PriorityLevel { get; set; }
-
     /// <summary>Time interval value for recurrence.</summary>
     /// <example>7</example>
     public int? TimeIntervalValue { get; set; }

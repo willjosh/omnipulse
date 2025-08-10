@@ -331,7 +331,6 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
 
         // Verify overdue status
         overdueReminder!.Status.Should().Be(ServiceReminderStatusEnum.OVERDUE);
-        overdueReminder.PriorityLevel.Should().Be(PriorityLevelEnum.HIGH);
 
         // Verify basic properties
         overdueReminder.VehicleID.Should().Be(vehicleId);
@@ -445,7 +444,6 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
 
         // Verify upcoming status
         upcomingReminder!.Status.Should().Be(ServiceReminderStatusEnum.UPCOMING);
-        upcomingReminder.PriorityLevel.Should().Be(PriorityLevelEnum.LOW);
 
         // Verify properties
         upcomingReminder.VehicleID.Should().Be(vehicleId);
@@ -561,7 +559,6 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
 
         // Verify due soon status
         dueSoonReminder!.Status.Should().Be(ServiceReminderStatusEnum.DUE_SOON);
-        dueSoonReminder.PriorityLevel.Should().Be(PriorityLevelEnum.MEDIUM);
 
         // Verify properties
         dueSoonReminder.VehicleID.Should().Be(vehicleId);
@@ -688,7 +685,6 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
 
         // Verify overdue status
         overdueReminder!.Status.Should().Be(ServiceReminderStatusEnum.OVERDUE);
-        overdueReminder.PriorityLevel.Should().Be(PriorityLevelEnum.HIGH);
 
         // Verify properties
         overdueReminder.VehicleID.Should().Be(vehicleId);
@@ -874,11 +870,6 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
         overdueReminder!.ServiceTasks.First().ServiceTaskName.Should().Contain("Oil Change");
         dueSoonReminder!.ServiceTasks.First().ServiceTaskName.Should().Contain("Coolant Flush");
         upcomingReminder!.ServiceTasks.First().ServiceTaskName.Should().Contain("Brake Service");
-
-        // Verify priority levels
-        overdueReminder.PriorityLevel.Should().Be(PriorityLevelEnum.HIGH);
-        dueSoonReminder.PriorityLevel.Should().Be(PriorityLevelEnum.MEDIUM);
-        upcomingReminder.PriorityLevel.Should().Be(PriorityLevelEnum.LOW);
     }
 
     [Fact]
