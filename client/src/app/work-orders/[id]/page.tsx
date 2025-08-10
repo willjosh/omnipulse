@@ -77,11 +77,6 @@ export default function WorkOrderPage() {
     );
   }
 
-  const handleStatusChange = (newStatus: number) => {
-    // Status change is handled by the StatusDropdown component
-    console.log("Status changed to:", newStatus);
-  };
-
   const handleUpdateWorkOrder = (newStatus: number) => {
     // Create a complete update command with all current work order data
     const updateCommand = {
@@ -89,8 +84,8 @@ export default function WorkOrderPage() {
       title: workOrder.title,
       description: workOrder.description,
       vehicleID: workOrder.vehicleID,
-      workOrderType: workOrder.workOrderTypeEnum,
-      priorityLevel: workOrder.priorityLevelEnum,
+      workOrderType: workOrder.workOrderType,
+      priorityLevel: workOrder.priorityLevel,
       status: newStatus, // Use the new status
       assignedToUserID: workOrder.assignedToUserID,
       scheduledStartDate: workOrder.scheduledStartDate,
@@ -101,7 +96,7 @@ export default function WorkOrderPage() {
       endOdometer: workOrder.endOdometer,
       issueIdList: workOrder.issueIDs,
       workOrderLineItems: workOrder.workOrderLineItems.map(item => ({
-        itemType: item.itemTypeEnum,
+        itemType: item.itemType,
         quantity: item.quantity,
         description: item.description,
         inventoryItemID: item.inventoryItemID,
@@ -116,7 +111,7 @@ export default function WorkOrderPage() {
     updateWorkOrder(updateCommand, {
       onSuccess: () => {
         // The cache will be automatically invalidated by the useUpdateWorkOrder hook
-        console.log("Work order status updated successfully");
+        notify("Work order status updated successfully!", "success");
       },
       onError: (error: any) => {
         console.error("Error updating work order status:", error);
@@ -128,7 +123,7 @@ export default function WorkOrderPage() {
           errorMessage = error.message;
         }
 
-        // Note: We don't need to show a notification here because StatusDropdown handles it
+        notify(errorMessage, "error");
       },
     });
   };
@@ -231,7 +226,6 @@ export default function WorkOrderPage() {
       <StatusDropdown
         currentStatus={workOrder.status}
         workOrderId={workOrder.id}
-        onStatusChange={handleStatusChange}
         onUpdateWorkOrder={handleUpdateWorkOrder}
         disabled={workOrder.status === 5} // Disable if completed
       />
