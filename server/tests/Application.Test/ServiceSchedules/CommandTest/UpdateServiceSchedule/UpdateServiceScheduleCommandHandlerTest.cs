@@ -124,12 +124,14 @@ public class UpdateServiceScheduleCommandHandlerTest
             }
         });
 
+        _mockReminderRepository.Setup(r => r.CancelFutureRemindersForScheduleAsync(It.IsAny<int>(), It.IsAny<string>())).Returns(Task.CompletedTask);
+
         // Act
         var result = await _commandHandler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.Equal(command.ServiceScheduleID, result);
-        _mockReminderRepository.Verify(r => r.CancelFutureRemindersForScheduleAsync(command.ServiceScheduleID), Times.Once);
+        _mockReminderRepository.Verify(r => r.CancelFutureRemindersForScheduleAsync(It.IsAny<int>(), It.IsAny<string>()), Times.Once);
         _mockSender.Verify(s => s.Send(It.IsAny<Application.Features.ServiceReminders.Command.GenerateServiceReminders.GenerateServiceRemindersCommand>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 

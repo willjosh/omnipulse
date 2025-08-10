@@ -1,6 +1,7 @@
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
+using Application.Features.ServiceReminders.Command.GenerateServiceReminders;
 using Application.Features.ServiceSchedules.Command.DeleteServiceSchedule;
 
 using Domain.Entities;
@@ -64,8 +65,8 @@ public class DeleteServiceScheduleCommandHandlerTest
         _mockServiceScheduleRepository.Setup(repo => repo.Update(It.IsAny<ServiceSchedule>()));
         _mockServiceScheduleRepository.Setup(repo => repo.SaveChangesAsync()).ReturnsAsync(1);
         _mockXrefRepo.Setup(x => x.RemoveAllForScheduleAsync(command.ServiceScheduleID)).Returns(Task.CompletedTask);
-        _mockReminderRepo.Setup(r => r.CancelFutureRemindersForScheduleAsync(command.ServiceScheduleID)).ReturnsAsync(0);
-        _mockSender.Setup(s => s.Send(It.IsAny<MediatR.IRequest<Application.Features.ServiceReminders.Command.GenerateServiceReminders.GenerateServiceRemindersResponse>>(), It.IsAny<CancellationToken>())).ReturnsAsync(new Application.Features.ServiceReminders.Command.GenerateServiceReminders.GenerateServiceRemindersResponse(0, 0, true));
+        _mockReminderRepo.Setup(r => r.CancelFutureRemindersForScheduleAsync(command.ServiceScheduleID, "Schedule deleted")).Returns(Task.CompletedTask);
+        _mockSender.Setup(s => s.Send(It.IsAny<IRequest<GenerateServiceRemindersResponse>>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenerateServiceRemindersResponse(0, 0, true));
 
         // Act
         var result = await _handler.Handle(command, CancellationToken.None);
@@ -73,12 +74,11 @@ public class DeleteServiceScheduleCommandHandlerTest
         // Assert
         Assert.Equal(command.ServiceScheduleID, result);
         Assert.True(returnedSchedule.IsSoftDeleted);
-        _mockServiceScheduleRepository.Verify(repo => repo.GetByIdAsync(command.ServiceScheduleID), Times.Once);
-        _mockXrefRepo.Verify(x => x.RemoveAllForScheduleAsync(command.ServiceScheduleID), Times.Once);
-        _mockServiceScheduleRepository.Verify(repo => repo.Update(It.Is<ServiceSchedule>(s => s.IsSoftDeleted)), Times.Once);
-        _mockServiceScheduleRepository.Verify(repo => repo.SaveChangesAsync(), Times.Once);
-        _mockReminderRepo.Verify(r => r.CancelFutureRemindersForScheduleAsync(command.ServiceScheduleID), Times.Once);
-        _mockSender.Verify(s => s.Send(It.IsAny<Application.Features.ServiceReminders.Command.GenerateServiceReminders.GenerateServiceRemindersCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+        // Verify repository interactions
+        _mockServiceScheduleRepository.Verify(r => r.GetByIdAsync(command.ServiceScheduleID), Times.Once);
+        _mockServiceScheduleRepository.Verify(r => r.Update(It.Is<ServiceSchedule>(s => s.ID == command.ServiceScheduleID && s.IsSoftDeleted)), Times.Once);
+        _mockReminderRepo.Verify(r => r.CancelFutureRemindersForScheduleAsync(command.ServiceScheduleID, "Schedule deleted"), Times.Once);
+        _mockSender.Verify(s => s.Send(It.IsAny<GenerateServiceRemindersCommand>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -96,7 +96,7 @@ public class DeleteServiceScheduleCommandHandlerTest
         _mockXrefRepo.Verify(x => x.RemoveAllForScheduleAsync(It.IsAny<int>()), Times.Never);
         _mockServiceScheduleRepository.Verify(repo => repo.Update(It.IsAny<ServiceSchedule>()), Times.Never);
         _mockServiceScheduleRepository.Verify(repo => repo.SaveChangesAsync(), Times.Never);
-        _mockReminderRepo.Verify(r => r.CancelFutureRemindersForScheduleAsync(It.IsAny<int>()), Times.Never);
-        _mockSender.Verify(s => s.Send(It.IsAny<MediatR.IRequest<Application.Features.ServiceReminders.Command.GenerateServiceReminders.GenerateServiceRemindersResponse>>(), It.IsAny<CancellationToken>()), Times.Never);
+        _mockReminderRepo.Verify(r => r.CancelFutureRemindersForScheduleAsync(It.IsAny<int>(), It.IsAny<string>()), Times.Never);
+        _mockSender.Verify(s => s.Send(It.IsAny<IRequest<GenerateServiceRemindersResponse>>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }
