@@ -51,6 +51,7 @@ export const IssueListTable: React.FC<IssueListTableProps> = ({
       showActions={false}
       emptyState={emptyState}
       onRowClick={onRowClick}
+      fixedLayout={false}
     />
   );
 };
