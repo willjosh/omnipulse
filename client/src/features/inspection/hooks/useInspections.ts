@@ -1,7 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { inspectionApi, convertInspectionData } from "../api/inspectionApi";
+import {
+  inspectionApi,
+  convertInspectionData,
+  convertSingleInspectionData,
+} from "../api/inspectionApi";
 import {
   InspectionWithLabels,
+  SingleInspection,
+  SingleInspectionWithLabels,
   InspectionFilter,
   CreateInspectionCommand,
 } from "../types/inspectionType";
@@ -40,11 +46,11 @@ export function useInspections(filter: InspectionFilter = {}) {
 
 export function useInspection(id: number) {
   const { data, isPending, isError, isSuccess, error } =
-    useQuery<InspectionWithLabels>({
+    useQuery<SingleInspectionWithLabels>({
       queryKey: ["inspection", id],
       queryFn: async () => {
         const data = await inspectionApi.getInspection(id);
-        return convertInspectionData(data);
+        return convertSingleInspectionData(data);
       },
       enabled: !!id,
     });
