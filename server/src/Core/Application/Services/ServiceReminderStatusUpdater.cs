@@ -12,15 +12,18 @@ public class ServiceReminderStatusUpdater : IServiceReminderStatusUpdater
     private readonly IServiceReminderRepository _serviceReminderRepository;
     private readonly IVehicleRepository _vehicleRepository;
     private readonly IAppLogger<ServiceReminderStatusUpdater> _logger;
+    private readonly TimeProvider _timeProvider;
 
     public ServiceReminderStatusUpdater(
         IServiceReminderRepository serviceReminderRepository,
         IVehicleRepository vehicleRepository,
-        IAppLogger<ServiceReminderStatusUpdater> logger)
+        IAppLogger<ServiceReminderStatusUpdater> logger,
+        TimeProvider timeProvider)
     {
         _serviceReminderRepository = serviceReminderRepository;
         _vehicleRepository = vehicleRepository;
         _logger = logger;
+        _timeProvider = timeProvider;
     }
 
     public async Task UpdateAllReminderStatusesAsync(CancellationToken cancellationToken = default)
@@ -36,7 +39,7 @@ public class ServiceReminderStatusUpdater : IServiceReminderStatusUpdater
         }
 
         var updatedCount = 0;
-        var currentTime = DateTime.UtcNow;
+        var currentTime = _timeProvider.GetUtcNow().UtcDateTime;
 
         foreach (var reminder in activeReminders)
         {

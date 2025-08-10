@@ -18,13 +18,16 @@ public class UpdateServiceReminderStatusBackgroundService : BackgroundService
 {
     private readonly IServiceScopeFactory _serviceScopeFactory;
     private readonly ILogger<UpdateServiceReminderStatusBackgroundService> _logger;
+    private readonly TimeProvider _timeProvider;
 
     public UpdateServiceReminderStatusBackgroundService(
         IServiceScopeFactory serviceScopeFactory,
-        ILogger<UpdateServiceReminderStatusBackgroundService> logger)
+        ILogger<UpdateServiceReminderStatusBackgroundService> logger,
+        TimeProvider timeProvider)
     {
         _serviceScopeFactory = serviceScopeFactory;
         _logger = logger;
+        _timeProvider = timeProvider;
     }
 
     // Constants
@@ -43,7 +46,7 @@ public class UpdateServiceReminderStatusBackgroundService : BackgroundService
 
         _logger.LogInformation($"{nameof(UpdateServiceReminderStatusBackgroundService)} started.");
 
-        var lastGenerationTime = DateTime.UtcNow;
+        var lastGenerationTime = _timeProvider.GetUtcNow().UtcDateTime;
 
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -57,7 +60,7 @@ public class UpdateServiceReminderStatusBackgroundService : BackgroundService
                 await reminderStatusUpdater.UpdateAllReminderStatusesAsync(stoppingToken);
 
                 // Generate new reminders every hour
-                var timeSinceLastGeneration = DateTime.UtcNow - lastGenerationTime;
+                var timeSinceLastGeneration = _timeProvider.GetUtcNow().UtcDateTime - lastGenerationTime;
                 if (timeSinceLastGeneration >= GenerationInterval)
                 {
                     _logger.LogInformation("Triggering service reminder generation");
@@ -67,7 +70,7 @@ public class UpdateServiceReminderStatusBackgroundService : BackgroundService
                     if (generateResult.Success)
                     {
                         _logger.LogInformation("Successfully generated {Count} service reminders", generateResult.GeneratedCount);
-                        lastGenerationTime = DateTime.UtcNow;
+                        lastGenerationTime = _timeProvider.GetUtcNow().UtcDateTime;
                     }
                     else
                     {

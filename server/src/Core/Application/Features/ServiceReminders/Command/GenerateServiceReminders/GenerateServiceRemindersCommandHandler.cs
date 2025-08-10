@@ -21,13 +21,16 @@ public class GenerateServiceRemindersCommandHandler : IRequestHandler<GenerateSe
 
     private readonly IServiceReminderRepository _serviceReminderRepository;
     private readonly IAppLogger<GenerateServiceRemindersCommandHandler> _logger;
+    private readonly TimeProvider _timeProvider;
 
     public GenerateServiceRemindersCommandHandler(
         IServiceReminderRepository serviceReminderRepository,
-        IAppLogger<GenerateServiceRemindersCommandHandler> logger)
+        IAppLogger<GenerateServiceRemindersCommandHandler> logger,
+        TimeProvider timeProvider)
     {
         _serviceReminderRepository = serviceReminderRepository;
         _logger = logger;
+        _timeProvider = timeProvider;
     }
 
     public async Task<GenerateServiceRemindersResponse> Handle(GenerateServiceRemindersCommand request, CancellationToken cancellationToken)
@@ -43,7 +46,7 @@ public class GenerateServiceRemindersCommandHandler : IRequestHandler<GenerateSe
             schedules = schedules.Where(s => !s.IsSoftDeleted && s.IsActive).ToList();
 
             // Calculate reminders in-memory for current time; generation enforces a single UPCOMING per pair
-            var calculated = GenerateCalculatedReminders(schedules, DateTime.UtcNow);
+            var calculated = GenerateCalculatedReminders(schedules, _timeProvider.GetUtcNow().UtcDateTime);
 
             // Persist in bulk; repository preserves COMPLETED and updates existing non-final reminders
             await _serviceReminderRepository.SyncRemindersAsync(calculated);

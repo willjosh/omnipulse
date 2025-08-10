@@ -32,6 +32,9 @@ public static class InfrastructureServiceRegistration
         // Register UpdateServiceReminderStatusBackgroundService
         services.AddHostedService<UpdateServiceReminderStatusBackgroundService>();
 
+        // Register Time Provider
+        services.AddSingleton(TimeProvider.System);
+
         return services;
     }
 }
