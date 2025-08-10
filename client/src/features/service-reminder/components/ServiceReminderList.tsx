@@ -3,6 +3,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { DataTable, PaginationControls } from "@/components/ui/Table";
 import { FilterBar } from "@/components/ui/Filter";
+import { formatEmptyValueWithUnknown } from "@/utils/emptyValueUtils";
 import { OptionButton } from "@/components/ui/Button";
 import { ConfirmModal } from "@/components/ui/Modal";
 import ModalPortal from "@/components/ui/Modal/ModalPortal";
@@ -69,21 +70,6 @@ const ServiceReminderList: React.FC = () => {
     }
   };
 
-  const getPriorityColor = (priority: number) => {
-    switch (priority) {
-      case 1: // LOW
-        return "bg-gray-100 text-gray-800";
-      case 2: // MEDIUM
-        return "bg-yellow-100 text-yellow-800";
-      case 3: // HIGH
-        return "bg-orange-100 text-orange-800";
-      case 4: // CRITICAL
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
   const serviceReminderColumns = [
     {
       key: "vehicleName",
@@ -92,7 +78,6 @@ const ServiceReminderList: React.FC = () => {
       render: (reminder: ServiceReminderWithLabels) => (
         <div>
           <div className="font-medium">{reminder.vehicleName}</div>
-          <div className="text-sm text-gray-500">ID: {reminder.vehicleID}</div>
         </div>
       ),
     },
@@ -105,7 +90,7 @@ const ServiceReminderList: React.FC = () => {
           <div className="font-medium">{reminder.serviceScheduleName}</div>
           {reminder.serviceProgramName && (
             <div className="text-sm text-gray-500">
-              {reminder.serviceProgramName}
+              {formatEmptyValueWithUnknown(reminder.serviceProgramName)}
             </div>
           )}
         </div>
@@ -123,16 +108,12 @@ const ServiceReminderList: React.FC = () => {
       ),
     },
     {
-      key: "priorityLevel",
-      header: "Priority",
+      key: "scheduleType",
+      header: "Schedule Type",
       sortable: true,
       render: (reminder: ServiceReminderWithLabels) => (
-        <span
-          className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(
-            reminder.priorityLevel,
-          )}`}
-        >
-          {reminder.priorityLevelLabel}
+        <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+          {reminder.scheduleTypeLabel}
         </span>
       ),
     },
@@ -147,7 +128,9 @@ const ServiceReminderList: React.FC = () => {
               {new Date(reminder.dueDate).toLocaleDateString()}
             </div>
           ) : (
-            <div className="text-gray-400">-</div>
+            <div className="text-gray-400">
+              {formatEmptyValueWithUnknown(reminder.dueDate)}
+            </div>
           )}
           {reminder.daysUntilDue !== null &&
             reminder.daysUntilDue !== undefined && (
@@ -181,7 +164,9 @@ const ServiceReminderList: React.FC = () => {
               {reminder.dueMileage.toLocaleString()} km
             </div>
           ) : (
-            <div className="text-gray-400">-</div>
+            <div className="text-gray-400">
+              {formatEmptyValueWithUnknown(reminder.dueMileage)}
+            </div>
           )}
           {reminder.mileageVariance !== null &&
             reminder.mileageVariance !== undefined && (
@@ -245,9 +230,6 @@ const ServiceReminderList: React.FC = () => {
       render: (reminder: ServiceReminderWithLabels) => (
         <div className="text-center">
           <div className="font-medium">{reminder.occurrenceNumber}</div>
-          <div className="text-xs text-gray-500">
-            {reminder.scheduleTypeLabel}-based
-          </div>
         </div>
       ),
     },
@@ -261,10 +243,6 @@ const ServiceReminderList: React.FC = () => {
       setSortOrder("asc");
     }
     setPage(1);
-  };
-
-  const handleSearch = (searchTerm: string) => {
-    setSearch(searchTerm);
   };
 
   const handlePageChange = (newPage: number) => {
@@ -355,8 +333,8 @@ const ServiceReminderList: React.FC = () => {
       <div className="flex items-end justify-between mb-4">
         <FilterBar
           searchValue={search}
-          onSearchChange={handleSearch}
-          searchPlaceholder="Search service reminders..."
+          onSearchChange={setSearch}
+          searchPlaceholder="Search"
           onFilterChange={() => {}}
         />
 

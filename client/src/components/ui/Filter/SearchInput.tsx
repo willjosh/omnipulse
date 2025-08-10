@@ -66,7 +66,7 @@ const SearchInput: React.FC<SearchBarProps> = ({
         value={internalValue}
         onChange={handleInputChange}
         aria-label={ariaLabel}
-        className={`px-4 py-2 pl-10 border border-gray-300 rounded-3xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${fullWidth ? "w-full" : "w-48"} ${inputClassName}`}
+        className={`px-4 py-2 pl-10 pr-12 border border-gray-300 rounded-3xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent truncate ${fullWidth ? "w-full" : "w-48"} ${inputClassName}`}
       />
       {/* Search Icon */}
       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -90,7 +90,7 @@ const SearchInput: React.FC<SearchBarProps> = ({
           type="button"
           aria-label="Clear search"
           onClick={handleClear}
-          className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none"
+          className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600"
         >
           <svg
             className="h-4 w-4"

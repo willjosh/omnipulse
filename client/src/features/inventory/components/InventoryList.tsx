@@ -3,6 +3,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useInventories, useDeleteInventory } from "../hooks/useInventory";
+import { formatEmptyValueAsString } from "@/utils/emptyValueUtils";
 import { Inventory } from "../types/inventoryType";
 import { Loading } from "@/components/ui/Feedback";
 import EmptyState from "@/components/ui/Feedback/EmptyState";
@@ -187,8 +188,8 @@ const InventoryList = () => {
       <div className="flex items-end justify-between mb-4">
         <FilterBar
           searchValue={search}
-          onSearchChange={handleSearch}
-          searchPlaceholder="Search inventory..."
+          onSearchChange={setSearch}
+          searchPlaceholder="Search"
           onFilterChange={() => {}}
         />
 
@@ -223,7 +224,9 @@ const InventoryList = () => {
           loading={isPending}
           getItemId={item => {
             // Use the most unique fields available
-            const name = item?.inventoryItemName || "unknown";
+            const name =
+              item?.inventoryItemName ||
+              formatEmptyValueAsString(item?.inventoryItemName);
             const cost = item?.unitCost || 0;
             const qty = item?.quantityOnHand || 0;
             return `inv-${name}-${cost}-${qty}`;

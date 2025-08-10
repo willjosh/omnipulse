@@ -168,9 +168,9 @@ const TechnicianList: React.FC = () => {
       <div className="flex items-end justify-between mb-4">
         <FilterBar
           searchValue={search}
-          onSearchChange={handleSearch}
-          searchPlaceholder="Search technicians..."
+          onSearchChange={setSearch}
           onFilterChange={() => {}}
+          searchPlaceholder="Search"
         />
 
         <PaginationControls

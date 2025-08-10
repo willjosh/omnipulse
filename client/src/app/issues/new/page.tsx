@@ -142,7 +142,7 @@ export default function CreateIssueHeaderOnly() {
       </div>
       {/* Footer Actions */}
       <div className="max-w-2xl mx-auto w-full mt-8 mb-12">
-        <hr className="mb-6" />
+        <hr className="mb-6 border-gray-300" />
         <div className="flex justify-between items-center">
           <SecondaryButton
             onClick={() => router.back()} /* disabled={isPending} */

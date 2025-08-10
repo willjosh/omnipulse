@@ -153,7 +153,7 @@ export default function ServiceTaskListPage() {
         <FilterBar
           searchValue={search}
           onSearchChange={setSearch}
-          searchPlaceholder="Search service tasks"
+          searchPlaceholder="Search"
           onFilterChange={() => {}}
         />
         {pagination && (

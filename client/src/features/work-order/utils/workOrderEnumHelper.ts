@@ -53,7 +53,7 @@ export const getWorkOrderStatusLabel = (status: WorkOrderStatusEnum) => {
     case WorkOrderStatusEnum.IN_PROGRESS:
       return "In Progress";
     case WorkOrderStatusEnum.WAITING_PARTS:
-      return "Waiting for Parts";
+      return "Waiting Parts";
     case WorkOrderStatusEnum.COMPLETED:
       return "Completed";
     case WorkOrderStatusEnum.CANCELLED:

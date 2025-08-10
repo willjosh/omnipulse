@@ -27,20 +27,4 @@ export const vehicleGroupTableColumns: Column<VehicleGroup>[] = [
       </div>
     ),
   },
-  {
-    key: "IsActive",
-    header: "Status",
-    sortable: true,
-    render: (group: VehicleGroup) => (
-      <span
-        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-          group.isActive
-            ? "bg-green-100 text-green-800"
-            : "bg-red-100 text-red-800"
-        }`}
-      >
-        {group.isActive ? "Active" : "Inactive"}
-      </span>
-    ),
-  },
 ];

@@ -8,6 +8,7 @@ import SecondaryButton from "@/components/ui/Button/SecondaryButton";
 import FormContainer from "@/components/ui/Form/FormContainer";
 import DetailFieldRow from "@/components/ui/Detail/DetailFieldRow";
 import { format } from "date-fns";
+import { formatEmptyValueWithUnknown } from "@/utils/emptyValueUtils";
 
 export default function InspectionDetailsPage() {
   const params = useParams();
@@ -84,6 +85,41 @@ export default function InspectionDetailsPage() {
       />
 
       <div className="m-4 px-6 pb-12">
+        {/* Summary Cards */}
+        <div className="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="bg-white p-4 rounded-lg border border-gray-200 text-center">
+            <div className="text-2xl font-bold text-gray-900">
+              {inspection.inspectionItems.length}
+            </div>
+            <div className="text-sm text-gray-600">Total Items</div>
+          </div>
+          <div className="bg-white p-4 rounded-lg border border-gray-200 text-center">
+            <div className="text-2xl font-bold text-green-600">
+              {inspection.inspectionItems.filter(item => item.passed).length}
+            </div>
+            <div className="text-sm text-gray-600">Passed</div>
+          </div>
+          <div className="bg-white p-4 rounded-lg border border-gray-200 text-center">
+            <div className="text-2xl font-bold text-red-600">
+              {inspection.inspectionItems.filter(item => !item.passed).length}
+            </div>
+            <div className="text-sm text-gray-600">Failed</div>
+          </div>
+          <div className="bg-white p-4 rounded-lg border border-gray-200 text-center">
+            <div className="text-2xl font-bold text-blue-600">
+              {inspection.inspectionItems.length > 0
+                ? `${Math.round(
+                    (inspection.inspectionItems.filter(item => item.passed)
+                      .length /
+                      inspection.inspectionItems.length) *
+                      100,
+                  )}%`
+                : "0%"}
+            </div>
+            <div className="text-sm text-gray-600">Pass Rate</div>
+          </div>
+        </div>
+
         <div className="flex gap-6">
           {/* Left Column - Inspection Details */}
           <div className="flex-1">
@@ -102,7 +138,7 @@ export default function InspectionDetailsPage() {
                       href={`/vehicles/${inspection.vehicleID}`}
                       className="text-blue-600 hover:text-blue-800 underline"
                     >
-                      {inspection.vehicleName}
+                      {inspection.vehicle.name}
                     </a>
                   </div>
                 }
@@ -110,14 +146,16 @@ export default function InspectionDetailsPage() {
 
               <DetailFieldRow
                 label="Form Title"
-                value={inspection.snapshotFormTitle}
+                value={formatEmptyValueWithUnknown(
+                  inspection.snapshotFormTitle,
+                )}
               />
-              {inspection.snapshotFormDescription && (
-                <DetailFieldRow
-                  label="Form Description"
-                  value={inspection.snapshotFormDescription}
-                />
-              )}
+              <DetailFieldRow
+                label="Form Description"
+                value={formatEmptyValueWithUnknown(
+                  inspection.snapshotFormDescription,
+                )}
+              />
               <DetailFieldRow
                 label="Started"
                 value={formatDateTime(inspection.inspectionStartTime)}
@@ -139,10 +177,11 @@ export default function InspectionDetailsPage() {
                   <div className="flex items-center gap-2">
                     <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
                       <span className="text-xs font-medium text-white">
-                        {inspection.technicianName
-                          ? inspection.technicianName
+                        {inspection.technician.firstName &&
+                        inspection.technician.lastName
+                          ? `${inspection.technician.firstName} ${inspection.technician.lastName}`
                               .split(" ")
-                              .map(n => n[0])
+                              .map((n: string) => n[0])
                               .join("")
                               .toUpperCase()
                           : "U"}
@@ -152,28 +191,32 @@ export default function InspectionDetailsPage() {
                       href={`/users/${inspection.technicianID}`}
                       className="text-blue-600 hover:text-blue-800 underline text-sm"
                     >
-                      {inspection.technicianName || "Unknown User"}
+                      {formatEmptyValueWithUnknown(
+                        `${inspection.technician.firstName} ${inspection.technician.lastName}`,
+                      )}
                     </a>
                   </div>
                 }
               />
-              {inspection.odometerReading && (
-                <DetailFieldRow
-                  label="Odometer Reading"
-                  value={`${inspection.odometerReading.toLocaleString()} km`}
-                />
-              )}
+              <DetailFieldRow
+                label="Odometer Reading"
+                value={formatEmptyValueWithUnknown(
+                  inspection.odometerReading
+                    ? `${inspection.odometerReading.toLocaleString()} km`
+                    : null,
+                )}
+              />
               <DetailFieldRow
                 label="Vehicle Condition"
-                value={inspection.vehicleConditionLabel}
+                value={formatEmptyValueWithUnknown(
+                  inspection.vehicleConditionLabel,
+                )}
               />
-              {inspection.notes && (
-                <DetailFieldRow
-                  label="Notes"
-                  value={inspection.notes}
-                  noBorder
-                />
-              )}
+              <DetailFieldRow
+                label="Notes"
+                value={formatEmptyValueWithUnknown(inspection.notes)}
+                noBorder
+              />
             </FormContainer>
           </div>
 
@@ -186,13 +229,16 @@ export default function InspectionDetailsPage() {
               <div className="space-y-4">
                 <DetailFieldRow
                   label="Total Items"
-                  value={inspection.inspectionItemsCount}
+                  value={inspection.inspectionItems.length}
                 />
                 <DetailFieldRow
                   label="Passed Items"
                   value={
                     <span className="text-green-600 font-medium">
-                      {inspection.passedItemsCount}
+                      {
+                        inspection.inspectionItems.filter(item => item.passed)
+                          .length
+                      }
                     </span>
                   }
                 />
@@ -200,7 +246,10 @@ export default function InspectionDetailsPage() {
                   label="Failed Items"
                   value={
                     <span className="text-red-600 font-medium">
-                      {inspection.failedItemsCount}
+                      {
+                        inspection.inspectionItems.filter(item => !item.passed)
+                          .length
+                      }
                     </span>
                   }
                 />
@@ -208,29 +257,77 @@ export default function InspectionDetailsPage() {
                   label="Pass Rate"
                   value={
                     <span className="font-medium">
-                      {inspection.inspectionItemsCount > 0
+                      {inspection.inspectionItems.length > 0
                         ? `${Math.round(
-                            (inspection.passedItemsCount /
-                              inspection.inspectionItemsCount) *
+                            (inspection.inspectionItems.filter(
+                              item => item.passed,
+                            ).length /
+                              inspection.inspectionItems.length) *
                               100,
                           )}%`
                         : "0%"}
+                      `
                     </span>
                   }
                   noBorder
                 />
               </div>
 
-              {/* <div className="mt-6 pt-4 border-t border-gray-100">
-                <div className="text-center py-4">
-                  <div className="text-gray-500 text-sm">
-                    Individual inspection items will be displayed here
-                  </div>
-                  <div className="text-gray-400 text-xs mt-2">
-                    When API endpoints are available
-                  </div>
+              <div className="mt-6 pt-4 border-t border-gray-100">
+                <h4 className="text-sm font-medium text-gray-900 mb-3">
+                  Individual Items
+                </h4>
+                <div className="space-y-3">
+                  {inspection.inspectionItems.map((item, index) => (
+                    <div
+                      key={index}
+                      className={`p-3 rounded-lg border ${
+                        item.passed
+                          ? "bg-green-50 border-green-200"
+                          : "bg-red-50 border-red-200"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span
+                              className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                                item.passed
+                                  ? "bg-green-100 text-green-800"
+                                  : "bg-red-100 text-red-800"
+                              }`}
+                            >
+                              {item.passed ? "PASS" : "FAIL"}
+                            </span>
+                            <span className="text-xs text-gray-500">
+                              {item.snapshotInspectionFormItemTypeLabel}
+                            </span>
+                            {item.snapshotIsRequired && (
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                Required
+                              </span>
+                            )}
+                          </div>
+                          <h5 className="text-sm font-medium text-gray-900 mb-1">
+                            {item.snapshotItemLabel}
+                          </h5>
+                          {item.snapshotItemDescription && (
+                            <p className="text-xs text-gray-600 mb-2">
+                              {item.snapshotItemDescription}
+                            </p>
+                          )}
+                          {item.comment && (
+                            <div className="text-xs text-gray-700 bg-white p-2 rounded border">
+                              <span className="font-medium">Comment:</span>{" "}
+                              {item.comment}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              </div> */}
+              </div>
             </FormContainer>
           </div>
         </div>
@@ -238,7 +335,10 @@ export default function InspectionDetailsPage() {
         {/* Footer */}
         <div className="mt-8 text-center">
           <p className="text-xs text-gray-500">
-            Created by {inspection.technicianName || "Unknown User"}{" "}
+            Created by{" "}
+            {formatEmptyValueWithUnknown(
+              `${inspection.technician.firstName} ${inspection.technician.lastName}`,
+            )}{" "}
             {format(new Date(inspection.createdAt), "MMM dd, yyyy 'at' h:mma")}
           </p>
         </div>

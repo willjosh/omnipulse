@@ -1,5 +1,9 @@
 import React from "react";
 import { DataTable } from "@/components/ui/Table";
+import {
+  formatEmptyValue,
+  formatEmptyValueWithUnknown,
+} from "@/utils/emptyValueUtils";
 
 export interface IssueRow {
   id: number;
@@ -8,10 +12,10 @@ export interface IssueRow {
   categoryLabel: string;
   priorityLevelLabel: string;
   statusLabel: string;
-  reportedByUserName: string;
-  reportedDate: string;
-  resolvedByUserName?: string;
-  resolvedDate?: string;
+  reportedByUserName: string | null;
+  reportedDate?: string | null;
+  resolvedByUserName?: string | null;
+  resolvedDate?: string | null;
 }
 
 interface IssueListTableProps {
@@ -27,10 +31,64 @@ const columns = [
   { key: "categoryLabel", header: "Category" },
   { key: "priorityLevelLabel", header: "Priority" },
   { key: "statusLabel", header: "Status" },
-  { key: "reportedByUserName", header: "Reported By", width: "150px" },
-  { key: "reportedDate", header: "Reported Date", width: "190px" },
-  { key: "resolvedByUserName", header: "Resolved By", width: "150px" },
-  { key: "resolvedDate", header: "Resolved Date", width: "190px" },
+  {
+    key: "reportedByUserName",
+    header: "Reported By",
+    width: "150px",
+    render: (item: IssueRow) =>
+      formatEmptyValueWithUnknown(item.reportedByUserName),
+  },
+  {
+    key: "reportedDate",
+    header: "Reported Date",
+    width: "190px",
+    render: (item: IssueRow) => {
+      if (!item.reportedDate) {
+        return <span className="text-gray-400">—</span>;
+      }
+      const date = new Date(item.reportedDate);
+      if (isNaN(date.getTime())) {
+        return <span className="text-gray-400">—</span>;
+      }
+      return (
+        <div>
+          <div className="font-medium">{date.toLocaleDateString()}</div>
+          <div className="text-sm text-gray-500">
+            {date.toLocaleTimeString()}
+          </div>
+        </div>
+      );
+    },
+  },
+  {
+    key: "resolvedByUserName",
+    header: "Resolved By",
+    width: "150px",
+    render: (item: IssueRow) =>
+      formatEmptyValueWithUnknown(item.resolvedByUserName),
+  },
+  {
+    key: "resolvedDate",
+    header: "Resolved Date",
+    width: "190px",
+    render: (item: IssueRow) => {
+      if (!item.resolvedDate) {
+        return <span className="text-gray-400">—</span>;
+      }
+      const date = new Date(item.resolvedDate);
+      if (isNaN(date.getTime())) {
+        return <span className="text-gray-400">—</span>;
+      }
+      return (
+        <div>
+          <div className="font-medium">{date.toLocaleDateString()}</div>
+          <div className="text-sm text-gray-500">
+            {date.toLocaleTimeString()}
+          </div>
+        </div>
+      );
+    },
+  },
 ];
 
 export const IssueListTable: React.FC<IssueListTableProps> = ({
@@ -51,6 +109,7 @@ export const IssueListTable: React.FC<IssueListTableProps> = ({
       showActions={false}
       emptyState={emptyState}
       onRowClick={onRowClick}
+      fixedLayout={false}
     />
   );
 };

@@ -128,11 +128,6 @@ const VehicleList: React.FC = () => {
     setPage(1);
   };
 
-  const handleSearch = (searchTerm: string) => {
-    setSearch(searchTerm);
-    // Page reset is handled by useEffect
-  };
-
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
   };
@@ -184,8 +179,8 @@ const VehicleList: React.FC = () => {
       <div className="flex items-end justify-between mb-4">
         <FilterBar
           searchValue={search}
-          onSearchChange={handleSearch}
-          searchPlaceholder="Search vehicles..."
+          onSearchChange={setSearch}
+          searchPlaceholder="Search"
           onFilterChange={() => {}}
         />
 
