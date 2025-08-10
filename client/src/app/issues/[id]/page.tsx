@@ -71,7 +71,7 @@ const IssueDetailsPage = () => {
   };
 
   return (
-    <div className="min-h-screen max-w-7xl shadow border-b border-gray-200 bg-gray-50 mx-auto">
+    <div className="min-h-screen bg-gray-50">
       <div className="bg-white">
         <div className="px-6 py-4">
           <div className="flex items-center space-x-4 mb-4">
@@ -121,146 +121,142 @@ const IssueDetailsPage = () => {
             </div>
           </div>
         </div>
-        <div className="w-full px-6 pb-6">
-          <div className="flex flex-col md:flex-row md:gap-6">
-            {/* Left column: Details card (50% width) */}
-            <div className="w-full md:w-1/2 flex flex-col gap-6">
-              <div className="bg-white rounded-3xl border border-gray-200">
-                <div className="p-4 border-b border-gray-200">
-                  <h2 className="text-lg font-semibold text-gray-900">
-                    Details
-                  </h2>
-                </div>
-                <div className="p-3 space-y-2">
-                  <DetailFieldRow
-                    label="Status"
-                    value={<StatusBadge status={issue.statusLabel} />}
-                  />
-                  <DetailFieldRow
-                    label="Priority"
-                    value={issue.priorityLevelLabel}
-                  />
-                  <DetailFieldRow
-                    label="Category"
-                    value={issue.categoryLabel}
-                  />
-                  <DetailFieldRow
-                    label="Vehicle"
-                    value={
-                      <span className="text-blue-700 font-medium">
-                        {issue.vehicleName}
+      </div>
+
+      <div className="px-6 mt-4 mb-8">
+        <div className="flex flex-col md:flex-row md:gap-6">
+          {/* Left column: Details card (50% width) */}
+          <div className="w-full md:w-1/2 flex flex-col gap-6">
+            <div className="bg-white rounded-3xl border border-gray-200">
+              <div className="p-4 border-b border-gray-200">
+                <h2 className="text-lg font-semibold text-gray-900">Details</h2>
+              </div>
+              <div className="p-3 space-y-2">
+                <DetailFieldRow
+                  label="Status"
+                  value={<StatusBadge status={issue.statusLabel} />}
+                />
+                <DetailFieldRow
+                  label="Priority"
+                  value={issue.priorityLevelLabel}
+                />
+                <DetailFieldRow label="Category" value={issue.categoryLabel} />
+                <DetailFieldRow
+                  label="Vehicle"
+                  value={
+                    <span className="text-blue-700 font-medium">
+                      {issue.vehicleName}
+                    </span>
+                  }
+                />
+                <DetailFieldRow
+                  label="Assigned To"
+                  value={issue.resolvedByUserName || "Unassigned"}
+                />
+                <DetailFieldRow
+                  label="Reported By"
+                  value={issue.reportedByUserName}
+                />
+                <DetailFieldRow
+                  label="Reported Date"
+                  value={issue.reportedDate ? issue.reportedDate : "Unknown"}
+                />
+                <DetailFieldRow
+                  label="Description"
+                  value={
+                    issue.description || (
+                      <span className="text-gray-400">
+                        No description provided.
                       </span>
-                    }
-                  />
-                  <DetailFieldRow
-                    label="Assigned To"
-                    value={issue.resolvedByUserName || "Unassigned"}
-                  />
-                  <DetailFieldRow
-                    label="Reported By"
-                    value={issue.reportedByUserName}
-                  />
-                  <DetailFieldRow
-                    label="Reported Date"
-                    value={issue.reportedDate ? issue.reportedDate : "Unknown"}
-                  />
-                  <DetailFieldRow
-                    label="Description"
-                    value={
-                      issue.description || (
-                        <span className="text-gray-400">
-                          No description provided.
-                        </span>
-                      )
-                    }
-                  />
-                </div>
+                    )
+                  }
+                />
               </div>
             </div>
-            {/* Right column: Resolution Details and Timeline (50% width) */}
-            <div className="w-full md:w-1/2 flex flex-col gap-6 mt-6 md:mt-0">
-              {/* Resolution Details Card */}
-              <div className="bg-white rounded-3xl border border-gray-200">
-                <div className="p-4 border-b border-gray-200">
-                  <h2 className="text-lg font-semibold text-gray-900">
-                    Resolution Details
-                  </h2>
-                </div>
-                <div className="p-3 space-y-2">
-                  <DetailFieldRow
-                    label="Resolved Date"
-                    value={issue.resolvedDate ? issue.resolvedDate : "Unknown"}
-                  />
-                  <DetailFieldRow
-                    label="Time to Resolve"
-                    value={getTimeToResolve(
-                      issue.reportedDate,
-                      issue.resolvedDate,
-                    )}
-                  />
-                  <DetailFieldRow
-                    label="Resolution Notes"
-                    value={
-                      issue.resolutionNotes || (
-                        <span className="text-gray-400">
-                          No resolution notes provided.
-                        </span>
-                      )
-                    }
-                  />
-                </div>
+          </div>
+          {/* Right column: Resolution Details and Timeline (50% width) */}
+          <div className="w-full md:w-1/2 flex flex-col gap-6 mt-6 md:mt-0">
+            {/* Resolution Details Card */}
+            <div className="bg-white rounded-3xl border border-gray-200">
+              <div className="p-4 border-b border-gray-200">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Resolution Details
+                </h2>
               </div>
-              {/* Timeline Card */}
-              <div className="bg-white rounded-3xl border border-gray-200">
-                <div className="p-4 border-b border-gray-200">
-                  <h2 className="text-lg font-semibold text-gray-900">
-                    Timeline
-                  </h2>
-                </div>
-                <div className="p-3 text-gray-900 text-sm">
-                  <ol className="relative border-l border-gray-200 ml-3">
-                    {/* Issue reported event */}
-                    <li className="mb-8 ml-6">
-                      <span className="absolute -left-3 flex items-center justify-center w-6 h-6 bg-blue-100 rounded-full ring-8 ring-white">
+              <div className="p-3 space-y-2">
+                <DetailFieldRow
+                  label="Resolved Date"
+                  value={issue.resolvedDate ? issue.resolvedDate : "Unknown"}
+                />
+                <DetailFieldRow
+                  label="Time to Resolve"
+                  value={getTimeToResolve(
+                    issue.reportedDate,
+                    issue.resolvedDate,
+                  )}
+                />
+                <DetailFieldRow
+                  label="Resolution Notes"
+                  value={
+                    issue.resolutionNotes || (
+                      <span className="text-gray-400">
+                        No resolution notes provided.
+                      </span>
+                    )
+                  }
+                />
+              </div>
+            </div>
+            {/* Timeline Card */}
+            <div className="bg-white rounded-3xl border border-gray-200">
+              <div className="p-4 border-b border-gray-200">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Timeline
+                </h2>
+              </div>
+              <div className="p-3 text-gray-900 text-sm">
+                <ol className="relative border-l border-gray-200 ml-3">
+                  {/* Issue reported event */}
+                  <li className="mb-8 ml-6">
+                    <span className="absolute -left-3 flex items-center justify-center w-6 h-6 bg-blue-100 rounded-full ring-8 ring-white">
+                      <svg
+                        className="w-3 h-3 text-blue-600"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V7h2v2z" />
+                      </svg>
+                    </span>
+                    <h3 className="font-semibold leading-tight">
+                      Issue reported
+                    </h3>
+                    <p className="text-xs text-gray-500">
+                      {issue.reportedDate ? issue.reportedDate : "Unknown"} by{" "}
+                      {issue.reportedByUserName}
+                    </p>
+                  </li>
+                  {/* Issue resolved event, only if resolved */}
+                  {issue.resolvedDate && (
+                    <li className="ml-6">
+                      <span className="absolute -left-3 flex items-center justify-center w-6 h-6 bg-green-100 rounded-full ring-8 ring-white">
                         <svg
-                          className="w-3 h-3 text-blue-600"
+                          className="w-3 h-3 text-green-600"
                           fill="currentColor"
                           viewBox="0 0 20 20"
                         >
-                          <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V7h2v2z" />
+                          <path d="M16.707 5.293a1 1 0 00-1.414 0L9 11.586 6.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l7-7a1 1 0 000-1.414z" />
                         </svg>
                       </span>
                       <h3 className="font-semibold leading-tight">
-                        Issue reported
+                        Issue resolved
                       </h3>
                       <p className="text-xs text-gray-500">
-                        {issue.reportedDate ? issue.reportedDate : "Unknown"} by{" "}
-                        {issue.reportedByUserName}
+                        {issue.resolvedDate} by{" "}
+                        {issue.resolvedByUserName || "Unassigned"}
                       </p>
                     </li>
-                    {/* Issue resolved event, only if resolved */}
-                    {issue.resolvedDate && (
-                      <li className="ml-6">
-                        <span className="absolute -left-3 flex items-center justify-center w-6 h-6 bg-green-100 rounded-full ring-8 ring-white">
-                          <svg
-                            className="w-3 h-3 text-green-600"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path d="M16.707 5.293a1 1 0 00-1.414 0L9 11.586 6.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l7-7a1 1 0 000-1.414z" />
-                          </svg>
-                        </span>
-                        <h3 className="font-semibold leading-tight">
-                          Issue resolved
-                        </h3>
-                        <p className="text-xs text-gray-500">
-                          {issue.resolvedDate} by{" "}
-                          {issue.resolvedByUserName || "Unassigned"}
-                        </p>
-                      </li>
-                    )}
-                  </ol>
-                </div>
+                  )}
+                </ol>
               </div>
             </div>
           </div>

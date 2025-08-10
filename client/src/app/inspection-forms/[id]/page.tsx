@@ -10,7 +10,7 @@ import {
   useInspectionFormItems,
   useDeactivateInspectionFormItem,
 } from "@/features/inspection-form/hooks/useInspectionFormItems";
-import { PrimaryButton, SecondaryButton } from "@/components/ui/Button";
+import { PrimaryButton } from "@/components/ui/Button";
 import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
 import { getInspectionFormItemTypeLabel } from "@/features/inspection-form/utils/inspectionFormEnumHelper";
 import {
@@ -140,7 +140,7 @@ export default function InspectionFormDetailsPage() {
   };
 
   return (
-    <div className="min-h-screen max-w-7xl shadow border-b border-gray-200 bg-gray-50">
+    <div className="min-h-screen bg-gray-50">
       <div className="bg-white">
         <div className="px-6 py-4">
           <div className="flex items-center space-x-4 mb-4">
@@ -181,7 +181,7 @@ export default function InspectionFormDetailsPage() {
         </div>
       </div>
 
-      <div className="px-6 pb-12 pt-4 max-w-6xl mx-auto">
+      <div className="px-6 mt-4 mb-8">
         {/* Inspection Items Section */}
         <div className="bg-white rounded-3xl border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-6">
@@ -206,12 +206,6 @@ export default function InspectionFormDetailsPage() {
           ) : inspectionFormItems?.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-gray-500 mb-4">No inspection items found</p>
-              {/* <div className="flex justify-center">
-                <PrimaryButton onClick={handleAddItem}>
-                  <Plus size={16} />
-                  Add Item
-                </PrimaryButton>
-              </div> */}
             </div>
           ) : (
             <div className="space-y-4">

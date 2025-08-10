@@ -173,10 +173,6 @@ export default function ServiceEntriesPage() {
         <h1 className="text-2xl font-semibold text-gray-900">
           Service Entries
         </h1>
-        <PrimaryButton onClick={() => router.push("/service-entries/new")}>
-          <Plus size={18} className="mr-2" />
-          Add Service Entry
-        </PrimaryButton>
       </div>
 
       <div className="flex items-end justify-between mb-4">
