@@ -49,7 +49,7 @@ public class ServiceReminderMappingProfile : Profile
             .ForMember(dest => dest.ScheduleType, opt => opt.MapFrom(src => src.GetScheduleType()));
 
         // ServiceTask to ServiceTaskInfoDTO mapping
-        CreateMap<ServiceTask, ServiceTaskInfoDTO>()
+        CreateMap<ServiceTask, ServiceTaskInfoDTO>(MemberList.Destination)
             .ForMember(dest => dest.ServiceTaskID, opt => opt.MapFrom(src => src.ID))
             .ForMember(dest => dest.ServiceTaskName, opt => opt.MapFrom(src => src.Name))
             .ForMember(dest => dest.ServiceTaskCategory, opt => opt.MapFrom(src => src.Category))

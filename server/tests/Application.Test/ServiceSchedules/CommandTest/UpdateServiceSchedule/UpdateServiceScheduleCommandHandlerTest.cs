@@ -1,6 +1,7 @@
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
+using Application.Features.ServiceReminders.Command.GenerateServiceReminders;
 using Application.Features.ServiceSchedules.Command.UpdateServiceSchedule;
 using Application.MappingProfiles;
 
@@ -124,15 +125,15 @@ public class UpdateServiceScheduleCommandHandlerTest
             }
         });
 
-        _mockReminderRepository.Setup(r => r.CancelFutureRemindersForScheduleAsync(It.IsAny<int>(), It.IsAny<string>())).Returns(Task.CompletedTask);
+        _mockReminderRepository.Setup(r => r.DeleteNonFinalRemindersForScheduleAsync(It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync(0);
 
         // Act
         var result = await _commandHandler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.Equal(command.ServiceScheduleID, result);
-        _mockReminderRepository.Verify(r => r.CancelFutureRemindersForScheduleAsync(It.IsAny<int>(), It.IsAny<string>()), Times.Once);
-        _mockSender.Verify(s => s.Send(It.IsAny<Application.Features.ServiceReminders.Command.GenerateServiceReminders.GenerateServiceRemindersCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+        _mockReminderRepository.Verify(r => r.DeleteNonFinalRemindersForScheduleAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Once);
+        _mockSender.Verify(s => s.Send(It.IsAny<GenerateServiceRemindersCommand>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

@@ -52,12 +52,17 @@ public class DeleteServiceScheduleCommandHandler : IRequestHandler<DeleteService
         await _serviceScheduleRepository.SaveChangesAsync();
         _logger.LogInformation($"ServiceSchedule with ID: {request.ServiceScheduleID} soft-deleted");
 
-        // Cancel future reminders (UPCOMING/DUE_SOON without WorkOrder)
-        var cancelled = await _serviceReminderRepository.CancelFutureRemindersForScheduleAsync(request.ServiceScheduleID);
-        _logger.LogInformation("Cancelled {Count} future reminders for soft-deleted schedule {ScheduleID}", cancelled, request.ServiceScheduleID);
+        // Cancel future reminders
+        _ = await _serviceReminderRepository.DeleteNonFinalRemindersForScheduleAsync(request.ServiceScheduleID, cancellationToken);
 
-        // Trigger regeneration to refresh state for other schedules
-        await _sender.Send(new GenerateServiceRemindersCommand(), cancellationToken);
+        // Trigger regeneration
+        var generateCommand = new GenerateServiceRemindersCommand();
+        var generateResult = await _sender.Send(generateCommand);
+
+        if (!generateResult.Success)
+        {
+            _logger.LogWarning($"{nameof(DeleteServiceScheduleCommandHandler)} - Failed to regenerate reminders after delete: {generateResult.ErrorMessage}");
+        }
 
         return request.ServiceScheduleID;
     }

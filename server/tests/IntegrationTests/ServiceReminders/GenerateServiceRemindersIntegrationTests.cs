@@ -328,9 +328,8 @@ public class GenerateServiceRemindersIntegrationTests : BaseIntegrationTest
 
         // Assert
         var reminders = await GetRemindersInDbByScheduleAsync(scheduleId);
-        reminders.Should().NotBeEmpty();
-        reminders.Should().AllSatisfy(r => r.Status.Should().Be(ServiceReminderStatusEnum.CANCELLED));
-        reminders.Should().AllSatisfy(r => r.CancelReason.Should().NotBeNullOrWhiteSpace());
+        // Non-final reminders are deleted; only completed/cancelled may remain historically, or none
+        reminders.Should().OnlyContain(r => r.Status == ServiceReminderStatusEnum.COMPLETED || r.Status == ServiceReminderStatusEnum.CANCELLED);
     }
 
     [Fact]
@@ -514,13 +513,13 @@ public class GenerateServiceRemindersIntegrationTests : BaseIntegrationTest
             IsActive: true
         ));
 
-        // Make intent explicit: regenerate after update
+        // Regenerate after update
         await GenerateServiceRemindersAsync();
         var reminders = await GetServiceRemindersAsync(vehicleId, scheduleId);
-        reminders.Count(r => r.Status == ServiceReminderStatusEnum.CANCELLED).Should().BeGreaterThan(0);
-        var upcoming = reminders.FirstOrDefault(r => r.Status == ServiceReminderStatusEnum.UPCOMING);
-        upcoming.Should().NotBeNull();
-        upcoming!.ServiceTasks.Should().HaveCount(1);
+        // Non-final reminders should be deleted; only upcoming should exist now
+        reminders.Should().ContainSingle(r => r.Status == ServiceReminderStatusEnum.UPCOMING);
+        var upcoming = reminders.First(r => r.Status == ServiceReminderStatusEnum.UPCOMING);
+        upcoming.ServiceTasks.Should().HaveCount(1);
         // We avoid brittle name assertions; ensure one task exists
         upcoming.TimeIntervalValue.Should().Be(365);
         upcoming.DueDate.Should().BeCloseTo(DateTime.UtcNow.Date.AddDays(120), TimeSpan.FromDays(1));

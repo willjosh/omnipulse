@@ -142,6 +142,7 @@ public class GenerateServiceRemindersCommandHandler : IRequestHandler<GenerateSe
             .FirstOrDefault();
     }
 
+    // Time-based
     private static IEnumerable<ServiceReminderDTO> GenerateTimeBasedOccurrences(
         ServiceSchedule schedule,
         Vehicle vehicle,
@@ -151,7 +152,7 @@ public class GenerateServiceRemindersCommandHandler : IRequestHandler<GenerateSe
         bool includeOnlyUpcoming)
     {
         // includeOnlyUpcoming: when true, yield only the first UPCOMING and stop; otherwise yield OVERDUE/DUE_SOON
-        var startDate = schedule.FirstServiceDate ?? assignmentDateUtc;
+        var startDate = schedule.FirstServiceDate ?? CalculateOccurrenceDate(assignmentDateUtc, schedule.TimeIntervalValue!.Value, schedule.TimeIntervalUnit!.Value, 1);
 
         for (int occurrence = 1; occurrence <= MaxOccurrenceCount; occurrence++)
         {
@@ -182,6 +183,7 @@ public class GenerateServiceRemindersCommandHandler : IRequestHandler<GenerateSe
         }
     }
 
+    // Mileage-based
     private static IEnumerable<ServiceReminderDTO> GenerateMileageBasedOccurrences(
         ServiceSchedule schedule,
         Vehicle vehicle,
@@ -191,7 +193,7 @@ public class GenerateServiceRemindersCommandHandler : IRequestHandler<GenerateSe
         bool includeOnlyUpcoming)
     {
         // includeOnlyUpcoming: when true, yield only the first UPCOMING and stop; otherwise yield OVERDUE/DUE_SOON
-        var startMileage = schedule.FirstServiceMileage ?? vehicle.Mileage;
+        var startMileage = schedule.FirstServiceMileage ?? (vehicle.Mileage + schedule.MileageInterval!.Value);
 
         for (int occurrence = 1; occurrence <= MaxOccurrenceCount; occurrence++)
         {

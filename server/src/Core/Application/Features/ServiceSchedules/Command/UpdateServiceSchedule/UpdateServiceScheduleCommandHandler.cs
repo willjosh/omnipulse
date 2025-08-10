@@ -96,11 +96,25 @@ public sealed class UpdateServiceScheduleCommandHandler : IRequestHandler<Update
 
         // Business Rules after update:
         // - Affect only future reminders: cancel UPCOMING/DUE_SOON without WorkOrder
-        var cancelledCount = await _serviceReminderRepository.CancelFutureRemindersForScheduleAsync(existingSchedule.ID);
-        _logger.LogInformation("Cancelled {Count} future reminders for schedule {ScheduleID}", cancelledCount, existingSchedule.ID);
+        // Cancel future reminders for this schedule
+        await _serviceReminderRepository.DeleteNonFinalRemindersForScheduleAsync(request.ServiceScheduleID, cancellationToken);
 
-        // - Regenerate reminders for all affected vehicles from updated schedule
-        await _sender.Send(new GenerateServiceRemindersCommand(), cancellationToken);
+        // Trigger regeneration to create new reminders based on updated schedule
+        var generateCommand = new GenerateServiceRemindersCommand();
+        var sendTask = _sender.Send(generateCommand, cancellationToken);
+        if (sendTask != null)
+        {
+            var generateResult = await sendTask;
+            if (generateResult == null || !generateResult.Success)
+            {
+                var error = generateResult?.ErrorMessage ?? "Unknown error";
+                _logger.LogWarning($"{nameof(UpdateServiceScheduleCommandHandler)} - Failed to regenerate reminders after update: {error}");
+            }
+        }
+        else
+        {
+            _logger.LogWarning($"{nameof(UpdateServiceScheduleCommandHandler)} - ISender.Send returned null task; skipping reminder regeneration.");
+        }
 
         return existingSchedule.ID;
     }
