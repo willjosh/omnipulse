@@ -78,7 +78,7 @@ export default function ServiceScheduleListPage() {
           Service Schedules
         </h1>
         <PrimaryButton onClick={() => router.push("/service-schedules/new")}>
-          <Plus size={18} className="mr-2" />
+          <Plus size={18} />
           Add Service Schedule
         </PrimaryButton>
       </div>

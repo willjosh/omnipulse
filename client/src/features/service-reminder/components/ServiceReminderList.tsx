@@ -70,21 +70,6 @@ const ServiceReminderList: React.FC = () => {
     }
   };
 
-  const getPriorityColor = (priority: number) => {
-    switch (priority) {
-      case 1: // LOW
-        return "bg-gray-100 text-gray-800";
-      case 2: // MEDIUM
-        return "bg-yellow-100 text-yellow-800";
-      case 3: // HIGH
-        return "bg-orange-100 text-orange-800";
-      case 4: // CRITICAL
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
   const serviceReminderColumns = [
     {
       key: "vehicleName",
@@ -93,7 +78,6 @@ const ServiceReminderList: React.FC = () => {
       render: (reminder: ServiceReminderWithLabels) => (
         <div>
           <div className="font-medium">{reminder.vehicleName}</div>
-          <div className="text-sm text-gray-500">ID: {reminder.vehicleID}</div>
         </div>
       ),
     },
@@ -124,16 +108,12 @@ const ServiceReminderList: React.FC = () => {
       ),
     },
     {
-      key: "priorityLevel",
-      header: "Priority",
+      key: "scheduleType",
+      header: "Schedule Type",
       sortable: true,
       render: (reminder: ServiceReminderWithLabels) => (
-        <span
-          className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(
-            reminder.priorityLevel,
-          )}`}
-        >
-          {reminder.priorityLevelLabel}
+        <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+          {reminder.scheduleTypeLabel}
         </span>
       ),
     },
@@ -250,9 +230,6 @@ const ServiceReminderList: React.FC = () => {
       render: (reminder: ServiceReminderWithLabels) => (
         <div className="text-center">
           <div className="font-medium">{reminder.occurrenceNumber}</div>
-          <div className="text-xs text-gray-500">
-            {reminder.scheduleTypeLabel}-based
-          </div>
         </div>
       ),
     },

@@ -141,7 +141,7 @@ export default function ServiceProgramsPage() {
           Service Programs
         </h1>
         <PrimaryButton onClick={() => router.push("/service-programs/new")}>
-          <Plus size={18} className="mr-2" />
+          <Plus size={18} />
           Add Service Program
         </PrimaryButton>
       </div>
