@@ -69,6 +69,15 @@ public class ServiceReminder : BaseEntity
 public static class ServiceReminderExtensions
 {
     /// <summary>
+    /// Single source of truth for final states.
+    /// </summary>
+    public static readonly ServiceReminderStatusEnum[] FinalStatuses =
+    [
+        ServiceReminderStatusEnum.COMPLETED,
+        ServiceReminderStatusEnum.CANCELLED
+    ];
+
+    /// <summary>
     /// Determines the current <see cref="ServiceReminderStatusEnum"/> based on due targets and schedule buffers.
     /// </summary>
     /// <param name="serviceReminder">The reminder being evaluated.</param>
@@ -106,8 +115,7 @@ public static class ServiceReminderExtensions
     /// </summary>
     public static bool IsFinalState(this ServiceReminder serviceReminder)
     {
-        return serviceReminder.Status == ServiceReminderStatusEnum.COMPLETED ||
-               serviceReminder.Status == ServiceReminderStatusEnum.CANCELLED;
+        return FinalStatuses.Contains(serviceReminder.Status);
     }
 
     // ===== Status Checks =====
