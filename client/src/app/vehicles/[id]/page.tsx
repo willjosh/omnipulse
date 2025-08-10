@@ -391,7 +391,7 @@ const VehicleDetailsPage = () => {
           <div className="flex items-center space-x-4 mb-4">
             <button
               onClick={handleBack}
-              className="flex items-center text-gray-600 hover:text-gray-900"
+              className="flex items-center text-gray-600 hover:text-blue-500"
             >
               <ArrowLeft className="w-4 h-4 mr-1" />
               <span className="text-sm">Vehicles</span>

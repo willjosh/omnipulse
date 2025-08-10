@@ -16,7 +16,7 @@ interface BreadcrumbsProps {
 
 const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
   items,
-  separator = <span className="mx-2 text-gray-400">&gt;</span>,
+  separator = <span className="mx-2 text-gray-400">/</span>,
   className = "",
 }) => {
   const router = useRouter();
