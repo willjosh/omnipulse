@@ -1,4 +1,4 @@
-namespace Application.Features.ServiceReminders.Command.GenerateServiceReminders;
+namespace Application.Features.ServiceReminders.Command.SyncServiceReminders;
 
 /// <summary>
 /// Response for the <see cref="SyncServiceRemindersCommand"/>

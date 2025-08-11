@@ -7,7 +7,7 @@ using Domain.Entities.Enums;
 
 using MediatR;
 
-namespace Application.Features.ServiceReminders.Command.GenerateServiceReminders;
+namespace Application.Features.ServiceReminders.Command.SyncServiceReminders;
 
 /// <summary>
 /// Syncs reminders from active schedules: calculates occurrences and persists them.

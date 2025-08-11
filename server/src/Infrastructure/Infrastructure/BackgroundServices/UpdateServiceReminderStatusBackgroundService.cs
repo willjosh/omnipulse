@@ -1,6 +1,6 @@
 using Application.Contracts.Persistence;
 using Application.Contracts.Services;
-using Application.Features.ServiceReminders.Command.GenerateServiceReminders;
+using Application.Features.ServiceReminders.Command.SyncServiceReminders;
 
 using Domain.Entities;
 

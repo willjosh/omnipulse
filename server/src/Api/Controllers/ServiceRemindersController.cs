@@ -1,5 +1,5 @@
 using Application.Features.ServiceReminders.Command.AddServiceReminderToExistingWorkOrder;
-using Application.Features.ServiceReminders.Command.GenerateServiceReminders;
+using Application.Features.ServiceReminders.Command.SyncServiceReminders;
 using Application.Features.ServiceReminders.Query;
 using Application.Features.ServiceReminders.Query.GetAllServiceReminders;
 using Application.Models.PaginationModels;

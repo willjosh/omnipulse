@@ -1,6 +1,6 @@
 using MediatR;
 
-namespace Application.Features.ServiceReminders.Command.GenerateServiceReminders;
+namespace Application.Features.ServiceReminders.Command.SyncServiceReminders;
 
 /// <summary>
 /// Command to sync service reminders from service schedules.

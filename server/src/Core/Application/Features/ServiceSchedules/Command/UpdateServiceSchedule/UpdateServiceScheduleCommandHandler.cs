@@ -1,7 +1,7 @@
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
-using Application.Features.ServiceReminders.Command.GenerateServiceReminders;
+using Application.Features.ServiceReminders.Command.SyncServiceReminders;
 
 using AutoMapper;
 

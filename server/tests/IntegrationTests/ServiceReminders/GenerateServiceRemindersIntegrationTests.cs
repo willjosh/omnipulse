@@ -1,7 +1,7 @@
 using Application.Exceptions;
 using Application.Features.ServicePrograms.Command.AddVehicleToServiceProgram;
 using Application.Features.ServicePrograms.Command.CreateServiceProgram;
-using Application.Features.ServiceReminders.Command.GenerateServiceReminders;
+using Application.Features.ServiceReminders.Command.SyncServiceReminders;
 using Application.Features.ServiceReminders.Query;
 using Application.Features.ServiceReminders.Query.GetAllServiceReminders;
 using Application.Features.ServiceSchedules.Command.CreateServiceSchedule;
