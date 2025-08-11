@@ -66,7 +66,7 @@ public class DeleteServiceScheduleCommandHandlerTest
         _mockServiceScheduleRepository.Setup(repo => repo.SaveChangesAsync()).ReturnsAsync(1);
         _mockXrefRepo.Setup(x => x.RemoveAllForScheduleAsync(command.ServiceScheduleID)).Returns(Task.CompletedTask);
         _mockReminderRepo.Setup(r => r.DeleteNonFinalRemindersForScheduleAsync(command.ServiceScheduleID, It.IsAny<CancellationToken>())).ReturnsAsync(0);
-        _mockSender.Setup(s => s.Send(It.IsAny<IRequest<GenerateServiceRemindersResponse>>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenerateServiceRemindersResponse(0, 0, true));
+        _mockSender.Setup(s => s.Send(It.IsAny<IRequest<GenerateServiceRemindersResponse>>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenerateServiceRemindersResponse(0, true));
 
         // Act
         var result = await _handler.Handle(command, CancellationToken.None);

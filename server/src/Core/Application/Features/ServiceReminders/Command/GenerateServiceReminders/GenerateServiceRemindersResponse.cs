@@ -5,7 +5,6 @@ namespace Application.Features.ServiceReminders.Command.GenerateServiceReminders
 /// </summary>
 public record GenerateServiceRemindersResponse(
     int GeneratedCount,
-    int UpdatedCount,
     bool Success,
     string? ErrorMessage = null
 );

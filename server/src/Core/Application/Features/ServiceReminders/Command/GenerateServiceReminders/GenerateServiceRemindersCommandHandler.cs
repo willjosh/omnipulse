@@ -16,7 +16,6 @@ namespace Application.Features.ServiceReminders.Command.GenerateServiceReminders
 public class GenerateServiceRemindersCommandHandler : IRequestHandler<GenerateServiceRemindersCommand, GenerateServiceRemindersResponse>
 {
     // Constants
-    private const int MaxOccurrenceCount = 100;
     private const int DaysPerWeek = 7;
 
     private readonly IServiceReminderRepository _serviceReminderRepository;
@@ -40,7 +39,7 @@ public class GenerateServiceRemindersCommandHandler : IRequestHandler<GenerateSe
             _logger.LogInformation("Starting service reminder generation");
 
             // Fetch all active schedules with required vehicle/task data in one go (avoid N+1)
-            var schedules = await _serviceReminderRepository.GetActiveServiceSchedulesWithDataAsync();
+            var schedules = await _serviceReminderRepository.GetActiveServiceSchedulesWithDataAsync(cancellationToken);
 
             // Ignore soft-deleted schedules if any slipped through
             schedules = schedules.Where(s => !s.IsSoftDeleted && s.IsActive).ToList();
@@ -48,20 +47,19 @@ public class GenerateServiceRemindersCommandHandler : IRequestHandler<GenerateSe
             // Calculate reminders in-memory for current time; generation enforces a single UPCOMING per pair
             var calculated = GenerateCalculatedReminders(schedules, _timeProvider.GetUtcNow().UtcDateTime);
 
-            // Persist in bulk; repository preserves COMPLETED and updates existing non-final reminders
-            await _serviceReminderRepository.SyncRemindersAsync(calculated);
+            // Persist only new reminders; existing ones are skipped (idempotent)
+            var inserted = await _serviceReminderRepository.AddNewRemindersAsync(calculated, cancellationToken);
 
-            _logger.LogInformation("Successfully generated {Count} service reminders", calculated.Count);
+            _logger.LogInformation("Inserted {Count} new service reminders", inserted);
 
             return new GenerateServiceRemindersResponse(
-                GeneratedCount: calculated.Count,
-                UpdatedCount: calculated.Count,
+                GeneratedCount: inserted,
                 Success: true);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to generate service reminders");
-            return new GenerateServiceRemindersResponse(0, 0, false, ex.Message);
+            return new GenerateServiceRemindersResponse(0, false, ex.Message);
         }
     }
 
@@ -95,6 +93,15 @@ public class GenerateServiceRemindersCommandHandler : IRequestHandler<GenerateSe
         return reminders;
     }
 
+    /// <summary>
+    /// Generates all reminder occurrences for a given schedule-vehicle pair:
+    /// overdue and due-soon occurrences, plus exactly one upcoming occurrence.
+    /// </summary>
+    /// <param name="schedule">The source service schedule.</param>
+    /// <param name="vehicle">The vehicle assigned to the schedule's program.</param>
+    /// <param name="tasks">The service tasks belonging to the schedule.</param>
+    /// <param name="assignmentDateUtc">The date the vehicle was assigned to the program (UTC).</param>
+    /// <param name="currentDateUtc">Current UTC date for calculations.</param>
     private static IEnumerable<ServiceReminderDTO> GenerateForVehicleAndSchedulePair(
         ServiceSchedule schedule,
         Vehicle vehicle,
@@ -102,83 +109,64 @@ public class GenerateServiceRemindersCommandHandler : IRequestHandler<GenerateSe
         DateTime assignmentDateUtc,
         DateTime currentDateUtc)
     {
-        // 1) Overdue & Due-Soon (may be multiple)
-        foreach (var dto in GenerateNonUpcoming(schedule, vehicle, tasks, assignmentDateUtc, currentDateUtc))
-        {
-            yield return dto;
-        }
-
-        // 2) Exactly ONE Upcoming (the next upcoming occurrence only)
-        var upcoming = GenerateSingleUpcoming(schedule, vehicle, tasks, assignmentDateUtc, currentDateUtc);
-        if (upcoming != null) yield return upcoming;
-    }
-
-    private static IEnumerable<ServiceReminderDTO> GenerateNonUpcoming(
-        ServiceSchedule schedule,
-        Vehicle vehicle,
-        List<ServiceTask> tasks,
-        DateTime assignmentDateUtc,
-        DateTime currentDateUtc)
-    {
         if (schedule.IsTimeBased())
         {
-            return GenerateTimeBasedOccurrences(schedule, vehicle, tasks, assignmentDateUtc, currentDateUtc, includeOnlyUpcoming: false);
+            foreach (var dto in GenerateTimeBasedOccurrences(schedule, vehicle, tasks, assignmentDateUtc, currentDateUtc))
+            {
+                yield return dto;
+            }
         }
-
-        return GenerateMileageBasedOccurrences(schedule, vehicle, tasks, assignmentDateUtc, currentDateUtc, includeOnlyUpcoming: false);
-    }
-
-    private static ServiceReminderDTO? GenerateSingleUpcoming(
-        ServiceSchedule schedule,
-        Vehicle vehicle,
-        List<ServiceTask> tasks,
-        DateTime assignmentDateUtc,
-        DateTime currentDateUtc)
-    {
-        if (schedule.IsTimeBased())
+        else
         {
-            return GenerateTimeBasedOccurrences(schedule, vehicle, tasks, assignmentDateUtc, currentDateUtc, includeOnlyUpcoming: true)
-                .FirstOrDefault();
+            foreach (var dto in GenerateMileageBasedOccurrences(schedule, vehicle, tasks, assignmentDateUtc, currentDateUtc))
+            {
+                yield return dto;
+            }
         }
-
-        return GenerateMileageBasedOccurrences(schedule, vehicle, tasks, assignmentDateUtc, currentDateUtc, includeOnlyUpcoming: true)
-            .FirstOrDefault();
     }
 
-    // Time-based
+    /// <summary>
+    /// Generates time-based occurrences for a schedule: yields all OVERDUE/DUE_SOON occurrences
+    /// followed by exactly one UPCOMING occurrence (the next upcoming).
+    /// </summary>
+    /// <param name="schedule">The time-based schedule.</param>
+    /// <param name="vehicle">The vehicle.</param>
+    /// <param name="tasks">The tasks belonging to the schedule.</param>
+    /// <param name="assignmentDateUtc">The assignment date (UTC).</param>
+    /// <param name="currentDateUtc">Current UTC date.</param>
     private static IEnumerable<ServiceReminderDTO> GenerateTimeBasedOccurrences(
         ServiceSchedule schedule,
         Vehicle vehicle,
         List<ServiceTask> tasks,
         DateTime assignmentDateUtc,
-        DateTime currentDateUtc,
-        bool includeOnlyUpcoming)
+        DateTime currentDateUtc)
     {
-        // includeOnlyUpcoming: when true, yield only the first UPCOMING and stop; otherwise yield OVERDUE/DUE_SOON
         var startDate = schedule.FirstServiceDate ?? CalculateOccurrenceDate(assignmentDateUtc, schedule.TimeIntervalValue!.Value, schedule.TimeIntervalUnit!.Value, 1);
 
-        for (int occurrence = 1; occurrence <= MaxOccurrenceCount; occurrence++)
+        // Precompute all due dates up to and including the first UPCOMING
+        var timeDuePoints = GetTimeDuePoints(startDate,
+            schedule.TimeIntervalValue!.Value,
+            schedule.TimeIntervalUnit!.Value,
+            currentDateUtc,
+            schedule.TimeBufferValue ?? 0,
+            schedule.TimeBufferUnit ?? TimeUnitEnum.Days);
+
+        // Emit overdue/due-soon occurrences (all but last), then exactly one UPCOMING (last)
+        for (int i = 0; i < timeDuePoints.Count; i++)
         {
-            var dueDate = occurrence == 1
-                ? startDate
-                : CalculateOccurrenceDate(startDate, schedule.TimeIntervalValue!.Value, schedule.TimeIntervalUnit!.Value, occurrence - 1);
-
+            var isLast = i == timeDuePoints.Count - 1;
+            var dueDate = timeDuePoints[i];
             var status = schedule.CalculateReminderStatus(dueDate, null, currentDateUtc, vehicle.Mileage);
-
-            if (includeOnlyUpcoming)
+            if (!isLast)
             {
-                if (status == ServiceReminderStatusEnum.UPCOMING)
+                if (status == ServiceReminderStatusEnum.OVERDUE || status == ServiceReminderStatusEnum.DUE_SOON)
                 {
                     yield return CreateReminder(schedule, vehicle, tasks, dueDate, null, status, ServiceScheduleTypeEnum.TIME, currentDateUtc);
-                    yield break; // only the next upcoming
                 }
-
-                // Sanity horizon: avoid infinite search if configuration pushes occurrences far ahead
-                if (dueDate > currentDateUtc.AddYears(10)) yield break;
             }
             else
             {
-                if (status == ServiceReminderStatusEnum.OVERDUE || status == ServiceReminderStatusEnum.DUE_SOON)
+                if (status == ServiceReminderStatusEnum.UPCOMING)
                 {
                     yield return CreateReminder(schedule, vehicle, tasks, dueDate, null, status, ServiceScheduleTypeEnum.TIME, currentDateUtc);
                 }
@@ -186,38 +174,48 @@ public class GenerateServiceRemindersCommandHandler : IRequestHandler<GenerateSe
         }
     }
 
-    // Mileage-based
+    /// <summary>
+    /// Generates mileage-based occurrences for a schedule: yields all OVERDUE/DUE_SOON occurrences
+    /// followed by exactly one UPCOMING occurrence (the next upcoming), using the schedule's mileage buffer
+    /// as the due-soon threshold.
+    /// </summary>
+    /// <param name="schedule">The mileage-based schedule.</param>
+    /// <param name="vehicle">The vehicle.</param>
+    /// <param name="tasks">The tasks belonging to the schedule.</param>
+    /// <param name="assignmentDateUtc">The assignment date (UTC).</param>
+    /// <param name="currentDateUtc">Current UTC date.</param>
     private static IEnumerable<ServiceReminderDTO> GenerateMileageBasedOccurrences(
         ServiceSchedule schedule,
         Vehicle vehicle,
         List<ServiceTask> tasks,
         DateTime assignmentDateUtc,
-        DateTime currentDateUtc,
-        bool includeOnlyUpcoming)
+        DateTime currentDateUtc)
     {
-        // includeOnlyUpcoming: when true, yield only the first UPCOMING and stop; otherwise yield OVERDUE/DUE_SOON
-        var startMileage = schedule.FirstServiceMileage ?? (vehicle.Mileage + schedule.MileageInterval!.Value);
+        var interval = schedule.MileageInterval!.Value;
+        var startMileage = schedule.FirstServiceMileage ?? (vehicle.Mileage + interval);
 
-        for (int occurrence = 1; occurrence <= MaxOccurrenceCount; occurrence++)
+        // Get all due points up to and including the first one after current mileage
+        var dueSoonThreshold = schedule.MileageBuffer ?? 0d;
+        var duePoints = GetMileageDuePoints(startMileage, interval, dueSoonThreshold, vehicle.Mileage);
+
+        if (duePoints.Count == 0) yield break;
+
+        // Emit overdue/due-soon occurrences (all but last), then exactly one UPCOMING (last)
+        for (int i = 0; i < duePoints.Count; i++)
         {
-            var dueMileage = startMileage + (schedule.MileageInterval!.Value * (occurrence - 1));
-
+            var isLast = i == duePoints.Count - 1;
+            var dueMileage = duePoints[i];
             var status = schedule.CalculateReminderStatus(null, dueMileage, currentDateUtc, vehicle.Mileage);
-
-            if (includeOnlyUpcoming)
+            if (!isLast)
             {
-                if (status == ServiceReminderStatusEnum.UPCOMING)
+                if (status == ServiceReminderStatusEnum.OVERDUE || status == ServiceReminderStatusEnum.DUE_SOON)
                 {
                     yield return CreateReminder(schedule, vehicle, tasks, null, dueMileage, status, ServiceScheduleTypeEnum.MILEAGE, currentDateUtc);
-                    yield break; // only the next upcoming
                 }
-
-                // Sanity horizon: avoid infinite search if vehicle is far behind the next occurrences
-                if (dueMileage > vehicle.Mileage + (schedule.MileageInterval.Value * 100)) yield break;
             }
             else
             {
-                if (status == ServiceReminderStatusEnum.OVERDUE || status == ServiceReminderStatusEnum.DUE_SOON)
+                if (status == ServiceReminderStatusEnum.UPCOMING)
                 {
                     yield return CreateReminder(schedule, vehicle, tasks, null, dueMileage, status, ServiceScheduleTypeEnum.MILEAGE, currentDateUtc);
                 }
@@ -225,6 +223,14 @@ public class GenerateServiceRemindersCommandHandler : IRequestHandler<GenerateSe
         }
     }
 
+    /// <summary>
+    /// Calculates the due date for an occurrence number given a start date, interval value and unit.
+    /// </summary>
+    /// <param name="startDate">The base date (UTC).</param>
+    /// <param name="intervalValue">Interval magnitude.</param>
+    /// <param name="intervalUnit">Interval unit (Hours/Days/Weeks).</param>
+    /// <param name="occurrenceNumber">1-based occurrence number.</param>
+    /// <returns>The calculated due date.</returns>
     private static DateTime CalculateOccurrenceDate(DateTime startDate, int intervalValue, TimeUnitEnum intervalUnit, int occurrenceNumber)
     {
         var totalIntervalValue = intervalValue * occurrenceNumber;
@@ -235,6 +241,54 @@ public class GenerateServiceRemindersCommandHandler : IRequestHandler<GenerateSe
             TimeUnitEnum.Weeks => startDate.AddDays(totalIntervalValue * DaysPerWeek),
             _ => throw new ArgumentException($"Unsupported time unit: {intervalUnit}")
         };
+    }
+
+    /// <summary>
+    /// Returns all time due points starting at <paramref name="timeStartUtc"/> with interval (<paramref name="timeIntervalValue"/>, <paramref name="timeIntervalUnit"/>),
+    /// stopping after including the first due date that would be <see cref="ServiceReminderStatusEnum.UPCOMING"/> given <paramref name="nowUtc"/> and the due-soon threshold
+    /// (<paramref name="dueSoonValue"/>, <paramref name="dueSoonUnit"/>).
+    /// </summary>
+    private static List<DateTime> GetTimeDuePoints(
+        DateTime timeStartUtc,
+        int timeIntervalValue,
+        TimeUnitEnum timeIntervalUnit,
+        DateTime nowUtc,
+        int dueSoonValue,
+        TimeUnitEnum dueSoonUnit)
+    {
+        var duePoints = new List<DateTime>();
+        DateTime duePoint = timeStartUtc;
+        while (true)
+        {
+            duePoints.Add(duePoint);
+            if (ServiceReminderExtensions.IsUpcomingByTime(nowUtc, duePoint, dueSoonValue, dueSoonUnit)) break; // included the first UPCOMING due point
+            duePoint = CalculateOccurrenceDate(duePoint, timeIntervalValue, timeIntervalUnit, 1);
+        }
+        return duePoints;
+    }
+
+    /// <summary>
+    /// Returns all mileage due points starting at <paramref name="mileageStart"/> with step <paramref name="mileageInterval"/>,
+    /// stopping after including the first due point that would be <see cref="ServiceReminderStatusEnum.UPCOMING"/>.
+    /// A due point is <see cref="ServiceReminderStatusEnum.UPCOMING"/> when
+    /// <paramref name="mileageCurrent"/> &lt; (dueMileage - <paramref name="mileageDueSoonThreshold"/>).
+    /// </summary>
+    /// <param name="mileageStart">First due mileage (km).</param>
+    /// <param name="mileageInterval">Mileage interval (km).</param>
+    /// <param name="mileageDueSoonThreshold">Due-soon buffer (km).</param>
+    /// <param name="mileageCurrent">Current vehicle mileage (km).</param>
+    /// <returns>All due points up to and including the first UPCOMING point.</returns>
+    private static List<double> GetMileageDuePoints(double mileageStart, double mileageInterval, double mileageDueSoonThreshold, double mileageCurrent)
+    {
+        var duePoints = new List<double>();
+        double duePoint = mileageStart;
+        while (true)
+        {
+            duePoints.Add(duePoint);
+            if (ServiceReminderExtensions.IsUpcomingByMileage(mileageCurrent, duePoint, mileageDueSoonThreshold)) break; // included the first UPCOMING due point
+            duePoint += mileageInterval;
+        }
+        return duePoints;
     }
 
     /// <summary>

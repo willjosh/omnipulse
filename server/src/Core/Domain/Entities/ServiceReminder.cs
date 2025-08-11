@@ -227,4 +227,33 @@ public static class ServiceReminderExtensions
             _ => throw new ArgumentException($"Unsupported time unit: {unit}")
         };
     }
+
+    /// <summary>
+    /// Determines whether a mileage-based due point should be considered <see cref="ServiceReminderStatusEnum.UPCOMING"/>.
+    /// <see cref="ServiceReminderStatusEnum.UPCOMING"/> when <paramref name="currentMileage"/> &lt; (<paramref name="dueMileage"/> - <paramref name="dueSoonThresholdMileage"/>).
+    /// </summary>
+    /// <param name="currentMileage">The vehicle's current odometer (km).</param>
+    /// <param name="dueMileage">The due mileage for the occurrence (km).</param>
+    /// <param name="dueSoonThresholdMileage">The due-soon buffer (km).</param>
+    /// <returns><c>true</c> if <see cref="ServiceReminderStatusEnum.UPCOMING"/> by mileage; otherwise <c>false</c>.</returns>
+    public static bool IsUpcomingByMileage(double currentMileage, double dueMileage, double dueSoonThresholdMileage)
+    {
+        return currentMileage < (dueMileage - dueSoonThresholdMileage);
+    }
+
+    /// <summary>
+    /// Determines whether a time-based due point should be considered <see cref="ServiceReminderStatusEnum.UPCOMING"/>.
+    /// A due point is <see cref="ServiceReminderStatusEnum.UPCOMING"/> when <paramref name="nowUtc"/> is strictly earlier than
+    /// (<paramref name="dueDateUtc"/> minus the due-soon threshold derived from <paramref name="dueSoonValue"/> and <paramref name="dueSoonUnit"/>).
+    /// </summary>
+    /// <param name="nowUtc">Current time (UTC).</param>
+    /// <param name="dueDateUtc">Due date (UTC).</param>
+    /// <param name="dueSoonValue">Due-soon threshold magnitude.</param>
+    /// <param name="dueSoonUnit">Due-soon threshold unit.</param>
+    /// <returns><c>true</c> if <see cref="ServiceReminderStatusEnum.UPCOMING"/> by time; otherwise <c>false</c>.</returns>
+    public static bool IsUpcomingByTime(DateTime nowUtc, DateTime dueDateUtc, int dueSoonValue, TimeUnitEnum dueSoonUnit)
+    {
+        var bufferDays = ConvertToDays(dueSoonValue, dueSoonUnit);
+        return nowUtc < dueDateUtc.AddDays(-bufferDays);
+    }
 }
