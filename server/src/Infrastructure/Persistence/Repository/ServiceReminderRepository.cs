@@ -21,8 +21,7 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
         _dbContext = context;
     }
 
-    // Simple data access method - Repository should only provide raw data
-    public async Task<List<ServiceSchedule>> GetActiveServiceSchedulesWithDataAsync()
+    public async Task<List<ServiceSchedule>> GetActiveServiceSchedulesWithDataAsync(CancellationToken ct)
     {
         return await _dbContext.Set<ServiceSchedule>()
             .Where(ss => ss.IsActive)
@@ -31,7 +30,7 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
                 .ThenInclude(xspv => xspv.Vehicle)
             .Include(ss => ss.XrefServiceScheduleServiceTasks)
                 .ThenInclude(xsst => xsst.ServiceTask)
-            .ToListAsync();
+            .ToListAsync(cancellationToken: ct);
     }
 
     /// <summary>
@@ -143,6 +142,92 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
         // EF Core tracks changes for remindersToUpdate automatically
 
         await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task<int> AddNewRemindersAsync(IEnumerable<ServiceReminderDTO> candidates, CancellationToken cancellationToken = default)
+    {
+        var candidateList = candidates.ToList();
+        if (candidateList.Count == 0) return 0;
+
+        var vehicleIds = candidateList.Select(c => c.VehicleID).Distinct().ToList();
+        var scheduleIds = candidateList.Select(c => c.ServiceScheduleID).Distinct().ToList();
+
+        var existing = await _dbSet
+            .Where(sr => vehicleIds.Contains(sr.VehicleID) && scheduleIds.Contains(sr.ServiceScheduleID))
+            .Select(sr => new { sr.VehicleID, sr.ServiceScheduleID, sr.DueDate, sr.DueMileage })
+            .ToListAsync(cancellationToken);
+
+        var existingKeys = new HashSet<(int, int, DateTime?, double?)>(
+            existing.Select(e => (e.VehicleID, e.ServiceScheduleID, e.DueDate, e.DueMileage))
+        );
+
+        // Load required navs to satisfy required properties
+        var vehicles = await _dbContext.Set<Vehicle>()
+            .Where(v => vehicleIds.Contains(v.ID))
+            .ToDictionaryAsync(v => v.ID, cancellationToken);
+
+        var schedules = await _dbContext.Set<ServiceSchedule>()
+            .Where(s => scheduleIds.Contains(s.ID))
+            .ToDictionaryAsync(s => s.ID, cancellationToken);
+
+        var toInsert = new List<ServiceReminder>();
+        foreach (var c in candidateList)
+        {
+            var key = (c.VehicleID, c.ServiceScheduleID, c.DueDate, c.DueMileage);
+            if (existingKeys.Contains(key)) continue;
+
+            if (!vehicles.TryGetValue(c.VehicleID, out var vehicle) || !schedules.TryGetValue(c.ServiceScheduleID, out var schedule))
+            {
+                continue;
+            }
+
+            toInsert.Add(new ServiceReminder
+            {
+                ID = 0,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                VehicleID = c.VehicleID,
+                Vehicle = vehicle,
+                ServiceScheduleID = c.ServiceScheduleID,
+                ServiceSchedule = schedule,
+                WorkOrderID = c.WorkOrderID,
+                DueDate = c.DueDate,
+                DueMileage = c.DueMileage,
+                Status = c.Status,
+                CompletedDate = null,
+                CancelReason = null
+            });
+        }
+
+        if (toInsert.Count == 0) return 0;
+
+        await _dbSet.AddRangeAsync(toInsert, cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return toInsert.Count;
+    }
+
+    /// <summary>
+    /// Deletes all service reminders that are no longer linked to valid parent entities.
+    /// Typically used when a service schedule is deleted, deactivated, or when vehicles are unassigned from the associated service program
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token for the async operation.</param>
+    /// <returns>The number of reminders deleted.</returns>
+    public async Task<int> DeleteAllUnlinkedReminders(CancellationToken cancellationToken = default)
+    {
+        // Conditions:
+        // 1) Vehicle missing, OR
+        // 2) ServiceSchedule missing, OR
+        // 3) Vehicle no longer assigned to the ServiceProgram that owns the ServiceSchedule.
+        var numRowsDeleted = await _dbSet
+            .Where(sr =>
+                !_dbContext.Set<Vehicle>().Any(v => v.ID == sr.VehicleID) ||
+                !_dbContext.Set<ServiceSchedule>().Any(s => s.ID == sr.ServiceScheduleID) ||
+                !_dbContext.Set<ServiceSchedule>().Any(s => s.ID == sr.ServiceScheduleID &&
+                    _dbContext.Set<XrefServiceProgramVehicle>().Any(x => x.ServiceProgramID == s.ServiceProgramID && x.VehicleID == sr.VehicleID))
+            )
+            .ExecuteDeleteAsync(cancellationToken);
+
+        return numRowsDeleted;
     }
 
     public async Task<ServiceReminder?> GetServiceReminderWithDetailsAsync(int serviceReminderId)

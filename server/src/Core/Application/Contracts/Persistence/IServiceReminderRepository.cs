@@ -9,7 +9,7 @@ namespace Application.Contracts.Persistence;
 public interface IServiceReminderRepository : IGenericRepository<ServiceReminder>
 {
     // Simple data access for Application layer to perform calculations
-    Task<List<ServiceSchedule>> GetActiveServiceSchedulesWithDataAsync();
+    Task<List<ServiceSchedule>> GetActiveServiceSchedulesWithDataAsync(CancellationToken ct);
 
     // Sync calculated reminders to database for persistence
     Task SyncRemindersAsync(List<ServiceReminderDTO> calculatedReminders);
@@ -53,4 +53,15 @@ public interface IServiceReminderRepository : IGenericRepository<ServiceReminder
     /// Delete non-final reminders for a schedule (any status not COMPLETED or CANCELLED), excluding WorkOrder-linked reminders.
     /// </summary>
     Task<int> DeleteNonFinalRemindersForScheduleAsync(int scheduleId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Add only new reminders from the calculated candidates. Existing reminders (same vehicle, schedule, due target, status) are skipped. Returns the number of inserted reminders.
+    /// </summary>
+    Task<int> AddNewRemindersAsync(IEnumerable<ServiceReminderDTO> candidates, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Hard-deletes service reminders whose parent entities no longer exist (Vehicle or ServiceSchedule missing).
+    /// Returns the number of deleted rows.
+    /// </summary>
+    Task<int> DeleteAllUnlinkedReminders(CancellationToken cancellationToken = default);
 }
