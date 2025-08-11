@@ -118,7 +118,7 @@ public class GenerateServiceRemindersCommandHandler : IRequestHandler<GenerateSe
         }
         else
         {
-            foreach (var dto in GenerateMileageBasedOccurrences(schedule, vehicle, tasks, assignmentDateUtc, currentDateUtc))
+            foreach (var dto in GenerateMileageBasedOccurrences(schedule, vehicle, tasks, currentDateUtc))
             {
                 yield return dto;
             }
@@ -156,7 +156,7 @@ public class GenerateServiceRemindersCommandHandler : IRequestHandler<GenerateSe
         {
             var isLast = i == timeDuePoints.Count - 1;
             var dueDate = timeDuePoints[i];
-            var status = schedule.CalculateReminderStatus(dueDate, null, currentDateUtc, vehicle.Mileage);
+            var status = schedule.CalculateTimeReminderStatus(dueDate, currentDateUtc);
             if (!isLast)
             {
                 if (status == ServiceReminderStatusEnum.OVERDUE || status == ServiceReminderStatusEnum.DUE_SOON)
@@ -182,13 +182,11 @@ public class GenerateServiceRemindersCommandHandler : IRequestHandler<GenerateSe
     /// <param name="schedule">The mileage-based schedule.</param>
     /// <param name="vehicle">The vehicle.</param>
     /// <param name="tasks">The tasks belonging to the schedule.</param>
-    /// <param name="assignmentDateUtc">The assignment date (UTC).</param>
     /// <param name="currentDateUtc">Current UTC date.</param>
     private static IEnumerable<ServiceReminderDTO> GenerateMileageBasedOccurrences(
         ServiceSchedule schedule,
         Vehicle vehicle,
         List<ServiceTask> tasks,
-        DateTime assignmentDateUtc,
         DateTime currentDateUtc)
     {
         var interval = schedule.MileageInterval!.Value;
@@ -205,7 +203,7 @@ public class GenerateServiceRemindersCommandHandler : IRequestHandler<GenerateSe
         {
             var isLast = i == duePoints.Count - 1;
             var dueMileage = duePoints[i];
-            var status = schedule.CalculateReminderStatus(null, dueMileage, currentDateUtc, vehicle.Mileage);
+            var status = schedule.CalculateMileageReminderStatus(dueMileage, vehicle.Mileage);
             if (!isLast)
             {
                 if (status == ServiceReminderStatusEnum.OVERDUE || status == ServiceReminderStatusEnum.DUE_SOON)
