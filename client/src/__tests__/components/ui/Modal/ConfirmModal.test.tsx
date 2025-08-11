@@ -1,8 +1,8 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import ConfirmModal from "../ConfirmModal";
+import ConfirmModal from "@/components/ui/Modal/ConfirmModal";
 
 // Mock the ModalPortal component to avoid portal-related issues in tests
-jest.mock("../ModalPortal", () => {
+jest.mock("@/components/ui/Modal/ModalPortal", () => {
   return function MockModalPortal({
     children,
     isOpen,

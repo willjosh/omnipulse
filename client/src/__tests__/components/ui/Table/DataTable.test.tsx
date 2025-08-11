@@ -1,13 +1,13 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import DataTable from "../DataTable";
+import DataTable from "@/components/ui/Table/DataTable";
 
 // Mock the Loading component
-jest.mock("../../Feedback", () => ({
+jest.mock("@/components/ui/Feedback", () => ({
   Loading: () => <div data-testid="loading">Loading...</div>,
 }));
 
 // Mock the ActionsColumnHeader and ActionsColumnCell
-jest.mock("../ActionsColumn", () => ({
+jest.mock("@/components/ui/Table/ActionsColumn", () => ({
   ActionsColumnHeader: () => <th data-testid="actions-header">Actions</th>,
   ActionsColumnCell: ({ item, actions, onActionClick }: any) => (
     <td data-testid="actions-cell">

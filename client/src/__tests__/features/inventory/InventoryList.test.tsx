@@ -1,8 +1,8 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import InventoryList from "../components/InventoryList";
+import InventoryList from "@/features/inventory/components/InventoryList";
 
 // Mock the hooks
-jest.mock("../hooks/useInventory", () => ({
+jest.mock("@/features/inventory/hooks/useInventory", () => ({
   useInventories: jest.fn(),
   useDeleteInventory: jest.fn(),
 }));
@@ -117,7 +117,7 @@ describe("InventoryList", () => {
     const {
       useInventories,
       useDeleteInventory,
-    } = require("../hooks/useInventory");
+    } = require("@/features/inventory/hooks/useInventory");
     useInventories.mockReturnValue(mockUseInventories);
     useDeleteInventory.mockReturnValue(mockUseDeleteInventory);
   });
@@ -131,7 +131,9 @@ describe("InventoryList", () => {
   });
 
   it("shows loading state when data is pending", () => {
-    const { useInventories } = require("../hooks/useInventory");
+    const {
+      useInventories,
+    } = require("@/features/inventory/hooks/useInventory");
     useInventories.mockReturnValue({ ...mockUseInventories, isPending: true });
 
     render(<InventoryList />);
@@ -140,7 +142,9 @@ describe("InventoryList", () => {
   });
 
   it("shows empty state when no inventories", () => {
-    const { useInventories } = require("../hooks/useInventory");
+    const {
+      useInventories,
+    } = require("@/features/inventory/hooks/useInventory");
     useInventories.mockReturnValue({ ...mockUseInventories, inventories: [] });
 
     render(<InventoryList />);
@@ -213,7 +217,9 @@ describe("InventoryList", () => {
   });
 
   it("handles error states gracefully", () => {
-    const { useInventories } = require("../hooks/useInventory");
+    const {
+      useInventories,
+    } = require("@/features/inventory/hooks/useInventory");
     useInventories.mockReturnValue({ ...mockUseInventories, isError: true });
 
     render(<InventoryList />);

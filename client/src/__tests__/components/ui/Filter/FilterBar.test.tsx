@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import FilterBar from "../FilterBar";
+import FilterBar from "@/components/ui/Filter/FilterBar";
 
 describe("FilterBar", () => {
   const defaultProps = {

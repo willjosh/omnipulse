@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import PaginationControls from "../PaginationControls";
+import PaginationControls from "@/components/ui/Table/PaginationControls";
 
 describe("PaginationControls", () => {
   const defaultProps = {

@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import PrimaryButton from "../PrimaryButton";
+import PrimaryButton from "@/components/ui/Button/PrimaryButton";
 
 describe("PrimaryButton", () => {
   it("renders with children text", () => {

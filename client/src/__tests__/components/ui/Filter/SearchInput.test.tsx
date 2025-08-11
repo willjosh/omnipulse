@@ -5,20 +5,20 @@ import {
   waitFor,
   act,
 } from "@testing-library/react";
-import SearchInput from "../SearchInput";
-
-// Mock setTimeout and clearTimeout for debounce testing
-jest.useFakeTimers();
+import SearchInput from "@/components/ui/Filter/SearchInput";
 
 describe("SearchInput", () => {
   const defaultProps = { value: "", onChange: jest.fn() };
 
   beforeEach(() => {
     jest.clearAllMocks();
-    jest.clearAllTimers();
+    // Enable fake timers for each test that needs them
+    jest.useFakeTimers();
   });
 
   afterEach(() => {
+    // Clean up timers and restore real timers
+    jest.clearAllTimers();
     jest.useRealTimers();
   });
 

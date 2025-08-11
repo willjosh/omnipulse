@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import FormField from "../FormField";
+import FormField from "@/components/ui/Form/FormField";
 
 describe("FormField", () => {
   const defaultProps = {

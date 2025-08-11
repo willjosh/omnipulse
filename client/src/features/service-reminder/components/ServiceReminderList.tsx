@@ -75,6 +75,7 @@ const ServiceReminderList: React.FC = () => {
       key: "vehicleName",
       header: "Vehicle",
       sortable: true,
+      width: "200px",
       render: (reminder: ServiceReminderWithLabels) => (
         <div>
           <div className="font-medium">{reminder.vehicleName}</div>
@@ -85,6 +86,7 @@ const ServiceReminderList: React.FC = () => {
       key: "serviceScheduleName",
       header: "Service Schedule",
       sortable: true,
+      width: "250px",
       render: (reminder: ServiceReminderWithLabels) => (
         <div>
           <div className="font-medium">{reminder.serviceScheduleName}</div>
@@ -100,6 +102,7 @@ const ServiceReminderList: React.FC = () => {
       key: "status",
       header: "Status",
       sortable: true,
+      width: "150px",
       render: (reminder: ServiceReminderWithLabels) => (
         <div className="flex items-center gap-2">
           {getStatusIcon(reminder.status)}
@@ -111,6 +114,7 @@ const ServiceReminderList: React.FC = () => {
       key: "scheduleType",
       header: "Schedule Type",
       sortable: true,
+      width: "150px",
       render: (reminder: ServiceReminderWithLabels) => (
         <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
           {reminder.scheduleTypeLabel}
@@ -121,6 +125,7 @@ const ServiceReminderList: React.FC = () => {
       key: "dueDate",
       header: "Due Date",
       sortable: true,
+      width: "180px",
       render: (reminder: ServiceReminderWithLabels) => (
         <div>
           {reminder.dueDate ? (
@@ -157,6 +162,7 @@ const ServiceReminderList: React.FC = () => {
       key: "dueMileage",
       header: "Due Mileage",
       sortable: true,
+      width: "180px",
       render: (reminder: ServiceReminderWithLabels) => (
         <div>
           {reminder.dueMileage ? (
@@ -191,6 +197,7 @@ const ServiceReminderList: React.FC = () => {
       key: "currentMileage",
       header: "Current Mileage",
       sortable: true,
+      width: "150px",
       render: (reminder: ServiceReminderWithLabels) => (
         <span className="text-sm">
           {reminder.currentMileage.toLocaleString()} km
@@ -201,6 +208,7 @@ const ServiceReminderList: React.FC = () => {
       key: "taskCount",
       header: "Tasks",
       sortable: true,
+      width: "100px",
       render: (reminder: ServiceReminderWithLabels) => (
         <div className="text-center">
           <div className="font-medium">{reminder.taskCount}</div>
@@ -212,6 +220,7 @@ const ServiceReminderList: React.FC = () => {
       key: "totalEstimatedCost",
       header: "Estimated Cost",
       sortable: true,
+      width: "150px",
       render: (reminder: ServiceReminderWithLabels) => (
         <div className="text-right">
           <div className="font-medium">
@@ -227,6 +236,7 @@ const ServiceReminderList: React.FC = () => {
       key: "occurrenceNumber",
       header: "Occurrence",
       sortable: true,
+      width: "120px",
       render: (reminder: ServiceReminderWithLabels) => (
         <div className="text-center">
           <div className="font-medium">{reminder.occurrenceNumber}</div>
