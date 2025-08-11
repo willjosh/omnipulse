@@ -17,19 +17,35 @@ namespace IntegrationTests.Abstractions;
 public abstract class BaseIntegrationTest : IClassFixture<IntegrationTestWebAppFactory>, IDisposable
 {
     private readonly IServiceScope _scope;
+    protected virtual DateTimeOffset BaselineNow => new(2025, 6, 2, 9, 0, 0, TimeSpan.Zero);
 
     protected BaseIntegrationTest(IntegrationTestWebAppFactory factory)
     {
-        _scope = factory.Services.CreateScope();
+        Factory = factory;
+
+        // Reset the clock for every test
+        Factory.FakeTimeProvider.SetUtcNow(BaselineNow);
+
+        _scope = Factory.Services.CreateScope();
         Sender = _scope.ServiceProvider.GetRequiredService<ISender>();
         DbContext = _scope.ServiceProvider.GetRequiredService<OmnipulseDatabaseContext>();
 
         Faker = new Faker();
     }
 
+    protected IntegrationTestWebAppFactory Factory { get; }
+
     protected ISender Sender { get; }
     protected OmnipulseDatabaseContext DbContext { get; }
     protected Faker Faker { get; }
+
+    /// <summary>Advance the fake clock by a duration.</summary>
+    /// <param name="by">The amount of time to advance.</param>
+    /// <example><c>ClockAdvance(TimeSpan.FromDays(1))</c></example>
+    protected void ClockAdvance(TimeSpan by) => Factory.FakeTimeProvider.Advance(by);
+
+    /// <summary>Set the fake clock to an exact instant.</summary>
+    protected void ClockSetNow(DateTimeOffset now) => Factory.FakeTimeProvider.SetUtcNow(now);
 
     public void Dispose()
     {

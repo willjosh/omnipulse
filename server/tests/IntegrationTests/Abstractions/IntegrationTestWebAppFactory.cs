@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Time.Testing;
 
 using Persistence.DatabaseContext;
 
@@ -21,6 +22,10 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
         .WithPassword(MsSqlPassword)
         .Build();
 
+    ///<summary>Controllable test clock used to override <see cref="TimeProvider"/> during integration tests.</summary>
+    /// <remarks>Code under test must read time via <see cref="TimeProvider.GetUtcNow"/> (or use provider-based timers/delays) to observe changes made to this clock.</remarks>
+    internal FakeTimeProvider FakeTimeProvider { get; } = new FakeTimeProvider(new DateTimeOffset(2025, 6, 2, 9, 0, 0, TimeSpan.Zero));
+
     /// <summary>
     /// Configures the web host for integration testing by replacing the <see cref="OmnipulseDatabaseContext"/> with a test container-based SQL Server instance.
     /// </summary>
@@ -35,6 +40,12 @@ public class IntegrationTestWebAppFactory : WebApplicationFactory<Program>, IAsy
             // Add the test container-based database context
             services.AddDbContext<OmnipulseDatabaseContext>(options =>
                 options.UseSqlServer(_dbContainer.GetConnectionString()));
+
+            // TimeProvider override
+            services.RemoveAll<TimeProvider>();
+            services.AddSingleton<TimeProvider>(FakeTimeProvider);
+            // Register FakeTimeProvider
+            services.AddSingleton(FakeTimeProvider);
         });
     }
 
