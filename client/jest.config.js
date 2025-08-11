@@ -16,7 +16,12 @@ const config = {
   // Test file patterns
   testMatch: ["**/__tests__/**/*.(ts|tsx|js)", "**/*.(test|spec).(ts|tsx|js)"],
   // Ignore patterns
-  testPathIgnorePatterns: ["<rootDir>/.next/", "<rootDir>/node_modules/"],
+  testPathIgnorePatterns: [
+    "<rootDir>/.next/",
+    "<rootDir>/node_modules/",
+    "<rootDir>/tests/",
+    "<rootDir>/tests-examples/",
+  ],
   // Transform patterns
   transformIgnorePatterns: [
     "/node_modules/",
