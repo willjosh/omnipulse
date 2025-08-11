@@ -49,6 +49,9 @@ public class SyncServiceRemindersCommandHandler : IRequestHandler<SyncServiceRem
                 _logger.LogInformation("Cleanup removed {Count} unlinked service reminders", deletedOrphans);
             }
 
+            // Update statuses first so existing UPCOMINGs can shift to DUE_SOON/OVERDUE before insert
+            await _serviceReminderStatusUpdater.UpdateAllReminderStatusesAsync(cancellationToken);
+
             // Fetch all active schedules with required vehicle/task data in one go (avoid N+1)
             var schedules = await _serviceReminderRepository.GetActiveServiceSchedulesWithDataAsync(cancellationToken);
 
@@ -60,9 +63,6 @@ public class SyncServiceRemindersCommandHandler : IRequestHandler<SyncServiceRem
 
             // Persist only new reminders; existing ones are skipped (idempotent)
             var inserted = await _serviceReminderRepository.AddNewRemindersAsync(calculated, cancellationToken);
-
-            // Status updates: recompute statuses for all active reminders using current time and latest vehicle mileage
-            await _serviceReminderStatusUpdater.UpdateAllReminderStatusesAsync(cancellationToken);
 
             _logger.LogInformation("Synced service reminders: inserted {Inserted} (cleanup removed {DeletedOrphans})", inserted, deletedOrphans);
 
@@ -100,7 +100,13 @@ public class SyncServiceRemindersCommandHandler : IRequestHandler<SyncServiceRem
             {
                 if (assignment.Vehicle is null) continue;
 
-                reminders.AddRange(GenerateForVehicleAndSchedulePair(schedule, assignment.Vehicle, tasks, assignment.AddedAt, currentDateUtc));
+                reminders.AddRange(GenerateForVehicleAndSchedulePair(
+                    schedule,
+                    assignment.Vehicle,
+                    tasks,
+                    assignment.AddedAt,
+                    currentDateUtc,
+                    assignment.VehicleMileageAtAssignment));
             }
         }
 
@@ -116,12 +122,14 @@ public class SyncServiceRemindersCommandHandler : IRequestHandler<SyncServiceRem
     /// <param name="tasks">The service tasks belonging to the schedule.</param>
     /// <param name="assignmentDateUtc">The date the vehicle was assigned to the program (UTC).</param>
     /// <param name="currentDateUtc">Current UTC date for calculations.</param>
+    /// <param name="vehicleMileageAtAssignment"></param>
     private static IEnumerable<ServiceReminderDTO> GenerateForVehicleAndSchedulePair(
         ServiceSchedule schedule,
         Vehicle vehicle,
         List<ServiceTask> tasks,
         DateTime assignmentDateUtc,
-        DateTime currentDateUtc)
+        DateTime currentDateUtc,
+        double? vehicleMileageAtAssignment)
     {
         if (schedule.IsTimeBased())
         {
@@ -132,7 +140,7 @@ public class SyncServiceRemindersCommandHandler : IRequestHandler<SyncServiceRem
         }
         else
         {
-            foreach (var dto in GenerateMileageBasedOccurrences(schedule, vehicle, tasks, currentDateUtc))
+            foreach (var dto in GenerateMileageBasedOccurrences(schedule, vehicle, tasks, currentDateUtc, vehicleMileageAtAssignment))
             {
                 yield return dto;
             }
@@ -197,14 +205,16 @@ public class SyncServiceRemindersCommandHandler : IRequestHandler<SyncServiceRem
     /// <param name="vehicle">The vehicle.</param>
     /// <param name="tasks">The tasks belonging to the schedule.</param>
     /// <param name="currentDateUtc">Current UTC date.</param>
+    /// <param name="vehicleMileageAtAssignment"></param>
     private static IEnumerable<ServiceReminderDTO> GenerateMileageBasedOccurrences(
         ServiceSchedule schedule,
         Vehicle vehicle,
         List<ServiceTask> tasks,
-        DateTime currentDateUtc)
+        DateTime currentDateUtc,
+        double? vehicleMileageAtAssignment)
     {
         var interval = schedule.MileageInterval!.Value;
-        var startMileage = schedule.FirstServiceMileage ?? (vehicle.Mileage + interval);
+        var startMileage = schedule.FirstServiceMileage ?? ((vehicleMileageAtAssignment ?? vehicle.Mileage) + interval);
 
         // Get all due points up to and including the first one after current mileage
         var dueSoonThreshold = schedule.MileageBuffer ?? 0d;

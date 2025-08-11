@@ -156,6 +156,15 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
             .Where(sr => vehicleIds.Contains(sr.VehicleID) && scheduleIds.Contains(sr.ServiceScheduleID))
             .Select(sr => new { sr.VehicleID, sr.ServiceScheduleID, sr.DueDate, sr.DueMileage })
             .ToListAsync(cancellationToken);
+        // Track existing UPCOMING per (VehicleID, ServiceScheduleID) to enforce unique filtered index
+        var existingUpcomingPairs = await _dbSet
+            .Where(sr => vehicleIds.Contains(sr.VehicleID)
+                         && scheduleIds.Contains(sr.ServiceScheduleID)
+                         && sr.Status == ServiceReminderStatusEnum.UPCOMING)
+            .Select(sr => new { sr.VehicleID, sr.ServiceScheduleID })
+            .Distinct()
+            .ToListAsync(cancellationToken);
+        var existingUpcomingSet = new HashSet<(int, int)>(existingUpcomingPairs.Select(p => (p.VehicleID, p.ServiceScheduleID)));
 
         var existingKeys = new HashSet<(int, int, DateTime?, double?)>(
             existing.Select(e => (e.VehicleID, e.ServiceScheduleID, e.DueDate, e.DueMileage))
@@ -175,6 +184,18 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
         {
             var key = (c.VehicleID, c.ServiceScheduleID, c.DueDate, c.DueMileage);
             if (existingKeys.Contains(key)) continue;
+
+            // Enforce at most one UPCOMING per vehicle/schedule pair
+            if (c.Status == ServiceReminderStatusEnum.UPCOMING)
+            {
+                var pair = (c.VehicleID, c.ServiceScheduleID);
+                if (existingUpcomingSet.Contains(pair))
+                {
+                    continue;
+                }
+                // Reserve the slot to avoid inserting multiple UPCOMING in the same batch
+                existingUpcomingSet.Add(pair);
+            }
 
             if (!vehicles.TryGetValue(c.VehicleID, out var vehicle) || !schedules.TryGetValue(c.ServiceScheduleID, out var schedule))
             {

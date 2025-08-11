@@ -126,7 +126,7 @@ public static class ServiceReminderExtensions
     public static bool IsOverdueByTime(this ServiceReminder serviceReminder, DateTime? currentDate = null)
     {
         var now = currentDate ?? DateTime.UtcNow;
-        return serviceReminder.DueDate.HasValue && now > serviceReminder.DueDate;
+        return serviceReminder.DueDate.HasValue && now >= serviceReminder.DueDate;
     }
 
     /// <summary>
@@ -134,7 +134,7 @@ public static class ServiceReminderExtensions
     /// </summary>
     public static bool IsOverdueByMileage(this ServiceReminder serviceReminder, double currentOdometer)
     {
-        return serviceReminder.DueMileage.HasValue && currentOdometer > serviceReminder.DueMileage;
+        return serviceReminder.DueMileage.HasValue && currentOdometer >= serviceReminder.DueMileage;
     }
 
     /// <summary>

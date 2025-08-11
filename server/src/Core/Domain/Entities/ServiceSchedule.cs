@@ -132,8 +132,8 @@ public static class ServiceScheduleExtensions
     public static ServiceReminderStatusEnum CalculateReminderStatus(this ServiceSchedule schedule, DateTime? dueDate, double? dueMileage, DateTime currentDate, double currentMileage)
     {
         // Overdue checks
-        bool isOverdueByTime = dueDate.HasValue && currentDate > dueDate.Value;
-        bool isOverdueByMileage = dueMileage.HasValue && currentMileage > dueMileage.Value;
+        bool isOverdueByTime = dueDate.HasValue && currentDate >= dueDate.Value;
+        bool isOverdueByMileage = dueMileage.HasValue && currentMileage >= dueMileage.Value;
 
         if (isOverdueByTime || isOverdueByMileage) return ServiceReminderStatusEnum.OVERDUE;
 
@@ -165,7 +165,7 @@ public static class ServiceScheduleExtensions
     public static ServiceReminderStatusEnum CalculateTimeReminderStatus(this ServiceSchedule schedule, DateTime dueDate, DateTime currentDate)
     {
         // Overdue
-        if (currentDate > dueDate) return ServiceReminderStatusEnum.OVERDUE;
+        if (currentDate >= dueDate) return ServiceReminderStatusEnum.OVERDUE;
 
         // Due soon
         if (schedule.TimeBufferValue.HasValue && schedule.TimeBufferUnit.HasValue)
@@ -192,7 +192,7 @@ public static class ServiceScheduleExtensions
     public static ServiceReminderStatusEnum CalculateMileageReminderStatus(this ServiceSchedule schedule, double dueMileage, double currentMileage)
     {
         // Overdue
-        if (currentMileage > dueMileage) return ServiceReminderStatusEnum.OVERDUE;
+        if (currentMileage >= dueMileage) return ServiceReminderStatusEnum.OVERDUE;
 
         // Due soon
         if (schedule.MileageBuffer.HasValue &&
