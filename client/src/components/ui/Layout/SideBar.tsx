@@ -184,7 +184,10 @@ const SideBar = () => {
   };
 
   return (
-    <aside className="fixed top-16 left-0 w-64 h-[calc(100vh-4rem)] bg-white border-r border-[var(--border)] text-sm flex flex-col overflow-hidden z-30 flex-shrink-0">
+    <aside
+      data-testid="sidebar"
+      className="fixed top-16 left-0 w-64 h-[calc(100vh-4rem)] bg-white border-r border-[var(--border)] text-sm flex flex-col overflow-hidden z-30 flex-shrink-0"
+    >
       {/* Header */}
       <div
         className="px-4 py-5 border-b border-[var(--border)] flex items-center gap-3 flex-shrink-0 cursor-pointer hover:bg-gray-50 transition-colors"
