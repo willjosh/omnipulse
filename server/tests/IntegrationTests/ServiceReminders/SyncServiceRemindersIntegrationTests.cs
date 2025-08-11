@@ -34,9 +34,9 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
     {
         // Arrange
         var vehicleGroupId = await CreateVehicleGroupAsync();
-        var vehicleId = await CreateVehicleAsync(vehicleGroupId, mileage: 12000.0, year: 2021);
+        var vehicleId = await CreateVehicleAsync(vehicleGroupId, mileage: 12000.0);
         var serviceProgramId = await CreateServiceProgramAsync();
-        var serviceTaskId = await CreateServiceTaskAsync(estimatedHours: 1.0, estimatedCost: 50.00m, category: ServiceTaskCategoryEnum.PREVENTIVE);
+        var serviceTaskId = await CreateServiceTaskAsync();
         var serviceScheduleId = await CreateTimeBasedServiceScheduleAsync(
             serviceProgramId,
             [serviceTaskId],
@@ -48,24 +48,23 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
         );
         await AddVehicleToServiceProgramAsync(serviceProgramId, vehicleId);
 
-        // Act - Generate reminders
-        var genResult = await SyncServiceRemindersAsync();
+        // Act - Sync reminders
+        var syncResult = await SyncServiceRemindersAsync();
 
         // Assert - Command success
-        genResult.Should().NotBeNull();
-        genResult.Success.Should().BeTrue();
-        genResult.GeneratedCount.Should().BeGreaterThan(0);
+        syncResult.Should().NotBeNull();
+        syncResult.Success.Should().BeTrue();
 
         // Act - Read reminders via query
         var reminders = await GetServiceRemindersAsync(vehicleId, serviceScheduleId);
-        reminders.Should().NotBeEmpty();
-        reminders.Should().Contain(r => r.Status == ServiceReminderStatusEnum.UPCOMING);
 
-        // Business rule: XOR (time-based only)
-        var upcoming = reminders.First(r => r.Status == ServiceReminderStatusEnum.UPCOMING);
-        upcoming.DueDate.Should().NotBeNull();
-        upcoming.DueMileage.Should().BeNull();
-        upcoming.ScheduleType.Should().Be(ServiceScheduleTypeEnum.TIME);
+        // Expect exactly one UPCOMING and no DUE_SOON/OVERDUE for future first date
+        reminders.Should().HaveCount(1);
+        reminders.Should().OnlyContain(r => r.Status == ServiceReminderStatusEnum.UPCOMING
+                                         && r.ScheduleType == ServiceScheduleTypeEnum.TIME
+                                         && r.DueDate != null
+                                         && r.DueMileage == null);
+        syncResult.GeneratedCount.Should().Be(reminders.Count);
     }
 
     [Fact]
@@ -73,10 +72,10 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
     {
         // Arrange
         var vehicleGroupId = await CreateVehicleGroupAsync();
-        var vehicleId = await CreateVehicleAsync(vehicleGroupId, mileage: 15000.0, year: 2020);
+        var vehicleId = await CreateVehicleAsync(vehicleGroupId, mileage: 15000.0);
         var programId = await CreateServiceProgramAsync();
-        var t1 = await CreateServiceTaskAsync(estimatedHours: 1.0, estimatedCost: 10m, category: ServiceTaskCategoryEnum.PREVENTIVE);
-        var t2 = await CreateServiceTaskAsync(estimatedHours: 1.0, estimatedCost: 10m, category: ServiceTaskCategoryEnum.PREVENTIVE);
+        var t1 = await CreateServiceTaskAsync();
+        var t2 = await CreateServiceTaskAsync();
         var scheduleId = await CreateMileageBasedServiceScheduleAsync(
             programId,
             [t1, t2],
@@ -85,15 +84,17 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
             firstServiceMileage: 30000);
         await AddVehicleToServiceProgramAsync(programId, vehicleId);
 
-        // Act - Generate
-        var gen = await SyncServiceRemindersAsync();
-        gen.Success.Should().BeTrue();
+        // Act - Sync
+        var syncResult = await SyncServiceRemindersAsync();
+        syncResult.Success.Should().BeTrue();
 
         // Act - Read reminders
         var byPair = await GetServiceRemindersAsync(vehicleId, scheduleId);
 
         // Assert - Exactly one UPCOMING for (vehicle, schedule)
+        byPair.Should().HaveCountGreaterThan(1); // at least one historical + one upcoming
         byPair.Count(r => r.Status == ServiceReminderStatusEnum.UPCOMING).Should().Be(1);
+        byPair.Should().OnlyContain(r => r.ScheduleType == ServiceScheduleTypeEnum.MILEAGE);
     }
 
     [Fact]
@@ -101,9 +102,9 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
     {
         // Arrange
         var vehicleGroupId = await CreateVehicleGroupAsync();
-        var vehicleId = await CreateVehicleAsync(vehicleGroupId, mileage: 50000.0, year: 2019);
+        var vehicleId = await CreateVehicleAsync(vehicleGroupId, mileage: 50000.0);
         var programId = await CreateServiceProgramAsync();
-        var taskId = await CreateServiceTaskAsync(estimatedHours: 3.0, estimatedCost: 200m, category: ServiceTaskCategoryEnum.PREVENTIVE);
+        var taskId = await CreateServiceTaskAsync();
         var scheduleId = await CreateTimeBasedServiceScheduleAsync(
             programId,
             [taskId],
@@ -116,10 +117,10 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
         await AddVehicleToServiceProgramAsync(programId, vehicleId);
 
         // Act
-        var gen = await SyncServiceRemindersAsync();
+        var syncResult = await SyncServiceRemindersAsync();
 
         // Assert
-        gen.Success.Should().BeTrue();
+        syncResult.Success.Should().BeTrue();
 
         var reminders = await GetServiceRemindersAsync(vehicleId, scheduleId);
 
@@ -129,6 +130,9 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
         reminders.Count(r => r.Status == ServiceReminderStatusEnum.OVERDUE).Should().Be(2);
         reminders.Count(r => r.Status == ServiceReminderStatusEnum.DUE_SOON).Should().Be(0);
         reminders.Count(r => r.Status == ServiceReminderStatusEnum.UPCOMING).Should().Be(1);
+
+        // Sort and verify increasing due dates
+        reminders.OrderBy(r => r.DueDate).Should().BeInAscendingOrder(r => r.DueDate);
     }
 
     [Fact]
@@ -161,12 +165,12 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
         await AddVehicleToServiceProgramAsync(programId, vehicleId);
 
         // ===== Act =====
-        var gen = await SyncServiceRemindersAsync();
-        gen.Success.Should().BeTrue();
+        var syncResult = await SyncServiceRemindersAsync();
+        syncResult.Success.Should().BeTrue();
 
         // ===== Assert =====
         var reminders = await GetServiceRemindersAsync(vehicleId, scheduleId);
-        gen.GeneratedCount.Should().Be(reminders.Count);
+        syncResult.GeneratedCount.Should().Be(reminders.Count);
         reminders.Should().HaveCount(3);
 
         // Pure time-based schedule invariants
@@ -214,15 +218,20 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
         await AddVehicleToServiceProgramAsync(programId, vehicleId);
 
         // Act
-        var gen = await SyncServiceRemindersAsync();
+        var syncResult = await SyncServiceRemindersAsync();
 
         // Assert
-        gen.Success.Should().BeTrue();
+        syncResult.Success.Should().BeTrue();
 
         var reminders = await GetServiceRemindersAsync(vehicleId, scheduleId);
-        reminders.Should().HaveCountGreaterThan(1);
-        reminders.Count(r => r.Status == ServiceReminderStatusEnum.OVERDUE).Should().BeGreaterThan(0);
+
+        // With current 80k, first 50k, interval 30k, buffer 5k:
+        // Due mileages: 50k (OVERDUE), 80k (OVERDUE), 110k (UPCOMING)
+        reminders.Should().HaveCount(3);
+        reminders.Count(r => r.Status == ServiceReminderStatusEnum.OVERDUE).Should().Be(2);
+        reminders.Count(r => r.Status == ServiceReminderStatusEnum.DUE_SOON).Should().Be(0);
         reminders.Count(r => r.Status == ServiceReminderStatusEnum.UPCOMING).Should().Be(1);
+        reminders.Should().OnlyContain(r => r.ScheduleType == ServiceScheduleTypeEnum.MILEAGE);
     }
 
     [Fact]
@@ -230,10 +239,10 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
     {
         // Arrange
         var vehicleGroupId = await CreateVehicleGroupAsync();
-        var vehicleId1 = await CreateVehicleAsync(vehicleGroupId, mileage: 10000.0, year: 2022);
-        var vehicleId2 = await CreateVehicleAsync(vehicleGroupId, mileage: 5000.0, year: 2023);
+        var vehicleId1 = await CreateVehicleAsync(vehicleGroupId);
+        var vehicleId2 = await CreateVehicleAsync(vehicleGroupId, mileage: 5000.0);
         var programId = await CreateServiceProgramAsync();
-        var taskId = await CreateServiceTaskAsync(estimatedHours: 1.0, estimatedCost: 50m, category: ServiceTaskCategoryEnum.PREVENTIVE);
+        var taskId = await CreateServiceTaskAsync();
         var scheduleId = await CreateTimeBasedServiceScheduleAsync(
             programId,
             [taskId],
@@ -247,10 +256,10 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
         await AddVehicleToServiceProgramAsync(programId, vehicleId2);
 
         // Act
-        var gen = await SyncServiceRemindersAsync();
+        var syncResult = await SyncServiceRemindersAsync();
 
         // Assert
-        gen.Success.Should().BeTrue();
+        syncResult.Success.Should().BeTrue();
 
         var reminders1 = (await GetServiceRemindersAsync(vehicleId1, scheduleId)).Where(r => r.Status == ServiceReminderStatusEnum.UPCOMING).ToList();
         var reminders2 = (await GetServiceRemindersAsync(vehicleId2, scheduleId)).Where(r => r.Status == ServiceReminderStatusEnum.UPCOMING).ToList();
@@ -259,6 +268,7 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
         reminders2.Should().HaveCount(1);
         reminders1[0].Status.Should().Be(ServiceReminderStatusEnum.UPCOMING);
         reminders2[0].Status.Should().Be(ServiceReminderStatusEnum.UPCOMING);
+        (reminders1.Count + reminders2.Count).Should().Be(2);
     }
 
     [Fact]
@@ -266,9 +276,9 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
     {
         // Arrange - Setup with existing reminders
         var vehicleGroupId = await CreateVehicleGroupAsync();
-        var vehicleId = await CreateVehicleAsync(vehicleGroupId, mileage: 25000.0, year: 2021);
+        var vehicleId = await CreateVehicleAsync(vehicleGroupId, mileage: 25000.0);
         var programId = await CreateServiceProgramAsync();
-        var taskId = await CreateServiceTaskAsync(estimatedHours: 1.5, estimatedCost: 100m, category: ServiceTaskCategoryEnum.PREVENTIVE);
+        var taskId = await CreateServiceTaskAsync();
         var scheduleId = await CreateTimeBasedServiceScheduleAsync(
             programId,
             [taskId],
@@ -283,15 +293,18 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
         // Initial generation
         await SyncServiceRemindersAsync();
 
-        // Act - Regenerate
-        var gen = await SyncServiceRemindersAsync();
+        // Act - Regenerate (idempotent)
+        var syncResult = await SyncServiceRemindersAsync();
 
         // Assert - Should update existing, not duplicate
-        gen.Success.Should().BeTrue();
+        syncResult.Success.Should().BeTrue();
+        syncResult.GeneratedCount.Should().Be(0);
 
         var reminders = await GetServiceRemindersAsync(vehicleId, scheduleId);
+        reminders.Should().HaveCount(3);
+        reminders.Count(r => r.Status == ServiceReminderStatusEnum.OVERDUE).Should().Be(2);
+        reminders.Count(r => r.Status == ServiceReminderStatusEnum.DUE_SOON).Should().Be(0);
         reminders.Count(r => r.Status == ServiceReminderStatusEnum.UPCOMING).Should().Be(1);
-        reminders.Count.Should().BeGreaterThan(1); // Overdue + upcoming
     }
 
     [Fact]
@@ -299,9 +312,9 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
     {
         // Arrange - Setup active schedule with reminders using helpers
         var vehicleGroupId = await CreateVehicleGroupAsync();
-        var vehicleId = await CreateVehicleAsync(vehicleGroupId, mileage: 15000.0, year: 2022);
+        var vehicleId = await CreateVehicleAsync(vehicleGroupId, mileage: 15000.0);
         var programId = await CreateServiceProgramAsync();
-        var taskId = await CreateServiceTaskAsync(estimatedHours: 1.0, estimatedCost: 100m, category: ServiceTaskCategoryEnum.INSPECTION);
+        var taskId = await CreateServiceTaskAsync();
         var scheduleId = await CreateTimeBasedServiceScheduleAsync(
             programId,
             [taskId],
@@ -333,7 +346,7 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
     {
         // Arrange
         var vehicleGroupId = await CreateVehicleGroupAsync();
-        var vehicleId = await CreateVehicleAsync(vehicleGroupId, mileage: 10000.0, year: 2022);
+        var vehicleId = await CreateVehicleAsync(vehicleGroupId);
         var programId = await CreateServiceProgramAsync();
         var scheduleId = await CreateTimeBasedServiceScheduleAsync(
             programId,
@@ -347,10 +360,11 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
         await AddVehicleToServiceProgramAsync(programId, vehicleId);
 
         // Act
-        var gen = await SyncServiceRemindersAsync();
+        var syncResult = await SyncServiceRemindersAsync();
 
         // Assert
-        gen.Success.Should().BeTrue();
+        syncResult.Success.Should().BeTrue();
+        syncResult.GeneratedCount.Should().Be(0);
 
         var reminders = await GetServiceRemindersAsync(vehicleId, scheduleId);
         reminders.Should().BeEmpty();
@@ -361,9 +375,9 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
     {
         // Arrange
         var vehicleGroupId = await CreateVehicleGroupAsync();
-        var vehicleId = await CreateVehicleAsync(vehicleGroupId, mileage: 22000.0, year: 2021);
+        var vehicleId = await CreateVehicleAsync(vehicleGroupId, mileage: 22000.0);
         var programId = await CreateServiceProgramAsync();
-        var taskId = await CreateServiceTaskAsync(estimatedHours: 0.5, estimatedCost: 25m, category: ServiceTaskCategoryEnum.PREVENTIVE);
+        var taskId = await CreateServiceTaskAsync();
         var scheduleId = await CreateTimeBasedServiceScheduleAsync(
             programId,
             [taskId],
@@ -375,8 +389,8 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
         );
         await AddVehicleToServiceProgramAsync(programId, vehicleId);
 
-        var gen = await SyncServiceRemindersAsync();
-        gen.Success.Should().BeTrue();
+        var syncResult = await SyncServiceRemindersAsync();
+        syncResult.Success.Should().BeTrue();
 
         var reminders = await GetServiceRemindersAsync(vehicleId, scheduleId);
         reminders.Should().ContainSingle(r => r.Status == ServiceReminderStatusEnum.UPCOMING);
@@ -401,8 +415,10 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
         // Make intent explicit: regenerate after update
         await SyncServiceRemindersAsync();
         var reminders2 = await GetServiceRemindersAsync(vehicleId, scheduleId);
+        reminders2.Should().HaveCount(2);
         reminders2.Should().ContainSingle(r => r.Status == ServiceReminderStatusEnum.UPCOMING);
         reminders2.Should().ContainSingle(r => r.Status == ServiceReminderStatusEnum.DUE_SOON);
+        reminders2.Should().OnlyContain(r => r.ScheduleType == ServiceScheduleTypeEnum.TIME);
     }
 
     [Fact]
@@ -411,7 +427,7 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
         // Arrange
         var vehicleGroupId = await CreateVehicleGroupAsync();
         var currentMileage = 40000.0;
-        var vehicleId = await CreateVehicleAsync(vehicleGroupId, mileage: currentMileage, year: 2020);
+        var vehicleId = await CreateVehicleAsync(vehicleGroupId, mileage: currentMileage);
         var programId = await CreateServiceProgramAsync();
         var taskId = await CreateServiceTaskAsync(estimatedHours: 1.0, estimatedCost: 80m, category: ServiceTaskCategoryEnum.PREVENTIVE);
         var interval = 10000;
@@ -424,8 +440,8 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
             firstServiceMileage: 40000
         );
         await AddVehicleToServiceProgramAsync(programId, vehicleId);
-        var gen = await SyncServiceRemindersAsync();
-        gen.Success.Should().BeTrue();
+        var syncResult = await SyncServiceRemindersAsync();
+        syncResult.Success.Should().BeTrue();
 
         // boundary check: set odometer near due-soon boundary prior to re-generation to reflect status
         await DbContext.Vehicles.Where(v => v.ID == vehicleId)
@@ -446,7 +462,7 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
         var currentMileage = 10000.0;
         var vehicleId = await CreateVehicleAsync(vehicleGroupId, mileage: currentMileage, year: 2022);
         var programId = await CreateServiceProgramAsync();
-        var taskId = await CreateServiceTaskAsync(estimatedHours: 0.5, estimatedCost: 30m, category: ServiceTaskCategoryEnum.PREVENTIVE);
+        var taskId = await CreateServiceTaskAsync();
         var interval = 5000;
         var buffer = 500;
         var scheduleId = await CreateMileageBasedServiceScheduleAsync(
@@ -459,10 +475,10 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
         await AddVehicleToServiceProgramAsync(programId, vehicleId);
 
         // Act
-        var gen = await SyncServiceRemindersAsync();
+        var syncResult = await SyncServiceRemindersAsync();
 
         // Assert
-        gen.Success.Should().BeTrue();
+        syncResult.Success.Should().BeTrue();
 
         var reminder = (await GetServiceRemindersAsync(vehicleId, scheduleId))
             .FirstOrDefault(r => r.Status == ServiceReminderStatusEnum.UPCOMING);
@@ -477,9 +493,9 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
     {
         // Arrange
         var vehicleGroupId = await CreateVehicleGroupAsync();
-        var vehicleId = await CreateVehicleAsync(vehicleGroupId, mileage: 25000.0, year: 2021);
+        var vehicleId = await CreateVehicleAsync(vehicleGroupId, mileage: 25000.0);
         var programId = await CreateServiceProgramAsync();
-        var oldTaskId = await CreateServiceTaskAsync(estimatedHours: 1.0, estimatedCost: 50m, category: ServiceTaskCategoryEnum.PREVENTIVE);
+        var oldTaskId = await CreateServiceTaskAsync();
         var scheduleId = await CreateTimeBasedServiceScheduleAsync(
             programId,
             [oldTaskId],
@@ -492,7 +508,7 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
         await AddVehicleToServiceProgramAsync(programId, vehicleId);
         await SyncServiceRemindersAsync();
 
-        var newTaskId = await CreateServiceTaskAsync(estimatedHours: 2.0, estimatedCost: 100m, category: ServiceTaskCategoryEnum.PREVENTIVE);
+        var newTaskId = await CreateServiceTaskAsync();
         await Sender.Send(new UpdateServiceScheduleCommand(
             ServiceScheduleID: scheduleId,
             ServiceProgramID: programId,
@@ -526,9 +542,9 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
     {
         // Arrange
         var vehicleGroupId = await CreateVehicleGroupAsync();
-        var vehicleId = await CreateVehicleAsync(vehicleGroupId, mileage: 15000.0, year: 2021);
+        var vehicleId = await CreateVehicleAsync(vehicleGroupId, mileage: 15000.0);
         var programId = await CreateServiceProgramAsync(isActive: false); // Inactive Program
-        var taskId = await CreateServiceTaskAsync(estimatedHours: 1.0, estimatedCost: 50m, category: ServiceTaskCategoryEnum.PREVENTIVE);
+        var taskId = await CreateServiceTaskAsync();
 
         // Act + Assert: creating a schedule under an inactive program should fail upfront
         await FluentActions.Invoking(async () => await Sender.Send(new CreateServiceScheduleCommand(
@@ -546,6 +562,10 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
             IsActive: true
         ))).Should().ThrowAsync<EntityNotFoundException>();
     }
+
+    // ===================
+    // ===== HELPERS =====
+    // ===================
 
     private async Task<int> CreateVehicleGroupAsync()
     {
