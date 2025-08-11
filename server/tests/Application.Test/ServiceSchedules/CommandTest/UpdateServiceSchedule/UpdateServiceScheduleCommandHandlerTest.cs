@@ -133,7 +133,7 @@ public class UpdateServiceScheduleCommandHandlerTest
         // Assert
         Assert.Equal(command.ServiceScheduleID, result);
         _mockReminderRepository.Verify(r => r.DeleteNonFinalRemindersForScheduleAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Once);
-        _mockSender.Verify(s => s.Send(It.IsAny<GenerateServiceRemindersCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+        _mockSender.Verify(s => s.Send(It.IsAny<SyncServiceRemindersCommand>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

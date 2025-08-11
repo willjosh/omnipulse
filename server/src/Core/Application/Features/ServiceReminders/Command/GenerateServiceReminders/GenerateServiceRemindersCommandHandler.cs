@@ -10,21 +10,21 @@ using MediatR;
 namespace Application.Features.ServiceReminders.Command.GenerateServiceReminders;
 
 /// <summary>
-/// Generates calculated reminders from active schedules and persists them.
+/// Syncs reminders from active schedules: calculates occurrences and persists them.
 /// Produces many OVERDUE/DUE_SOON reminders, but at most one UPCOMING per (VehicleID, ServiceScheduleID).
 /// </summary>
-public class GenerateServiceRemindersCommandHandler : IRequestHandler<GenerateServiceRemindersCommand, GenerateServiceRemindersResponse>
+public class SyncServiceRemindersCommandHandler : IRequestHandler<SyncServiceRemindersCommand, SyncServiceRemindersResponse>
 {
     // Constants
     private const int DaysPerWeek = 7;
 
     private readonly IServiceReminderRepository _serviceReminderRepository;
-    private readonly IAppLogger<GenerateServiceRemindersCommandHandler> _logger;
+    private readonly IAppLogger<SyncServiceRemindersCommandHandler> _logger;
     private readonly TimeProvider _timeProvider;
 
-    public GenerateServiceRemindersCommandHandler(
+    public SyncServiceRemindersCommandHandler(
         IServiceReminderRepository serviceReminderRepository,
-        IAppLogger<GenerateServiceRemindersCommandHandler> logger,
+        IAppLogger<SyncServiceRemindersCommandHandler> logger,
         TimeProvider timeProvider)
     {
         _serviceReminderRepository = serviceReminderRepository;
@@ -32,11 +32,11 @@ public class GenerateServiceRemindersCommandHandler : IRequestHandler<GenerateSe
         _timeProvider = timeProvider;
     }
 
-    public async Task<GenerateServiceRemindersResponse> Handle(GenerateServiceRemindersCommand request, CancellationToken cancellationToken)
+    public async Task<SyncServiceRemindersResponse> Handle(SyncServiceRemindersCommand request, CancellationToken cancellationToken)
     {
         try
         {
-            _logger.LogInformation("Starting service reminder generation");
+            _logger.LogInformation("Starting service reminder sync");
 
             // Fetch all active schedules with required vehicle/task data in one go (avoid N+1)
             var schedules = await _serviceReminderRepository.GetActiveServiceSchedulesWithDataAsync(cancellationToken);
@@ -50,16 +50,16 @@ public class GenerateServiceRemindersCommandHandler : IRequestHandler<GenerateSe
             // Persist only new reminders; existing ones are skipped (idempotent)
             var inserted = await _serviceReminderRepository.AddNewRemindersAsync(calculated, cancellationToken);
 
-            _logger.LogInformation("Inserted {Count} new service reminders", inserted);
+            _logger.LogInformation("Synced service reminders: inserted {Count}", inserted);
 
-            return new GenerateServiceRemindersResponse(
+            return new SyncServiceRemindersResponse(
                 GeneratedCount: inserted,
                 Success: true);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to generate service reminders");
-            return new GenerateServiceRemindersResponse(0, false, ex.Message);
+            _logger.LogError(ex, "Failed to sync service reminders");
+            return new SyncServiceRemindersResponse(0, false, ex.Message);
         }
     }
 

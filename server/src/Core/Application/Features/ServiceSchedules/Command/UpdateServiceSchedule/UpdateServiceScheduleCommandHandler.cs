@@ -100,15 +100,14 @@ public sealed class UpdateServiceScheduleCommandHandler : IRequestHandler<Update
         await _serviceReminderRepository.DeleteNonFinalRemindersForScheduleAsync(request.ServiceScheduleID, cancellationToken);
 
         // Trigger regeneration to create new reminders based on updated schedule
-        var generateCommand = new GenerateServiceRemindersCommand();
-        var sendTask = _sender.Send(generateCommand, cancellationToken);
+        var sendTask = _sender.Send(new SyncServiceRemindersCommand(), cancellationToken);
         if (sendTask != null)
         {
-            var generateResult = await sendTask;
-            if (generateResult == null || !generateResult.Success)
+            var syncResult = await sendTask;
+            if (syncResult == null || !syncResult.Success)
             {
-                var error = generateResult?.ErrorMessage ?? "Unknown error";
-                _logger.LogWarning($"{nameof(UpdateServiceScheduleCommandHandler)} - Failed to regenerate reminders after update: {error}");
+                var error = syncResult?.ErrorMessage ?? "Unknown error";
+                _logger.LogWarning($"{nameof(UpdateServiceScheduleCommandHandler)} - Failed to sync reminders after update: {error}");
             }
         }
         else

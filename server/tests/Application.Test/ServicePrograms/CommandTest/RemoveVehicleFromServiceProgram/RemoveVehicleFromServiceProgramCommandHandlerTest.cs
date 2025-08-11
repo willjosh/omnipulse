@@ -9,6 +9,8 @@ using Domain.Entities.Enums;
 using FluentValidation;
 using FluentValidation.Results;
 
+using MediatR;
+
 using Moq;
 
 namespace Application.Test.ServicePrograms.CommandTest.RemoveVehicleFromServiceProgram;
@@ -19,6 +21,7 @@ public class RemoveVehicleFromServiceProgramCommandHandlerTest
     private readonly Mock<IXrefServiceProgramVehicleRepository> _mockXrefRepository = new();
     private readonly Mock<IServiceProgramRepository> _mockServiceProgramRepository = new();
     private readonly Mock<IVehicleRepository> _mockVehicleRepository = new();
+    private readonly Mock<ISender> _mockSender = new();
     private readonly Mock<IValidator<RemoveVehicleFromServiceProgramCommand>> _mockValidator = new();
 
     public RemoveVehicleFromServiceProgramCommandHandlerTest()
@@ -28,6 +31,7 @@ public class RemoveVehicleFromServiceProgramCommandHandlerTest
             _mockXrefRepository.Object,
             _mockServiceProgramRepository.Object,
             _mockVehicleRepository.Object,
+            _mockSender.Object,
             _mockValidator.Object,
             mockLogger.Object
         );

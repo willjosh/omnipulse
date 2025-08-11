@@ -66,7 +66,7 @@ public class DeleteServiceScheduleCommandHandlerTest
         _mockServiceScheduleRepository.Setup(repo => repo.SaveChangesAsync()).ReturnsAsync(1);
         _mockXrefRepo.Setup(x => x.RemoveAllForScheduleAsync(command.ServiceScheduleID)).Returns(Task.CompletedTask);
         _mockReminderRepo.Setup(r => r.DeleteNonFinalRemindersForScheduleAsync(command.ServiceScheduleID, It.IsAny<CancellationToken>())).ReturnsAsync(0);
-        _mockSender.Setup(s => s.Send(It.IsAny<IRequest<GenerateServiceRemindersResponse>>(), It.IsAny<CancellationToken>())).ReturnsAsync(new GenerateServiceRemindersResponse(0, true));
+        _mockSender.Setup(s => s.Send(It.IsAny<IRequest<SyncServiceRemindersResponse>>(), It.IsAny<CancellationToken>())).ReturnsAsync(new SyncServiceRemindersResponse(0, true));
 
         // Act
         var result = await _handler.Handle(command, CancellationToken.None);
@@ -78,7 +78,7 @@ public class DeleteServiceScheduleCommandHandlerTest
         _mockServiceScheduleRepository.Verify(r => r.GetByIdAsync(command.ServiceScheduleID), Times.Once);
         _mockServiceScheduleRepository.Verify(r => r.Update(It.Is<ServiceSchedule>(s => s.ID == command.ServiceScheduleID && s.IsSoftDeleted)), Times.Once);
         _mockReminderRepo.Verify(r => r.DeleteNonFinalRemindersForScheduleAsync(command.ServiceScheduleID, It.IsAny<CancellationToken>()), Times.Once);
-        _mockSender.Verify(s => s.Send(It.IsAny<GenerateServiceRemindersCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+        _mockSender.Verify(s => s.Send(It.IsAny<SyncServiceRemindersCommand>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -97,6 +97,6 @@ public class DeleteServiceScheduleCommandHandlerTest
         _mockServiceScheduleRepository.Verify(repo => repo.Update(It.IsAny<ServiceSchedule>()), Times.Never);
         _mockServiceScheduleRepository.Verify(repo => repo.SaveChangesAsync(), Times.Never);
         _mockReminderRepo.Verify(r => r.DeleteNonFinalRemindersForScheduleAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
-        _mockSender.Verify(s => s.Send(It.IsAny<IRequest<GenerateServiceRemindersResponse>>(), It.IsAny<CancellationToken>()), Times.Never);
+        _mockSender.Verify(s => s.Send(It.IsAny<IRequest<SyncServiceRemindersResponse>>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }

@@ -55,13 +55,14 @@ public class DeleteServiceScheduleCommandHandler : IRequestHandler<DeleteService
         // Cancel future reminders
         _ = await _serviceReminderRepository.DeleteNonFinalRemindersForScheduleAsync(request.ServiceScheduleID, cancellationToken);
 
-        // Trigger regeneration
-        var generateCommand = new GenerateServiceRemindersCommand();
-        var generateResult = await _sender.Send(generateCommand);
+        // Cleanup unlinked reminders and trigger regeneration
+        _ = await _serviceReminderRepository.DeleteAllUnlinkedReminders(cancellationToken);
 
-        if (!generateResult.Success)
+        // Trigger regeneration
+        var syncResult = await _sender.Send(new SyncServiceRemindersCommand());
+        if (!syncResult.Success)
         {
-            _logger.LogWarning($"{nameof(DeleteServiceScheduleCommandHandler)} - Failed to regenerate reminders after delete: {generateResult.ErrorMessage}");
+            _logger.LogWarning($"{nameof(DeleteServiceScheduleCommandHandler)} - Failed to sync reminders after delete: {syncResult.ErrorMessage}");
         }
 
         return request.ServiceScheduleID;

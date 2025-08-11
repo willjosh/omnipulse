@@ -25,9 +25,9 @@ namespace IntegrationTests.ServiceReminders;
 
 [Trait("TestCategory", "Integration")]
 [Trait("Entity", nameof(ServiceReminder))]
-public class GenerateServiceRemindersIntegrationTests : BaseIntegrationTest
+public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
 {
-    public GenerateServiceRemindersIntegrationTests(IntegrationTestWebAppFactory factory) : base(factory) { }
+    public SyncServiceRemindersIntegrationTests(IntegrationTestWebAppFactory factory) : base(factory) { }
 
     [Fact]
     public async Task Should_GenerateAndPersistReminders_For_TimeBasedSchedule()
@@ -49,7 +49,7 @@ public class GenerateServiceRemindersIntegrationTests : BaseIntegrationTest
         await AddVehicleToServiceProgramAsync(serviceProgramId, vehicleId);
 
         // Act - Generate reminders
-        var genResult = await GenerateServiceRemindersAsync();
+        var genResult = await SyncServiceRemindersAsync();
 
         // Assert - Command success
         genResult.Should().NotBeNull();
@@ -86,7 +86,7 @@ public class GenerateServiceRemindersIntegrationTests : BaseIntegrationTest
         await AddVehicleToServiceProgramAsync(programId, vehicleId);
 
         // Act - Generate
-        var gen = await GenerateServiceRemindersAsync();
+        var gen = await SyncServiceRemindersAsync();
         gen.Success.Should().BeTrue();
 
         // Act - Read reminders
@@ -116,7 +116,7 @@ public class GenerateServiceRemindersIntegrationTests : BaseIntegrationTest
         await AddVehicleToServiceProgramAsync(programId, vehicleId);
 
         // Act
-        var gen = await GenerateServiceRemindersAsync();
+        var gen = await SyncServiceRemindersAsync();
 
         // Assert
         gen.Success.Should().BeTrue();
@@ -161,7 +161,7 @@ public class GenerateServiceRemindersIntegrationTests : BaseIntegrationTest
         await AddVehicleToServiceProgramAsync(programId, vehicleId);
 
         // ===== Act =====
-        var gen = await GenerateServiceRemindersAsync();
+        var gen = await SyncServiceRemindersAsync();
         gen.Success.Should().BeTrue();
 
         // ===== Assert =====
@@ -214,7 +214,7 @@ public class GenerateServiceRemindersIntegrationTests : BaseIntegrationTest
         await AddVehicleToServiceProgramAsync(programId, vehicleId);
 
         // Act
-        var gen = await GenerateServiceRemindersAsync();
+        var gen = await SyncServiceRemindersAsync();
 
         // Assert
         gen.Success.Should().BeTrue();
@@ -247,7 +247,7 @@ public class GenerateServiceRemindersIntegrationTests : BaseIntegrationTest
         await AddVehicleToServiceProgramAsync(programId, vehicleId2);
 
         // Act
-        var gen = await GenerateServiceRemindersAsync();
+        var gen = await SyncServiceRemindersAsync();
 
         // Assert
         gen.Success.Should().BeTrue();
@@ -281,10 +281,10 @@ public class GenerateServiceRemindersIntegrationTests : BaseIntegrationTest
         await AddVehicleToServiceProgramAsync(programId, vehicleId);
 
         // Initial generation
-        await GenerateServiceRemindersAsync();
+        await SyncServiceRemindersAsync();
 
         // Act - Regenerate
-        var gen = await GenerateServiceRemindersAsync();
+        var gen = await SyncServiceRemindersAsync();
 
         // Assert - Should update existing, not duplicate
         gen.Success.Should().BeTrue();
@@ -314,13 +314,13 @@ public class GenerateServiceRemindersIntegrationTests : BaseIntegrationTest
         await AddVehicleToServiceProgramAsync(programId, vehicleId);
 
         // Generate initial
-        await GenerateServiceRemindersAsync();
+        await SyncServiceRemindersAsync();
 
         // Act - Soft delete schedule
         await Sender.Send(new DeleteServiceScheduleCommand(scheduleId));
 
         // Trigger generation which should not generate new since deleted
-        await GenerateServiceRemindersAsync();
+        await SyncServiceRemindersAsync();
 
         // Assert
         var reminders = await GetRemindersInDbByScheduleAsync(scheduleId);
@@ -347,7 +347,7 @@ public class GenerateServiceRemindersIntegrationTests : BaseIntegrationTest
         await AddVehicleToServiceProgramAsync(programId, vehicleId);
 
         // Act
-        var gen = await GenerateServiceRemindersAsync();
+        var gen = await SyncServiceRemindersAsync();
 
         // Assert
         gen.Success.Should().BeTrue();
@@ -375,7 +375,7 @@ public class GenerateServiceRemindersIntegrationTests : BaseIntegrationTest
         );
         await AddVehicleToServiceProgramAsync(programId, vehicleId);
 
-        var gen = await GenerateServiceRemindersAsync();
+        var gen = await SyncServiceRemindersAsync();
         gen.Success.Should().BeTrue();
 
         var reminders = await GetServiceRemindersAsync(vehicleId, scheduleId);
@@ -399,7 +399,7 @@ public class GenerateServiceRemindersIntegrationTests : BaseIntegrationTest
         ));
 
         // Make intent explicit: regenerate after update
-        await GenerateServiceRemindersAsync();
+        await SyncServiceRemindersAsync();
         var reminders2 = await GetServiceRemindersAsync(vehicleId, scheduleId);
         reminders2.Should().ContainSingle(r => r.Status == ServiceReminderStatusEnum.UPCOMING);
         reminders2.Should().ContainSingle(r => r.Status == ServiceReminderStatusEnum.DUE_SOON);
@@ -424,7 +424,7 @@ public class GenerateServiceRemindersIntegrationTests : BaseIntegrationTest
             firstServiceMileage: 40000
         );
         await AddVehicleToServiceProgramAsync(programId, vehicleId);
-        var gen = await GenerateServiceRemindersAsync();
+        var gen = await SyncServiceRemindersAsync();
         gen.Success.Should().BeTrue();
 
         // boundary check: set odometer near due-soon boundary prior to re-generation to reflect status
@@ -432,7 +432,7 @@ public class GenerateServiceRemindersIntegrationTests : BaseIntegrationTest
             .ExecuteUpdateAsync(s => s.SetProperty(p => p.Mileage, 48500.0));
 
         // Re-run generation, then query
-        await GenerateServiceRemindersAsync();
+        await SyncServiceRemindersAsync();
         var reminders = await GetServiceRemindersAsync(vehicleId, scheduleId);
         reminders.Should().ContainSingle(r => r.Status == ServiceReminderStatusEnum.DUE_SOON);
         reminders.Should().ContainSingle(r => r.Status == ServiceReminderStatusEnum.UPCOMING);
@@ -459,7 +459,7 @@ public class GenerateServiceRemindersIntegrationTests : BaseIntegrationTest
         await AddVehicleToServiceProgramAsync(programId, vehicleId);
 
         // Act
-        var gen = await GenerateServiceRemindersAsync();
+        var gen = await SyncServiceRemindersAsync();
 
         // Assert
         gen.Success.Should().BeTrue();
@@ -490,7 +490,7 @@ public class GenerateServiceRemindersIntegrationTests : BaseIntegrationTest
             firstServiceDate: DateTime.UtcNow.Date.AddDays(90)
         );
         await AddVehicleToServiceProgramAsync(programId, vehicleId);
-        await GenerateServiceRemindersAsync();
+        await SyncServiceRemindersAsync();
 
         var newTaskId = await CreateServiceTaskAsync(estimatedHours: 2.0, estimatedCost: 100m, category: ServiceTaskCategoryEnum.PREVENTIVE);
         await Sender.Send(new UpdateServiceScheduleCommand(
@@ -510,7 +510,7 @@ public class GenerateServiceRemindersIntegrationTests : BaseIntegrationTest
         ));
 
         // Regenerate after update
-        await GenerateServiceRemindersAsync();
+        await SyncServiceRemindersAsync();
         var reminders = await GetServiceRemindersAsync(vehicleId, scheduleId);
         // Non-final reminders should be deleted; only upcoming should exist now
         reminders.Should().ContainSingle(r => r.Status == ServiceReminderStatusEnum.UPCOMING);
@@ -666,9 +666,9 @@ public class GenerateServiceRemindersIntegrationTests : BaseIntegrationTest
         ));
     }
 
-    private async Task<GenerateServiceRemindersResponse> GenerateServiceRemindersAsync()
+    private async Task<SyncServiceRemindersResponse> SyncServiceRemindersAsync()
     {
-        return await Sender.Send(new GenerateServiceRemindersCommand());
+        return await Sender.Send(new SyncServiceRemindersCommand());
     }
 
     private async Task<List<ServiceReminderDTO>> GetServiceRemindersAsync(int vehicleId, int scheduleId, int pageSize = 100)

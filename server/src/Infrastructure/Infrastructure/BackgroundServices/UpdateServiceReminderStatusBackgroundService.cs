@@ -1,3 +1,4 @@
+using Application.Contracts.Persistence;
 using Application.Contracts.Services;
 using Application.Features.ServiceReminders.Command.GenerateServiceReminders;
 
@@ -12,7 +13,7 @@ using Microsoft.Extensions.Logging;
 namespace Infrastructure.BackgroundServices;
 
 /// <summary>
-/// Background service that continuously generates and updates all <see cref="ServiceReminder"/>
+/// Background service that continuously updates statuses and syncs <see cref="ServiceReminder"/>s
 /// </summary>
 public class UpdateServiceReminderStatusBackgroundService : BackgroundService
 {
@@ -55,27 +56,34 @@ public class UpdateServiceReminderStatusBackgroundService : BackgroundService
                 using var scope = _serviceScopeFactory.CreateScope();
                 var reminderStatusUpdater = scope.ServiceProvider.GetRequiredService<IServiceReminderStatusUpdater>();
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var reminderRepository = scope.ServiceProvider.GetRequiredService<IServiceReminderRepository>();
 
                 // Update statuses every minute
                 await reminderStatusUpdater.UpdateAllReminderStatusesAsync(stoppingToken);
 
-                // Generate new reminders every hour
+                // Sync reminders every hour
                 var timeSinceLastGeneration = _timeProvider.GetUtcNow().UtcDateTime - lastGenerationTime;
                 if (timeSinceLastGeneration >= GenerationInterval)
                 {
-                    _logger.LogInformation("Triggering service reminder generation");
-                    var generateCommand = new GenerateServiceRemindersCommand();
-                    var generateResult = await mediator.Send(generateCommand, stoppingToken);
+                    _logger.LogInformation("Triggering service reminder sync");
+                    var syncResult = await mediator.Send(new SyncServiceRemindersCommand(), stoppingToken);
 
-                    if (generateResult.Success)
+                    if (syncResult.Success)
                     {
-                        _logger.LogInformation("Successfully generated {Count} service reminders", generateResult.GeneratedCount);
+                        _logger.LogInformation("Successfully generated {Count} service reminders", syncResult.GeneratedCount);
                         lastGenerationTime = _timeProvider.GetUtcNow().UtcDateTime;
                     }
                     else
                     {
-                        _logger.LogWarning("Failed to generate service reminders: {ErrorMessage}", generateResult.ErrorMessage);
+                        _logger.LogWarning("Failed to sync service reminders: {ErrorMessage}", syncResult.ErrorMessage);
                     }
+                }
+
+                // Cleanup: delete any unlinked/orphaned reminders (vehicle/schedule missing, or vehicle no longer in program)
+                var deleted = await reminderRepository.DeleteAllUnlinkedReminders(stoppingToken);
+                if (deleted > 0)
+                {
+                    _logger.LogInformation("Deleted {Count} unlinked service reminders during maintenance sweep", deleted);
                 }
 
                 await Task.Delay(UpdateInterval, stoppingToken);
