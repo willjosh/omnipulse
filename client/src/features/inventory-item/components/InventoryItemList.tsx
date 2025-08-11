@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   useInventoryItems,
@@ -21,11 +21,17 @@ import {
   INVENTORY_ACTION_CONFIG,
 } from "../config/inventoryItemActions";
 import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
+import { DEFAULT_PAGE_SIZE } from "@/components/ui/Table/constants";
 
 const InventoryItemList = () => {
   const router = useRouter();
   const notify = useNotification();
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+  const [sortBy, setSortBy] = useState("itemName");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [modal, setModal] = useState<{
     isOpen: boolean;
     mode: "create" | "edit";
@@ -35,13 +41,21 @@ const InventoryItemList = () => {
     isOpen: boolean;
     item?: InventoryItemWithLabels;
   }>({ isOpen: false });
-  const [filters, setFilters] = useState({
-    PageNumber: 1,
-    PageSize: 10,
-    SortBy: "itemName",
-    SortDescending: false,
-    Search: "",
-  });
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, sortBy, sortOrder]);
+
+  const filters = useMemo(
+    () => ({
+      PageNumber: page,
+      PageSize: pageSize,
+      SortBy: sortBy,
+      SortDescending: sortOrder === "desc",
+      Search: search,
+    }),
+    [page, pageSize, sortBy, sortOrder, search],
+  );
 
   const { inventoryItems, pagination, isPending, isError } =
     useInventoryItems(filters);
@@ -69,20 +83,27 @@ const InventoryItemList = () => {
   };
 
   const handleSort = (sortKey: string) => {
-    setFilters(prev => ({
-      ...prev,
-      SortBy: sortKey,
-      SortDescending: prev.SortBy === sortKey ? !prev.SortDescending : false,
-      PageNumber: 1,
-    }));
+    if (sortBy === sortKey) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(sortKey);
+      setSortOrder("asc");
+    }
+    setPage(1);
   };
 
   const handleSearch = (searchTerm: string) => {
-    setFilters(prev => ({ ...prev, Search: searchTerm, PageNumber: 1 }));
+    setSearch(searchTerm);
+    // Page reset is handled by useEffect
   };
 
   const handlePageChange = (newPage: number) => {
-    setFilters(prev => ({ ...prev, PageNumber: newPage }));
+    setPage(newPage);
+  };
+
+  const handlePageSizeChange = (newPageSize: number) => {
+    setPageSize(newPageSize);
+    setPage(1);
   };
 
   const handleRowClick = (item: InventoryItemWithLabels) => {
@@ -165,7 +186,7 @@ const InventoryItemList = () => {
 
   return (
     <div className="p-6 w-full max-w-none">
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-semibold text-gray-900">
           Inventory Items
         </h1>
@@ -180,21 +201,23 @@ const InventoryItemList = () => {
         </div>
       </div>
 
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-end justify-between mb-4">
         <FilterBar
-          searchValue={filters.Search}
-          onSearchChange={handleSearch}
-          searchPlaceholder="Search inventory"
-          onFilterChange={() => console.log("Filter change")}
+          searchValue={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search"
+          onFilterChange={() => {}}
         />
 
         <PaginationControls
-          currentPage={filters.PageNumber}
+          currentPage={page}
           totalPages={pagination?.totalPages || 0}
           totalItems={pagination?.totalCount || 0}
-          itemsPerPage={filters.PageSize}
-          onNextPage={() => handlePageChange(filters.PageNumber + 1)}
-          onPreviousPage={() => handlePageChange(filters.PageNumber - 1)}
+          itemsPerPage={pageSize}
+          onNextPage={() => handlePageChange(page + 1)}
+          onPreviousPage={() => handlePageChange(page - 1)}
+          onPageChange={setPage}
+          onPageSizeChange={handlePageSizeChange}
         />
       </div>
 
@@ -208,6 +231,9 @@ const InventoryItemList = () => {
           onSelectItem={handleItemSelect}
           onSelectAll={handleSelectAll}
           onRowClick={handleRowClick}
+          onSort={handleSort}
+          sortBy={sortBy}
+          sortOrder={sortOrder}
           actions={inventoryItemAction}
           showActions={true}
           fixedLayout={false}

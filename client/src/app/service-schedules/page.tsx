@@ -53,13 +53,6 @@ export default function ServiceScheduleListPage() {
             : "-",
       width: "140px",
     },
-    {
-      key: "isActive",
-      header: "Active",
-      render: (item: ServiceScheduleWithLabels) =>
-        item.isActive ? "Yes" : "No",
-      width: "80px",
-    },
   ];
 
   const handleRowClick = (row: ServiceScheduleWithLabels) => {
@@ -85,7 +78,7 @@ export default function ServiceScheduleListPage() {
           Service Schedules
         </h1>
         <PrimaryButton onClick={() => router.push("/service-schedules/new")}>
-          <Plus size={18} className="mr-2" />
+          <Plus size={18} />
           Add Service Schedule
         </PrimaryButton>
       </div>
@@ -93,7 +86,7 @@ export default function ServiceScheduleListPage() {
         <FilterBar
           searchValue={search}
           onSearchChange={setSearch}
-          searchPlaceholder="Search service schedules..."
+          searchPlaceholder="Search"
           onFilterChange={() => {}}
         />
         {pagination && (

@@ -10,7 +10,7 @@ import {
 } from "@/features/inspection-form/hooks/useInspectionForms";
 import { InspectionForm } from "@/features/inspection-form/types/inspectionFormType";
 import { DEFAULT_PAGE_SIZE } from "@/components/ui/Table/constants";
-import { Plus, Trash2, CheckCircle, XCircle } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { ConfirmModal } from "@/components/ui/Modal";
 import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
 import ModalPortal from "@/components/ui/Modal/ModalPortal";
@@ -59,27 +59,6 @@ export default function InspectionFormsPage() {
       ),
     },
     {
-      key: "isActive",
-      header: "Status",
-      sortable: true,
-      width: "100px",
-      render: (item: InspectionForm) => (
-        <div className="flex items-center gap-2">
-          {item.isActive ? (
-            <div className="flex items-center gap-1 text-green-600">
-              <CheckCircle size={16} />
-              <span className="text-sm font-medium">Active</span>
-            </div>
-          ) : (
-            <div className="flex items-center gap-1 text-red-600">
-              <XCircle size={16} />
-              <span className="text-sm font-medium">Inactive</span>
-            </div>
-          )}
-        </div>
-      ),
-    },
-    {
       key: "inspectionFormItemCount",
       header: "Checklist Items",
       sortable: true,
@@ -106,20 +85,20 @@ export default function InspectionFormsPage() {
       ),
     },
     {
-      key: "createdAt",
-      header: "Created",
-      sortable: true,
-      width: "120px",
-      render: (item: InspectionForm) =>
-        new Date(item.createdAt).toLocaleDateString(),
-    },
-    {
       key: "updatedAt",
-      header: "Updated",
+      header: "Updated At",
       sortable: true,
-      width: "120px",
-      render: (item: InspectionForm) =>
-        new Date(item.updatedAt).toLocaleDateString(),
+      width: "160px",
+      render: (item: InspectionForm) => (
+        <div>
+          <div className="font-medium">
+            {new Date(item.updatedAt).toLocaleDateString()}
+          </div>
+          <div className="text-sm text-gray-500">
+            {new Date(item.updatedAt).toLocaleTimeString()}
+          </div>
+        </div>
+      ),
     },
   ];
 
@@ -214,7 +193,7 @@ export default function InspectionFormsPage() {
         <FilterBar
           searchValue={search}
           onSearchChange={setSearch}
-          searchPlaceholder="Search inspection forms..."
+          searchPlaceholder="Search"
           onFilterChange={() => {}}
         />
         {pagination && (

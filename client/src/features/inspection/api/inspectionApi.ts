@@ -2,11 +2,19 @@ import { agent } from "@/lib/axios/agent";
 import {
   Inspection,
   InspectionWithLabels,
+  SingleInspection,
+  SingleInspectionWithLabels,
   CreateInspectionCommand,
   InspectionFilter,
 } from "../types/inspectionType";
-import { VehicleConditionEnum } from "../types/inspectionEnum";
-import { getVehicleConditionLabel } from "../utils/inspectionEnumHelper";
+import {
+  VehicleConditionEnum,
+  InspectionFormItemTypeEnum,
+} from "../types/inspectionEnum";
+import {
+  getVehicleConditionLabel,
+  getInspectionFormItemTypeLabel,
+} from "../utils/inspectionEnumHelper";
 
 export const convertInspectionData = (
   inspection: Inspection,
@@ -15,6 +23,25 @@ export const convertInspectionData = (
   vehicleCondition: inspection.vehicleCondition as number,
   vehicleConditionLabel: getVehicleConditionLabel(inspection.vehicleCondition),
   vehicleConditionEnum: inspection.vehicleCondition as VehicleConditionEnum,
+});
+
+export const convertSingleInspectionData = (
+  inspection: SingleInspection,
+): SingleInspectionWithLabels => ({
+  ...inspection,
+  vehicleCondition: inspection.vehicleCondition as number,
+  vehicleConditionLabel: getVehicleConditionLabel(inspection.vehicleCondition),
+  vehicleConditionEnum: inspection.vehicleCondition as VehicleConditionEnum,
+  inspectionItems: inspection.inspectionItems.map(item => ({
+    ...item,
+    snapshotInspectionFormItemType:
+      item.snapshotInspectionFormItemType as number,
+    snapshotInspectionFormItemTypeLabel: getInspectionFormItemTypeLabel(
+      item.snapshotInspectionFormItemType,
+    ),
+    snapshotInspectionFormItemTypeEnum:
+      item.snapshotInspectionFormItemType as InspectionFormItemTypeEnum,
+  })),
 });
 
 export const inspectionApi = {
@@ -42,7 +69,9 @@ export const inspectionApi = {
   },
 
   getInspection: async (id: number) => {
-    const { data } = await agent.get<Inspection>(`/api/Inspections/${id}`);
+    const { data } = await agent.get<SingleInspection>(
+      `/api/Inspections/${id}`,
+    );
     return data;
   },
 

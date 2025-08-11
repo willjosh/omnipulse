@@ -79,7 +79,7 @@ const VehicleDetailsPage = () => {
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
             <span className="text-sm font-medium text-gray-600">Mileage</span>
             <span className="text-sm text-gray-900">
-              {vehicle.mileage?.toLocaleString() || "—"} mi
+              {vehicle.mileage.toLocaleString()} mi
             </span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
@@ -87,7 +87,7 @@ const VehicleDetailsPage = () => {
               Engine Hours
             </span>
             <span className="text-sm text-gray-900">
-              {vehicle.engineHours || "—"} hrs
+              {vehicle.engineHours} hrs
             </span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
@@ -112,7 +112,7 @@ const VehicleDetailsPage = () => {
               Assigned Technician
             </span>
             <span className="text-sm text-gray-900">
-              {vehicle.assignedTechnicianName || "Unassigned"}
+              {vehicle.assignedTechnicianName}
             </span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
@@ -124,7 +124,7 @@ const VehicleDetailsPage = () => {
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
             <span className="text-sm font-medium text-gray-600">Fuel Type</span>
             <span className="text-sm text-gray-900">
-              {vehicle.fuelTypeLabel || "—"}
+              {vehicle.fuelTypeLabel}
             </span>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
@@ -264,7 +264,7 @@ const VehicleDetailsPage = () => {
           </div>
           <div className="flex justify-between items-center py-3">
             <span className="text-sm font-medium text-gray-600">Trim</span>
-            <span className="text-sm text-gray-900">{vehicle.trim || "—"}</span>
+            <span className="text-sm text-gray-900">{vehicle.trim}</span>
           </div>
         </div>
       </div>
@@ -285,7 +285,7 @@ const VehicleDetailsPage = () => {
               Purchase Date
             </span>
             <span className="text-sm text-gray-900">
-              {vehicle.purchaseDate.split("T")[0] || "—"}
+              {vehicle.purchaseDate.split("T")[0]}
             </span>
           </div>
           <div className="flex justify-between items-center py-3">
@@ -321,7 +321,7 @@ const VehicleDetailsPage = () => {
               Current Mileage
             </span>
             <span className="text-sm text-gray-900">
-              {vehicle.mileage ? `${vehicle.mileage.toLocaleString()} mi` : "—"}
+              {vehicle.mileage.toLocaleString()} mi
             </span>
           </div>
         </div>
@@ -343,7 +343,7 @@ const VehicleDetailsPage = () => {
               Engine Hours
             </span>
             <span className="text-sm text-gray-900">
-              {vehicle.engineHours || "—"} hrs
+              {vehicle.engineHours} hrs
             </span>
           </div>
         </div>
@@ -385,13 +385,13 @@ const VehicleDetailsPage = () => {
   };
 
   return (
-    <div className="min-h-screen max-w-7xl shadow border-b border-gray-200 bg-gray-50">
+    <div className="min-h-screen shadow border-b border-gray-200 bg-gray-50">
       <div className="bg-white">
         <div className="px-6 py-4">
           <div className="flex items-center space-x-4 mb-4">
             <button
               onClick={handleBack}
-              className="flex items-center text-gray-600 hover:text-gray-900"
+              className="flex items-center text-gray-600 hover:text-blue-500"
             >
               <ArrowLeft className="w-4 h-4 mr-1" />
               <span className="text-sm">Vehicles</span>
@@ -413,7 +413,7 @@ const VehicleDetailsPage = () => {
                 </p>
                 <div className="flex items-center space-x-4 text-sm">
                   <span className="text-gray-600">
-                    {vehicle.mileage?.toLocaleString() || "—"} mi
+                    {vehicle.mileage.toLocaleString()} mi
                   </span>
                   <div
                     className={`flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(vehicle.status)}`}
@@ -427,7 +427,7 @@ const VehicleDetailsPage = () => {
                     {vehicle.vehicleGroupName}
                   </span>
                   <span className="text-gray-500">
-                    {vehicle.assignedTechnicianName || "Unassigned"}
+                    {vehicle.assignedTechnicianName}
                   </span>
                 </div>
               </div>
@@ -448,7 +448,9 @@ const VehicleDetailsPage = () => {
             onTabChange={setActiveTab}
           />
         </div>
-        <div className="p-6">{renderTab()}</div>
+        <div className="flex justify-center bg-gray-50">
+          <div className="w-full max-w-7xl p-6">{renderTab()}</div>
+        </div>
       </div>
     </div>
   );

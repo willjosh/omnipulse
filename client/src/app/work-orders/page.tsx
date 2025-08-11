@@ -153,7 +153,7 @@ export default function WorkOrdersPage() {
         <FilterBar
           searchValue={search}
           onSearchChange={setSearch}
-          searchPlaceholder="Search work orders"
+          searchPlaceholder="Search"
           onFilterChange={() => {}}
         />
         {pagination && (

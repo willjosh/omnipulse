@@ -1,5 +1,6 @@
 import { Inventory } from "../types/inventoryType";
 import { getStockStatus, getStockStatusColor } from "../config/inventoryConfig";
+import { formatEmptyValueWithUnknown } from "@/utils/emptyValueUtils";
 
 interface InventoryCardProps {
   inventory: Inventory;
@@ -51,14 +52,14 @@ export function InventoryCard({ inventory, onClick }: InventoryCardProps) {
         </div>
       </div>
 
-      {inventory.lastRestockedDate &&
-        inventory.lastRestockedDate !== "Unknown" && (
-          <div className="mt-3 pt-3 border-t border-gray-100">
-            <span className="text-xs text-gray-500">
-              Last restocked: {inventory.lastRestockedDate}
-            </span>
-          </div>
-        )}
+      {inventory.lastRestockedDate && (
+        <div className="mt-3 pt-3 border-t border-gray-100">
+          <span className="text-xs text-gray-500">
+            Last restocked:{" "}
+            {formatEmptyValueWithUnknown(inventory.lastRestockedDate)}
+          </span>
+        </div>
+      )}
     </div>
   );
 }

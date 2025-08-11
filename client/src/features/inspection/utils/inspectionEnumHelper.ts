@@ -1,4 +1,7 @@
-import { VehicleConditionEnum } from "../types/inspectionEnum";
+import {
+  VehicleConditionEnum,
+  InspectionFormItemTypeEnum,
+} from "../types/inspectionEnum";
 
 export const getVehicleConditionLabel = (
   condition: VehicleConditionEnum | number,
@@ -10,6 +13,17 @@ export const getVehicleConditionLabel = (
       return "Has Issues But Safe To Operate";
     case VehicleConditionEnum.NotSafeToOperate:
       return "Not Safe To Operate";
+    default:
+      return "Unknown";
+  }
+};
+
+export const getInspectionFormItemTypeLabel = (
+  type: InspectionFormItemTypeEnum | number,
+): string => {
+  switch (type) {
+    case InspectionFormItemTypeEnum.PassFail:
+      return "Pass/Fail";
     default:
       return "Unknown";
   }

@@ -45,29 +45,4 @@ export const technicianTableColumns = [
       );
     },
   },
-  {
-    key: "isActive",
-    header: "Status",
-    sortable: false,
-    render: (technician: Technician) => (
-      <div className="flex items-center">
-        <div
-          className={`size-2 rounded-full mr-2 ${
-            technician.isActive ? "bg-green-400" : "bg-red-400"
-          }`}
-        ></div>
-        <span className="text-sm">
-          {technician.isActive ? "Active" : "Inactive"}
-        </span>
-      </div>
-    ),
-  },
-  {
-    key: "userType",
-    header: "User Type",
-    sortable: false,
-    render: (_technician: Technician) => (
-      <span className="text-sm text-gray-900">Technician</span>
-    ),
-  },
 ];

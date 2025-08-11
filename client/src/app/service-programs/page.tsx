@@ -50,12 +50,6 @@ export default function ServiceProgramsPage() {
       width: "260px",
     },
     {
-      key: "isActive",
-      header: "Active",
-      render: (item: ServiceProgram) => (item.isActive ? "Yes" : "No"),
-      width: "80px",
-    },
-    {
       key: "serviceScheduleCount",
       header: "# Schedules",
       render: (item: ServiceProgram) => item.serviceScheduleCount,
@@ -65,13 +59,6 @@ export default function ServiceProgramsPage() {
       key: "assignedVehicleCount",
       header: "# Vehicles",
       render: (item: ServiceProgram) => item.assignedVehicleCount,
-      width: "120px",
-    },
-    {
-      key: "createdAt",
-      header: "Created",
-      render: (item: ServiceProgram) =>
-        new Date(item.createdAt).toLocaleDateString(),
       width: "120px",
     },
     {
@@ -154,7 +141,7 @@ export default function ServiceProgramsPage() {
           Service Programs
         </h1>
         <PrimaryButton onClick={() => router.push("/service-programs/new")}>
-          <Plus size={18} className="mr-2" />
+          <Plus size={18} />
           Add Service Program
         </PrimaryButton>
       </div>
@@ -162,7 +149,7 @@ export default function ServiceProgramsPage() {
         <FilterBar
           searchValue={search}
           onSearchChange={setSearch}
-          searchPlaceholder="Search service programs..."
+          searchPlaceholder="Search"
           onFilterChange={() => {}}
         />
         {pagination && (

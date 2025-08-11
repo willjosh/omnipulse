@@ -6,7 +6,6 @@ import {
   WorkOrderStatusData,
 } from "../types/workOrderType";
 import { useDebounce } from "@/hooks/useDebounce";
-import { VehicleStatusData } from "@/features/vehicle/types/vehicleType";
 
 export function useWorkOrders(filter: WorkOrderFilter = {}) {
   const debouncedSearch = useDebounce(filter?.Search || "", 300);

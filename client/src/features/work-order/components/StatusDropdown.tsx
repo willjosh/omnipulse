@@ -68,22 +68,22 @@ const StatusDropdown: React.FC<StatusDropdownProps> = ({
       if (newStatus === WorkOrderStatusEnum.COMPLETED) {
         // Call the complete work order API
         await completeWorkOrder(workOrderId);
-        console.log("Work order completed successfully");
         notify("Work order completed successfully!", "success");
+        setSelectedStatus(newStatus);
+        onStatusChange?.(newStatus);
       } else {
         // For other status changes, call the update API
         if (onUpdateWorkOrder) {
+          // Optimistically update the UI
+          setSelectedStatus(newStatus);
+          onStatusChange?.(newStatus);
+
+          // Call the update API
           onUpdateWorkOrder(newStatus);
-          console.log("Status changed to:", getWorkOrderStatusLabel(newStatus));
-          notify(
-            `Status changed to ${getWorkOrderStatusLabel(newStatus)}`,
-            "success",
-          );
+          // Don't show success notification here as the main component handles it
         }
       }
 
-      setSelectedStatus(newStatus);
-      onStatusChange?.(newStatus);
       setIsOpen(false);
     } catch (error: any) {
       console.error("Error updating work order status:", error);
@@ -104,6 +104,9 @@ const StatusDropdown: React.FC<StatusDropdownProps> = ({
 
       // Show error notification
       notify(errorMessage, "error");
+
+      // Reset to previous status on error
+      setSelectedStatus(currentStatus);
     }
   };
 

@@ -11,7 +11,6 @@ interface PaginationControlsProps {
   onPageChange?: (page: number) => void;
   onPageSizeChange?: (size: number) => void;
   className?: string;
-  showPageNumbers?: boolean;
   showItemCount?: boolean;
   size?: "sm" | "md" | "lg";
   variant?: "default" | "compact" | "detailed";
@@ -31,7 +30,6 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
   onPageSizeChange,
   className = "",
   showItemCount = true,
-  showPageNumbers = true,
   pageSizeOptions = DEFAULT_PAGE_SIZE_OPTIONS,
 }) => {
   const startItem = totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
@@ -41,39 +39,6 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
     let base = `px-2 py-1 rounded text-sm mx-0.5 ${disabled ? "text-gray-300 cursor-not-allowed" : "text-gray-600 hover:bg-gray-100"}`;
     if (active) base += " bg-blue-100 text-blue-700 font-semibold";
     return base;
-  };
-
-  // Generate page numbers with ellipsis logic
-  const getPageNumbers = () => {
-    const pages: (number | string)[] = [];
-    if (totalPages <= 7) {
-      for (let i = 1; i <= totalPages; i++) pages.push(i);
-    } else {
-      if (currentPage <= 4) {
-        pages.push(1, 2, 3, 4, 5, "...", totalPages);
-      } else if (currentPage >= totalPages - 3) {
-        pages.push(
-          1,
-          "...",
-          totalPages - 4,
-          totalPages - 3,
-          totalPages - 2,
-          totalPages - 1,
-          totalPages,
-        );
-      } else {
-        pages.push(
-          1,
-          "...",
-          currentPage - 1,
-          currentPage,
-          currentPage + 1,
-          "...",
-          totalPages,
-        );
-      }
-    }
-    return pages;
   };
 
   return (
@@ -112,18 +77,6 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
 
       {/* Navigation Controls */}
       <div className="flex items-center gap-1">
-        {/* First page */}
-        {onPageChange && (
-          <button
-            onClick={() => onPageChange(1)}
-            disabled={currentPage === 1}
-            className={getButtonClasses(currentPage === 1)}
-            aria-label="First page"
-          >
-            «
-          </button>
-        )}
-
         {/* Previous */}
         <button
           onClick={onPreviousPage}
@@ -145,29 +98,6 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
             />
           </svg>
         </button>
-
-        {/* Page numbers */}
-        {showPageNumbers && onPageChange && (
-          <div className="flex items-center">
-            {getPageNumbers().map((page, idx) =>
-              typeof page === "number" ? (
-                <button
-                  key={page}
-                  onClick={() => onPageChange(page)}
-                  className={getButtonClasses(false, page === currentPage)}
-                  aria-current={page === currentPage ? "page" : undefined}
-                >
-                  {page}
-                </button>
-              ) : (
-                <span key={"ellipsis-" + idx} className="px-1 text-gray-400">
-                  …
-                </span>
-              ),
-            )}
-          </div>
-        )}
-
         {/* Next */}
         <button
           onClick={onNextPage}
@@ -189,18 +119,6 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
             />
           </svg>
         </button>
-
-        {/* Last page */}
-        {onPageChange && (
-          <button
-            onClick={() => onPageChange(totalPages)}
-            disabled={currentPage === totalPages}
-            className={getButtonClasses(currentPage === totalPages)}
-            aria-label="Last page"
-          >
-            »
-          </button>
-        )}
       </div>
     </div>
   );

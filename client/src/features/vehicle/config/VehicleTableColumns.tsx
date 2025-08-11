@@ -5,6 +5,7 @@ import {
 } from "@/features/vehicle/utils/vehicleEnumHelper";
 import { VehicleWithLabels } from "@/features/vehicle/types/vehicleType";
 import React from "react";
+import { formatEmptyValueWithUnknown } from "@/utils/emptyValueUtils";
 
 export const vehicleTableColumns = [
   {
@@ -94,7 +95,7 @@ export const vehicleTableColumns = [
           <span className="ml-2">{vehicle.assignedTechnicianName}</span>
         </div>
       ) : (
-        <span className="text-gray-400 italic">Unassigned</span>
+        <span className="text-gray-400">—</span>
       ),
   },
 ];

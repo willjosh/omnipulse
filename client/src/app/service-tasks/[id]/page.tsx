@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation";
 import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
 import ArchiveIcon from "@/components/ui/Icons/Archive";
 import ConfirmModal from "@/components/ui/Modal/ConfirmModal";
+import { formatEmptyValueWithUnknown } from "@/utils/emptyValueUtils";
 
 export default function ServiceTaskDetailPage() {
   const params = useParams();
@@ -89,7 +90,7 @@ export default function ServiceTaskDetailPage() {
           <DetailFieldRow label="Name" value={serviceTask.name} />
           <DetailFieldRow
             label="Description"
-            value={serviceTask.description || "-"}
+            value={formatEmptyValueWithUnknown(serviceTask.description)}
           />
           <DetailFieldRow
             label="Estimated Labour Hours"
