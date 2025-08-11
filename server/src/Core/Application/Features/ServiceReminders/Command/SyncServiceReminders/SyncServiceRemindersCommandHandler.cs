@@ -1,5 +1,6 @@
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
+using Application.Contracts.Services;
 using Application.Features.ServiceReminders.Query;
 
 using Domain.Entities;
@@ -20,16 +21,19 @@ public class SyncServiceRemindersCommandHandler : IRequestHandler<SyncServiceRem
 
     private readonly IServiceReminderRepository _serviceReminderRepository;
     private readonly IAppLogger<SyncServiceRemindersCommandHandler> _logger;
+    private readonly IServiceReminderStatusUpdater _serviceReminderStatusUpdater;
     private readonly TimeProvider _timeProvider;
 
     public SyncServiceRemindersCommandHandler(
         IServiceReminderRepository serviceReminderRepository,
         IAppLogger<SyncServiceRemindersCommandHandler> logger,
-        TimeProvider timeProvider)
+        TimeProvider timeProvider,
+        IServiceReminderStatusUpdater serviceReminderStatusUpdater)
     {
         _serviceReminderRepository = serviceReminderRepository;
         _logger = logger;
         _timeProvider = timeProvider;
+        _serviceReminderStatusUpdater = serviceReminderStatusUpdater;
     }
 
     public async Task<SyncServiceRemindersResponse> Handle(SyncServiceRemindersCommand request, CancellationToken cancellationToken)
@@ -37,6 +41,13 @@ public class SyncServiceRemindersCommandHandler : IRequestHandler<SyncServiceRem
         try
         {
             _logger.LogInformation("Starting service reminder sync");
+
+            // Cleanup: remove unlinked/orphaned reminders
+            var deletedOrphans = await _serviceReminderRepository.DeleteAllUnlinkedReminders(cancellationToken);
+            if (deletedOrphans > 0)
+            {
+                _logger.LogInformation("Cleanup removed {Count} unlinked service reminders", deletedOrphans);
+            }
 
             // Fetch all active schedules with required vehicle/task data in one go (avoid N+1)
             var schedules = await _serviceReminderRepository.GetActiveServiceSchedulesWithDataAsync(cancellationToken);
@@ -50,7 +61,10 @@ public class SyncServiceRemindersCommandHandler : IRequestHandler<SyncServiceRem
             // Persist only new reminders; existing ones are skipped (idempotent)
             var inserted = await _serviceReminderRepository.AddNewRemindersAsync(calculated, cancellationToken);
 
-            _logger.LogInformation("Synced service reminders: inserted {Count}", inserted);
+            // Status updates: recompute statuses for all active reminders using current time and latest vehicle mileage
+            await _serviceReminderStatusUpdater.UpdateAllReminderStatusesAsync(cancellationToken);
+
+            _logger.LogInformation("Synced service reminders: inserted {Inserted} (cleanup removed {DeletedOrphans})", inserted, deletedOrphans);
 
             return new SyncServiceRemindersResponse(
                 GeneratedCount: inserted,
