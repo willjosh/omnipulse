@@ -1,25 +1,25 @@
-using Application.Features.FuelPurchases.Query.GetAllFuelPurchases;
+using Application.Features.FuelPurchases.Query.GetAllFuelPurchase;
 using Application.Models.PaginationModels;
 
 namespace Application.Test.FuelPurchases.QueryTest;
 
 public class GetAllFuelPurchaseQueryValidatorTest
 {
-    private readonly GetAllFuelPurchasesQueryValidator _validator;
+    private readonly GetAllFuelPurchaseQueryValidator _validator;
 
     public GetAllFuelPurchaseQueryValidatorTest()
     {
-        _validator = new GetAllFuelPurchasesQueryValidator();
+        _validator = new GetAllFuelPurchaseQueryValidator();
     }
 
-    private GetAllFuelPurchasesQuery CreateValidQuery(
+    private GetAllFuelPurchaseQuery CreateValidQuery(
         int pageNumber = 1,
         int pageSize = 10,
         string? sortBy = "receiptnumber",
         bool sortDescending = false,
         string? search = null)
     {
-        return new GetAllFuelPurchasesQuery(
+        return new GetAllFuelPurchaseQuery(
             Parameters: new PaginationParameters
             {
                 PageNumber = pageNumber,
@@ -49,7 +49,7 @@ public class GetAllFuelPurchaseQueryValidatorTest
     public async Task Validator_Should_Fail_When_Parameters_Is_Null()
     {
         // Given
-        var query = new GetAllFuelPurchasesQuery(Parameters: null!);
+        var query = new GetAllFuelPurchaseQuery(Parameters: null!);
 
         // When
         var result = await _validator.ValidateAsync(query);

@@ -1,5 +1,7 @@
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
+using Application.Features.FuelPurchases.Query;
+using Application.Features.FuelPurchases.Query.GetAllFuelPurchase;
 using Application.MappingProfiles;
 using Application.Models.PaginationModels;
 
@@ -11,8 +13,6 @@ using Domain.Entities.Enums;
 using FluentValidation;
 
 using Moq;
-using Application.Features.FuelPurchases.Query.GetAllFuelPurchases;
-
 
 namespace Application.Test.FuelPurchases.QueryTest.GetAllFuelPurchase;
 
@@ -20,11 +20,11 @@ public class GetAllFuelPurchaseQueryHandlerTest
 {
 
     private readonly Mock<IFuelPurchaseRepository> _mockFuelPurchasesRepository;
-    private readonly GetAllFuelPurchasesQueryHandler _getAllFuelPurchasesQueryHandler;
-    private readonly Mock<IAppLogger<GetAllFuelPurchasesQueryHandler>> _mockLogger;
+    private readonly GetAllFuelPurchaseQueryHandler _getAllFuelPurchasesQueryHandler;
+    private readonly Mock<IAppLogger<GetAllFuelPurchaseQueryHandler>> _mockLogger;
     private readonly IMapper _mapper;
 
-    private readonly Mock<IValidator<GetAllFuelPurchasesQuery>> _mockValidator;
+    private readonly Mock<IValidator<GetAllFuelPurchaseQuery>> _mockValidator;
     public GetAllFuelPurchaseQueryHandlerTest()
     {
         _mockFuelPurchasesRepository = new();
@@ -35,7 +35,7 @@ public class GetAllFuelPurchaseQueryHandlerTest
 
         _mapper = config.CreateMapper();
 
-        _getAllFuelPurchasesQueryHandler = new GetAllFuelPurchasesQueryHandler(
+        _getAllFuelPurchasesQueryHandler = new GetAllFuelPurchaseQueryHandler(
             _mockFuelPurchasesRepository.Object,
             _mapper,
             _mockLogger.Object,
@@ -44,7 +44,7 @@ public class GetAllFuelPurchaseQueryHandlerTest
     }
 
     // Helper method to set up valid validation result
-    private void SetupValidValidation(GetAllFuelPurchasesQuery query)
+    private void SetupValidValidation(GetAllFuelPurchaseQuery query)
     {
         var validResult = new FluentValidation.Results.ValidationResult();
         _mockValidator.Setup(v => v.Validate(query))
@@ -52,7 +52,7 @@ public class GetAllFuelPurchaseQueryHandlerTest
     }
 
     // Helper method to set up validation failure
-    private void SetupInvalidValidation(GetAllFuelPurchasesQuery query, string propertyName = "Parameters.PageNumber", string errorMessage = "Validation failed")
+    private void SetupInvalidValidation(GetAllFuelPurchaseQuery query, string propertyName = "Parameters.PageNumber", string errorMessage = "Validation failed")
     {
         var invalidResult = new FluentValidation.Results.ValidationResult(
             [new FluentValidation.Results.ValidationFailure(propertyName, errorMessage)]
@@ -74,7 +74,7 @@ public class GetAllFuelPurchaseQueryHandlerTest
             SortDescending = true
         };
 
-        var query = new GetAllFuelPurchasesQuery(parameters);
+        var query = new GetAllFuelPurchaseQuery(parameters);
         SetupValidValidation(query);
 
         var user = new User
@@ -233,7 +233,7 @@ public class GetAllFuelPurchaseQueryHandlerTest
 
         // Then
         Assert.NotNull(result);
-        Assert.IsType<PagedResult<GetAllFuelPurchasesDTO>>(result);
+        Assert.IsType<PagedResult<FuelPurchaseDTO>>(result);
 
         Assert.Equal(25, result.TotalCount);
         Assert.Equal(1, result.PageNumber);
@@ -273,7 +273,7 @@ public class GetAllFuelPurchaseQueryHandlerTest
             Search = "NonExistentBrand"
         };
 
-        var query = new GetAllFuelPurchasesQuery(parameters);
+        var query = new GetAllFuelPurchaseQuery(parameters);
 
         SetupValidValidation(query);
         var emptyPagedResult = new PagedResult<FuelPurchase>
@@ -314,7 +314,7 @@ public class GetAllFuelPurchaseQueryHandlerTest
             PageSize = 3
         };
 
-        var query = new GetAllFuelPurchasesQuery(parameters);
+        var query = new GetAllFuelPurchaseQuery(parameters);
         SetupValidValidation(query);
 
         var pagedResult = new PagedResult<FuelPurchase>
@@ -353,7 +353,7 @@ public class GetAllFuelPurchaseQueryHandlerTest
             PageSize = 5
         };
 
-        var query = new GetAllFuelPurchasesQuery(parameters);
+        var query = new GetAllFuelPurchaseQuery(parameters);
         SetupValidValidation(query);
 
         var pagedResult = new PagedResult<FuelPurchase>

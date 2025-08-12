@@ -1,8 +1,10 @@
 using Application.Features.FuelPurchases.Command.CreateFuelPurchase;
 using Application.Features.FuelPurchases.Command.DeleteFuelPurchase;
 using Application.Features.FuelPurchases.Command.UpdateFuelPurchase;
+using Application.Features.FuelPurchases.Query;
+using Application.Features.FuelPurchases.Query.GetAllFuelPurchase;
 using Application.Features.FuelPurchases.Query.GetFuelPurchase;
-using Application.Features.FuelPurchases.Query.GetAllFuelPurchases;
+using Application.Models.PaginationModels;
 
 using Domain.Entities;
 
@@ -18,7 +20,7 @@ namespace Api.Controllers;
 /// <remarks>
 /// <b>API Endpoints</b>:
 /// <list type="bullet">
-/// <item><b>GET /api/fuelpurchases</b> - <see cref="GetAllFuelPurchases"/> - <see cref="GetAllFuelPurchasesQuery"/></item>
+/// <item><b>GET /api/fuelpurchases</b> - <see cref="GetAllFuelPurchases"/> - <see cref="GetAllFuelPurchaseQuery"/></item>
 /// <item><b>GET /api/fuelpurchases/{id:int}</b> - <see cref="GetFuelPurchase"/> - <see cref="GetFuelPurchaseQuery"/></item>
 /// <item><b>POST /api/fuelpurchases</b> - <see cref="CreateFuelPurchase"/> - <see cref="CreateFuelPurchaseCommand"/></item>
 /// <item><b>PUT /api/fuelpurchases/{id:int}</b> - <see cref="UpdateFuelPurchase"/> - <see cref="UpdateFuelPurchaseCommand"/></item>
@@ -41,6 +43,38 @@ public sealed class FuelPurchasesController : ControllerBase
     }
 
     /// <summary>
+    /// Retrieves a paginated list of all fuel purchases.
+    /// </summary>
+    /// <param name="parameters">Pagination parameters.</param>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>A paginated list of fuel purchases.</returns>
+    /// <response code="200">Fuel purchases retrieved successfully.</response>
+    /// <response code="400">Request parameters are invalid or validation failed.</response>
+    /// <response code="500">Internal server error occurred.</response>
+    [HttpGet]
+    [ProducesResponseType(typeof(PagedResult<FuelPurchaseDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<PagedResult<FuelPurchaseDTO>>> GetAllFuelPurchases(
+        [FromQuery] PaginationParameters parameters,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            _logger.LogInformation($"{nameof(GetAllFuelPurchases)}() - Called");
+
+            var query = new GetAllFuelPurchaseQuery(parameters);
+            var result = await _mediator.Send(query, cancellationToken);
+
+            return Ok(result);
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    /// <summary>
     /// Gets a fuel purchase by ID.
     /// </summary>
     /// <param name="id">The ID of the fuel purchase.</param>
@@ -51,11 +85,11 @@ public sealed class FuelPurchasesController : ControllerBase
     /// <response code="404">Not found.</response>
     /// <response code="500">Internal server error.</response>
     [HttpGet("{id:int}")]
-    [ProducesResponseType(typeof(GetAllFuelPurchasesDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(FuelPurchaseDTO), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<GetAllFuelPurchasesDTO>> GetFuelPurchase(
+    public async Task<ActionResult<FuelPurchaseDTO>> GetFuelPurchase(
         int id,
         CancellationToken cancellationToken)
     {

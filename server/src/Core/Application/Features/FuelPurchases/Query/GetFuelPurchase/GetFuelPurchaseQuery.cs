@@ -1,4 +1,4 @@
-using Application.Features.FuelPurchases.Query.GetAllFuelPurchases;
+using Application.Features.FuelPurchases.Query;
 
 using Domain.Entities;
 
