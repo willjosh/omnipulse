@@ -13,7 +13,6 @@ interface InspectionFormDetailsFormProps {
   errors: Partial<Record<keyof InspectionFormDetailsFormValues, string>>;
   onChange: (field: keyof InspectionFormDetailsFormValues, value: any) => void;
   disabled?: boolean;
-  showIsActive?: boolean;
 }
 
 const InspectionFormDetailsForm: React.FC<InspectionFormDetailsFormProps> = ({
@@ -21,7 +20,6 @@ const InspectionFormDetailsForm: React.FC<InspectionFormDetailsFormProps> = ({
   errors,
   onChange,
   disabled = false,
-  showIsActive = true,
 }) => {
   return (
     <FormContainer title="Form Details">
@@ -45,24 +43,6 @@ const InspectionFormDetailsForm: React.FC<InspectionFormDetailsFormProps> = ({
           disabled={disabled}
         />
       </FormField>
-
-      {showIsActive && (
-        <FormField label="Status" error={errors.isActive}>
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              id="isActive"
-              checked={value.isActive}
-              onChange={e => onChange("isActive", e.target.checked)}
-              className="size-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-              disabled={disabled}
-            />
-            <label htmlFor="isActive" className="ml-2 text-sm text-gray-700">
-              Active
-            </label>
-          </div>
-        </FormField>
-      )}
     </FormContainer>
   );
 };
