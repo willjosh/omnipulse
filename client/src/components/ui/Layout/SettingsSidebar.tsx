@@ -2,27 +2,13 @@
 
 import { useRouter, usePathname } from "next/navigation";
 import { ChevronRight, ArrowLeft, Layers, User, Settings } from "lucide-react";
+import LogoutButton from "./LogoutButton";
 import { NavItem, NavSection } from "./types";
 
 const settingsSections: NavSection[] = [
   {
     title: "Account",
     items: [{ label: "Profile", icon: User, path: "/settings/profile" }],
-  },
-  {
-    title: "Vehicles",
-    items: [
-      {
-        label: "Vehicle Groups",
-        icon: Layers,
-        path: "/settings/vehicle-groups",
-      },
-      {
-        label: "Vehicle Status",
-        icon: Settings,
-        path: "/settings/vehicle-status",
-      },
-    ],
   },
 ];
 
@@ -102,6 +88,8 @@ const SettingsSidebar = () => {
           </div>
         ))}
       </nav>
+
+      <LogoutButton />
     </aside>
   );
 };

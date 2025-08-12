@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { PrimaryButton, SecondaryButton } from "@/components/ui/Button";
+import { PrimaryButton } from "@/components/ui/Button";
 import { EyeOpen, EyeClosed } from "@/components/ui/Icons";
 import { useLogin } from "@/features/auth/hooks/useAuth";
 import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
@@ -23,7 +23,6 @@ export default function LoginPage() {
   const validateForm = () => {
     const newErrors: typeof errors = {};
 
-    // Required text fields
     if (!form.email.trim()) {
       newErrors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(form.email)) {
@@ -40,12 +39,10 @@ export default function LoginPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate form before attempting to login
     const validationErrors = validateForm();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
 
-      // Create a summary of missing fields
       const missingFields = Object.values(validationErrors);
       const errorMessage = `Please fix the following issues:\n• ${missingFields.join("\n• ")}`;
 
@@ -53,7 +50,6 @@ export default function LoginPage() {
       return;
     }
 
-    // Clear any existing errors
     setErrors({});
 
     login(
@@ -128,18 +124,6 @@ export default function LoginPage() {
               >
                 Password
               </label>
-              <div className="text-sm">
-                <button
-                  type="button"
-                  className="font-medium text-blue-600 hover:text-blue-500 hover:underline focus:outline-none"
-                  onClick={() => {
-                    // TODO: Implement forgot password functionality
-                    console.log("Forgot password clicked");
-                  }}
-                >
-                  Forgot your password?
-                </button>
-              </div>
             </div>
             <div className="mt-1 relative">
               <input

@@ -5,6 +5,7 @@ import { Edit, ArrowLeft } from "lucide-react";
 import { TabNavigation } from "@/components/ui/Tabs";
 import { PrimaryButton, OptionButton } from "@/components/ui/Button";
 import { Loading } from "@/components/ui/Feedback";
+import EmptyState from "@/components/ui/Feedback/EmptyState";
 import {
   getStatusDot,
   getStatusColor,
@@ -24,23 +25,26 @@ const VehicleDetailsPage = () => {
   const { vehicle, isPending, isError } = useVehicle(vehicleId);
 
   if (isPending) {
-    return <Loading />;
+    return (
+      <div className="flex justify-center items-center mt-60">
+        <Loading />
+      </div>
+    );
   }
 
   if (!vehicle || isError) {
     return (
-      <div className="min-h-screen max-w-7xl shadow border-b border-gray-200 bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            Vehicle Not Found
-          </h2>
-          <p className="text-gray-600 mb-4">
-            {"The vehicle you're looking for doesn't exist."}
-          </p>
-          <PrimaryButton onClick={() => router.push("/vehicles")}>
-            Back to Vehicles
-          </PrimaryButton>
-        </div>
+      <div className="p-6 w-full max-w-none mt-30">
+        <EmptyState
+          icon="🚗"
+          title="Vehicle Not Found"
+          message="The vehicle you're looking for doesn't exist."
+          action={
+            <PrimaryButton onClick={() => router.push("/vehicles")}>
+              Back to Vehicles
+            </PrimaryButton>
+          }
+        />
       </div>
     );
   }

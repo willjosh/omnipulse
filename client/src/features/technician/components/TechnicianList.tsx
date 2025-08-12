@@ -79,7 +79,6 @@ const TechnicianList: React.FC = () => {
 
   const handleSearch = (searchTerm: string) => {
     setSearch(searchTerm);
-    // Page reset is handled by useEffect
   };
 
   const handlePageChange = (newPage: number) => {

@@ -17,31 +17,27 @@ import {
   Bell,
   UserCog,
   User,
-  Store,
   Boxes,
-  Fuel,
-  MapPin,
-  FileText,
-  BarChart,
   ChevronDown,
   ChevronRight,
   Settings,
 } from "lucide-react";
 import SettingsSidebar from "./SettingsSidebar";
+import LogoutButton from "./LogoutButton";
 import { NavChild, NavItem } from "./types";
 
 const navItems: NavItem[] = [
   { label: "Dashboard", icon: LayoutDashboard, path: "/" },
-  { label: "Vehicles", icon: Car, path: "/vehicles" },
-  // {
-  //   label: "Vehicles",
-  //   icon: Car,
-  //   children: [
-  //     { label: "Vehicle List", path: "/vehicles" },
-  //     { label: "Vehicle Assignment", path: "/vehicles/assignment" },
-  //   ],
-  // },
-  // { label: "Equipment", icon: Wrench },
+  {
+    label: "Vehicles",
+    icon: Car,
+    children: [
+      { label: "Vehicle List", path: "/vehicles" },
+      { label: "Vehicle Groups", path: "/vehicles/groups" },
+      { label: "Vehicle Status", path: "/vehicles/status" },
+    ],
+  },
+  { label: "Equipment", icon: Wrench },
   {
     label: "Inspections",
     icon: ClipboardCheck,
@@ -51,25 +47,7 @@ const navItems: NavItem[] = [
     ],
   },
   { label: "Issues", icon: AlertTriangle, path: "/issues" },
-  // {
-  //   label: "Issues",
-  //   icon: AlertTriangle,
-  //   children: [
-  //     { label: "Issues", path: "/issues" },
-  //     // { label: "Faults", path: "/issues/faults" },
-  //     // { label: "Recalls", path: "/issues/recalls" },
-  //   ],
-  // },
   { label: "Service Reminders", icon: Bell, path: "/service-reminders" },
-  // {
-  //   label: "Reminders",
-  //   icon: Bell,
-  //   children: [
-  //     { label: "Service Reminders", path: "/reminders/service" },
-  //     { label: "Vehicle Renewals", path: "/reminders/vehicle-renewals" },
-  //     { label: "Contact Renewals", path: "/reminders/contact-renewals" },
-  //   ],
-  // },
   {
     label: "Service",
     icon: UserCog,
@@ -82,7 +60,6 @@ const navItems: NavItem[] = [
     ],
   },
   { label: "Technicians", icon: User, path: "/technician" },
-  // { label: "Vendors", icon: Store },
   {
     label: "Inventories",
     icon: Boxes,
@@ -91,10 +68,6 @@ const navItems: NavItem[] = [
       { label: "Items", path: "/inventory-item" },
     ],
   },
-  // { label: "Fuel & Energy", icon: Fuel },
-  // { label: "Places", icon: MapPin },
-  // { label: "Documents", icon: FileText },
-  // { label: "Reports", icon: BarChart },
   { label: "Settings", icon: Settings, path: "/settings" },
 ];
 
@@ -111,7 +84,6 @@ const SideBar = () => {
   const getFilteredNavItems = () => {
     if (!user) return navItems;
 
-    // Items that Technicians cannot access
     const restrictedForTechnicians = ["Issues", "Technicians"];
 
     if (user.role === "Technician") {
@@ -188,7 +160,6 @@ const SideBar = () => {
       data-testid="sidebar"
       className="fixed top-16 left-0 w-64 h-[calc(100vh-4rem)] bg-white border-r border-[var(--border)] text-sm flex flex-col overflow-hidden z-30 flex-shrink-0"
     >
-      {/* Header */}
       <div
         className="px-4 py-5 border-b border-[var(--border)] flex items-center gap-3 flex-shrink-0 cursor-pointer hover:bg-gray-50 transition-colors"
         onClick={() => router.push("/settings/profile")}
@@ -204,7 +175,6 @@ const SideBar = () => {
         </div>
       </div>
 
-      {/* Navigation */}
       <nav className="flex-1 overflow-y-auto">
         <ul className="mt-4 space-y-1">
           {filteredNavItems.map(({ label, icon: Icon, children }) => {
@@ -233,7 +203,6 @@ const SideBar = () => {
                   </button>
                 </div>
 
-                {/* Children */}
                 {!!children && isExpanded && (
                   <ul className="ml-10 mt-1 space-y-1">
                     {children.map(child => (
@@ -257,6 +226,8 @@ const SideBar = () => {
           })}
         </ul>
       </nav>
+
+      <LogoutButton />
     </aside>
   );
 };

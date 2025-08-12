@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { useRouter } from "next/navigation";
-import { User, Layers, Settings } from "lucide-react";
+import { User, Settings } from "lucide-react";
 
 const SettingsPage = () => {
   const router = useRouter();
@@ -12,18 +12,6 @@ const SettingsPage = () => {
       description: "Manage your personal information and account details",
       icon: User,
       path: "/settings/profile",
-    },
-    {
-      title: "Vehicle Groups",
-      description: "Organize and manage vehicle group configurations",
-      icon: Layers,
-      path: "/settings/vehicle-groups",
-    },
-    {
-      title: "Vehicle Status",
-      description: "Manage vehicle status configurations",
-      icon: Layers,
-      path: "/settings/vehicle-status",
     },
   ];
 

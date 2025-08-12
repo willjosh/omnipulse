@@ -88,7 +88,12 @@ export const VehicleGroupModal: React.FC<VehicleGroupModalProps> = ({
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Group Name *
+                  Group Name{" "}
+                  <span
+                    className={`${!formData.name.trim() ? "text-red-500" : "text-gray-500"}`}
+                  >
+                    *
+                  </span>
                 </label>
                 <input
                   type="text"
@@ -113,24 +118,6 @@ export const VehicleGroupModal: React.FC<VehicleGroupModalProps> = ({
                   rows={3}
                   className="w-full px-3 py-2 border border-[var(--border)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:border-transparent"
                 />
-              </div>
-
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="isActive"
-                  checked={formData.isActive}
-                  onChange={e =>
-                    setFormData({ ...formData, isActive: e.target.checked })
-                  }
-                  className="h-4 w-4 text-[var(--primary-color)] focus:ring-[var(--primary-color)] border-gray-300 rounded"
-                />
-                <label
-                  htmlFor="isActive"
-                  className="ml-2 text-sm text-gray-700"
-                >
-                  Active
-                </label>
               </div>
             </div>
 
