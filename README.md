@@ -46,7 +46,7 @@ Run the following commands as needed:
 #### Plain Docker Compose (alternative):
 
 ```bash
-docker compose -f docker-compose.dev.yml up -d --build --wait
+docker compose -f docker-compose.dev.yml up --build
 ```
 
 Services and URLs:
