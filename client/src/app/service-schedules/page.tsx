@@ -31,6 +31,12 @@ export default function ServiceScheduleListPage() {
   const columns = [
     { key: "name", header: "Name", sortable: true, width: "200px" },
     {
+      key: "scheduleType",
+      header: "Schedule Type",
+      render: (item: ServiceScheduleWithLabels) => item.scheduleTypeLabel,
+      width: "140px",
+    },
+    {
       key: "serviceTasks",
       header: "Tasks",
       render: (item: ServiceScheduleWithLabels) => (

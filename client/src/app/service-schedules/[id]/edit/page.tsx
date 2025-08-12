@@ -56,7 +56,7 @@ export default function EditServiceSchedulePage() {
         firstServiceMileage:
           serviceSchedule.firstServiceMileage?.toString() || "",
         serviceTaskIDs: serviceSchedule.serviceTasks.map(task => task.id),
-        isActive: serviceSchedule.isActive,
+        scheduleType: serviceSchedule.scheduleType,
         serviceProgramID: serviceSchedule.serviceProgramID,
       });
     }
@@ -75,28 +75,37 @@ export default function EditServiceSchedulePage() {
     if (!form?.serviceTaskIDs.length)
       newErrors.serviceTaskIDs = "At least one service task is required.";
 
-    // Validate XOR constraint (time-based OR mileage-based, not both)
-    const hasTimeRecurrence = form?.timeIntervalValue && form?.timeIntervalUnit;
-    const hasMileageRecurrence = form?.mileageInterval;
+    // Validate based on the original schedule type
+    const originalScheduleType = serviceSchedule?.scheduleType;
+    const isTimeBased = originalScheduleType === 1; // ServiceScheduleTypeEnum.TIME
+    const isMileageBased = originalScheduleType === 2; // ServiceScheduleTypeEnum.MILEAGE
 
-    if (!hasTimeRecurrence && !hasMileageRecurrence) {
-      setFormError(
-        "At least one recurrence option must be provided: time-based (Time Interval & Unit) or mileage-based (Mileage Interval).",
-      );
+    // For time-based schedules, we need time interval values
+    // For mileage-based schedules, we need mileage interval values
+    let hasValidConfiguration = false;
+
+    if (isTimeBased) {
+      // For time-based schedules, check if we have valid interval values
+      // Note: timeIntervalValue can be "0" (valid) or "" (invalid)
+      const hasTimeInterval =
+        form?.timeIntervalValue !== undefined && form?.timeIntervalValue !== "";
+      const hasTimeUnit =
+        form?.timeIntervalUnit !== undefined && form?.timeIntervalUnit !== "";
+      hasValidConfiguration = Boolean(hasTimeInterval && hasTimeUnit);
+    } else if (isMileageBased) {
+      const hasMileageInterval =
+        form?.mileageInterval !== undefined && form?.mileageInterval !== "";
+      hasValidConfiguration = Boolean(hasMileageInterval);
     }
 
-    if (hasTimeRecurrence && hasMileageRecurrence) {
+    if (!hasValidConfiguration) {
       setFormError(
-        "Service schedule must have either time-based OR mileage-based configuration, not both.",
+        `Invalid configuration for ${isTimeBased ? "time-based" : "mileage-based"} schedule. Please ensure all required fields are filled.`,
       );
     }
 
     setErrors(newErrors);
-    return (
-      Object.keys(newErrors).length === 0 &&
-      (hasTimeRecurrence || hasMileageRecurrence) &&
-      !(hasTimeRecurrence && hasMileageRecurrence)
-    );
+    return Object.keys(newErrors).length === 0 && hasValidConfiguration;
   };
 
   const handleChange = (
@@ -113,6 +122,26 @@ export default function EditServiceSchedulePage() {
 
   const handleSave = async () => {
     if (!validate() || !form) return;
+
+    // Ensure the date is properly formatted as ISO string before saving
+    let formattedFirstServiceDate = form.firstServiceDate;
+    if (form.firstServiceDate && form.firstServiceDate !== "") {
+      try {
+        const date = new Date(form.firstServiceDate);
+        if (!isNaN(date.getTime())) {
+          // Preserve the local time by creating a new ISO string
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, "0");
+          const day = String(date.getDate()).padStart(2, "0");
+          const hours = date.getHours();
+          const minutes = date.getMinutes();
+
+          formattedFirstServiceDate = `${year}-${month}-${day}T${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:00.000`;
+        }
+      } catch (error) {
+        console.error("Error formatting date:", error);
+      }
+    }
     updateServiceSchedule(
       {
         serviceScheduleID: id!,
@@ -135,11 +164,10 @@ export default function EditServiceSchedulePage() {
           ? Number(form.mileageInterval)
           : null,
         mileageBuffer: form.mileageBuffer ? Number(form.mileageBuffer) : null,
-        firstServiceDate: form.firstServiceDate || null,
+        firstServiceDate: formattedFirstServiceDate || null,
         firstServiceMileage: form.firstServiceMileage
           ? Number(form.firstServiceMileage)
           : null,
-        isActive: form.isActive,
       },
       {
         onSuccess: () => {
@@ -199,6 +227,7 @@ export default function EditServiceSchedulePage() {
           availableVehicles={vehicles}
           availableServicePrograms={servicePrograms}
           disabled={isUpdating}
+          showScheduleType={false}
           showServiceProgram={false}
         />
       </div>

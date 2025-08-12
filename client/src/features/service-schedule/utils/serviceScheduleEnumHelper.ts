@@ -1,4 +1,7 @@
-import { TimeUnitEnum } from "@/features/service-schedule/types/serviceScheduleEnum";
+import {
+  TimeUnitEnum,
+  ServiceScheduleTypeEnum,
+} from "@/features/service-schedule/types/serviceScheduleEnum";
 
 export function getTimeUnitEnumLabel(
   unit: TimeUnitEnum | null | undefined,
@@ -11,6 +14,20 @@ export function getTimeUnitEnumLabel(
       return "Days";
     case TimeUnitEnum.Weeks:
       return "Weeks";
+    default:
+      return "Unknown";
+  }
+}
+
+export function getServiceScheduleTypeEnumLabel(
+  scheduleType: ServiceScheduleTypeEnum | null | undefined,
+): string {
+  if (scheduleType === null || scheduleType === undefined) return "N/A";
+  switch (scheduleType) {
+    case ServiceScheduleTypeEnum.TIME:
+      return "Time-based";
+    case ServiceScheduleTypeEnum.MILEAGE:
+      return "Mileage-based";
     default:
       return "Unknown";
   }
