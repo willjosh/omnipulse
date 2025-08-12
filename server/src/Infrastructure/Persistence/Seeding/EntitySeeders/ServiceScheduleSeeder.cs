@@ -48,7 +48,6 @@ public class ServiceScheduleSeeder : IEntitySeeder
                 ID = 0,
                 ServiceProgramID = serviceProgramId,
                 Name = $"Service Schedule {i} Name",
-                IsActive = true,
                 CreatedAt = now,
                 UpdatedAt = now,
                 XrefServiceScheduleServiceTasks = [],

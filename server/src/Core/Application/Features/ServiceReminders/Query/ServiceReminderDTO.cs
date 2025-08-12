@@ -66,10 +66,6 @@ public class ServiceReminderDTO
     /// <example>2</example>
     public required ServiceReminderStatusEnum Status { get; set; }
 
-    /// <summary>Priority level calculated based on status and other factors.</summary>
-    /// <example>3</example>
-    public required PriorityLevelEnum PriorityLevel { get; set; }
-
     /// <summary>Time interval value for recurrence.</summary>
     /// <example>7</example>
     public int? TimeIntervalValue { get; set; }
@@ -105,10 +101,6 @@ public class ServiceReminderDTO
     /// <summary>Days until due (negative = overdue by X days).</summary>
     /// <example>-3</example>
     public int? DaysUntilDue { get; set; }
-
-    /// <summary>Occurrence number for this specific interval (1 = first occurrence, 2 = second, etc.).</summary>
-    /// <example>2</example>
-    public required int OccurrenceNumber { get; set; }
 
     /// <summary>The type of schedule (TIME or MILEAGE) - enforces XOR constraint.</summary>
     /// <example>1</example>

@@ -93,8 +93,7 @@ public class AddServiceReminderToExistingWorkOrderIntegrationTests : BaseIntegra
             MileageInterval: null, // XOR: time-based only
             MileageBuffer: null,
             FirstServiceDate: DateTime.Today.AddDays(3),
-            FirstServiceMileage: null, // XOR: time-based only
-            IsActive: true
+            FirstServiceMileage: null // XOR: time-based only
         );
         int serviceScheduleId = await Sender.Send(createServiceScheduleCommand);
 

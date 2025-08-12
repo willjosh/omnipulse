@@ -1,6 +1,7 @@
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
+using Application.Features.ServiceReminders.Command.SyncServiceReminders;
 using Application.Features.ServiceSchedules.Command.UpdateServiceSchedule;
 using Application.MappingProfiles;
 
@@ -12,6 +13,8 @@ using Domain.Entities.Enums;
 using FluentValidation;
 using FluentValidation.Results;
 
+using MediatR;
+
 using Moq;
 
 namespace Application.Test.ServiceSchedules.CommandTest.UpdateServiceSchedule;
@@ -22,6 +25,8 @@ public class UpdateServiceScheduleCommandHandlerTest
     private readonly Mock<IServiceScheduleRepository> _mockScheduleRepository = new();
     private readonly Mock<IServiceProgramRepository> _mockProgramRepository = new();
     private readonly Mock<IXrefServiceScheduleServiceTaskRepository> _mockXrefRepository = new();
+    private readonly Mock<IServiceReminderRepository> _mockReminderRepository = new();
+    private readonly Mock<ISender> _mockSender = new();
     private readonly Mock<IValidator<UpdateServiceScheduleCommand>> _mockValidator = new();
     private readonly Mock<IAppLogger<UpdateServiceScheduleCommandHandler>> _mockLogger = new();
 
@@ -34,6 +39,8 @@ public class UpdateServiceScheduleCommandHandlerTest
             _mockScheduleRepository.Object,
             _mockProgramRepository.Object,
             _mockXrefRepository.Object,
+            _mockReminderRepository.Object,
+            _mockSender.Object,
             _mockValidator.Object,
             _mockLogger.Object,
             mapper);
@@ -64,8 +71,7 @@ public class UpdateServiceScheduleCommandHandlerTest
             MileageInterval: mileageInterval,
             MileageBuffer: mileageBuffer,
             FirstServiceDate: firstServiceDate,
-            FirstServiceMileage: firstServiceMileage,
-            IsActive: isActive);
+            FirstServiceMileage: firstServiceMileage);
 
     private void SetupValidValidation(UpdateServiceScheduleCommand command)
     {
@@ -85,53 +91,47 @@ public class UpdateServiceScheduleCommandHandlerTest
     public async Task Handle_ValidCommand_ReturnsServiceScheduleID()
     {
         // Arrange
-        var serviceTaskIDs = new List<int> { 1, 2 };
-        var command = CreateValidCommand(serviceTaskIDs: serviceTaskIDs);
+        var command = CreateValidCommand();
         SetupValidValidation(command);
 
-        var existingSchedule = new ServiceSchedule
+        _mockProgramRepository.Setup(r => r.ExistsAsync(command.ServiceProgramID)).ReturnsAsync(true);
+        _mockScheduleRepository.Setup(r => r.GetByIdAsync(command.ServiceScheduleID)).ReturnsAsync(new ServiceSchedule
         {
-            ID = 1,
+            ID = command.ServiceScheduleID,
+            ServiceProgramID = command.ServiceProgramID,
+            Name = command.Name,
+            TimeIntervalValue = command.TimeIntervalValue,
+            TimeIntervalUnit = command.TimeIntervalUnit,
+            MileageInterval = command.MileageInterval,
+            TimeBufferValue = command.TimeBufferValue,
+            TimeBufferUnit = command.TimeBufferUnit,
+            MileageBuffer = command.MileageBuffer,
+            FirstServiceDate = command.FirstServiceDate,
+            FirstServiceMileage = command.FirstServiceMileage,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
-            ServiceProgramID = 1,
-            Name = "Old Name",
-            TimeIntervalValue = 90,
-            TimeIntervalUnit = TimeUnitEnum.Days,
-            TimeBufferValue = 10,
-            TimeBufferUnit = TimeUnitEnum.Days,
-            MileageInterval = null,
-            MileageBuffer = null,
-            FirstServiceDate = null,
-            FirstServiceMileage = null,
-            IsActive = true,
             XrefServiceScheduleServiceTasks = [],
             ServiceProgram = new ServiceProgram
             {
-                ID = 1,
+                ID = command.ServiceProgramID,
+                Name = "Prog",
+                IsActive = true,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                Name = "Program",
-                XrefServiceProgramVehicles = [],
                 ServiceSchedules = [],
-                IsActive = true
+                XrefServiceProgramVehicles = []
             }
-        };
-        _mockScheduleRepository.Setup(r => r.GetByIdAsync(command.ServiceScheduleID)).ReturnsAsync(existingSchedule);
-        _mockProgramRepository.Setup(r => r.ExistsAsync(command.ServiceProgramID)).ReturnsAsync(true);
+        });
+
+        _mockReminderRepository.Setup(r => r.DeleteNonFinalRemindersForScheduleAsync(It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync(0);
 
         // Act
         var result = await _commandHandler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.Equal(existingSchedule.ID, result);
-        _mockXrefRepository.Verify(r => r.AddRangeAsync(
-            It.Is<List<XrefServiceScheduleServiceTask>>(xrefs =>
-                xrefs.Count == serviceTaskIDs.Count &&
-                serviceTaskIDs.All(id => xrefs.Any(x => x.ServiceTaskID == id && x.ServiceScheduleID == existingSchedule.ID))
-            )), Times.Once);
-        _mockScheduleRepository.Verify(r => r.Update(existingSchedule), Times.Once);
-        _mockScheduleRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
+        Assert.Equal(command.ServiceScheduleID, result);
+        _mockReminderRepository.Verify(r => r.DeleteNonFinalRemindersForScheduleAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Once);
+        _mockSender.Verify(s => s.Send(It.IsAny<SyncServiceRemindersCommand>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -180,7 +180,6 @@ public class UpdateServiceScheduleCommandHandlerTest
             MileageBuffer = null,
             FirstServiceDate = null,
             FirstServiceMileage = null,
-            IsActive = true,
             XrefServiceScheduleServiceTasks = [],
             ServiceProgram = new ServiceProgram
             {

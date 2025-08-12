@@ -62,8 +62,7 @@ public class CreateServiceScheduleCommandHandlerTest
             MileageInterval: mileageInterval,
             MileageBuffer: mileageBuffer,
             FirstServiceDate: firstServiceDate,
-            FirstServiceMileage: firstServiceMileage,
-            IsActive: isActive);
+            FirstServiceMileage: firstServiceMileage);
 
     private void SetupValidValidation(CreateServiceScheduleCommand command)
     {
@@ -102,7 +101,6 @@ public class CreateServiceScheduleCommandHandlerTest
             MileageInterval = command.MileageInterval,
             MileageBuffer = command.MileageBuffer,
             FirstServiceMileage = command.FirstServiceMileage,
-            IsActive = command.IsActive,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
             // Navigation Properties - Nullify

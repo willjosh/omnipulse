@@ -25,7 +25,8 @@ namespace Domain.Entities;
 ///       <item><see cref="FirstServiceMileage"/> defines the absolute mileage for the first service. If provided, requires <see cref="MileageInterval"/> to be set.</item>
 ///     </list>
 ///   </item>
-///   <item>The schedule can be activated or deactivated using the <see cref="IsActive"/> flag. Inactive schedules are ignored when calculating upcoming service reminders.</item>
+///   <item>Schedules are considered active unless <see cref="IsSoftDeleted"/> is true. Soft-deleted schedules are excluded from queries and generation.</item>
+///   <item>Soft deletion is supported via <see cref="IsSoftDeleted"/>. Soft-deleted schedules are excluded from queries and generation.</item>
 /// </list>
 /// </remarks>
 public class ServiceSchedule : BaseEntity
@@ -40,7 +41,7 @@ public class ServiceSchedule : BaseEntity
     public int? MileageBuffer { get; set; } // km
     public DateTime? FirstServiceDate { get; set; } // Absolute date for first service - requires TimeIntervalValue and TimeIntervalUnit if set
     public int? FirstServiceMileage { get; set; } // Absolute mileage for first service - requires MileageInterval if set
-    public required bool IsActive { get; set; } = true;
+    public bool IsSoftDeleted { get; set; } = false;
 
     // Navigation Properties
     public required ICollection<XrefServiceScheduleServiceTask> XrefServiceScheduleServiceTasks { get; set; } = [];
@@ -130,8 +131,8 @@ public static class ServiceScheduleExtensions
     public static ServiceReminderStatusEnum CalculateReminderStatus(this ServiceSchedule schedule, DateTime? dueDate, double? dueMileage, DateTime currentDate, double currentMileage)
     {
         // Overdue checks
-        bool isOverdueByTime = dueDate.HasValue && currentDate > dueDate.Value;
-        bool isOverdueByMileage = dueMileage.HasValue && currentMileage > dueMileage.Value;
+        bool isOverdueByTime = dueDate.HasValue && currentDate >= dueDate.Value;
+        bool isOverdueByMileage = dueMileage.HasValue && currentMileage >= dueMileage.Value;
 
         if (isOverdueByTime || isOverdueByMileage) return ServiceReminderStatusEnum.OVERDUE;
 
@@ -150,6 +151,57 @@ public static class ServiceScheduleExtensions
         if (isDueSoonByTime || isDueSoonByMileage) return ServiceReminderStatusEnum.DUE_SOON;
 
         // Otherwise, it's just upcoming
+        return ServiceReminderStatusEnum.UPCOMING;
+    }
+
+    /// <summary>
+    /// Calculates service reminder status for time-based schedules.
+    /// </summary>
+    /// <param name="schedule">This service schedule.</param>
+    /// <param name="dueDate">The due date for the reminder.</param>
+    /// <param name="currentDate">The current date (UTC).</param>
+    /// <returns>The calculated status.</returns>
+    public static ServiceReminderStatusEnum CalculateTimeReminderStatus(this ServiceSchedule schedule, DateTime dueDate, DateTime currentDate)
+    {
+        // Overdue
+        if (currentDate >= dueDate) return ServiceReminderStatusEnum.OVERDUE;
+
+        // Due soon
+        if (schedule.TimeBufferValue.HasValue && schedule.TimeBufferUnit.HasValue)
+        {
+            var bufferDays = ConvertToDays(schedule.TimeBufferValue.Value, schedule.TimeBufferUnit.Value);
+            if (currentDate >= dueDate.AddDays(-bufferDays) &&
+                currentDate < dueDate)
+            {
+                return ServiceReminderStatusEnum.DUE_SOON;
+            }
+        }
+
+        // Otherwise, upcoming
+        return ServiceReminderStatusEnum.UPCOMING;
+    }
+
+    /// <summary>
+    /// Calculates service reminder status for mileage-based schedules
+    /// </summary>
+    /// <param name="schedule">This service schedule.</param>
+    /// <param name="dueMileage">The due mileage for the reminder.</param>
+    /// <param name="currentMileage">The current vehicle mileage.</param>
+    /// <returns>The calculated status.</returns>
+    public static ServiceReminderStatusEnum CalculateMileageReminderStatus(this ServiceSchedule schedule, double dueMileage, double currentMileage)
+    {
+        // Overdue
+        if (currentMileage >= dueMileage) return ServiceReminderStatusEnum.OVERDUE;
+
+        // Due soon
+        if (schedule.MileageBuffer.HasValue &&
+            currentMileage >= (dueMileage - schedule.MileageBuffer.Value) &&
+            currentMileage < dueMileage)
+        {
+            return ServiceReminderStatusEnum.DUE_SOON;
+        }
+
+        // Otherwise, upcoming
         return ServiceReminderStatusEnum.UPCOMING;
     }
 
