@@ -9,7 +9,7 @@ public class UpdateFuelPurchaseCommandValidatorTest
     private static UpdateFuelPurchaseCommand CreateValidCommand(
         int fuelPurchaseId = 1,
         int vehicleId = 1,
-        string purchasedByUserId = "user-1",
+        string purchasedByUserId = "00000000-0000-0000-0000-000000000001",
         DateTime? purchaseDate = null,
         double odometerReading = 150000.75,
         double volume = 50.0,
@@ -67,7 +67,18 @@ public class UpdateFuelPurchaseCommandValidatorTest
     [InlineData("")]
     [InlineData(" ")]
     [InlineData("   ")]
-    public async Task Validator_Should_Fail_When_PurchasedByUserId_Is_Empty(string invalidUserId)
+    public async Task Validator_Should_Fail_When_PurchasedByUserId_Is_Invalid_Guid(string invalidUserId)
+    {
+        var command = CreateValidCommand(purchasedByUserId: invalidUserId);
+        var result = await _validator.ValidateAsync(command);
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e => e.PropertyName == nameof(UpdateFuelPurchaseCommand.PurchasedByUserId));
+    }
+
+    [Theory]
+    [InlineData("not-a-guid")]
+    [InlineData(" ")]
+    public async Task Validator_Should_Fail_When_PurchasedByUserId_Is_Not_Guid(string invalidUserId)
     {
         var command = CreateValidCommand(purchasedByUserId: invalidUserId);
         var result = await _validator.ValidateAsync(command);

@@ -42,7 +42,7 @@ public class UpdateFuelPurchaseCommandHandlerTest
     private static UpdateFuelPurchaseCommand CreateValidCommand(
         int fuelPurchaseId = 1,
         int vehicleId = 1,
-        string purchasedByUserId = "user-1",
+        string purchasedByUserId = "00000000-0000-0000-0000-000000000001",
         DateTime? purchaseDate = null,
         double odometerReading = 150000.75,
         double volume = 50.0,
@@ -84,7 +84,7 @@ public class UpdateFuelPurchaseCommandHandlerTest
             CreatedAt = DateTime.UtcNow.AddDays(-10),
             UpdatedAt = DateTime.UtcNow.AddDays(-9),
             VehicleId = 1,
-            PurchasedByUserId = "user-1",
+            PurchasedByUserId = "00000000-0000-0000-0000-000000000001",
             PurchaseDate = DateTime.UtcNow.AddDays(-2),
             OdometerReading = 140000,
             Volume = 30,
