@@ -14,6 +14,7 @@ namespace IntegrationTests.Abstractions;
 /// Base class for integration tests.
 /// </summary>
 [Trait("TestCategory", "Integration")]
+[Collection("IntegrationTests")]
 public abstract class BaseIntegrationTest : IClassFixture<IntegrationTestWebAppFactory>, IDisposable
 {
     private readonly IServiceScope _scope;
@@ -23,8 +24,12 @@ public abstract class BaseIntegrationTest : IClassFixture<IntegrationTestWebAppF
     {
         Factory = factory;
 
-        // Reset the clock for every test
-        Factory.FakeTimeProvider.SetUtcNow(BaselineNow);
+        // Ensure fake time is not before BaselineNow (FakeTimeProvider can't move backwards)
+        DateTimeOffset now = Factory.FakeTimeProvider.GetUtcNow();
+        if (now < BaselineNow)
+        {
+            Factory.FakeTimeProvider.SetUtcNow(BaselineNow);
+        }
 
         _scope = Factory.Services.CreateScope();
         Sender = _scope.ServiceProvider.GetRequiredService<ISender>();
@@ -39,12 +44,19 @@ public abstract class BaseIntegrationTest : IClassFixture<IntegrationTestWebAppF
     protected OmnipulseDatabaseContext DbContext { get; }
     protected Faker Faker { get; }
 
+    protected DateTime GetUtcToday()
+        => DateTime.SpecifyKind(Factory.FakeTimeProvider.GetUtcNow().UtcDateTime.Date, DateTimeKind.Utc);
+
+    protected DateTime GetUtcTodayPlusDays(int days)
+        => DateTime.SpecifyKind(Factory.FakeTimeProvider.GetUtcNow().UtcDateTime.Date.AddDays(days), DateTimeKind.Utc);
+
     /// <summary>Advance the fake clock by a duration.</summary>
     /// <param name="by">The amount of time to advance.</param>
     /// <example><c>ClockAdvance(TimeSpan.FromDays(1))</c></example>
     protected void ClockAdvance(TimeSpan by) => Factory.FakeTimeProvider.Advance(by);
 
     /// <summary>Set the fake clock to an exact instant.</summary>
+    /// <remarks>Can throw if you pass a time earlier than current fake time</remarks>
     protected void ClockSetNow(DateTimeOffset now) => Factory.FakeTimeProvider.SetUtcNow(now);
 
     public void Dispose()

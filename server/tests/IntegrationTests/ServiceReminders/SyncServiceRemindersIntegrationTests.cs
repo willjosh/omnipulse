@@ -33,6 +33,8 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
     public async Task Should_GenerateAndPersistReminders_For_TimeBasedSchedule()
     {
         // ===== Arrange =====
+        var todayUtc = GetUtcToday();
+
         var vehicleGroupId = await CreateVehicleGroupAsync();
         var vehicleId = await CreateVehicleAsync(vehicleGroupId, mileage: 12000.0);
         var serviceProgramId = await CreateServiceProgramAsync();
@@ -44,7 +46,7 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
             intervalUnit: TimeUnitEnum.Days,
             bufferValue: 7,
             bufferUnit: TimeUnitEnum.Days,
-            firstServiceDate: DateTime.UtcNow.Date.AddDays(10)
+            firstServiceDate: todayUtc.AddDays(10)
         );
         await AddVehicleToServiceProgramAsync(serviceProgramId, vehicleId);
 
@@ -71,7 +73,7 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
     }
 
     [Fact]
-    public async Task Should_Enforce_OneUpcoming_Per_Vehicle_And_ServiceSchedule()
+    public async Task Should_Enforce_AtMostOneUpcoming_Per_Vehicle_And_ServiceSchedule()
     {
         // ===== Arrange =====
         var vehicleGroupId = await CreateVehicleGroupAsync();
@@ -93,24 +95,49 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
 
         // ===== Assert =====
         var byPair = await GetServiceRemindersAsync(vehicleId, scheduleId);
+        byPair.Should().NotBeEmpty();
 
-        // Status counts
-        // Expectations: exactly one UPCOMING for (vehicle, schedule); others may be historical
-        byPair.Should().HaveCountGreaterThan(1); // at least one historical + one upcoming
-        byPair.Count(r => r.Status == ServiceReminderStatusEnum.UPCOMING).Should().Be(1);
+        // Expectations: at most one UPCOMING for (vehicle, schedule); historical rows allowed
+        byPair.Should().ContainSingle(r => r.Status == ServiceReminderStatusEnum.UPCOMING);
+
         // Invariants: mileage-based shape (DueMileage set, DueDate null)
         byPair.Should().OnlyContain(r => r.ScheduleType == ServiceScheduleTypeEnum.MILEAGE
                                       && r.DueMileage != null
                                       && r.DueDate == null);
-        syncResult.GeneratedCount.Should().Be(byPair.Count);
+
+        // Should not contain DUE_SOON or OVERDUE
+        byPair.Should().NotContain(r =>
+            r.Status == ServiceReminderStatusEnum.DUE_SOON ||
+            r.Status == ServiceReminderStatusEnum.OVERDUE);
+
+        // Exact due meter for this setup: 30,000 and date must be null
+        var upcoming = byPair.Single(r => r.Status == ServiceReminderStatusEnum.UPCOMING);
+        upcoming.DueMileage.Should().Be(30000);
+        upcoming.DueDate.Should().BeNull();
+
+        // Idempotency without churn: capture UPCOMING ID, re-sync, ensure the same UPCOMING ID remains
+        var upcomingId = upcoming.ID;
+        await SyncServiceRemindersAsync();
+        var after = await GetServiceRemindersAsync(vehicleId, scheduleId);
+        after.Should().ContainSingle(r => r.Status == ServiceReminderStatusEnum.UPCOMING);
+        after.Single(r => r.Status == ServiceReminderStatusEnum.UPCOMING).ID.Should().Be(upcomingId);
+        // Shape still the same after re-sync
+        after.Should().OnlyContain(r =>
+            r.ScheduleType == ServiceScheduleTypeEnum.MILEAGE &&
+            r.DueMileage != null &&
+            r.DueDate == null);
+
         // PK/FK sanity
-        byPair.Should().OnlyContain(r => r.VehicleID == vehicleId && r.ServiceScheduleID == scheduleId && r.ID > 0);
+        after.Should().OnlyContain(r => r.VehicleID == vehicleId && r.ServiceScheduleID == scheduleId && r.ID > 0);
     }
 
     [Fact]
     public async Task Should_Generate_TimeBased_With_MixedStatuses_And_OneUpcoming()
     {
         // ===== Arrange =====
+        var todayUtc = GetUtcToday();
+        var firstServiceDate = todayUtc.AddDays(-200);
+
         var vehicleGroupId = await CreateVehicleGroupAsync();
         var vehicleId = await CreateVehicleAsync(vehicleGroupId, mileage: 50000.0);
         var programId = await CreateServiceProgramAsync();
@@ -122,7 +149,7 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
             intervalUnit: TimeUnitEnum.Days,
             bufferValue: 30,
             bufferUnit: TimeUnitEnum.Days,
-            firstServiceDate: DateTime.UtcNow.Date.AddDays(-200)
+            firstServiceDate: firstServiceDate
         );
         await AddVehicleToServiceProgramAsync(programId, vehicleId);
 
@@ -144,6 +171,7 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
 
         // Sort and verify increasing due dates
         reminders.OrderBy(r => r.DueDate).Should().BeInAscendingOrder(r => r.DueDate);
+        reminders.Should().BeInAscendingOrder(r => r.DueDate);
         reminders.Should().OnlyContain(r => r.ScheduleType == ServiceScheduleTypeEnum.TIME
                                          && r.DueDate != null
                                          && r.DueMileage == null
@@ -151,9 +179,14 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
                                          && r.ServiceScheduleID == scheduleId
                                          && r.ID > 0);
         syncResult.GeneratedCount.Should().Be(reminders.Count);
-        var expected1 = DateTime.UtcNow.Date.AddDays(-200);
+        var expected1 = firstServiceDate;
         var expected2 = expected1.AddDays(180);
         var expected3 = expected2.AddDays(180);
+
+        // Assert exact due dates as a set (order already checked above)
+        var dueDates = reminders.Select(r => r.DueDate!.Value.Date).ToArray();
+        dueDates.Should().BeEquivalentTo([expected1, expected2, expected3]);
+
         reminders.Should().Contain(r => r.DueDate!.Value.Date == expected1 && r.Status == ServiceReminderStatusEnum.OVERDUE);
         reminders.Should().Contain(r => r.DueDate!.Value.Date == expected2 && r.Status == ServiceReminderStatusEnum.OVERDUE);
         reminders.Should().Contain(r => r.DueDate!.Value.Date == expected3 && r.Status == ServiceReminderStatusEnum.UPCOMING);
@@ -168,8 +201,8 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
         // -170 -> OVERDUE
         // +10  -> DUE_SOON
         // +190 -> UPCOMING
-        var now = DateTime.UtcNow.Date;
-        var firstServiceDate = now.AddDays(-170);
+        var todayUtc = GetUtcToday();
+        var firstServiceDate = todayUtc.AddDays(-170);
         const int interval = 180;
         const int buffer = 30;
 
@@ -250,7 +283,7 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
         var reminders = await GetServiceRemindersAsync(vehicleId, scheduleId);
 
         // Scenario math: current = 80k, first = 50k, interval = 30k, buffer = 5k
-        // Due mileages: 50k (OVERDUE), 80k (OVERDUE), 110k (UPCOMING)
+        // Due mileages: 50k (OVERDUE), 80k (OVERDUE due to equality at due point), 110k (UPCOMING)
         reminders.Should().HaveCount(3);
         // Status counts
         reminders.Count(r => r.Status == ServiceReminderStatusEnum.OVERDUE).Should().Be(2);
@@ -264,15 +297,32 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
                                          && r.ID > 0);
         reminders.OrderBy(r => r.DueMileage).Should().BeInAscendingOrder(r => r.DueMileage);
         syncResult.GeneratedCount.Should().Be(reminders.Count);
+
+        // Verify increasing due mileages without pre-sorting (non-tautological)
+        reminders.Should().BeInAscendingOrder(r => r.DueMileage);
+
+        // Assert exact due mileages and no duplicates
+        var dueMiles = reminders.Select(r => r.DueMileage!.Value).ToArray();
+        dueMiles.Should().BeEquivalentTo([50_000, 80_000, 110_000]);
+        reminders.GroupBy(r => r.DueMileage!.Value)
+                 .Should().OnlyContain(g => g.Count() == 1);
+
+        // Exact status per mileage
+        reminders.Should().ContainSingle(r => r.DueMileage == 50_000 && r.Status == ServiceReminderStatusEnum.OVERDUE);
+        reminders.Should().ContainSingle(r => r.DueMileage == 80_000 && r.Status == ServiceReminderStatusEnum.OVERDUE);
+        reminders.Should().ContainSingle(r => r.DueMileage == 110_000 && r.Status == ServiceReminderStatusEnum.UPCOMING);
     }
 
     [Fact]
     public async Task Should_Generate_For_Multiple_Vehicles()
     {
         // ===== Arrange =====
+        var todayUtc = GetUtcToday();
+        var firstServiceDate = todayUtc.AddDays(180);
+
         var vehicleGroupId = await CreateVehicleGroupAsync();
         var vehicleId1 = await CreateVehicleAsync(vehicleGroupId);
-        var vehicleId2 = await CreateVehicleAsync(vehicleGroupId, mileage: 5000.0);
+        var vehicleId2 = await CreateVehicleAsync(vehicleGroupId);
         var programId = await CreateServiceProgramAsync();
         var taskId = await CreateServiceTaskAsync();
         var scheduleId = await CreateTimeBasedServiceScheduleAsync(
@@ -282,7 +332,7 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
             intervalUnit: TimeUnitEnum.Days,
             bufferValue: 30,
             bufferUnit: TimeUnitEnum.Days,
-            firstServiceDate: DateTime.UtcNow.Date.AddDays(180)
+            firstServiceDate: firstServiceDate
         );
         await AddVehicleToServiceProgramAsync(programId, vehicleId1);
         await AddVehicleToServiceProgramAsync(programId, vehicleId2);
@@ -293,27 +343,33 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
         // ===== Assert =====
         syncResult.Success.Should().BeTrue();
 
-        var reminders1 = (await GetServiceRemindersAsync(vehicleId1, scheduleId)).Where(r => r.Status == ServiceReminderStatusEnum.UPCOMING).ToList();
-        var reminders2 = (await GetServiceRemindersAsync(vehicleId2, scheduleId)).Where(r => r.Status == ServiceReminderStatusEnum.UPCOMING).ToList();
+        var upcoming1 = (await GetServiceRemindersAsync(vehicleId1, scheduleId))
+            .Should().ContainSingle(r => r.Status == ServiceReminderStatusEnum.UPCOMING).Subject;
+        var upcoming2 = (await GetServiceRemindersAsync(vehicleId2, scheduleId))
+            .Should().ContainSingle(r => r.Status == ServiceReminderStatusEnum.UPCOMING).Subject;
 
-        // Expectations: one UPCOMING per vehicle
-        reminders1.Should().HaveCount(1);
-        reminders2.Should().HaveCount(1);
-        reminders1[0].Status.Should().Be(ServiceReminderStatusEnum.UPCOMING);
-        reminders2[0].Status.Should().Be(ServiceReminderStatusEnum.UPCOMING);
-        (reminders1.Count + reminders2.Count).Should().Be(2);
-        syncResult.GeneratedCount.Should().Be(2);
-        reminders1.Should().OnlyContain(r => r.ScheduleType == ServiceScheduleTypeEnum.TIME && r.DueDate != null && r.DueMileage == null);
-        reminders2.Should().OnlyContain(r => r.ScheduleType == ServiceScheduleTypeEnum.TIME && r.DueDate != null && r.DueMileage == null);
+        upcoming1.DueDate!.Value.Date.Should().Be(firstServiceDate);
+        upcoming2.DueDate!.Value.Date.Should().Be(firstServiceDate);
+        upcoming1.ScheduleType.Should().Be(ServiceScheduleTypeEnum.TIME);
+        upcoming2.ScheduleType.Should().Be(ServiceScheduleTypeEnum.TIME);
+        upcoming1.DueMileage.Should().BeNull();
+        upcoming2.DueMileage.Should().BeNull();
+
+        // Assert absence of other statuses for each vehicle (far future due date)
+        var all1 = await GetServiceRemindersAsync(vehicleId1, scheduleId);
+        var all2 = await GetServiceRemindersAsync(vehicleId2, scheduleId);
+        all1.Should().NotContain(r => r.Status == ServiceReminderStatusEnum.OVERDUE || r.Status == ServiceReminderStatusEnum.DUE_SOON);
+        all2.Should().NotContain(r => r.Status == ServiceReminderStatusEnum.OVERDUE || r.Status == ServiceReminderStatusEnum.DUE_SOON);
     }
 
     [Fact]
-    public async Task Should_Handle_Existing_Reminders_Update()
+    public async Task Should_Be_Idempotent_When_Reminders_Already_Exist()
     {
         // ===== Arrange =====
-        // Arrange - Setup with existing reminders
+        var firstServiceDate = GetUtcToday().AddDays(-400);
+
         var vehicleGroupId = await CreateVehicleGroupAsync();
-        var vehicleId = await CreateVehicleAsync(vehicleGroupId, mileage: 25000.0);
+        var vehicleId = await CreateVehicleAsync(vehicleGroupId);
         var programId = await CreateServiceProgramAsync();
         var taskId = await CreateServiceTaskAsync();
         var scheduleId = await CreateTimeBasedServiceScheduleAsync(
@@ -323,36 +379,59 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
             intervalUnit: TimeUnitEnum.Days,
             bufferValue: 30,
             bufferUnit: TimeUnitEnum.Days,
-            firstServiceDate: DateTime.UtcNow.Date.AddDays(-400)
+            firstServiceDate: firstServiceDate
         );
         await AddVehicleToServiceProgramAsync(programId, vehicleId);
 
-        // ===== Act =====
-        // Initial generation
-        await SyncServiceRemindersAsync();
-        // Regenerate (idempotent)
+        // ===== Act & Assert =====
+        var first = await SyncServiceRemindersAsync();
+        first.Success.Should().BeTrue();
+        first.GeneratedCount.Should().Be(3);
 
-        var syncResult = await SyncServiceRemindersAsync();
+        // Second run is idempotent (no duplicates)
+        var second = await SyncServiceRemindersAsync();
+        second.Success.Should().BeTrue();
+        second.GeneratedCount.Should().Be(0);
 
-        // ===== Assert =====
-        // Should update existing, not duplicate
-        syncResult.Success.Should().BeTrue();
-        syncResult.GeneratedCount.Should().Be(0);
-
+        // Verify persisted state
         var reminders = await GetServiceRemindersAsync(vehicleId, scheduleId);
+        reminders.Should().OnlyContain(r => r.VehicleID == vehicleId && r.ServiceScheduleID == scheduleId);
+
+        // Exactly 3 rows with unique due keys
         reminders.Should().HaveCount(3);
-        // Status counts
+        reminders.Select(r => (r.DueDate, r.DueMileage)).Should().OnlyHaveUniqueItems();
+
+        // Status distribution for (-400, 365, buffer 30): 2 OVERDUE, 0 DUE_SOON, 1 UPCOMING
         reminders.Count(r => r.Status == ServiceReminderStatusEnum.OVERDUE).Should().Be(2);
         reminders.Count(r => r.Status == ServiceReminderStatusEnum.DUE_SOON).Should().Be(0);
         reminders.Count(r => r.Status == ServiceReminderStatusEnum.UPCOMING).Should().Be(1);
-        reminders.OrderBy(r => r.DueDate).Should().BeInAscendingOrder(r => r.DueDate);
-        reminders.Should().OnlyContain(r => r.ScheduleType == ServiceScheduleTypeEnum.TIME && r.DueDate != null && r.DueMileage == null);
+
+        // Invariants
+        reminders.Should().OnlyContain(r =>
+            r.ScheduleType == ServiceScheduleTypeEnum.TIME &&
+            r.DueDate != null &&
+            r.DueMileage == null);
+
+        // Assert exact due dates
+        var expected = new[] {
+            firstServiceDate,
+            firstServiceDate.AddDays(365),
+            firstServiceDate.AddDays(730)
+        }.Select(d => d.Date);
+        reminders.Select(r => r.DueDate!.Value.Date)
+                .Should().BeEquivalentTo(expected, opts => opts.WithoutStrictOrdering());
+
+        // At most one UPCOMING per (Vehicle, Schedule)
+        reminders.GroupBy(r => new { r.VehicleID, r.ServiceScheduleID })
+                .Should().OnlyContain(g => g.Count(x => x.Status == ServiceReminderStatusEnum.UPCOMING) <= 1);
     }
 
     [Fact]
     public async Task Should_Cancel_Reminders_On_Schedule_SoftDelete()
     {
         // ===== Arrange =====
+        var firstServiceDate = GetUtcTodayPlusDays(90);
+
         var vehicleGroupId = await CreateVehicleGroupAsync();
         var vehicleId = await CreateVehicleAsync(vehicleGroupId, mileage: 15000.0);
         var programId = await CreateServiceProgramAsync();
@@ -364,7 +443,7 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
             intervalUnit: TimeUnitEnum.Days,
             bufferValue: 60,
             bufferUnit: TimeUnitEnum.Days,
-            firstServiceDate: DateTime.UtcNow.Date.AddDays(90)
+            firstServiceDate: firstServiceDate
         );
         await AddVehicleToServiceProgramAsync(programId, vehicleId);
 
@@ -381,48 +460,37 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
         // ===== Assert =====
         var reminders = await GetRemindersInDbByScheduleAsync(scheduleId);
         // Non-final reminders are deleted; only completed/cancelled may remain historically, or none
-        reminders.Should().OnlyContain(r => r.Status == ServiceReminderStatusEnum.COMPLETED || r.Status == ServiceReminderStatusEnum.CANCELLED);
-    }
-
-    [Fact]
-    public async Task Should_Ignore_Schedules_With_No_Tasks()
-    {
-        // ===== Arrange =====
-        var vehicleGroupId = await CreateVehicleGroupAsync();
-        var vehicleId = await CreateVehicleAsync(vehicleGroupId);
-        var programId = await CreateServiceProgramAsync();
-        var scheduleId = await CreateTimeBasedServiceScheduleAsync(
-            programId,
-            [],
-            intervalValue: 6,
-            intervalUnit: TimeUnitEnum.Weeks,
-            bufferValue: 1,
-            bufferUnit: TimeUnitEnum.Weeks,
-            firstServiceDate: DateTime.UtcNow.Date.AddDays(30)
-        );
-        await AddVehicleToServiceProgramAsync(programId, vehicleId);
-
-        // ===== Act =====
-        var syncResult = await SyncServiceRemindersAsync();
-
-        // ===== Assert =====
-        syncResult.Success.Should().BeTrue();
-        syncResult.GeneratedCount.Should().Be(0);
-
-        var reminders = await GetServiceRemindersAsync(vehicleId, scheduleId);
-        reminders.Should().BeEmpty();
-        // Status counts
-        reminders.Count(r => r.Status == ServiceReminderStatusEnum.OVERDUE).Should().Be(0);
-        reminders.Count(r => r.Status == ServiceReminderStatusEnum.DUE_SOON).Should().Be(0);
-        reminders.Count(r => r.Status == ServiceReminderStatusEnum.UPCOMING).Should().Be(0);
+        reminders.Should().NotContain(r =>
+            r.Status == ServiceReminderStatusEnum.UPCOMING ||
+            r.Status == ServiceReminderStatusEnum.DUE_SOON ||
+            r.Status == ServiceReminderStatusEnum.OVERDUE);
+        reminders.Should().OnlyContain(r =>
+            r.Status == ServiceReminderStatusEnum.COMPLETED ||
+            r.Status == ServiceReminderStatusEnum.CANCELLED);
     }
 
     [Fact]
     public async Task Should_Respect_TimeBuffer_With_Weeks_As_DueSoon_Boundary()
     {
+        // Verifies the "due soon" boundary logic for a time-based schedule that uses week units.
+        // Setup: interval = 8 weeks (56 days), buffer = 2 weeks (14 days).
+        // 1) First run with firstServiceDate = today + 10 days (inside the 14-day buffer):
+        //   - Expect exactly two reminders:
+        //     - DUE_SOON at firstServiceDate (today + 10d)
+        //     - UPCOMING at firstServiceDate + 56d (today + 66d)
+        //   - No OVERDUE reminders.
+        // 2) Update the schedule: firstServiceDate = today + 7 days (still inside buffer) and regenerate:
+        //   - Expect exactly two reminders:
+        //     - DUE_SOON at today + 7d
+        //     - UPCOMING at today + 7d + 56d (today + 63d)
+        //   - No OVERDUE reminders.
+
         // ===== Arrange =====
+        var todayUtc = GetUtcToday();
+        var firstServiceDate = todayUtc.AddDays(10);
+
         var vehicleGroupId = await CreateVehicleGroupAsync();
-        var vehicleId = await CreateVehicleAsync(vehicleGroupId, mileage: 22000.0);
+        var vehicleId = await CreateVehicleAsync(vehicleGroupId);
         var programId = await CreateServiceProgramAsync();
         var taskId = await CreateServiceTaskAsync();
         var scheduleId = await CreateTimeBasedServiceScheduleAsync(
@@ -432,17 +500,25 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
             intervalUnit: TimeUnitEnum.Weeks,
             bufferValue: 2,
             bufferUnit: TimeUnitEnum.Weeks,
-            firstServiceDate: DateTime.UtcNow.Date.AddDays(10)
-        );
+            firstServiceDate: firstServiceDate);
+
         await AddVehicleToServiceProgramAsync(programId, vehicleId);
 
-        var syncResult = await SyncServiceRemindersAsync();
-        syncResult.Success.Should().BeTrue();
+        // ===== Act =====
+        var gen1 = await SyncServiceRemindersAsync();
+        gen1.Success.Should().BeTrue();
+        // Expect 2 reminders: DUE_SOON at +10d, UPCOMING at +66d
+        var reminders1 = await GetServiceRemindersAsync(vehicleId, scheduleId);
+        reminders1.Should().HaveCount(2);
+        reminders1.Should().ContainSingle(r => r.Status == ServiceReminderStatusEnum.DUE_SOON);
+        reminders1.Should().ContainSingle(r => r.Status == ServiceReminderStatusEnum.UPCOMING);
+        reminders1.Select(r => r.DueDate!.Value.Date)
+                .Should().BeEquivalentTo(
+                    [firstServiceDate.Date, firstServiceDate.AddDays(56).Date],
+                    o => o.WithoutStrictOrdering());
 
-        var reminders = await GetServiceRemindersAsync(vehicleId, scheduleId);
-        reminders.Should().ContainSingle(r => r.Status == ServiceReminderStatusEnum.UPCOMING);
-
-        // Update schedule first date to within 14 days buffer (e.g., 7 days)
+        // Update schedule: move first service to +7d (still inside 14d buffer)
+        var newFirstServiceDate = todayUtc.AddDays(7);
         await Sender.Send(new UpdateServiceScheduleCommand(
             ServiceScheduleID: scheduleId,
             ServiceProgramID: programId,
@@ -454,66 +530,94 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
             TimeBufferUnit: TimeUnitEnum.Weeks,
             MileageInterval: null,
             MileageBuffer: null,
-            FirstServiceDate: DateTime.UtcNow.Date.AddDays(7),
+            FirstServiceDate: newFirstServiceDate,
             FirstServiceMileage: null,
             IsActive: true
         ));
 
-        // Make intent explicit: regenerate after update
-        await SyncServiceRemindersAsync();
+        // Regenerate after update
+        var gen2 = await SyncServiceRemindersAsync();
+        gen2.Success.Should().BeTrue();
+
+        // ===== Assert =====
         var reminders2 = await GetServiceRemindersAsync(vehicleId, scheduleId);
+
+        // Assert exactly 2: DUE_SOON at +7d, UPCOMING at +63d
         reminders2.Should().HaveCount(2);
-        // Status counts
-        reminders2.Should().ContainSingle(r => r.Status == ServiceReminderStatusEnum.UPCOMING);
         reminders2.Should().ContainSingle(r => r.Status == ServiceReminderStatusEnum.DUE_SOON);
-        reminders2.Should().OnlyContain(r => r.ScheduleType == ServiceScheduleTypeEnum.TIME && r.DueDate != null && r.DueMileage == null);
+        reminders2.Should().ContainSingle(r => r.Status == ServiceReminderStatusEnum.UPCOMING);
+        reminders2.Select(r => r.DueDate!.Value.Date)
+                .Should().BeEquivalentTo(
+                    [newFirstServiceDate.Date, newFirstServiceDate.AddDays(56).Date],
+                    o => o.WithoutStrictOrdering());
+
+        // Invariants
+        reminders2.Should().OnlyContain(r =>
+            r.ScheduleType == ServiceScheduleTypeEnum.TIME &&
+            r.DueDate != null &&
+            r.DueMileage == null);
+
+        // No OVERDUE
+        reminders1.Should().NotContain(r => r.Status == ServiceReminderStatusEnum.OVERDUE);
+        reminders2.Should().NotContain(r => r.Status == ServiceReminderStatusEnum.OVERDUE);
     }
 
     [Fact]
     public async Task Should_Respect_MileageBuffer_Boundary_As_DueSoon()
     {
         // ===== Arrange =====
+        var currentMileage = 40_000;
+        var firstServiceMileage = 40_000;
+        var interval = 10_000;
+        var buffer = 2_000;
+
         var vehicleGroupId = await CreateVehicleGroupAsync();
-        var currentMileage = 40000.0;
         var vehicleId = await CreateVehicleAsync(vehicleGroupId, mileage: currentMileage);
         var programId = await CreateServiceProgramAsync();
-        var taskId = await CreateServiceTaskAsync(estimatedHours: 1.0, estimatedCost: 80m, category: ServiceTaskCategoryEnum.PREVENTIVE);
-        var interval = 10000;
-        var buffer = 1500;
+        var taskId = await CreateServiceTaskAsync();
         var scheduleId = await CreateMileageBasedServiceScheduleAsync(
             programId,
             [taskId],
             mileageInterval: interval,
             mileageBuffer: buffer,
-            firstServiceMileage: 40000
+            firstServiceMileage: firstServiceMileage
         );
         await AddVehicleToServiceProgramAsync(programId, vehicleId);
-        var syncResult = await SyncServiceRemindersAsync();
-        syncResult.Success.Should().BeTrue();
+
+        // ===== Act =====
+        (await SyncServiceRemindersAsync()).Success.Should().BeTrue();
 
         // Prepare: set odometer near due-soon boundary prior to re-generation to reflect status
-        await DbContext.Vehicles.Where(v => v.ID == vehicleId)
-            .ExecuteUpdateAsync(s => s.SetProperty(p => p.Mileage, 48500.0));
+        // Choose 49000 to be inside [48_000, 50_000) and below due, ensuring DUE_SOON.
+        await DbContext.Vehicles
+            .Where(v => v.ID == vehicleId)
+            .ExecuteUpdateAsync(s => s.SetProperty(p => p.Mileage, 49_000));
 
-        // Re-run generation, then query
-        await SyncServiceRemindersAsync();
+        (await SyncServiceRemindersAsync()).Success.Should().BeTrue();
+
+        // ===== Assert =====
         var reminders = await GetServiceRemindersAsync(vehicleId, scheduleId);
-        // Status counts
+
+        // Should contain 1 DUE_SOON and 1 UPCOMING (60_000 km)
         reminders.Should().ContainSingle(r => r.Status == ServiceReminderStatusEnum.DUE_SOON);
         reminders.Should().ContainSingle(r => r.Status == ServiceReminderStatusEnum.UPCOMING);
+
+        reminders.Should().NotContain(r => r.Status == ServiceReminderStatusEnum.OVERDUE);
     }
 
     [Fact]
     public async Task Should_Use_CurrentMileage_When_FirstServiceMileage_NotProvided()
     {
         // ===== Arrange =====
+        var currentMileage = 10_000;
+        var interval = 5_000;
+        var buffer = 500;
+        var expectedFirstDueMileage = currentMileage + interval; // 15_000
+
         var vehicleGroupId = await CreateVehicleGroupAsync();
-        var currentMileage = 10000.0;
-        var vehicleId = await CreateVehicleAsync(vehicleGroupId, mileage: currentMileage, year: 2022);
+        var vehicleId = await CreateVehicleAsync(vehicleGroupId, mileage: currentMileage);
         var programId = await CreateServiceProgramAsync();
         var taskId = await CreateServiceTaskAsync();
-        var interval = 5000;
-        var buffer = 500;
         var scheduleId = await CreateMileageBasedServiceScheduleAsync(
             programId,
             [taskId],
@@ -529,24 +633,37 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
         // ===== Assert =====
         syncResult.Success.Should().BeTrue();
 
-        var reminder = (await GetServiceRemindersAsync(vehicleId, scheduleId))
-            .FirstOrDefault(r => r.Status == ServiceReminderStatusEnum.UPCOMING);
+        var reminders = await GetServiceRemindersAsync(vehicleId, scheduleId);
+        reminders.Should().HaveCount(1);
 
-        reminder.Should().NotBeNull();
-        reminder!.DueMileage.Should().Be(currentMileage + interval);
-        reminder.ScheduleType.Should().Be(ServiceScheduleTypeEnum.MILEAGE);
-        reminder.DueDate.Should().BeNull();
-        reminder.VehicleID.Should().Be(vehicleId);
-        reminder.ServiceScheduleID.Should().Be(scheduleId);
-        reminder.ID.Should().BeGreaterThan(0);
+        var upcomingReminder = reminders
+            .Should().ContainSingle(r => r.Status == ServiceReminderStatusEnum.UPCOMING)
+            .Subject;
+
+        upcomingReminder.DueMileage.Should().BeApproximately(expectedFirstDueMileage, 0.001);
+        upcomingReminder.DueDate.Should().BeNull();
+        upcomingReminder.ScheduleType.Should().Be(ServiceScheduleTypeEnum.MILEAGE);
+        upcomingReminder.VehicleID.Should().Be(vehicleId);
+        upcomingReminder.ServiceScheduleID.Should().Be(scheduleId);
+        upcomingReminder.ID.Should().BeGreaterThan(0);
+
+        // No OVERDUE/DUE_SOON because the first due is in the future
+        reminders.Should().NotContain(r =>
+            r.Status == ServiceReminderStatusEnum.OVERDUE ||
+            r.Status == ServiceReminderStatusEnum.DUE_SOON);
+
+        // Ensure uniqueness of the (DueDate, DueMileage) key
+        reminders.Select(r => (r.DueDate, r.DueMileage)).Should().OnlyHaveUniqueItems();
     }
 
     [Fact]
     public async Task Should_Regenerate_On_Schedule_Update()
     {
-        // ===== Arrange =====
+        // ===== Arrange - Before Update =====
+        var todayUtc = GetUtcToday();
+
         var vehicleGroupId = await CreateVehicleGroupAsync();
-        var vehicleId = await CreateVehicleAsync(vehicleGroupId, mileage: 25000.0);
+        var vehicleId = await CreateVehicleAsync(vehicleGroupId);
         var programId = await CreateServiceProgramAsync();
         var oldTaskId = await CreateServiceTaskAsync();
         var scheduleId = await CreateTimeBasedServiceScheduleAsync(
@@ -556,12 +673,45 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
             intervalUnit: TimeUnitEnum.Days,
             bufferValue: 30,
             bufferUnit: TimeUnitEnum.Days,
-            firstServiceDate: DateTime.UtcNow.Date.AddDays(90)
+            firstServiceDate: todayUtc.AddDays(90)
         );
         await AddVehicleToServiceProgramAsync(programId, vehicleId);
+
+        // ===== Act - Before Update =====
         await SyncServiceRemindersAsync();
 
+        // ===== Assert - Before Update =====
+        var before = await GetServiceRemindersAsync(vehicleId, scheduleId);
+
+        // Exactly one active reminder and it's UPCOMING at +90d
+        var upcomingBefore = before.Should()
+            .ContainSingle(r => r.Status == ServiceReminderStatusEnum.UPCOMING)
+            .Subject;
+
+        upcomingBefore.DueDate!.Value.Date.Should().Be(todayUtc.AddDays(90));
+        upcomingBefore.ScheduleType.Should().Be(ServiceScheduleTypeEnum.TIME);
+        upcomingBefore.DueMileage.Should().BeNull();
+
+        // Snapshot reflects original schedule fields
+        upcomingBefore.TimeIntervalValue.Should().Be(180);
+        upcomingBefore.TimeIntervalUnit.Should().Be(TimeUnitEnum.Days);
+        upcomingBefore.TimeBufferValue.Should().Be(30);
+        upcomingBefore.TimeBufferUnit.Should().Be(TimeUnitEnum.Days);
+
+        // Old task wired up
+        upcomingBefore.ServiceTasks.Should().ContainSingle(t => t.ServiceTaskID == oldTaskId);
+
+        // No overdue/due-soon yet (first due is beyond the 30d buffer)
+        before.Should().NotContain(r => r.Status == ServiceReminderStatusEnum.OVERDUE ||
+                                        r.Status == ServiceReminderStatusEnum.DUE_SOON);
+
+        // Uniqueness on the due key
+        before.Select(r => (r.DueDate, r.DueMileage)).Should().OnlyHaveUniqueItems();
+
+        // ===== Arrange - After Update =====
         var newTaskId = await CreateServiceTaskAsync();
+
+        // ===== Act - After Update =====
         await Sender.Send(new UpdateServiceScheduleCommand(
             ServiceScheduleID: scheduleId,
             ServiceProgramID: programId,
@@ -573,28 +723,49 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
             TimeBufferUnit: TimeUnitEnum.Days,
             MileageInterval: null,
             MileageBuffer: null,
-            FirstServiceDate: DateTime.UtcNow.Date.AddDays(120),
+            FirstServiceDate: todayUtc.AddDays(120),
             FirstServiceMileage: null,
             IsActive: true
         ));
 
-        // Regenerate after update
         await SyncServiceRemindersAsync();
+
+        // ===== Assert - After Update =====
         var reminders = await GetServiceRemindersAsync(vehicleId, scheduleId);
-        // Non-final reminders should be deleted; only upcoming should exist now
-        reminders.Should().HaveCount(1);
-        reminders.Should().ContainSingle(r => r.Status == ServiceReminderStatusEnum.UPCOMING);
-        var upcoming = reminders.First(r => r.Status == ServiceReminderStatusEnum.UPCOMING);
-        upcoming.ServiceTasks.Should().HaveCount(1);
-        // Ensure one task exists
+
+        // Exactly one reminder and it's UPCOMING
+        var upcoming = reminders.Should().ContainSingle(r => r.Status == ServiceReminderStatusEnum.UPCOMING).Subject;
+
+        // Old due date (+90) no longer present
+        reminders.Should().NotContain(r => r.DueDate!.Value.Date == todayUtc.AddDays(90));
+
+        // New due date is exactly +120 days, time-based, no mileage
+        upcoming.DueDate!.Value.Date.Should().Be(todayUtc.AddDays(120));
+        upcoming.ScheduleType.Should().Be(ServiceScheduleTypeEnum.TIME);
+        upcoming.DueMileage.Should().BeNull();
+
+        // Snapshot reflects updated schedule fields
         upcoming.TimeIntervalValue.Should().Be(365);
-        upcoming.DueDate.Should().BeCloseTo(DateTime.UtcNow.Date.AddDays(120), TimeSpan.FromDays(1));
+        upcoming.TimeIntervalUnit.Should().Be(TimeUnitEnum.Days);
+        upcoming.TimeBufferValue.Should().Be(60);
+        upcoming.TimeBufferUnit.Should().Be(TimeUnitEnum.Days);
+
+        // Tasks replaced with the new one
+        upcoming.ServiceTasks.Should().HaveCount(1);
+        upcoming.ServiceTasks.Single().ServiceTaskID.Should().Be(newTaskId);
+        reminders.SelectMany(r => r.ServiceTasks).Should().NotContain(t => t.ServiceTaskID == oldTaskId);
+
+        // Invariants / integrity
+        reminders.Should().OnlyContain(r => r.ServiceScheduleID == scheduleId && r.VehicleID == vehicleId);
+        reminders.Select(r => (r.DueDate, r.DueMileage)).Should().OnlyHaveUniqueItems();
     }
 
     [Fact]
     public async Task Should_Ignore_ScheduleCreation_When_Program_Inactive()
     {
         // ===== Arrange =====
+        var todayUtc = GetUtcToday();
+
         var vehicleGroupId = await CreateVehicleGroupAsync();
         var vehicleId = await CreateVehicleAsync(vehicleGroupId, mileage: 15000.0);
         var programId = await CreateServiceProgramAsync(isActive: false); // Inactive Program
@@ -612,10 +783,97 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
             TimeBufferUnit: TimeUnitEnum.Days,
             MileageInterval: null,
             MileageBuffer: null,
-            FirstServiceDate: DateTime.UtcNow.Date.AddDays(30),
+            FirstServiceDate: todayUtc.AddDays(30),
             FirstServiceMileage: null,
             IsActive: true
         ))).Should().ThrowAsync<EntityNotFoundException>();
+    }
+
+    [Fact]
+    public async Task Should_Preserve_Final_And_WorkOrderLinked_Reminders_When_Schedule_Deleted()
+    {
+        // ===== Arrange =====
+        var todayUtc = GetUtcToday();
+
+        var vehicleGroupId = await CreateVehicleGroupAsync();
+        var vehicleId = await CreateVehicleAsync(vehicleGroupId, mileage: 20000.0);
+        var programId = await CreateServiceProgramAsync();
+        var taskId = await CreateServiceTaskAsync();
+        var scheduleId = await CreateTimeBasedServiceScheduleAsync(
+            programId,
+            [taskId],
+            intervalValue: 90,
+            intervalUnit: TimeUnitEnum.Days,
+            bufferValue: 7,
+            bufferUnit: TimeUnitEnum.Days,
+            firstServiceDate: todayUtc.AddDays(-100) // ensures some overdue
+        );
+        await AddVehicleToServiceProgramAsync(programId, vehicleId);
+
+        // Generate initial reminders
+        await SyncServiceRemindersAsync();
+
+        // Pull reminders for this pair
+        var initial = await GetRemindersInDbByScheduleAsync(scheduleId);
+        initial.Should().NotBeEmpty();
+
+        // Mark one as COMPLETED and one as CANCELLED, and link one to a WorkOrder
+        var toComplete = initial.FirstOrDefault(r => r.Status != ServiceReminderStatusEnum.COMPLETED);
+        var toCancel = initial.FirstOrDefault(r => r != toComplete && r.Status != ServiceReminderStatusEnum.CANCELLED);
+        toComplete.Should().NotBeNull();
+        toCancel.Should().NotBeNull();
+
+        // Create a minimal work order row via direct update substitute: set a fake WorkOrderID
+        // (Integration boundary: assume 9999 is a placeholder; only linkage matters for preservation)
+        await DbContext.ServiceReminders.Where(r => r.ID == toComplete!.ID)
+            .ExecuteUpdateAsync(s => s.SetProperty(p => p.Status, ServiceReminderStatusEnum.COMPLETED));
+        await DbContext.ServiceReminders.Where(r => r.ID == toCancel!.ID)
+            .ExecuteUpdateAsync(s => s.SetProperty(p => p.Status, ServiceReminderStatusEnum.CANCELLED));
+
+        // To link to a work order, create a technician user, then create a real work order and link
+        var technicianId = await Sender.Send(new Application.Features.Users.Command.CreateTechnician.CreateTechnicianCommand(
+            Email: $"tech_{Faker.Random.AlphaNumeric(6)}@example.com",
+            Password: Faker.Internet.Password(length: 50, regexPattern: @"[a-zA-Z0-9!@#$%^&*()_+=\-]"),
+            FirstName: Faker.Name.FirstName(),
+            LastName: Faker.Name.LastName(),
+            HireDate: DateTime.UtcNow.AddYears(-1),
+            IsActive: true
+        ));
+
+        var woId = await Sender.Send(new Application.Features.WorkOrders.Command.CreateWorkOrder.CreateWorkOrderCommand(
+            VehicleID: vehicleId,
+            AssignedToUserID: technicianId.ToString(),
+            Title: $"WO {Faker.Random.AlphaNumeric(5)}",
+            Description: "",
+            WorkOrderType: WorkTypeEnum.SCHEDULED,
+            PriorityLevel: PriorityLevelEnum.MEDIUM,
+            Status: WorkOrderStatusEnum.CREATED,
+            // Validator uses DateTime.UtcNow, so base these on real clock, not FakeTime
+            ScheduledStartDate: DateTime.UtcNow.Date.AddDays(1),
+            ActualStartDate: null,
+            ScheduledCompletionDate: DateTime.UtcNow.Date.AddDays(2),
+            ActualCompletionDate: null,
+            StartOdometer: 0,
+            EndOdometer: null,
+            IssueIdList: [],
+            WorkOrderLineItems: []
+        ));
+        var toLink = initial.First(r => r.ID != toComplete!.ID && r.ID != toCancel!.ID);
+        await DbContext.ServiceReminders.Where(r => r.ID == toLink.ID)
+            .ExecuteUpdateAsync(s => s.SetProperty(p => p.WorkOrderID, woId));
+
+        // ===== Act =====
+        // Soft delete the schedule, then sync
+        await Sender.Send(new DeleteServiceScheduleCommand(scheduleId));
+        await SyncServiceRemindersAsync();
+
+        // ===== Assert =====
+        var after = await GetRemindersInDbByScheduleAsync(scheduleId);
+        after.Should().NotBeEmpty();
+        // Only COMPLETED/CANCELLED or WorkOrder-linked should remain
+        after.Should().OnlyContain(r => r.Status == ServiceReminderStatusEnum.COMPLETED
+                                     || r.Status == ServiceReminderStatusEnum.CANCELLED
+                                     || r.WorkOrderID != null);
     }
 
     // ===================
@@ -758,4 +1016,43 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
             .Where(r => r.ServiceScheduleID == scheduleId)
             .ToListAsync();
     }
+}
+
+public static class SyncServiceRemindersIntegrationTestsExtensions
+{
+    public static void ShouldHaveDueDateXorDueMileage(this IEnumerable<ServiceReminderDTO> reminders)
+        => reminders.Should().OnlyContain(r => r.DueDate.HasValue ^ r.DueMileage.HasValue);
+
+    public static void ShouldBeTimeBased(this IEnumerable<ServiceReminderDTO> reminders)
+        => reminders.Should().OnlyContain(r =>
+            r.ScheduleType == ServiceScheduleTypeEnum.TIME &&
+            r.DueDate != null &&
+            r.DueMileage == null);
+
+    public static void ShouldBeMileageBased(this IEnumerable<ServiceReminderDTO> reminders)
+        => reminders.Should().OnlyContain(r =>
+            r.ScheduleType == ServiceScheduleTypeEnum.MILEAGE &&
+            r.DueMileage != null &&
+            r.DueDate == null);
+
+    public static void ShouldHaveUniqueDueKey(this IEnumerable<ServiceReminderDTO> reminders)
+        => reminders.Select(r => (r.DueDate, r.DueMileage)).Should().OnlyHaveUniqueItems();
+
+    // UPCOMING RULE
+    public static void ShouldContainExactlyOneUpcoming(this IEnumerable<ServiceReminderDTO> reminders)
+        => reminders.Should().ContainSingle(r => r.Status == ServiceReminderStatusEnum.UPCOMING);
+
+    // STATUS COUNTS
+    public static void ShouldHaveStatusCounts(
+        this IEnumerable<ServiceReminderDTO> reminders,
+        int upcoming, int dueSoon, int overdue)
+    {
+        reminders.Count(r => r.Status == ServiceReminderStatusEnum.UPCOMING).Should().Be(upcoming, $"{nameof(ServiceReminderStatusEnum.UPCOMING)} count mismatch");
+        reminders.Count(r => r.Status == ServiceReminderStatusEnum.DUE_SOON).Should().Be(dueSoon, $"{nameof(ServiceReminderStatusEnum.DUE_SOON)} count mismatch");
+        reminders.Count(r => r.Status == ServiceReminderStatusEnum.OVERDUE).Should().Be(overdue, $"{nameof(ServiceReminderStatusEnum.OVERDUE)} count mismatch");
+    }
+
+    // OWNERSHIP
+    public static void ShouldBelongToScheduleVehiclePair(this IEnumerable<ServiceReminderDTO> reminders, int scheduleId, int vehicleId)
+        => reminders.Should().OnlyContain(r => r.ServiceScheduleID == scheduleId && r.VehicleID == vehicleId);
 }
