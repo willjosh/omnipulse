@@ -125,7 +125,6 @@ public class GetServiceScheduleQueryHandlerTest
         Assert.Null(result.MileageInterval); // XOR: time-based only
         Assert.Null(result.MileageBuffer);
         Assert.Null(result.FirstServiceMileage); // XOR: time-based only
-        Assert.Equal(!serviceSchedule.IsSoftDeleted, result.IsActive);
         Assert.NotNull(result.ServiceTasks);
         Assert.Equal(2, result.ServiceTasks.Count);
         Assert.Contains(result.ServiceTasks, t => t.ID == 1 && t.Name == "Task 1");
@@ -243,7 +242,7 @@ public class GetServiceScheduleQueryHandlerTest
         Assert.Equal(navSchedule.ID, result.ID);
         Assert.Equal(navSchedule.Name, result.Name);
         Assert.Equal(navSchedule.ServiceProgramID, result.ServiceProgramID);
-        Assert.Equal(!navSchedule.IsSoftDeleted, result.IsActive);
+        // IsActive removed from DTO; active state is implied by not soft-deleted in domain
         Assert.NotNull(result.ServiceTasks);
         Assert.Equal(3, result.ServiceTasks.Count);
         Assert.Contains(result.ServiceTasks, t => t.ID == 3 && t.Name == "Task 3");

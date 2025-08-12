@@ -40,9 +40,6 @@ public class ServiceScheduleDTO
     /// <example>1000</example>
     public int? FirstServiceMileage { get; set; }
 
-    /// <example>true</example>
-    public required bool IsActive { get; set; }
-
     /// <summary>
     /// The type of schedule (TIME or MILEAGE)
     /// </summary>
