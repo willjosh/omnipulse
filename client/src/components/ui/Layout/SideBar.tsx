@@ -21,6 +21,7 @@ import {
   ChevronDown,
   ChevronRight,
   Settings,
+  Fuel,
 } from "lucide-react";
 import SettingsSidebar from "./SettingsSidebar";
 import LogoutButton from "./LogoutButton";
@@ -37,7 +38,6 @@ const navItems: NavItem[] = [
       { label: "Vehicle Status", path: "/vehicles/status" },
     ],
   },
-  { label: "Equipment", icon: Wrench },
   {
     label: "Inspections",
     icon: ClipboardCheck,
@@ -60,6 +60,7 @@ const navItems: NavItem[] = [
     ],
   },
   { label: "Technicians", icon: User, path: "/technician" },
+  { label: "Fuel History", icon: Fuel, path: "/fuel-entries" },
   {
     label: "Inventories",
     icon: Boxes,
