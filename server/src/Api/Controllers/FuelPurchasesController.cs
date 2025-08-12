@@ -1,6 +1,8 @@
 using Application.Features.FuelPurchases.Command.CreateFuelPurchase;
 using Application.Features.FuelPurchases.Command.DeleteFuelPurchase;
 using Application.Features.FuelPurchases.Command.UpdateFuelPurchase;
+using Application.Features.FuelPurchases.Query.GetFuelPurchase;
+using Application.Features.FuelPurchases.Query.GetAllFuelPurchases;
 
 using Domain.Entities;
 
@@ -16,6 +18,8 @@ namespace Api.Controllers;
 /// <remarks>
 /// <b>API Endpoints</b>:
 /// <list type="bullet">
+/// <item><b>GET /api/fuelpurchases</b> - <see cref="GetAllFuelPurchases"/> - <see cref="GetAllFuelPurchasesQuery"/></item>
+/// <item><b>GET /api/fuelpurchases/{id:int}</b> - <see cref="GetFuelPurchase"/> - <see cref="GetFuelPurchaseQuery"/></item>
 /// <item><b>POST /api/fuelpurchases</b> - <see cref="CreateFuelPurchase"/> - <see cref="CreateFuelPurchaseCommand"/></item>
 /// <item><b>PUT /api/fuelpurchases/{id:int}</b> - <see cref="UpdateFuelPurchase"/> - <see cref="UpdateFuelPurchaseCommand"/></item>
 /// <item><b>DELETE /api/fuelpurchases/{id:int}</b> - <see cref="DeleteFuelPurchase"/> - <see cref="DeleteFuelPurchaseCommand"/></item>
@@ -34,6 +38,40 @@ public sealed class FuelPurchasesController : ControllerBase
     {
         _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    }
+
+    /// <summary>
+    /// Gets a fuel purchase by ID.
+    /// </summary>
+    /// <param name="id">The ID of the fuel purchase.</param>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>The fuel purchase DTO.</returns>
+    /// <response code="200">Returns the fuel purchase.</response>
+    /// <response code="400">Invalid ID.</response>
+    /// <response code="404">Not found.</response>
+    /// <response code="500">Internal server error.</response>
+    [HttpGet("{id:int}")]
+    [ProducesResponseType(typeof(GetAllFuelPurchasesDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<GetAllFuelPurchasesDTO>> GetFuelPurchase(
+        int id,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            _logger.LogInformation($"{nameof(GetFuelPurchase)}() - Called");
+
+            var query = new GetFuelPurchaseQuery(id);
+            var dto = await _mediator.Send(query, cancellationToken);
+
+            return Ok(dto);
+        }
+        catch (Exception)
+        {
+            throw;
+        }
     }
 
     /// <summary>
