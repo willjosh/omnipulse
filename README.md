@@ -10,22 +10,22 @@
 
 ### Environment variables and secrets
 
-- Copy `.env.example` to `.env` in the repository root:
+- Copy [`.env.example`](./.env.example) to [`.env`](./.env) in the repository root:
 
 ```bash
 cp .env.example .env
 ```
 
-- Set a strong `SA_PASSWORD` (see `.env.example` for guidance).
-- **Do not commit `.env` to version control.**
+- Set a strong `SA_PASSWORD` (see [`.env.example`](./.env.example) for guidance).
+- **Do not commit [`.env`](./.env) to version control.**
 - Password must meet [SQL Server password complexity requirements](https://learn.microsoft.com/en-us/sql/relational-databases/security/password-policy#password-complexity).
-- This is the SQL Server server administrator password used by the DB and injected into the API connection string via Compose.
+- This is the SQL Server administrator password used by the DB and injected into the API connection string via Compose.
 
 ### Start the stack
 
 You can use the helper script or plain Docker Compose.
 
-#### Helper Script `docker-dev.sh` (recommended):
+#### Helper Script [`docker-dev.sh`](./docker-dev.sh) (recommended):
 
 **Note:** If you have not already, make the script executable with:
 
@@ -89,7 +89,7 @@ docker compose -f docker-compose.dev.yml down -v
 
 ### Optional: enable development seeding
 
-Database creation is automatic in Development. To enable seeding, set `SeedDatabaseEnabled=true` in `appsettings.Development.json` and restart:
+Database creation is automatic in Development. To enable seeding, set `SeedDatabaseEnabled=true` in [appsettings.Development.json](./server/src/api/appsettings.Development.json) and restart:
 
 ```json
 "SeedDatabaseEnabled": true
@@ -97,9 +97,11 @@ Database creation is automatic in Development. To enable seeding, set `SeedDatab
 
 Then re-run compose.
 
+> **Note:** Enabling database seeding may cause unintended behaviour. Use this option with caution and ensure you do not have important data in your local environment before enabling seeding.
+
 ### Troubleshooting
 
-- API cannot connect to DB: ensure `.env` exists and `SA_PASSWORD` meets complexity requirements.
+- API cannot connect to DB: ensure [`.env`](./.env) exists and `SA_PASSWORD` meets complexity requirements.
 - First boot timing: the compose file includes a DB healthcheck; `--wait` ensures the API starts after the DB is healthy. Inspect with:
 
 ```bash
