@@ -25,7 +25,7 @@ export default function ServiceTaskListPage() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
-  const [sortBy, setSortBy] = useState("Name");
+  const [sortBy, setSortBy] = useState("createdat");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
   React.useEffect(() => {
