@@ -3,6 +3,7 @@ namespace Domain.Entities.Enums;
 public enum FuelTypeEnum
 {
     PETROL = 1,
+    HYDROGEN = 9,
     DIESEL = 2,
     ELECTRIC = 3,
     HYBRID = 4,
@@ -10,5 +11,5 @@ public enum FuelTypeEnum
     LPG = 6,
     CNG = 7,
     BIO_DIESEL = 8,
-    OTHER = 9
+    OTHER = 10
 }
