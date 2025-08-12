@@ -24,6 +24,7 @@ public class CreateFuelPurchaseCommandValidatorTest
         string? notes = ""
     )
     {
+        purchaseDate = purchaseDate == default ? DateTime.UtcNow.AddDays(-1) : purchaseDate;
         return new CreateFuelPurchaseCommand(vehicleId, purchasedByUserId, purchaseDate, odometerReading, volume, pricePerUnit, totalCost, fuelStation, receiptNumber, notes);
     }
 

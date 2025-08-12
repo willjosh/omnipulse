@@ -1,5 +1,3 @@
-using Application.Features.FuelPurchases.Query;
-
 using Domain.Entities;
 
 using MediatR;

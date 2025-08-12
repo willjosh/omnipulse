@@ -1,7 +1,7 @@
 using Application.Features.FuelPurchases.Query.GetAllFuelPurchase;
 using Application.Models.PaginationModels;
 
-namespace Application.Test.FuelPurchases.QueryTest;
+namespace Application.Test.FuelPurchases.QueryTest.GetAllFuelPurchase;
 
 public class GetAllFuelPurchaseQueryValidatorTest
 {
