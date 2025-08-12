@@ -142,10 +142,8 @@ export default function WorkOrdersPage() {
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-semibold text-gray-900">Work Orders</h1>
         <PrimaryButton onClick={() => router.push("/work-orders/new")}>
-          <div className="flex items-center justify-center">
-            <Plus className="w-5 h-5" />
-            <span className="ml-2 flex items-center">Add Work Order</span>
-          </div>
+          <Plus size={16} />
+          Add Work Order
         </PrimaryButton>
       </div>
 

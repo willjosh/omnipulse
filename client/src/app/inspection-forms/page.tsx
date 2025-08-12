@@ -180,11 +180,11 @@ export default function InspectionFormsPage() {
         </h1>
         <div className="flex gap-3">
           <PrimaryButton onClick={() => setShowSelectFormModal(true)}>
-            <Plus size={18} />
+            <Plus size={16} />
             Start Inspection
           </PrimaryButton>
           <PrimaryButton onClick={() => router.push("/inspection-forms/new")}>
-            <Plus size={18} />
+            <Plus size={16} />
             Add Inspection Form
           </PrimaryButton>
         </div>

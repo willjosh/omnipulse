@@ -142,10 +142,8 @@ export default function ServiceTaskListPage() {
             )}
           </Listbox>
           <PrimaryButton onClick={() => router.push("/service-tasks/new")}>
-            <div className="flex items-center justify-center">
-              <Plus className="w-5 h-5" />
-              <span className="ml-2 flex items-center">Add Service Task</span>
-            </div>
+            <Plus size={16} />
+            Add Service Task
           </PrimaryButton>
         </div>
       </div>

@@ -22,6 +22,7 @@ import {
 } from "../config/inventoryItemActions";
 import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
 import { DEFAULT_PAGE_SIZE } from "@/components/ui/Table/constants";
+import { Plus } from "lucide-react";
 
 const InventoryItemList = () => {
   const router = useRouter();
@@ -177,7 +178,7 @@ const InventoryItemList = () => {
         <PrimaryButton
           onClick={() => setModal({ isOpen: true, mode: "create" })}
         >
-          <span>+</span>
+          <Plus size={16} />
           Add Your First Item
         </PrimaryButton>
       }
@@ -195,7 +196,7 @@ const InventoryItemList = () => {
           <PrimaryButton
             onClick={() => setModal({ isOpen: true, mode: "create" })}
           >
-            <span>+</span>
+            <Plus size={16} />
             Add Item
           </PrimaryButton>
         </div>

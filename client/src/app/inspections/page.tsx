@@ -186,7 +186,7 @@ export default function InspectionListPage() {
           Inspection History
         </h1>
         <PrimaryButton onClick={() => setShowSelectFormModal(true)}>
-          <Plus size={18} />
+          <Plus size={16} />
           Start Inspection
         </PrimaryButton>
       </div>
