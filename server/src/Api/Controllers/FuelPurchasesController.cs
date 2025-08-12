@@ -1,5 +1,6 @@
 using Application.Features.FuelPurchases.Command.CreateFuelPurchase;
 using Application.Features.FuelPurchases.Command.UpdateFuelPurchase;
+using Application.Features.FuelPurchases.Command.DeleteFuelPurchase;
 
 using Domain.Entities;
 
@@ -16,6 +17,8 @@ namespace Api.Controllers;
 /// <b>API Endpoints</b>:
 /// <list type="bullet">
 /// <item><b>POST /api/fuelpurchases</b> - <see cref="CreateFuelPurchase"/> - <see cref="CreateFuelPurchaseCommand"/></item>
+/// <item><b>PUT /api/fuelpurchases/{id:int}</b> - <see cref="UpdateFuelPurchase"/> - <see cref="UpdateFuelPurchaseCommand"/></item>
+/// <item><b>DELETE /api/fuelpurchases/{id:int}</b> - <see cref="DeleteFuelPurchase"/> - <see cref="DeleteFuelPurchaseCommand"/></item>
 /// </list>
 /// </remarks>
 [ApiController]
@@ -98,6 +101,38 @@ public sealed class FuelPurchasesController : ControllerBase
 
             if (id != command.FuelPurchaseId) return BadRequest($"{nameof(UpdateFuelPurchase)} - Route ID and body ID mismatch.");
             var fuelPurchaseId = await _mediator.Send(command with { FuelPurchaseId = id }, cancellationToken);
+
+            return Ok(fuelPurchaseId);
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Deletes a fuel purchase.
+    /// </summary>
+    /// <param name="id">The ID of the fuel purchase to delete.</param>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
+    /// <returns>The ID of the deleted fuel purchase.</returns>
+    /// <response code="200">Fuel purchase deleted successfully. Returns the fuel purchase ID.</response>
+    /// <response code="404">Fuel purchase not found.</response>
+    /// <response code="500">Internal server error occurred.</response>
+    [HttpDelete("{id:int}")]
+    [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<int>> DeleteFuelPurchase(
+        int id,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            _logger.LogInformation($"{nameof(DeleteFuelPurchase)}() - Called");
+
+            var command = new DeleteFuelPurchaseCommand(id);
+            var fuelPurchaseId = await _mediator.Send(command, cancellationToken);
 
             return Ok(fuelPurchaseId);
         }
