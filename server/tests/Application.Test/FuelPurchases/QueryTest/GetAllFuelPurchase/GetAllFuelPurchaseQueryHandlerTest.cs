@@ -11,14 +11,12 @@ using Domain.Entities.Enums;
 using FluentValidation;
 
 using Moq;
-
-namespace Application.Test.FuelPurchases.QueryTest;
-
-using System;
-
 using Application.Features.FuelPurchases.Query.GetAllFuelPurchases;
 
-public class GetAllFuelPurchasesQueryHandlerTest
+
+namespace Application.Test.FuelPurchases.QueryTest.GetAllFuelPurchase;
+
+public class GetAllFuelPurchaseQueryHandlerTest
 {
 
     private readonly Mock<IFuelPurchaseRepository> _mockFuelPurchasesRepository;
@@ -27,7 +25,7 @@ public class GetAllFuelPurchasesQueryHandlerTest
     private readonly IMapper _mapper;
 
     private readonly Mock<IValidator<GetAllFuelPurchasesQuery>> _mockValidator;
-    public GetAllFuelPurchasesQueryHandlerTest()
+    public GetAllFuelPurchaseQueryHandlerTest()
     {
         _mockFuelPurchasesRepository = new();
         _mockLogger = new();

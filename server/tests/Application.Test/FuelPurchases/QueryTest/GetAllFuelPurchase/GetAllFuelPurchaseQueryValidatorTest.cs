@@ -3,11 +3,11 @@ using Application.Models.PaginationModels;
 
 namespace Application.Test.FuelPurchases.QueryTest;
 
-public class GetAllFuelPurchasesQueryValidatorTest
+public class GetAllFuelPurchaseQueryValidatorTest
 {
     private readonly GetAllFuelPurchasesQueryValidator _validator;
 
-    public GetAllFuelPurchasesQueryValidatorTest()
+    public GetAllFuelPurchaseQueryValidatorTest()
     {
         _validator = new GetAllFuelPurchasesQueryValidator();
     }
