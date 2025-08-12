@@ -1,5 +1,7 @@
 using Application.Features.Issues.Command.CreateIssue;
 using Application.Features.Issues.Command.UpdateIssue;
+using Application.Features.Issues.Query.GetAllIssue;
+using Application.Features.Issues.Query.GetIssueDetails;
 
 using AutoMapper;
 
@@ -35,13 +37,14 @@ public class IssueMappingProfile : Profile
             .ForMember(dest => dest.Vehicle, opt => opt.Ignore()) // Navigation property
             .ForMember(dest => dest.ReportedByUser, opt => opt.Ignore()); // Navigation property
 
-        CreateMap<Issue, Application.Features.Issues.Query.GetAllIssue.GetAllIssueDTO>()
-            .ForMember(dest => dest.ReportedByUserName, opt => opt.MapFrom(src => src.ReportedByUser != null ? $"{src.ReportedByUser.FirstName} {src.ReportedByUser.LastName}" : ""))
-            .ForMember(dest => dest.ResolvedByUserName, opt => opt.MapFrom(src => src.ResolvedByUser != null ? $"{src.ResolvedByUser.FirstName} {src.ResolvedByUser.LastName}" : null))
-            .ForMember(dest => dest.VehicleName, opt => opt.MapFrom(src => src.Vehicle != null ? src.Vehicle.Name : ""));
-
-        CreateMap<Issue, Application.Features.Issues.Query.GetIssueDetails.GetIssueDetailsDTO>()
+        CreateMap<Issue, GetAllIssueDTO>()
             .ForMember(dest => dest.VehicleName, opt => opt.MapFrom(src => src.Vehicle != null ? src.Vehicle.Name : ""))
-            .ForMember(dest => dest.ReportedByUserName, opt => opt.MapFrom(src => src.ReportedByUser != null ? $"{src.ReportedByUser.FirstName} {src.ReportedByUser.LastName}" : ""));
+            .ForMember(dest => dest.ReportedByUserName, opt => opt.MapFrom(src => src.ReportedByUser != null ? $"{src.ReportedByUser.FirstName} {src.ReportedByUser.LastName}" : ""))
+            .ForMember(dest => dest.ResolvedByUserName, opt => opt.MapFrom(src => src.ResolvedByUser != null ? $"{src.ResolvedByUser.FirstName} {src.ResolvedByUser.LastName}" : null));
+
+        CreateMap<Issue, GetIssueDetailsDTO>()
+            .ForMember(dest => dest.VehicleName, opt => opt.MapFrom(src => src.Vehicle != null ? src.Vehicle.Name : ""))
+            .ForMember(dest => dest.ReportedByUserName, opt => opt.MapFrom(src => src.ReportedByUser != null ? $"{src.ReportedByUser.FirstName} {src.ReportedByUser.LastName}" : ""))
+            .ForMember(dest => dest.ResolvedByUserName, opt => opt.MapFrom(src => src.ResolvedByUser != null ? $"{src.ResolvedByUser.FirstName} {src.ResolvedByUser.LastName}" : null));
     }
 }

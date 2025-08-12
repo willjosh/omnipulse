@@ -18,7 +18,6 @@ public class GetAllVehicleQueryValidator : AbstractValidator<GetAllVehicleQuery>
             "status",
             "purchaseprice",
             "mileage",
-            "enginehours",
             "createdat",
             "purchasedate",
             "fuelcapacity",

@@ -117,9 +117,6 @@ public class VehicleRepository : GenericRepository<Vehicle>, IVehicleRepository
             "mileage" => sortDescending ?
                 query.OrderByDescending(v => v.Mileage) :
                 query.OrderBy(v => v.Mileage),
-            "enginehours" => sortDescending ?
-                query.OrderByDescending(v => v.EngineHours) :
-                query.OrderBy(v => v.EngineHours),
             "createdat" => sortDescending ?
                 query.OrderByDescending(v => v.CreatedAt) :
                 query.OrderBy(v => v.CreatedAt),

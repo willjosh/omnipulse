@@ -131,16 +131,12 @@ public class VehicleConfiguration : IEntityTypeConfiguration<Vehicle>
         builder.HasIndex(v => new { v.Mileage, v.Status })
             .HasDatabaseName("IX_Vehicles_MileageStatus");
 
-        builder.HasIndex(v => new { v.EngineHours, v.Status })
-            .HasDatabaseName("IX_Vehicles_EngineHoursStatus");
-
         builder.HasIndex(v => new { v.PurchasePrice, v.Status })
             .HasDatabaseName("IX_Vehicles_PurchasePriceStatus");
 
         // Check Constraints
         builder.ToTable(t => t.HasCheckConstraint("CK_Vehicle_Year", "Year > 1885 AND Year <= 2100"));
         builder.ToTable(t => t.HasCheckConstraint("CK_Vehicle_Mileage", "Mileage >= 0"));
-        builder.ToTable(t => t.HasCheckConstraint("CK_Vehicle_EngineHours", "EngineHours >= 0"));
         builder.ToTable(t => t.HasCheckConstraint("CK_Vehicle_FuelCapacity", "FuelCapacity > 0"));
         builder.ToTable(t => t.HasCheckConstraint("CK_Vehicle_PurchasePrice", "PurchasePrice >= 0"));
 

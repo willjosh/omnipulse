@@ -18,7 +18,6 @@ namespace Application.Features.Vehicles.Command.CreateVehicle;
 /// <param name="VehicleGroupID">The ID of the vehicle group this vehicle belongs to.</param>
 /// <param name="Trim">The specific trim level or configuration of the vehicle.</param>
 /// <param name="Mileage">The current odometer reading in miles or kilometres.</param>
-/// <param name="EngineHours">The total engine operating hours (for applicable vehicles).</param>
 /// <param name="FuelCapacity">The fuel tank capacity in litres.</param>
 /// <param name="FuelType">The type of fuel the vehicle uses. See <see cref="FuelTypeEnum"/> for options.</param>
 /// <param name="PurchaseDate">The date when the vehicle was acquired.</param>
@@ -46,7 +45,6 @@ namespace Application.Features.Vehicles.Command.CreateVehicle;
 ///     VehicleGroupID: 1,
 ///     Trim: "Base",
 ///     Mileage: 0,
-///     EngineHours: 0,
 ///     FuelCapacity: 70.0,
 ///     FuelType: FuelTypeEnum.Diesel,
 ///     PurchaseDate: DateTime.Now,
@@ -78,7 +76,6 @@ public record CreateVehicleCommand(
    int VehicleGroupID,
    string Trim,
    double Mileage,
-   double EngineHours,
    double FuelCapacity,
    FuelTypeEnum FuelType,
    DateTime PurchaseDate,
