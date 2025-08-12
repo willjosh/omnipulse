@@ -73,6 +73,96 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
     }
 
     [Fact]
+    public async Task Should_Transition_From_Upcoming_To_DueSoon_To_Overdue_As_Time_Advances()
+    {
+        // ===== Arrange =====
+        var todayUtc = GetUtcToday();
+        const int bufferDays = 7;  // DUE_SOON window = [due - 7d, due)
+        const int interval = 30; // days
+        var firstServiceDate = todayUtc.AddDays(10); // start OUTSIDE the buffer → UPCOMING
+
+        var vehicleGroupId = await CreateVehicleGroupAsync();
+        var vehicleId = await CreateVehicleAsync(vehicleGroupId);
+        var programId = await CreateServiceProgramAsync();
+        var taskId = await CreateServiceTaskAsync();
+        var scheduleId = await CreateTimeBasedServiceScheduleAsync(
+            programId,
+            [taskId],
+            intervalValue: interval,
+            intervalUnit: TimeUnitEnum.Days,
+            bufferValue: bufferDays,
+            bufferUnit: TimeUnitEnum.Days,
+            firstServiceDate: firstServiceDate);
+
+        await AddVehicleToServiceProgramAsync(programId, vehicleId);
+
+        // ===== Step 1: Initial (outside buffer) → UPCOMING only =====
+        (await SyncServiceRemindersAsync()).Success.Should().BeTrue();
+        var step1 = await GetRemindersForScheduleVehiclePairAsync(vehicleId, scheduleId);
+        step1.ShouldHaveStatusCounts(upcoming: 1, dueSoon: 0, overdue: 0);
+        step1.ShouldBeTimeBased();
+        step1.ShouldBelongToScheduleVehiclePair(scheduleId, vehicleId);
+        step1.ShouldBePersisted();
+        step1.ShouldHaveUniqueDueKey();
+        step1.Single(r => r.Status == ServiceReminderStatusEnum.UPCOMING)
+            .DueDate!.Value.Date.Should().Be(firstServiceDate);
+
+        // ===== Step 2: Advance to JUST OUTSIDE buffer (still UPCOMING) =====
+        var daysUntilDue = (firstServiceDate - todayUtc).Days; // 10
+        var advanceToEdge = Math.Max(0, daysUntilDue - (bufferDays + 1)); // 10 - (7+1) = 2
+        if (advanceToEdge > 0)
+        {
+            ClockAdvance(TimeSpan.FromDays(advanceToEdge));
+            (await SyncServiceRemindersAsync()).Success.Should().BeTrue();
+
+            var step2 = await GetRemindersForScheduleVehiclePairAsync(vehicleId, scheduleId);
+            step2.ShouldHaveStatusCounts(upcoming: 1, dueSoon: 0, overdue: 0);
+            step2.ShouldBeTimeBased();
+            step2.ShouldBelongToScheduleVehiclePair(scheduleId, vehicleId);
+            step2.ShouldBePersisted();
+            step2.ShouldHaveUniqueDueKey();
+            step2.Single(r => r.Status == ServiceReminderStatusEnum.UPCOMING)
+                .DueDate!.Value.Date.Should().Be(firstServiceDate);
+        }
+
+        // ===== Step 3: Enter buffer by advancing 1 day → DUE_SOON + UPCOMING(next cycle) =====
+        ClockAdvance(TimeSpan.FromDays(1));
+        (await SyncServiceRemindersAsync()).Success.Should().BeTrue();
+
+        var step3 = await GetRemindersForScheduleVehiclePairAsync(vehicleId, scheduleId);
+        step3.ShouldHaveStatusCounts(upcoming: 1, dueSoon: 1, overdue: 0);
+        step3.ShouldBeTimeBased();
+        step3.ShouldBelongToScheduleVehiclePair(scheduleId, vehicleId);
+        step3.ShouldBePersisted();
+        step3.ShouldHaveUniqueDueKey();
+
+        // DUE_SOON at the original due; UPCOMING at next interval
+        var expectedNextDue = firstServiceDate.AddDays(interval);
+        step3.Single(r => r.Status == ServiceReminderStatusEnum.DUE_SOON)
+            .DueDate!.Value.Date.Should().Be(firstServiceDate);
+        step3.Single(r => r.Status == ServiceReminderStatusEnum.UPCOMING)
+            .DueDate!.Value.Date.Should().Be(expectedNextDue);
+
+        // ===== Step 4: Cross the due date → OVERDUE + UPCOMING (next cycle) =====
+        var nowDate = GetUtcToday();
+        var daysToDueLeft = (firstServiceDate - nowDate).Days;
+        ClockAdvance(TimeSpan.FromDays(daysToDueLeft + 1)); // move past the due date
+        (await SyncServiceRemindersAsync()).Success.Should().BeTrue();
+
+        var step4 = await GetRemindersForScheduleVehiclePairAsync(vehicleId, scheduleId);
+        step4.ShouldHaveStatusCounts(upcoming: 1, dueSoon: 0, overdue: 1);
+        step4.ShouldBeTimeBased();
+        step4.ShouldBelongToScheduleVehiclePair(scheduleId, vehicleId);
+        step4.ShouldBePersisted();
+        step4.ShouldHaveUniqueDueKey();
+
+        step4.Single(r => r.Status == ServiceReminderStatusEnum.OVERDUE)
+            .DueDate!.Value.Date.Should().Be(firstServiceDate);
+        step4.Single(r => r.Status == ServiceReminderStatusEnum.UPCOMING)
+            .DueDate!.Value.Date.Should().Be(expectedNextDue);
+    }
+
+    [Fact]
     public async Task Should_Enforce_AtMostOneUpcoming_Per_Vehicle_And_ServiceSchedule()
     {
         // ===== Arrange =====
@@ -117,13 +207,12 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
         var upcomingId = upcoming.ID;
         await SyncServiceRemindersAsync();
         var after = await GetRemindersForScheduleVehiclePairAsync(vehicleId, scheduleId);
-        after.Should().ContainSingle(r => r.Status == ServiceReminderStatusEnum.UPCOMING);
+        after.ShouldContainExactlyOneUpcoming();
         after.Single(r => r.Status == ServiceReminderStatusEnum.UPCOMING).ID.Should().Be(upcomingId);
+
         // Shape still the same after re-sync
-        after.Should().OnlyContain(r =>
-            r.ScheduleType == ServiceScheduleTypeEnum.MILEAGE &&
-            r.DueMileage != null &&
-            r.DueDate == null);
+        after.ShouldBeMileageBased();
+        after.ShouldHaveStatusCounts(upcoming: 1, dueSoon: 0, overdue: 0);
 
         // PK/FK sanity
         after.ShouldBelongToScheduleVehiclePair(scheduleId, vehicleId);
@@ -506,8 +595,7 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
             MileageInterval: null,
             MileageBuffer: null,
             FirstServiceDate: newFirstServiceDate,
-            FirstServiceMileage: null,
-            IsActive: true
+            FirstServiceMileage: null
         ));
 
         // Regenerate after update
@@ -716,8 +804,7 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
             MileageInterval: null,
             MileageBuffer: null,
             FirstServiceDate: todayUtc.AddDays(120),
-            FirstServiceMileage: null,
-            IsActive: true
+            FirstServiceMileage: null
         ));
 
         await SyncServiceRemindersAsync();
@@ -779,8 +866,7 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
             MileageInterval: null,
             MileageBuffer: null,
             FirstServiceDate: todayUtc.AddDays(30),
-            FirstServiceMileage: null,
-            IsActive: true
+            FirstServiceMileage: null
         ))).Should().ThrowAsync<EntityNotFoundException>();
     }
 
@@ -947,7 +1033,6 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
         int bufferValue,
         TimeUnitEnum bufferUnit,
         DateTime? firstServiceDate,
-        bool isActive = true,
         string? name = null)
     {
         return await Sender.Send(new CreateServiceScheduleCommand(
@@ -961,8 +1046,7 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
             MileageInterval: null,
             MileageBuffer: null,
             FirstServiceDate: firstServiceDate,
-            FirstServiceMileage: null,
-            IsActive: isActive
+            FirstServiceMileage: null
         ));
     }
 
@@ -972,7 +1056,6 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
         int mileageInterval,
         int mileageBuffer,
         int? firstServiceMileage,
-        bool isActive = true,
         string? name = null)
     {
         return await Sender.Send(new CreateServiceScheduleCommand(
@@ -986,8 +1069,7 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
             MileageInterval: mileageInterval,
             MileageBuffer: mileageBuffer,
             FirstServiceDate: null,
-            FirstServiceMileage: firstServiceMileage,
-            IsActive: isActive
+            FirstServiceMileage: firstServiceMileage
         ));
     }
 

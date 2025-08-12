@@ -46,7 +46,6 @@ public class DeleteServiceScheduleCommandHandlerTest
             ID = command.ServiceScheduleID,
             ServiceProgramID = 1,
             Name = "Test Schedule",
-            IsActive = true,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
             XrefServiceScheduleServiceTasks = [],

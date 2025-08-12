@@ -63,7 +63,6 @@ public class GetServiceScheduleQueryHandlerTest
             MileageBuffer = null,
             FirstServiceDate = DateTime.Today.AddDays(5),
             FirstServiceMileage = null, // XOR: time-based only
-            IsActive = true,
             ServiceProgram = serviceProgram,
             XrefServiceScheduleServiceTasks =
             [
@@ -126,7 +125,7 @@ public class GetServiceScheduleQueryHandlerTest
         Assert.Null(result.MileageInterval); // XOR: time-based only
         Assert.Null(result.MileageBuffer);
         Assert.Null(result.FirstServiceMileage); // XOR: time-based only
-        Assert.Equal(serviceSchedule.IsActive, result.IsActive);
+        Assert.Equal(!serviceSchedule.IsSoftDeleted, result.IsActive);
         Assert.NotNull(result.ServiceTasks);
         Assert.Equal(2, result.ServiceTasks.Count);
         Assert.Contains(result.ServiceTasks, t => t.ID == 1 && t.Name == "Task 1");
@@ -168,7 +167,6 @@ public class GetServiceScheduleQueryHandlerTest
             Name = "Nav Test",
             TimeIntervalValue = 6,
             TimeIntervalUnit = TimeUnitEnum.Weeks,
-            IsActive = true,
             ServiceProgram = navServiceProgram,
             XrefServiceScheduleServiceTasks =
             [
@@ -245,7 +243,7 @@ public class GetServiceScheduleQueryHandlerTest
         Assert.Equal(navSchedule.ID, result.ID);
         Assert.Equal(navSchedule.Name, result.Name);
         Assert.Equal(navSchedule.ServiceProgramID, result.ServiceProgramID);
-        Assert.Equal(navSchedule.IsActive, result.IsActive);
+        Assert.Equal(!navSchedule.IsSoftDeleted, result.IsActive);
         Assert.NotNull(result.ServiceTasks);
         Assert.Equal(3, result.ServiceTasks.Count);
         Assert.Contains(result.ServiceTasks, t => t.ID == 3 && t.Name == "Task 3");

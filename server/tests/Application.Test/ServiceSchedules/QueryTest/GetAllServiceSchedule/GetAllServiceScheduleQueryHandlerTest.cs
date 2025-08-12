@@ -93,7 +93,6 @@ public class GetAllServiceScheduleQueryHandlerTest
             MileageBuffer = null,
             FirstServiceDate = DateTime.Today.AddDays(5),
             FirstServiceMileage = null, // XOR: time-based only
-            IsActive = true,
             // Navigation Properties
             ServiceProgram = null!,
             XrefServiceScheduleServiceTasks = []

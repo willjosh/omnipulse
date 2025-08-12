@@ -33,8 +33,7 @@ public class UpdateServiceScheduleCommandValidatorTest
             MileageInterval: mileageInterval,
             MileageBuffer: mileageBuffer,
             FirstServiceDate: firstServiceDate,
-            FirstServiceMileage: firstServiceMileage,
-            IsActive: isActive);
+            FirstServiceMileage: firstServiceMileage);
 
     [Theory]
     [InlineData(0)]

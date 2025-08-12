@@ -71,8 +71,7 @@ public class UpdateServiceScheduleCommandHandlerTest
             MileageInterval: mileageInterval,
             MileageBuffer: mileageBuffer,
             FirstServiceDate: firstServiceDate,
-            FirstServiceMileage: firstServiceMileage,
-            IsActive: isActive);
+            FirstServiceMileage: firstServiceMileage);
 
     private void SetupValidValidation(UpdateServiceScheduleCommand command)
     {
@@ -109,7 +108,6 @@ public class UpdateServiceScheduleCommandHandlerTest
             MileageBuffer = command.MileageBuffer,
             FirstServiceDate = command.FirstServiceDate,
             FirstServiceMileage = command.FirstServiceMileage,
-            IsActive = true,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
             XrefServiceScheduleServiceTasks = [],
@@ -182,7 +180,6 @@ public class UpdateServiceScheduleCommandHandlerTest
             MileageBuffer = null,
             FirstServiceDate = null,
             FirstServiceMileage = null,
-            IsActive = true,
             XrefServiceScheduleServiceTasks = [],
             ServiceProgram = new ServiceProgram
             {

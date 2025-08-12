@@ -51,7 +51,7 @@ public class ServiceScheduleRepository : GenericRepository<ServiceSchedule>, ISe
     {
         return await _dbSet
             .Include(ss => ss.ServiceProgram)
-            .Where(ss => ss.IsActive)
+            .Where(ss => !ss.IsSoftDeleted)
             .ToListAsync();
     }
 
@@ -108,7 +108,6 @@ public class ServiceScheduleRepository : GenericRepository<ServiceSchedule>, ISe
         return sortBy?.ToLowerInvariant() switch
         {
             "name" => sortDescending ? query.OrderByDescending(ss => ss.Name) : query.OrderBy(ss => ss.Name),
-            "isactive" => sortDescending ? query.OrderByDescending(ss => ss.IsActive) : query.OrderBy(ss => ss.IsActive),
             "createdat" => sortDescending ? query.OrderByDescending(ss => ss.CreatedAt) : query.OrderBy(ss => ss.CreatedAt),
             "updatedat" => sortDescending ? query.OrderByDescending(ss => ss.UpdatedAt) : query.OrderBy(ss => ss.UpdatedAt),
             _ => query.OrderBy(ss => ss.ID)

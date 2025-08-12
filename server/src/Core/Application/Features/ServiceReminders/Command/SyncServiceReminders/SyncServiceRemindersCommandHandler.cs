@@ -56,7 +56,7 @@ public class SyncServiceRemindersCommandHandler : IRequestHandler<SyncServiceRem
             var schedules = await _serviceReminderRepository.GetActiveServiceSchedulesWithDataAsync(cancellationToken);
 
             // Ignore soft-deleted schedules if any slipped through
-            schedules = schedules.Where(s => !s.IsSoftDeleted && s.IsActive).ToList();
+            schedules = schedules.Where(s => !s.IsSoftDeleted).ToList();
 
             // Calculate reminders in-memory for current time; generation enforces a single UPCOMING per pair
             var calculated = GenerateCalculatedReminders(schedules, _timeProvider.GetUtcNow().UtcDateTime);

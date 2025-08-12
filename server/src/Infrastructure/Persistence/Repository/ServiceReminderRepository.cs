@@ -24,7 +24,7 @@ public class ServiceReminderRepository : GenericRepository<ServiceReminder>, ISe
     public async Task<List<ServiceSchedule>> GetActiveServiceSchedulesWithDataAsync(CancellationToken ct)
     {
         return await _dbContext.Set<ServiceSchedule>()
-            .Where(ss => ss.IsActive)
+            .Where(ss => !ss.IsSoftDeleted)
             .Include(ss => ss.ServiceProgram)
                 .ThenInclude(sp => sp.XrefServiceProgramVehicles)
                 .ThenInclude(xspv => xspv.Vehicle)
