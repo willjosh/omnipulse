@@ -6,13 +6,6 @@ export enum ServiceReminderStatusEnum {
   CANCELLED = 5,
 }
 
-export enum PriorityLevelEnum {
-  LOW = 1,
-  MEDIUM = 2,
-  HIGH = 3,
-  CRITICAL = 4,
-}
-
 export enum TimeUnitEnum {
   Hours = 1,
   Days = 2,

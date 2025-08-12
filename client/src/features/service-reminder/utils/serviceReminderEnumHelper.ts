@@ -1,6 +1,5 @@
 import {
   ServiceReminderStatusEnum,
-  PriorityLevelEnum,
   TimeUnitEnum,
   ServiceTaskCategoryEnum,
   ServiceScheduleTypeEnum,
@@ -20,23 +19,6 @@ export const getServiceReminderStatusLabel = (
       return "Completed";
     case ServiceReminderStatusEnum.CANCELLED:
       return "Cancelled";
-    default:
-      return "Unknown";
-  }
-};
-
-export const getPriorityLevelLabel = (
-  priority: PriorityLevelEnum | number,
-): string => {
-  switch (priority) {
-    case PriorityLevelEnum.LOW:
-      return "Low";
-    case PriorityLevelEnum.MEDIUM:
-      return "Medium";
-    case PriorityLevelEnum.HIGH:
-      return "High";
-    case PriorityLevelEnum.CRITICAL:
-      return "Critical";
     default:
       return "Unknown";
   }

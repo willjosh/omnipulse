@@ -1,6 +1,5 @@
 import {
   ServiceReminderStatusEnum,
-  PriorityLevelEnum,
   TimeUnitEnum,
   ServiceTaskCategoryEnum,
   ServiceScheduleTypeEnum,
@@ -39,7 +38,6 @@ export interface ServiceReminder {
   dueDate?: string | null;
   dueMileage?: number | null;
   status: ServiceReminderStatusEnum;
-  priorityLevel: PriorityLevelEnum;
   timeIntervalValue?: number | null;
   timeIntervalUnit?: TimeUnitEnum | null;
   mileageInterval?: number | null;
@@ -49,7 +47,6 @@ export interface ServiceReminder {
   currentMileage: number;
   mileageVariance?: number | null;
   daysUntilDue?: number | null;
-  occurrenceNumber: number;
   scheduleType: ServiceScheduleTypeEnum;
 }
 
@@ -58,7 +55,6 @@ export interface ServiceReminderWithLabels
     ServiceReminder,
     | "serviceTasks"
     | "status"
-    | "priorityLevel"
     | "timeIntervalUnit"
     | "timeBufferUnit"
     | "scheduleType"
@@ -67,9 +63,6 @@ export interface ServiceReminderWithLabels
   status: number;
   statusLabel: string;
   statusEnum: ServiceReminderStatusEnum;
-  priorityLevel: number;
-  priorityLevelLabel: string;
-  priorityLevelEnum: PriorityLevelEnum;
   timeIntervalUnit: number;
   timeIntervalUnitLabel: string;
   timeIntervalUnitEnum: TimeUnitEnum;

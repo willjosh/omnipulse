@@ -6,14 +6,12 @@ import {
 } from "../types/serviceReminderType";
 import {
   ServiceReminderStatusEnum,
-  PriorityLevelEnum,
   TimeUnitEnum,
   ServiceTaskCategoryEnum,
   ServiceScheduleTypeEnum,
 } from "../types/serviceReminderEnum";
 import {
   getServiceReminderStatusLabel,
-  getPriorityLevelLabel,
   getTimeUnitLabel,
   getServiceTaskCategoryLabel,
   getServiceScheduleTypeLabel,
@@ -35,9 +33,6 @@ export const convertServiceReminderData = (
   status: serviceReminder.status as number,
   statusLabel: getServiceReminderStatusLabel(serviceReminder.status),
   statusEnum: serviceReminder.status as ServiceReminderStatusEnum,
-  priorityLevel: serviceReminder.priorityLevel as number,
-  priorityLevelLabel: getPriorityLevelLabel(serviceReminder.priorityLevel),
-  priorityLevelEnum: serviceReminder.priorityLevel as PriorityLevelEnum,
   timeIntervalUnit: serviceReminder.timeIntervalUnit as number,
   timeIntervalUnitLabel: getTimeUnitLabel(serviceReminder.timeIntervalUnit),
   timeIntervalUnitEnum: serviceReminder.timeIntervalUnit as TimeUnitEnum,
