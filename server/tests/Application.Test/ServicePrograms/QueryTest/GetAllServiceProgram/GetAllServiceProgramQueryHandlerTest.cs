@@ -68,8 +68,8 @@ public class GetAllServiceProgramQueryHandlerTest
                 IsActive = true,
                 ServiceSchedules =
                 [
-                    new ServiceSchedule { ID = 1, CreatedAt = FixedDate, UpdatedAt = FixedDate, ServiceProgramID = 1, Name = "Oil Change", IsActive = true, ServiceProgram = null!, XrefServiceScheduleServiceTasks = [] },
-                    new ServiceSchedule { ID = 2, CreatedAt = FixedDate, UpdatedAt = FixedDate, ServiceProgramID = 1, Name = "Tire Rotation", IsActive = true, ServiceProgram = null!, XrefServiceScheduleServiceTasks = [] }
+                    new ServiceSchedule { ID = 1, CreatedAt = FixedDate, UpdatedAt = FixedDate, ServiceProgramID = 1, Name = "Oil Change", ServiceProgram = null!, XrefServiceScheduleServiceTasks = [] },
+                    new ServiceSchedule { ID = 2, CreatedAt = FixedDate, UpdatedAt = FixedDate, ServiceProgramID = 1, Name = "Tire Rotation", ServiceProgram = null!, XrefServiceScheduleServiceTasks = [] }
                 ],
                 XrefServiceProgramVehicles =
                 [
@@ -88,7 +88,7 @@ public class GetAllServiceProgramQueryHandlerTest
                 IsActive = true,
                 ServiceSchedules =
                 [
-                    new ServiceSchedule { ID = 3, CreatedAt = FixedDate, UpdatedAt = FixedDate, ServiceProgramID = 2, Name = "Emergency Check", IsActive = true, ServiceProgram = null!, XrefServiceScheduleServiceTasks = [] }
+                    new ServiceSchedule { ID = 3, CreatedAt = FixedDate, UpdatedAt = FixedDate, ServiceProgramID = 2, Name = "Emergency Check", ServiceProgram = null!, XrefServiceScheduleServiceTasks = [] }
                 ],
                 XrefServiceProgramVehicles =
                 [

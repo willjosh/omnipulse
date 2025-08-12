@@ -21,12 +21,16 @@ public class ServiceScheduleConfiguration : IEntityTypeConfiguration<ServiceSche
 
         // Regular Indexes
         builder.HasIndex(ss => ss.ServiceProgramID);
-        builder.HasIndex(ss => ss.IsActive);
+        builder.HasIndex(ss => ss.IsSoftDeleted);
         builder.HasIndex(ss => ss.Name);
+        builder.HasIndex(ss => ss.IsSoftDeleted);
+
+        // Global Query Filter: exclude soft-deleted schedules
+        builder.HasQueryFilter(ss => !ss.IsSoftDeleted);
 
         // Composite indexes for common queries
-        builder.HasIndex(ss => new { ss.ServiceProgramID, ss.IsActive });
-        builder.HasIndex(ss => new { ss.IsActive, ss.Name });
+        builder.HasIndex(ss => new { ss.ServiceProgramID, ss.IsSoftDeleted });
+        builder.HasIndex(ss => new { ss.IsSoftDeleted, ss.Name });
 
         // Unique constraint within service program
         builder.HasIndex(ss => new { ss.ServiceProgramID, ss.Name }).IsUnique();
@@ -57,16 +61,16 @@ public class ServiceScheduleConfiguration : IEntityTypeConfiguration<ServiceSche
             .OnDelete(DeleteBehavior.Cascade);
 
         // Add these performance indexes for service reminder queries
-        builder.HasIndex(ss => new { ss.IsActive, ss.TimeIntervalValue, ss.TimeIntervalUnit })
-            .HasDatabaseName("IX_ServiceSchedules_TimeBasedActive");
+        builder.HasIndex(ss => new { ss.IsSoftDeleted, ss.TimeIntervalValue, ss.TimeIntervalUnit })
+            .HasDatabaseName("IX_ServiceSchedules_TimeBased");
 
-        builder.HasIndex(ss => new { ss.IsActive, ss.MileageInterval })
-            .HasDatabaseName("IX_ServiceSchedules_MileageBasedActive");
+        builder.HasIndex(ss => new { ss.IsSoftDeleted, ss.MileageInterval })
+            .HasDatabaseName("IX_ServiceSchedules_MileageBased");
 
-        builder.HasIndex(ss => new { ss.ServiceProgramID, ss.IsActive, ss.TimeIntervalValue })
-            .HasDatabaseName("IX_ServiceSchedules_ProgramTimeActive");
+        builder.HasIndex(ss => new { ss.ServiceProgramID, ss.IsSoftDeleted, ss.TimeIntervalValue })
+            .HasDatabaseName("IX_ServiceSchedules_ProgramTime");
 
-        builder.HasIndex(ss => new { ss.ServiceProgramID, ss.IsActive, ss.MileageInterval })
-            .HasDatabaseName("IX_ServiceSchedules_ProgramMileageActive");
+        builder.HasIndex(ss => new { ss.ServiceProgramID, ss.IsSoftDeleted, ss.MileageInterval })
+            .HasDatabaseName("IX_ServiceSchedules_ProgramMileage");
     }
 }

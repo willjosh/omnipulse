@@ -41,31 +41,31 @@ check_env_file() {
 start_dev() {
     print_info "Starting development environment"
     check_env_file
-    docker-compose -f "$DEV_COMPOSE_FILE" up --build
+    docker compose -f "$DEV_COMPOSE_FILE" up --build
 }
 
 # Start only client
 start_client() {
     print_info "Starting client"
-    docker-compose -f "$DEV_COMPOSE_FILE" up --build client-dev
+    docker compose -f "$DEV_COMPOSE_FILE" up --build client-dev
 }
 
 # Start only server
 start_server() {
     print_info "Starting server and database"
-    docker-compose -f "$DEV_COMPOSE_FILE" up --build server-dev db
+    docker compose -f "$DEV_COMPOSE_FILE" up --build server-dev db
 }
 
 # Stop all services
 stop_all() {
     print_info "Stopping all services"
-    docker-compose -f "$DEV_COMPOSE_FILE" down
+    docker compose -f "$DEV_COMPOSE_FILE" down
 }
 
 # Clean up
 cleanup() {
     print_info "Cleaning up Docker resources"
-    docker-compose -f "$DEV_COMPOSE_FILE" down -v
+    docker compose -f "$DEV_COMPOSE_FILE" down -v
     docker system prune -f
 }
 
@@ -94,9 +94,9 @@ delete_sql_data() {
 # Show logs
 show_logs() {
     if [ -z "$1" ]; then
-        docker-compose -f "$DEV_COMPOSE_FILE" logs -f
+        docker compose -f "$DEV_COMPOSE_FILE" logs -f
     else
-        docker-compose -f "$DEV_COMPOSE_FILE" logs -f "$1"
+        docker compose -f "$DEV_COMPOSE_FILE" logs -f "$1"
     fi
 }
 
@@ -107,7 +107,7 @@ rebuild() {
         exit 1
     fi
     print_info "Rebuilding $1"
-    docker-compose -f "$DEV_COMPOSE_FILE" build --no-cache "$1"
+    docker compose -f "$DEV_COMPOSE_FILE" build --no-cache "$1"
 }
 
 # Main

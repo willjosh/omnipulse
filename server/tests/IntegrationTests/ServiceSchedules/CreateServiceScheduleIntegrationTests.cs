@@ -50,8 +50,7 @@ public class CreateServiceScheduleIntegrationTests : BaseIntegrationTest
             MileageInterval: null, // XOR: time-based only
             MileageBuffer: null,
             FirstServiceDate: DateTime.Today.AddDays(7),
-            FirstServiceMileage: null, // XOR: time-based only
-            IsActive: true
+            FirstServiceMileage: null // XOR: time-based only
         );
 
         // Act
@@ -70,7 +69,7 @@ public class CreateServiceScheduleIntegrationTests : BaseIntegrationTest
         createdServiceScheduleEntity.MileageInterval.Should().BeNull();
         createdServiceScheduleEntity.MileageBuffer.Should().BeNull();
         createdServiceScheduleEntity.FirstServiceMileage.Should().BeNull();
-        createdServiceScheduleEntity.IsActive.Should().Be(createCommand.IsActive);
+        createdServiceScheduleEntity.IsSoftDeleted.Should().BeFalse();
     }
 
     [Fact]
@@ -106,8 +105,7 @@ public class CreateServiceScheduleIntegrationTests : BaseIntegrationTest
             MileageInterval: null, // No mileage scheduling
             MileageBuffer: null,
             FirstServiceDate: DateTime.Today.AddDays(14),
-            FirstServiceMileage: null, // No mileage scheduling
-            IsActive: true
+            FirstServiceMileage: null // No mileage scheduling
         );
 
         // Act
@@ -163,8 +161,7 @@ public class CreateServiceScheduleIntegrationTests : BaseIntegrationTest
             MileageInterval: 10000,
             MileageBuffer: 1000,
             FirstServiceDate: null, // No time scheduling
-            FirstServiceMileage: 5000,
-            IsActive: true
+            FirstServiceMileage: 5000
         );
 
         // Act
@@ -220,8 +217,7 @@ public class CreateServiceScheduleIntegrationTests : BaseIntegrationTest
             MileageInterval: null, // No mileage scheduling
             MileageBuffer: null,
             FirstServiceDate: null, // No first service date
-            FirstServiceMileage: null, // No mileage scheduling
-            IsActive: true
+            FirstServiceMileage: null // No mileage scheduling
         );
 
         // Act
@@ -277,8 +273,7 @@ public class CreateServiceScheduleIntegrationTests : BaseIntegrationTest
             MileageInterval: 15000,
             MileageBuffer: 2000,
             FirstServiceDate: null, // No time scheduling
-            FirstServiceMileage: null, // No first service mileage
-            IsActive: true
+            FirstServiceMileage: null // No first service mileage
         );
 
         // Act

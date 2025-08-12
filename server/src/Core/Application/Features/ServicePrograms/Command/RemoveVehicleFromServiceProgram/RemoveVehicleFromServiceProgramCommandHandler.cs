@@ -1,6 +1,7 @@
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
+using Application.Features.ServiceReminders.Command.SyncServiceReminders;
 
 using FluentValidation;
 
@@ -13,6 +14,7 @@ public sealed class RemoveVehicleFromServiceProgramCommandHandler : IRequestHand
     private readonly IXrefServiceProgramVehicleRepository _xrefRepository;
     private readonly IServiceProgramRepository _serviceProgramRepository;
     private readonly IVehicleRepository _vehicleRepository;
+    private readonly ISender _sender;
     private readonly IValidator<RemoveVehicleFromServiceProgramCommand> _validator;
     private readonly IAppLogger<RemoveVehicleFromServiceProgramCommandHandler> _logger;
 
@@ -20,12 +22,14 @@ public sealed class RemoveVehicleFromServiceProgramCommandHandler : IRequestHand
         IXrefServiceProgramVehicleRepository xrefRepository,
         IServiceProgramRepository serviceProgramRepository,
         IVehicleRepository vehicleRepository,
+        ISender sender,
         IValidator<RemoveVehicleFromServiceProgramCommand> validator,
         IAppLogger<RemoveVehicleFromServiceProgramCommandHandler> logger)
     {
         _xrefRepository = xrefRepository;
         _serviceProgramRepository = serviceProgramRepository;
         _vehicleRepository = vehicleRepository;
+        _sender = sender;
         _validator = validator;
         _logger = logger;
     }
@@ -68,6 +72,9 @@ public sealed class RemoveVehicleFromServiceProgramCommandHandler : IRequestHand
         // Remove xref
         await _xrefRepository.RemoveAsync(request.ServiceProgramID, request.VehicleID);
         _logger.LogInformation($"XrefServiceProgramVehicle removed: ServiceProgramID={request.ServiceProgramID}, VehicleID={request.VehicleID}");
+
+        // Trigger sync to reflect current assignments
+        await _sender.Send(new SyncServiceRemindersCommand(), cancellationToken);
 
         return (request.ServiceProgramID, request.VehicleID);
     }

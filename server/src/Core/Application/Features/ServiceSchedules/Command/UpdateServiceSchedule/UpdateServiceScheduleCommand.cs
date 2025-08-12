@@ -29,7 +29,6 @@ namespace Application.Features.ServiceSchedules.Command.UpdateServiceSchedule;
 /// <param name="MileageBuffer">The mileage buffer for the schedule in kilometres.</param>
 /// <param name="FirstServiceDate">The absolute date for the first service (requires TimeIntervalValue and TimeIntervalUnit).</param>
 /// <param name="FirstServiceMileage">The absolute mileage for the first service (requires MileageInterval).</param>
-/// <param name="IsActive">Whether the schedule is active.</param>
 public record UpdateServiceScheduleCommand(
     int ServiceScheduleID,
     int ServiceProgramID,
@@ -42,6 +41,5 @@ public record UpdateServiceScheduleCommand(
     int? MileageInterval,
     int? MileageBuffer,
     DateTime? FirstServiceDate,
-    int? FirstServiceMileage,
-    bool IsActive
+    int? FirstServiceMileage
 ) : IRequest<int>;

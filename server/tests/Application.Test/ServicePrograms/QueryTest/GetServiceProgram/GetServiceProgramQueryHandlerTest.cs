@@ -73,7 +73,6 @@ public class GetServiceProgramQueryHandlerTest
                     TimeIntervalValue = 3,
                     TimeIntervalUnit = TimeUnitEnum.Weeks,
                     MileageInterval = null, // XOR: time-based only
-                    IsActive = true,
                     XrefServiceScheduleServiceTasks = [],
                     ServiceProgram = null!
                 }

@@ -514,19 +514,6 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
               </div>
             </div>
 
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="isActive"
-                checked={formData.isActive}
-                onChange={e => handleInputChange("isActive", e.target.checked)}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <label htmlFor="isActive" className="ml-2 text-sm text-gray-700">
-                Active
-              </label>
-            </div>
-
             <div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
               <SecondaryButton onClick={handleClose}>Cancel</SecondaryButton>
               <PrimaryButton type="submit" disabled={isLoading}>

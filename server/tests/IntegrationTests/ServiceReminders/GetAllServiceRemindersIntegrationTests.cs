@@ -98,8 +98,7 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
             MileageInterval: null, // XOR: time-based only
             MileageBuffer: null,
             FirstServiceDate: DateTime.Today.AddDays(2), // Due soon (within 5-day buffer)
-            FirstServiceMileage: null, // XOR: time-based only
-            IsActive: true
+            FirstServiceMileage: null // XOR: time-based only
         );
         int serviceScheduleId = await Sender.Send(createServiceScheduleCommand);
 
@@ -298,8 +297,7 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
             MileageInterval: 10000,
             MileageBuffer: 1000,
             FirstServiceDate: null, // XOR: mileage-based only
-            FirstServiceMileage: 20000, // Vehicle at 25k, was due at 20k
-            IsActive: true
+            FirstServiceMileage: 20000 // Vehicle at 25k, was due at 20k
         );
         int serviceScheduleId = await Sender.Send(createServiceScheduleCommand);
 
@@ -331,7 +329,6 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
 
         // Verify overdue status
         overdueReminder!.Status.Should().Be(ServiceReminderStatusEnum.OVERDUE);
-        overdueReminder.PriorityLevel.Should().Be(PriorityLevelEnum.HIGH);
 
         // Verify basic properties
         overdueReminder.VehicleID.Should().Be(vehicleId);
@@ -412,8 +409,7 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
             MileageInterval: null, // XOR: time-based only
             MileageBuffer: null,
             FirstServiceDate: DateTime.Today.AddDays(20), // Due in 20 days (outside 14-day buffer)
-            FirstServiceMileage: null, // XOR: time-based only
-            IsActive: true
+            FirstServiceMileage: null // XOR: time-based only
         );
         int serviceScheduleId = await Sender.Send(createServiceScheduleCommand);
 
@@ -445,7 +441,6 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
 
         // Verify upcoming status
         upcomingReminder!.Status.Should().Be(ServiceReminderStatusEnum.UPCOMING);
-        upcomingReminder.PriorityLevel.Should().Be(PriorityLevelEnum.LOW);
 
         // Verify properties
         upcomingReminder.VehicleID.Should().Be(vehicleId);
@@ -528,8 +523,7 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
             MileageInterval: 30000,
             MileageBuffer: 2000,
             FirstServiceDate: null, // XOR: mileage-based only
-            FirstServiceMileage: 20000, // Vehicle at 18.5k, due at 20k (within 2k buffer)
-            IsActive: true
+            FirstServiceMileage: 20000 // Vehicle at 18.5k, due at 20k (within 2k buffer)
         );
         int serviceScheduleId = await Sender.Send(createServiceScheduleCommand);
 
@@ -561,7 +555,6 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
 
         // Verify due soon status
         dueSoonReminder!.Status.Should().Be(ServiceReminderStatusEnum.DUE_SOON);
-        dueSoonReminder.PriorityLevel.Should().Be(PriorityLevelEnum.MEDIUM);
 
         // Verify properties
         dueSoonReminder.VehicleID.Should().Be(vehicleId);
@@ -655,8 +648,7 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
             MileageInterval: null, // XOR: time-based only
             MileageBuffer: null,
             FirstServiceDate: DateTime.Today.AddDays(-60), // Overdue by 60 days
-            FirstServiceMileage: null, // XOR: time-based only
-            IsActive: true
+            FirstServiceMileage: null // XOR: time-based only
         );
         int serviceScheduleId = await Sender.Send(createServiceScheduleCommand);
 
@@ -688,7 +680,6 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
 
         // Verify overdue status
         overdueReminder!.Status.Should().Be(ServiceReminderStatusEnum.OVERDUE);
-        overdueReminder.PriorityLevel.Should().Be(PriorityLevelEnum.HIGH);
 
         // Verify properties
         overdueReminder.VehicleID.Should().Be(vehicleId);
@@ -796,8 +787,7 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
             MileageInterval: 5000,
             MileageBuffer: 500,
             FirstServiceDate: null, // XOR: mileage-based only
-            FirstServiceMileage: 42000, // Vehicle at 45k, was due at 42k (overdue by 3k > 500 buffer)
-            IsActive: true
+            FirstServiceMileage: 42000 // Vehicle at 45k, was due at 42k (overdue by 3k > 500 buffer)
         );
         int overdueScheduleId = await Sender.Send(overdueSchedule);
 
@@ -813,8 +803,7 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
             MileageInterval: null, // XOR: time-based only
             MileageBuffer: null,
             FirstServiceDate: DateTime.Today.AddDays(10), // Due soon
-            FirstServiceMileage: null, // XOR: time-based only
-            IsActive: true
+            FirstServiceMileage: null // XOR: time-based only
         );
         int dueSoonScheduleId = await Sender.Send(dueSoonSchedule);
 
@@ -830,8 +819,7 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
             MileageInterval: 60000,
             MileageBuffer: 5000,
             FirstServiceDate: null, // XOR: mileage-based only
-            FirstServiceMileage: 60000, // Vehicle at 45k, due at 60k (outside 5k buffer = upcoming)
-            IsActive: true
+            FirstServiceMileage: 60000 // Vehicle at 45k, due at 60k (outside 5k buffer = upcoming)
         );
         int upcomingScheduleId = await Sender.Send(upcomingSchedule);
 
@@ -874,11 +862,6 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
         overdueReminder!.ServiceTasks.First().ServiceTaskName.Should().Contain("Oil Change");
         dueSoonReminder!.ServiceTasks.First().ServiceTaskName.Should().Contain("Coolant Flush");
         upcomingReminder!.ServiceTasks.First().ServiceTaskName.Should().Contain("Brake Service");
-
-        // Verify priority levels
-        overdueReminder.PriorityLevel.Should().Be(PriorityLevelEnum.HIGH);
-        dueSoonReminder.PriorityLevel.Should().Be(PriorityLevelEnum.MEDIUM);
-        upcomingReminder.PriorityLevel.Should().Be(PriorityLevelEnum.LOW);
     }
 
     [Fact]
@@ -961,8 +944,7 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
             MileageInterval: null, // XOR: time-based only
             MileageBuffer: null,
             FirstServiceDate: DateTime.Today.AddDays(5), // Due soon for all
-            FirstServiceMileage: null, // XOR: time-based only
-            IsActive: true
+            FirstServiceMileage: null // XOR: time-based only
         );
         await Sender.Send(createServiceScheduleCommand);
 
@@ -1069,8 +1051,7 @@ public class GetAllServiceRemindersIntegrationTests : BaseIntegrationTest
             MileageInterval: null, // XOR: time-based only
             MileageBuffer: null,
             FirstServiceDate: DateTime.Today.AddDays(-5), // Would be overdue
-            FirstServiceMileage: null, // XOR: time-based only
-            IsActive: false // INACTIVE
+            FirstServiceMileage: null // XOR: time-based only
         );
         int serviceScheduleId = await Sender.Send(createServiceScheduleCommand);
 

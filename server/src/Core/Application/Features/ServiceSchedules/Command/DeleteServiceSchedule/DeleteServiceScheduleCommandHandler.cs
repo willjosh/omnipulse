@@ -1,6 +1,7 @@
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
+using Application.Features.ServiceReminders.Command.SyncServiceReminders;
 
 using Domain.Entities;
 
@@ -12,15 +13,21 @@ public class DeleteServiceScheduleCommandHandler : IRequestHandler<DeleteService
 {
     private readonly IServiceScheduleRepository _serviceScheduleRepository;
     private readonly IXrefServiceScheduleServiceTaskRepository _xrefServiceScheduleServiceTaskRepository;
+    private readonly IServiceReminderRepository _serviceReminderRepository;
+    private readonly ISender _sender;
     private readonly IAppLogger<DeleteServiceScheduleCommandHandler> _logger;
 
     public DeleteServiceScheduleCommandHandler(
         IServiceScheduleRepository serviceScheduleRepository,
         IXrefServiceScheduleServiceTaskRepository xrefServiceScheduleServiceTaskRepository,
+        IServiceReminderRepository serviceReminderRepository,
+        ISender sender,
         IAppLogger<DeleteServiceScheduleCommandHandler> logger)
     {
         _serviceScheduleRepository = serviceScheduleRepository;
         _xrefServiceScheduleServiceTaskRepository = xrefServiceScheduleServiceTaskRepository;
+        _serviceReminderRepository = serviceReminderRepository;
+        _sender = sender;
         _logger = logger;
     }
 
@@ -35,16 +42,28 @@ public class DeleteServiceScheduleCommandHandler : IRequestHandler<DeleteService
             throw new EntityNotFoundException(typeof(ServiceSchedule).ToString(), "ID", request.ServiceScheduleID.ToString());
         }
 
-        // Remove all xrefs for this schedule before deleting
+        // Remove all xrefs for this schedule before soft-deleting
         _logger.LogInformation($"Removing all service task links for ServiceSchedule ID: {request.ServiceScheduleID}");
         await _xrefServiceScheduleServiceTaskRepository.RemoveAllForScheduleAsync(request.ServiceScheduleID);
 
-        // Delete ServiceSchedule
-        _serviceScheduleRepository.Delete(serviceSchedule);
-
-        // Save Changes
+        // Soft-delete schedule
+        serviceSchedule.IsSoftDeleted = true;
+        _serviceScheduleRepository.Update(serviceSchedule);
         await _serviceScheduleRepository.SaveChangesAsync();
-        _logger.LogInformation($"ServiceSchedule with ID: {request.ServiceScheduleID} deleted");
+        _logger.LogInformation($"ServiceSchedule with ID: {request.ServiceScheduleID} soft-deleted");
+
+        // Cancel future reminders
+        _ = await _serviceReminderRepository.DeleteNonFinalRemindersForScheduleAsync(request.ServiceScheduleID, cancellationToken);
+
+        // Cleanup unlinked reminders and trigger regeneration
+        _ = await _serviceReminderRepository.DeleteAllUnlinkedReminders(cancellationToken);
+
+        // Trigger regeneration
+        var syncResult = await _sender.Send(new SyncServiceRemindersCommand());
+        if (!syncResult.Success)
+        {
+            _logger.LogWarning($"{nameof(DeleteServiceScheduleCommandHandler)} - Failed to sync reminders after delete: {syncResult.ErrorMessage}");
+        }
 
         return request.ServiceScheduleID;
     }

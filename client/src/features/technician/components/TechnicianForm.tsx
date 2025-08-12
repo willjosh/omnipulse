@@ -245,33 +245,6 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({
         />
       </FormField>
 
-      {mode === "edit" && (
-        <FormField label="Status" htmlFor="isActive">
-          <div className="flex items-center space-x-3">
-            <label className="flex items-center">
-              <input
-                type="radio"
-                name="status"
-                checked={formData.isActive === true}
-                onChange={() => handleInputChange("isActive", true)}
-                className="mr-2 text-blue-600"
-              />
-              <span className="text-sm text-gray-700">Active</span>
-            </label>
-            <label className="flex items-center">
-              <input
-                type="radio"
-                name="status"
-                checked={formData.isActive === false}
-                onChange={() => handleInputChange("isActive", false)}
-                className="mr-2 text-blue-600"
-              />
-              <span className="text-sm text-gray-700">Inactive</span>
-            </label>
-          </div>
-        </FormField>
-      )}
-
       <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
         <SecondaryButton onClick={handleCancel} type="button">
           Cancel

@@ -156,5 +156,3 @@ export function useTechnicians() {
 
   return { technicians: data ?? [], isPending, isError, error };
 }
-
-// TODO: Future Implementation - Vehicle Status API

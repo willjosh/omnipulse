@@ -1,5 +1,8 @@
 using System.Reflection;
 
+using Application.Contracts.Services;
+using Application.Services;
+
 using FluentValidation;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -23,6 +26,9 @@ public static class ApplicationServiceRegistration
 
         // Register FluentValidation - all validators
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+
+        // Register Service Reminder status updater
+        services.AddScoped<IServiceReminderStatusUpdater, ServiceReminderStatusUpdater>();
 
         return services;
     }

@@ -8,6 +8,8 @@ using Domain.Entities;
 using FluentValidation;
 using FluentValidation.Results;
 
+using MediatR;
+
 using Moq;
 
 namespace Application.Test.ServicePrograms.CommandTest.DeleteServiceProgram;
@@ -16,6 +18,7 @@ public class DeleteServiceProgramCommandHandlerTest
 {
     private readonly DeleteServiceProgramCommandHandler _commandHandler;
     private readonly Mock<IServiceProgramRepository> _mockServiceProgramRepository = new();
+    private readonly Mock<ISender> _mockSender = new();
     private readonly Mock<IValidator<DeleteServiceProgramCommand>> _mockValidator = new();
     private readonly Mock<IAppLogger<DeleteServiceProgramCommandHandler>> _mockLogger = new();
 
@@ -23,6 +26,7 @@ public class DeleteServiceProgramCommandHandlerTest
     {
         _commandHandler = new(
             _mockServiceProgramRepository.Object,
+            _mockSender.Object,
             _mockValidator.Object,
             _mockLogger.Object);
     }

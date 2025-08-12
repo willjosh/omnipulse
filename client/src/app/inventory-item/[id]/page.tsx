@@ -76,7 +76,6 @@ const InventoryItemDetailsPage = () => {
             <h2 className="text-lg font-semibold text-gray-900">
               Basic Information
             </h2>
-            <button className="text-sm text-gray-500">All Fields</button>
           </div>
         </div>
         <div className="p-3 space-y-2">
@@ -107,17 +106,6 @@ const InventoryItemDetailsPage = () => {
             <span className="text-sm text-blue-600">
               {formatEmptyValueWithUnknown(inventoryItem.categoryLabel)}
             </span>
-          </div>
-          <div className="flex justify-between items-center py-3 border-b border-gray-100">
-            <span className="text-sm font-medium text-gray-600">Status</span>
-            <div className="flex items-center">
-              <div
-                className={`w-2 h-2 rounded-full mr-2 ${inventoryItem.isActive ? "bg-green-500" : "bg-red-500"}`}
-              ></div>
-              <span className="text-sm text-gray-900">
-                {inventoryItem.isActive ? "Active" : "Inactive"}
-              </span>
-            </div>
           </div>
         </div>
       </div>
@@ -258,14 +246,6 @@ const InventoryItemDetailsPage = () => {
                   <span className="text-gray-600">
                     {formatCurrency(inventoryItem.unitCost)}
                   </span>
-                  <div
-                    className={`flex items-center px-2 py-1 rounded-full text-xs font-medium ${inventoryItem.isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
-                  >
-                    <div
-                      className={`w-1.5 h-1.5 rounded-full mr-1.5 ${inventoryItem.isActive ? "bg-green-500" : "bg-red-500"}`}
-                    ></div>
-                    {inventoryItem.isActive ? "Active" : "Inactive"}
-                  </div>
                   {inventoryItem.supplier && (
                     <span className="text-gray-600">
                       {inventoryItem.supplier}
@@ -295,7 +275,6 @@ const InventoryItemDetailsPage = () => {
         </div>
       </div>
 
-      {/* Edit Modal */}
       <InventoryModal
         isOpen={isEditModalOpen}
         mode="edit"
