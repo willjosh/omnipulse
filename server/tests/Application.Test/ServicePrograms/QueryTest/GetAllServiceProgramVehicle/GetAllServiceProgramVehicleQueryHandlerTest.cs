@@ -108,7 +108,6 @@ public class GetAllServiceProgramVehicleQueryHandlerTest
             VehicleGroupID = 1,
             Trim = "Test Trim",
             Mileage = 1000.0,
-            EngineHours = 100.0,
             FuelCapacity = 50.0,
             FuelType = Domain.Entities.Enums.FuelTypeEnum.PETROL,
             PurchaseDate = FixedDate,

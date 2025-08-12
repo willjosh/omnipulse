@@ -51,9 +51,6 @@ public class GetVehicleDetailsDTO
     /// <example>12000.0</example>
     public required double Mileage { get; set; }
 
-    /// <example>650.0</example>
-    public required double EngineHours { get; set; }
-
     /// <example>0.0</example>
     public required double FuelCapacity { get; set; }
 

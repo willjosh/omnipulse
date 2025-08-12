@@ -84,10 +84,6 @@ public class CreateVehicleCommandValidator : AbstractValidator<CreateVehicleComm
             .GreaterThanOrEqualTo(0)
             .WithMessage("Mileage cannot be negative");
 
-        RuleFor(p => p.EngineHours)
-            .GreaterThanOrEqualTo(0)
-            .WithMessage("Engine hours cannot be negative");
-
         RuleFor(p => p.FuelCapacity)
             .GreaterThan(0)
             .WithMessage("Fuel capacity must be greater than 0");

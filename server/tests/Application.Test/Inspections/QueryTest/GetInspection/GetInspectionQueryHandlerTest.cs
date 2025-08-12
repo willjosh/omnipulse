@@ -286,7 +286,6 @@ public class GetInspectionQueryHandlerTest
             VehicleGroup = vehicleGroup,
             Trim = "LE",
             Mileage = 50000,
-            EngineHours = 2500,
             FuelCapacity = 60.0,
             FuelType = FuelTypeEnum.PETROL,
             PurchaseDate = DateTime.UtcNow.AddYears(-3),

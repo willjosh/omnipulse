@@ -68,7 +68,6 @@ public class GetAllVehicleQueryValidatorTest
     [InlineData("status")]
     [InlineData("purchaseprice")]
     [InlineData("mileage")]
-    [InlineData("enginehours")]
     [InlineData("createdat")]
     [InlineData("purchasedate")]
     [InlineData("fuelcapacity")]

@@ -41,7 +41,6 @@ public class CreateFuelPurchaseIntegrationTests : BaseIntegrationTest
             VehicleGroupID: vehicleGroupId,
             Trim: "Base",
             Mileage: 0,
-            EngineHours: 0,
             FuelCapacity: 70.0,
             FuelType: FuelTypeEnum.DIESEL,
             PurchaseDate: DateTime.UtcNow.AddDays(-1),

@@ -82,7 +82,6 @@ public class GetAllServiceProgramQueryValidatorTest
     [InlineData("status")]          // Valid for vehicles, not service programs
     [InlineData("purchaseprice")]   // Valid for vehicles, not service programs
     [InlineData("mileage")]         // Valid for vehicles, not service programs
-    [InlineData("enginehours")]     // Valid for vehicles, not service programs
     [InlineData("purchasedate")]    // Valid for vehicles, not service programs
     [InlineData("fuelcapacity")]    // Valid for vehicles, not service programs
     [InlineData("location")]        // Valid for vehicles, not service programs

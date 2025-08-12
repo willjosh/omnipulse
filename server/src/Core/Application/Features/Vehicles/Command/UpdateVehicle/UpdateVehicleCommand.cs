@@ -17,7 +17,6 @@ public record UpdateVehicleCommand(
    int VehicleGroupID,
    string Trim,
    double Mileage,
-   double EngineHours,
    double FuelCapacity,
    FuelTypeEnum FuelType,
    DateTime PurchaseDate,

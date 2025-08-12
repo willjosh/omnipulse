@@ -178,7 +178,6 @@ public sealed class CreateInspectionIntegrationTests : BaseIntegrationTest
             VehicleGroupID: groupId,
             Trim: "Standard",
             Mileage: 10,
-            EngineHours: 0,
             FuelCapacity: 70,
             FuelType: FuelTypeEnum.DIESEL,
             PurchaseDate: DateTime.UtcNow.AddDays(-5),

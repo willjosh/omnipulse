@@ -85,7 +85,6 @@ public class GetWorkOrderDetailHandlerTest
             VehicleGroupID = 2,
             Trim = "LE",
             Mileage = 50000,
-            EngineHours = 1000,
             FuelCapacity = 50.0,
             FuelType = Domain.Entities.Enums.FuelTypeEnum.PETROL,
             PurchaseDate = new DateTime(2021, 1, 1, 0, 0, 0, DateTimeKind.Utc),
