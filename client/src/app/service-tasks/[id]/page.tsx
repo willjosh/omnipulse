@@ -15,9 +15,9 @@ import PrimaryButton from "@/components/ui/Button/PrimaryButton";
 import EditIcon from "@/components/ui/Icons/Edit";
 import { useRouter } from "next/navigation";
 import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
-import ArchiveIcon from "@/components/ui/Icons/Archive";
 import ConfirmModal from "@/components/ui/Modal/ConfirmModal";
 import { formatEmptyValueWithUnknown } from "@/utils/emptyValueUtils";
+import { Trash2 } from "lucide-react";
 
 export default function ServiceTaskDetailPage() {
   const params = useParams();
@@ -71,7 +71,7 @@ export default function ServiceTaskDetailPage() {
               className="bg-red-600 hover:bg-red-700"
               onClick={() => setArchiveModalOpen(true)}
             >
-              <ArchiveIcon /> Delete
+              <Trash2 size={16} /> Delete
             </PrimaryButton>
             <ConfirmModal
               isOpen={isArchiveModalOpen}
@@ -103,10 +103,6 @@ export default function ServiceTaskDetailPage() {
           <DetailFieldRow
             label="Category"
             value={getServiceTaskCategoryLabel(serviceTask.categoryEnum)}
-          />
-          <DetailFieldRow
-            label="Active"
-            value={serviceTask.isActive ? "Yes" : "No"}
             noBorder
           />
         </FormContainer>

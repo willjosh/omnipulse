@@ -9,7 +9,7 @@ import EmptyState from "@/components/ui/Feedback/EmptyState";
 import ServiceScheduleHeader from "@/features/service-schedule/components/ServiceScheduleHeader";
 import PrimaryButton from "@/components/ui/Button/PrimaryButton";
 import EditIcon from "@/components/ui/Icons/Edit";
-import ArchiveIcon from "@/components/ui/Icons/Archive";
+import { Trash2 } from "lucide-react";
 import ConfirmModal from "@/components/ui/Modal/ConfirmModal";
 import { useDeleteServiceSchedule } from "@/features/service-schedule/hooks/useServiceSchedules";
 import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
@@ -70,7 +70,7 @@ export default function ServiceScheduleDetailPage() {
               onClick={() => setDeleteModalOpen(true)}
               disabled={isDeleting}
             >
-              <ArchiveIcon /> Delete
+              <Trash2 size={16} /> Delete
             </PrimaryButton>
             <ConfirmModal
               isOpen={isDeleteModalOpen}
@@ -151,10 +151,6 @@ export default function ServiceScheduleDetailPage() {
                 <span className="text-gray-400">-</span>
               )
             }
-          />
-          <DetailFieldRow
-            label="Active"
-            value={serviceSchedule.isActive ? "Yes" : "No"}
             noBorder
           />
         </FormContainer>
