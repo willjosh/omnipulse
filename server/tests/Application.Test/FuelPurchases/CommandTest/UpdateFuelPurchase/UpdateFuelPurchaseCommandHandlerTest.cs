@@ -1,7 +1,7 @@
 using Application.Contracts.Logger;
 using Application.Contracts.Persistence;
 using Application.Exceptions;
-using Application.Features.FuelLogging.Command.UpdateFuelPurchase;
+using Application.Features.FuelPurchases.Command.UpdateFuelPurchase;
 using Application.MappingProfiles;
 
 using AutoMapper;

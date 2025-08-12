@@ -1,5 +1,5 @@
-using Application.Features.FuelLogging.Command.CreateFuelPurchase;
-using Application.Features.FuelLogging.Command.UpdateFuelPurchase;
+using Application.Features.FuelPurchases.Command.CreateFuelPurchase;
+using Application.Features.FuelPurchases.Command.UpdateFuelPurchase;
 using Application.Features.FuelPurchases.Query.GetAllFuelPurchases;
 
 using AutoMapper;

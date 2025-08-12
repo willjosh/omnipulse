@@ -1,4 +1,4 @@
-using Application.Features.FuelLogging.Command.UpdateFuelPurchase;
+using Application.Features.FuelPurchases.Command.UpdateFuelPurchase;
 
 namespace Application.Test.FuelPurchases.CommandTest.UpdateFuelPurchase;
 

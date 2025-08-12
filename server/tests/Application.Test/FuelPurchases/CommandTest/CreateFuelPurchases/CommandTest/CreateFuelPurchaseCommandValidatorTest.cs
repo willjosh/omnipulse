@@ -1,4 +1,4 @@
-using Application.Features.FuelLogging.Command.CreateFuelPurchase;
+using Application.Features.FuelPurchases.Command.CreateFuelPurchase;
 
 public class CreateFuelPurchaseCommandValidatorTest
 {

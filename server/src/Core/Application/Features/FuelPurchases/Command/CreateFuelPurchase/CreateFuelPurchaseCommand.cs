@@ -1,6 +1,6 @@
 using MediatR;
 
-namespace Application.Features.FuelLogging.Command.CreateFuelPurchase;
+namespace Application.Features.FuelPurchases.Command.CreateFuelPurchase;
 
 public record CreateFuelPurchaseCommand(
     int VehicleId,

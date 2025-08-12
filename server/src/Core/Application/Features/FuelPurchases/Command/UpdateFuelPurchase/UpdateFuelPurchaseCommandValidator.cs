@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace Application.Features.FuelLogging.Command.UpdateFuelPurchase;
+namespace Application.Features.FuelPurchases.Command.UpdateFuelPurchase;
 
 public sealed class UpdateFuelPurchaseCommandValidator : AbstractValidator<UpdateFuelPurchaseCommand>
 {
