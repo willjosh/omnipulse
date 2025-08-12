@@ -1,6 +1,6 @@
 using Application.Features.FuelPurchases.Command.CreateFuelPurchase;
-using Application.Features.FuelPurchases.Command.UpdateFuelPurchase;
 using Application.Features.FuelPurchases.Command.DeleteFuelPurchase;
+using Application.Features.FuelPurchases.Command.UpdateFuelPurchase;
 
 using Domain.Entities;
 
