@@ -81,7 +81,6 @@ public class AddVehicleToServiceProgramCommandHandlerTest
         VehicleGroupID = 1,
         Trim = "LE",
         Mileage = 10000,
-        EngineHours = 500,
         FuelCapacity = 50,
         FuelType = FuelTypeEnum.PETROL,
         PurchaseDate = FixedDate.AddYears(-1),

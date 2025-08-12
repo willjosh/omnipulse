@@ -84,7 +84,6 @@ public class CreateIssueCommandHandlerTest
             VehicleGroupID = 1,
             Trim = "Base",
             Mileage = 0,
-            EngineHours = 0,
             FuelCapacity = 50,
             FuelType = Domain.Entities.Enums.FuelTypeEnum.PETROL,
             PurchaseDate = DateTime.UtcNow,

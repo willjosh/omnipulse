@@ -87,7 +87,6 @@ public class GetAllWorkOrderQueryHandlerTest
             AssignedTechnicianID = "user123",
             Trim = "LE",
             Mileage = 50000,
-            EngineHours = 1000,
             FuelCapacity = 60.0,
             FuelType = FuelTypeEnum.PETROL,
             PurchaseDate = DateTime.UtcNow.AddYears(-2),

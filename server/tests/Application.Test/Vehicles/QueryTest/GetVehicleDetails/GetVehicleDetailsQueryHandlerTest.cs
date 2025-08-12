@@ -86,7 +86,6 @@ public class GetVehicleDetailsQueryHandlerTest
             VehicleGroupID = 2,
             Trim = "LE",
             Mileage = 50000,
-            EngineHours = 1000,
             FuelCapacity = 50.0,
             FuelType = Domain.Entities.Enums.FuelTypeEnum.PETROL,
             PurchaseDate = new DateTime(2021, 1, 1, 0, 0, 0, DateTimeKind.Utc),
@@ -128,7 +127,6 @@ public class GetVehicleDetailsQueryHandlerTest
         Assert.Equal(VehicleTypeEnum.CAR, result.VehicleType);
         Assert.Equal("LE", result.Trim);
         Assert.Equal(50000, result.Mileage);
-        Assert.Equal(1000, result.EngineHours);
         Assert.Equal(50.0, result.FuelCapacity);
         Assert.Equal(FuelTypeEnum.PETROL, result.FuelType);
         Assert.Equal(25000.00m, result.PurchasePrice);
@@ -171,7 +169,6 @@ public class GetVehicleDetailsQueryHandlerTest
             VehicleGroupID = 2,
             Trim = "LE",
             Mileage = 50000,
-            EngineHours = 1000,
             FuelCapacity = 50.0,
             FuelType = FuelTypeEnum.PETROL,
             PurchaseDate = new DateTime(2021, 1, 1, 0, 0, 0, DateTimeKind.Utc),
@@ -215,7 +212,6 @@ public class GetVehicleDetailsQueryHandlerTest
         Assert.Equal(VehicleTypeEnum.CAR, result.VehicleType);
         Assert.Equal("LE", result.Trim);
         Assert.Equal(50000, result.Mileage);
-        Assert.Equal(1000, result.EngineHours);
         Assert.Equal(50.0, result.FuelCapacity);
         Assert.Equal(FuelTypeEnum.PETROL, result.FuelType);
         Assert.Equal(25000.00m, result.PurchasePrice);

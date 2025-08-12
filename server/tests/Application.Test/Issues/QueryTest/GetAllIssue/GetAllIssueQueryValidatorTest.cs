@@ -72,7 +72,6 @@ public class GetAllIssueQueryValidatorTest
     [InlineData("model")]
     [InlineData("purchaseprice")]
     [InlineData("mileage")]
-    [InlineData("enginehours")]
     [InlineData("purchasedate")]
     [InlineData("fuelcapacity")]
     [InlineData("location")]

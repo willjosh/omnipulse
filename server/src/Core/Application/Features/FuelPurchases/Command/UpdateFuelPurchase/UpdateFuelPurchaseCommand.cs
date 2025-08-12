@@ -1,15 +1,15 @@
 using MediatR;
 
-namespace Application.Features.FuelLogging.Command.CreateFuelPurchase;
+namespace Application.Features.FuelPurchases.Command.UpdateFuelPurchase;
 
-public record CreateFuelPurchaseCommand(
+public record UpdateFuelPurchaseCommand(
+    int FuelPurchaseId,
     int VehicleId,
     string PurchasedByUserId,
     DateTime PurchaseDate,
     double OdometerReading,
     double Volume,
     decimal PricePerUnit,
-    decimal TotalCost,
     string FuelStation,
     string ReceiptNumber,
     string? Notes

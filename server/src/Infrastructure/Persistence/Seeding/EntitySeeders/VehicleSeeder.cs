@@ -52,7 +52,6 @@ public class VehicleSeeder : IEntitySeeder
                 AssignedTechnicianID = null,
                 Trim = $"Trim {i}",
                 Mileage = 10000 * i,
-                EngineHours = 100 * i,
                 FuelCapacity = 50 + i * 5,
                 FuelType = FuelTypeEnum.PETROL,
                 PurchaseDate = now.AddYears(-i),
