@@ -21,51 +21,79 @@ export default function ServiceProgramsPage() {
     useDeleteServiceProgram();
 
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [sortBy, setSortBy] = useState("name");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
     serviceProgram: ServiceProgram | null;
   }>({ isOpen: false, serviceProgram: null });
 
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-
   useEffect(() => {
     setPage(1);
-  }, [search]);
+  }, [search, sortBy, sortOrder]);
 
   const filter = useMemo(
-    () => ({ PageNumber: page, PageSize: pageSize, Search: search }),
-    [page, pageSize, search],
+    () => ({
+      PageNumber: page,
+      PageSize: pageSize,
+      Search: search,
+      SortBy: sortBy,
+      SortDescending: sortOrder === "desc",
+    }),
+    [page, pageSize, search, sortBy, sortOrder],
   );
 
   const { servicePrograms, pagination, isPending } = useServicePrograms(filter);
 
+  const handleSort = (sortKey: string) => {
+    if (sortBy === sortKey) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(sortKey);
+      setSortOrder("asc");
+    }
+    setPage(1);
+  };
+
   const columns = [
-    { key: "name", header: "Name", sortable: true, width: "200px" },
+    {
+      key: "name",
+      header: "Name",
+      sortable: true,
+      width: "200px",
+      render: (item: ServiceProgram) => <div>{item.name}</div>,
+    },
     {
       key: "description",
       header: "Description",
-      render: (item: ServiceProgram) => item.description || "-",
+      sortable: true,
+      render: (item: ServiceProgram) => <div>{item.description || "-"}</div>,
       width: "260px",
     },
     {
-      key: "serviceScheduleCount",
+      key: "serviceschedulecount",
       header: "# Schedules",
-      render: (item: ServiceProgram) => item.serviceScheduleCount,
+      sortable: false,
+      render: (item: ServiceProgram) => <div>{item.serviceScheduleCount}</div>,
       width: "120px",
     },
     {
-      key: "assignedVehicleCount",
+      key: "assignedvehiclecount",
       header: "# Vehicles",
-      render: (item: ServiceProgram) => item.assignedVehicleCount,
+      sortable: false,
+      render: (item: ServiceProgram) => <div>{item.assignedVehicleCount}</div>,
       width: "120px",
     },
     {
-      key: "updatedAt",
-      header: "Updated",
-      render: (item: ServiceProgram) =>
-        new Date(item.updatedAt).toLocaleDateString(),
+      key: "updatedat",
+      header: "Updated At",
+      sortable: true,
+      render: (item: ServiceProgram) => (
+        <div>{new Date(item.updatedAt).toLocaleDateString()}</div>
+      ),
       width: "120px",
     },
   ];
@@ -182,6 +210,9 @@ export default function ServiceProgramsPage() {
         showActions={true}
         actions={serviceProgramActions}
         fixedLayout={false}
+        onSort={handleSort}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
       />
 
       <ConfirmModal

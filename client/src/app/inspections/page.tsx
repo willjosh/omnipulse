@@ -18,15 +18,23 @@ export default function InspectionListPage() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+  const [sortBy, setSortBy] = useState("submissiontime");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [showSelectFormModal, setShowSelectFormModal] = useState(false);
 
   useEffect(() => {
     setPage(1);
-  }, [search]);
+  }, [search, sortBy, sortOrder]);
 
   const filter = useMemo(
-    () => ({ PageNumber: page, PageSize: pageSize, Search: search }),
-    [page, pageSize, search],
+    () => ({
+      PageNumber: page,
+      PageSize: pageSize,
+      Search: search,
+      SortBy: sortBy,
+      SortDescending: sortOrder === "desc",
+    }),
+    [page, pageSize, search, sortBy, sortOrder],
   );
 
   const { inspections, pagination, isPending } = useInspections(filter);
@@ -34,7 +42,7 @@ export default function InspectionListPage() {
 
   const columns = [
     {
-      key: "vehicleName",
+      key: "vehiclename",
       header: "Vehicle",
       sortable: true,
       width: "150px",
@@ -45,7 +53,7 @@ export default function InspectionListPage() {
       ),
     },
     {
-      key: "inspectionFormName",
+      key: "snapshotformname",
       header: "Form Name",
       sortable: true,
       width: "180px",
@@ -56,7 +64,7 @@ export default function InspectionListPage() {
       ),
     },
     {
-      key: "technicianName",
+      key: "inspectorname",
       header: "Inspector",
       sortable: true,
       width: "150px",
@@ -67,7 +75,7 @@ export default function InspectionListPage() {
       ),
     },
     {
-      key: "inspectionEndTime",
+      key: "submissiontime",
       header: "Submission Time",
       sortable: true,
       width: "160px",
@@ -83,7 +91,7 @@ export default function InspectionListPage() {
       ),
     },
     {
-      key: "vehicleCondition",
+      key: "vehiclecondition",
       header: "Condition",
       sortable: true,
       width: "140px",
@@ -104,8 +112,9 @@ export default function InspectionListPage() {
       ),
     },
     {
-      key: "inspectionResults",
+      key: "inspectionresults",
       header: "Results",
+      sortable: true,
       width: "120px",
       render: (item: InspectionWithLabels) => (
         <div className="flex items-center gap-2">
@@ -121,8 +130,9 @@ export default function InspectionListPage() {
       ),
     },
     {
-      key: "failedItemsIndicator",
+      key: "faileditems",
       header: "Failed Items",
+      sortable: true,
       width: "100px",
       render: (item: InspectionWithLabels) => (
         <div className="flex items-center justify-center">
@@ -143,8 +153,9 @@ export default function InspectionListPage() {
       ),
     },
     {
-      key: "odometerReading",
+      key: "odometer",
       header: "Odometer",
+      sortable: true,
       width: "100px",
       render: (item: InspectionWithLabels) =>
         item.odometerReading ? (
@@ -159,6 +170,16 @@ export default function InspectionListPage() {
 
   const handleRowClick = (row: InspectionWithLabels) => {
     router.push(`/inspections/${row.id}`);
+  };
+
+  const handleSort = (sortKey: string) => {
+    if (sortBy === sortKey) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(sortKey);
+      setSortOrder("asc");
+    }
+    setPage(1);
   };
 
   const emptyState = (
@@ -225,6 +246,9 @@ export default function InspectionListPage() {
         getItemId={item => item.id.toString()}
         showActions={false}
         fixedLayout={false}
+        onSort={handleSort}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
       />
 
       {/* Select Inspection Form Modal */}

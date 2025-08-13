@@ -22,6 +22,7 @@ import { Trash2 } from "lucide-react";
 import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
 import { ServiceScheduleWithLabels } from "@/features/service-schedule/types/serviceScheduleType";
 import { serviceProgramVehicleTableColumns } from "@/features/service-program/config/serviceProgramVehicleTableColumns";
+import { serviceScheduleTableColumns } from "@/features/service-program/config/serviceScheduleTableColumns";
 import { ServiceProgramVehicleWithDetails } from "@/features/service-program/api/serviceProgramVehicleApi";
 
 export default function ServiceProgramDetailsPage() {
@@ -32,6 +33,8 @@ export default function ServiceProgramDetailsPage() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [sortBy, setSortBy] = useState("vehiclename");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
   const {
     serviceProgram,
@@ -46,6 +49,8 @@ export default function ServiceProgramDetailsPage() {
     PageNumber: page,
     PageSize: pageSize,
     Search: search,
+    SortBy: sortBy,
+    SortDescending: sortOrder === "desc",
   });
 
   const {
@@ -56,6 +61,8 @@ export default function ServiceProgramDetailsPage() {
     PageNumber: page,
     PageSize: pageSize,
     Search: search,
+    SortBy: sortBy,
+    SortDescending: sortOrder === "desc",
   });
 
   const removeVehicleMutation = useRemoveVehicleFromServiceProgram();
@@ -80,7 +87,17 @@ export default function ServiceProgramDetailsPage() {
 
   useEffect(() => {
     setPage(1);
-  }, [search]);
+  }, [search, sortBy, sortOrder]);
+
+  const handleSort = (sortKey: string) => {
+    if (sortBy === sortKey) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(sortKey);
+      setSortOrder("asc");
+    }
+    setPage(1);
+  };
 
   const vehicleActions = useMemo(
     () => (spVehicle: ServiceProgramVehicleWithDetails) => [
@@ -186,64 +203,6 @@ export default function ServiceProgramDetailsPage() {
     setPageSize(newPageSize);
     setPage(1);
   };
-
-  const serviceScheduleColumns = [
-    { key: "name", header: "Name", width: "200px" },
-    {
-      key: "scheduleType",
-      header: "Schedule Type",
-      width: "140px",
-      render: (schedule: ServiceScheduleWithLabels) =>
-        schedule.scheduleTypeLabel,
-    },
-    {
-      key: "frequency",
-      header: "Frequency",
-      width: "150px",
-      render: (schedule: ServiceScheduleWithLabels) => {
-        if (schedule.timeIntervalValue && schedule.timeIntervalUnitLabel) {
-          return `${schedule.timeIntervalValue} ${
-            schedule.timeIntervalValue === 1
-              ? schedule.timeIntervalUnitLabel.replace(/s$/, "")
-              : schedule.timeIntervalUnitLabel
-          }`;
-        } else if (schedule.mileageInterval) {
-          return `${schedule.mileageInterval} km`;
-        }
-        return "-";
-      },
-    },
-    {
-      key: "buffer",
-      header: "Buffer",
-      width: "150px",
-      render: (schedule: ServiceScheduleWithLabels) => {
-        if (schedule.timeBufferValue && schedule.timeBufferUnitLabel) {
-          return `${schedule.timeBufferValue} ${
-            schedule.timeBufferValue === 1
-              ? schedule.timeBufferUnitLabel.replace(/s$/, "")
-              : schedule.timeBufferUnitLabel
-          }`;
-        } else if (schedule.mileageBuffer) {
-          return `${schedule.mileageBuffer} km`;
-        }
-        return "-";
-      },
-    },
-    {
-      key: "firstService",
-      header: "First Service",
-      width: "150px",
-      render: (schedule: ServiceScheduleWithLabels) => {
-        if (schedule.firstServiceDate) {
-          return new Date(schedule.firstServiceDate).toLocaleDateString();
-        } else if (schedule.firstServiceMileage) {
-          return `${schedule.firstServiceMileage} km`;
-        }
-        return "-";
-      },
-    },
-  ];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -351,7 +310,7 @@ export default function ServiceProgramDetailsPage() {
                 <div className="w-full">
                   <DataTable
                     data={filteredServiceSchedules}
-                    columns={serviceScheduleColumns}
+                    columns={serviceScheduleTableColumns}
                     selectedItems={selectedItems}
                     onSelectItem={handleSelectItem}
                     onSelectAll={handleSelectAll}
@@ -363,6 +322,9 @@ export default function ServiceProgramDetailsPage() {
                     }
                     showActions={false}
                     fixedLayout={false}
+                    onSort={handleSort}
+                    sortBy={sortBy}
+                    sortOrder={sortOrder}
                   />
                 </div>
               </div>
@@ -423,6 +385,9 @@ export default function ServiceProgramDetailsPage() {
                     showActions={true}
                     actions={vehicleActions}
                     fixedLayout={false}
+                    onSort={handleSort}
+                    sortBy={sortBy}
+                    sortOrder={sortOrder}
                   />
                 </div>
               </div>

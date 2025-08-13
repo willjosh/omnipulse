@@ -24,6 +24,8 @@ export default function InspectionFormsPage() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+  const [sortBy, setSortBy] = useState("title"); // Default sort by title
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc"); // Default ascending
 
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
@@ -34,11 +36,17 @@ export default function InspectionFormsPage() {
 
   useEffect(() => {
     setPage(1);
-  }, [search]);
+  }, [search, sortBy, sortOrder]);
 
   const filter = useMemo(
-    () => ({ PageNumber: page, PageSize: pageSize, Search: search }),
-    [page, pageSize, search],
+    () => ({
+      PageNumber: page,
+      PageSize: pageSize,
+      Search: search,
+      SortBy: sortBy,
+      SortDescending: sortOrder === "desc",
+    }),
+    [page, pageSize, search, sortBy, sortOrder],
   );
 
   const { inspectionForms, pagination, isPending } = useInspectionForms(filter);
@@ -59,9 +67,20 @@ export default function InspectionFormsPage() {
       ),
     },
     {
-      key: "inspectionFormItemCount",
-      header: "Checklist Items",
+      key: "description",
+      header: "Description",
       sortable: true,
+      width: "200px",
+      render: (item: InspectionForm) => (
+        <div className="text-sm text-gray-600">
+          {item.description || "No description"}
+        </div>
+      ),
+    },
+    {
+      key: "inspectionformitemcount",
+      header: "Checklist Items",
+      sortable: false,
       width: "140px",
       render: (item: InspectionForm) => (
         <div className="text-center">
@@ -72,9 +91,9 @@ export default function InspectionFormsPage() {
       ),
     },
     {
-      key: "inspectionCount",
+      key: "inspectioncount",
       header: "Submissions",
-      sortable: true,
+      sortable: false,
       width: "120px",
       render: (item: InspectionForm) => (
         <div className="text-center">
@@ -85,7 +104,7 @@ export default function InspectionFormsPage() {
       ),
     },
     {
-      key: "updatedAt",
+      key: "updatedat",
       header: "Updated At",
       sortable: true,
       width: "160px",
@@ -104,6 +123,16 @@ export default function InspectionFormsPage() {
 
   const handleRowClick = (row: InspectionForm) => {
     router.push(`/inspection-forms/${row.id}`);
+  };
+
+  const handleSort = (sortKey: string) => {
+    if (sortBy === sortKey) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(sortKey);
+      setSortOrder("asc");
+    }
+    setPage(1);
   };
 
   const handleDeactivateInspectionForm = async () => {
@@ -226,6 +255,9 @@ export default function InspectionFormsPage() {
         showActions={true}
         actions={inspectionFormActions}
         fixedLayout={false}
+        onSort={handleSort}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
       />
 
       <ConfirmModal
