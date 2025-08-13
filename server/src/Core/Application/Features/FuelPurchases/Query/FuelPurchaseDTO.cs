@@ -8,6 +8,9 @@ public class FuelPurchaseDTO
     /// <example>1</example>
     public required int VehicleId { get; set; }
 
+    /// <example>Truck A01</example>
+    public string? VehicleName { get; set; }
+
     /// <example>566ae2d4-a781-4690-84c0-f8b284868e43</example>
     public required string PurchasedByUserId { get; set; }
 

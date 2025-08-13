@@ -14,17 +14,23 @@ namespace Application.Features.ServicePrograms.Command.DeleteServiceProgram;
 public class DeleteServiceProgramCommandHandler : IRequestHandler<DeleteServiceProgramCommand, int>
 {
     private readonly IServiceProgramRepository _serviceProgramRepository;
+    private readonly IServiceScheduleRepository _serviceScheduleRepository;
+    private readonly IServiceReminderRepository _serviceReminderRepository;
     private readonly ISender _sender;
     private readonly IValidator<DeleteServiceProgramCommand> _validator;
     private readonly IAppLogger<DeleteServiceProgramCommandHandler> _logger;
 
     public DeleteServiceProgramCommandHandler(
         IServiceProgramRepository serviceProgramRepository,
+        IServiceScheduleRepository serviceScheduleRepository,
+        IServiceReminderRepository serviceReminderRepository,
         ISender sender,
         IValidator<DeleteServiceProgramCommand> validator,
         IAppLogger<DeleteServiceProgramCommandHandler> logger)
     {
         _serviceProgramRepository = serviceProgramRepository;
+        _serviceScheduleRepository = serviceScheduleRepository;
+        _serviceReminderRepository = serviceReminderRepository;
         _sender = sender;
         _validator = validator;
         _logger = logger;
@@ -49,10 +55,23 @@ public class DeleteServiceProgramCommandHandler : IRequestHandler<DeleteServiceP
             throw new EntityNotFoundException(nameof(ServiceProgram), nameof(ServiceProgram.ID), request.ServiceProgramID.ToString());
         }
 
-        // Cascade delete behaviour is configured in ServiceScheduleConfiguration and XrefServiceProgramVehicleConfiguration
-        _serviceProgramRepository.Delete(targetServiceProgram);
+        // Soft-delete the ServiceProgram instead of hard-deleting to avoid FK conflicts and preserve history
+        // Also soft-delete all associated ServiceSchedules and remove non-final reminders
+        targetServiceProgram.IsActive = false;
 
-        // Save changes
+        var schedules = await _serviceScheduleRepository.GetAllByServiceProgramIDAsync(targetServiceProgram.ID);
+
+        foreach (var schedule in schedules)
+        {
+            // Soft-delete schedule so it's excluded from future queries/generation
+            schedule.IsSoftDeleted = true;
+            _serviceScheduleRepository.Update(schedule);
+
+            // Clean up non-final, non-workorder-linked reminders to prevent clutter
+            await _serviceReminderRepository.DeleteNonFinalRemindersForScheduleAsync(schedule.ID, cancellationToken);
+        }
+
+        _serviceProgramRepository.Update(targetServiceProgram);
         await _serviceProgramRepository.SaveChangesAsync();
 
         // Trigger sync to handle reminders post-delete
