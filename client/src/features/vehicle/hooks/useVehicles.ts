@@ -10,7 +10,12 @@ import { useDebounce } from "@/hooks/useDebounce";
 
 export function useVehicles(filter: VehicleFilter = {}) {
   const debouncedSearch = useDebounce(filter?.Search || "", 300);
-  const debouncedFilter = { ...filter, Search: debouncedSearch };
+
+  // Only include Search in filter if it's actually provided and not empty
+  const debouncedFilter = { ...filter };
+  if (debouncedSearch && debouncedSearch.trim() !== "") {
+    debouncedFilter.Search = debouncedSearch;
+  }
 
   const { data, isPending, isError, isSuccess, error } = useQuery({
     queryKey: ["vehicles", debouncedFilter],
@@ -40,6 +45,8 @@ export function useVehicles(filter: VehicleFilter = {}) {
 }
 
 export function useVehicle(id: string) {
+  const isValidId = Boolean(id && id.trim() !== "");
+
   const { data, isPending, isError, isSuccess, error } =
     useQuery<VehicleWithLabels>({
       queryKey: ["vehicle", id],
@@ -47,10 +54,16 @@ export function useVehicle(id: string) {
         const data = await vehicleApi.getVehicle(id);
         return convertVehicleData(data);
       },
-      enabled: !!id,
+      enabled: isValidId,
     });
 
-  return { vehicle: data, isPending, isError, isSuccess, error };
+  return {
+    vehicle: data,
+    isPending: isValidId ? isPending : false, // Ensure isPending is false when query is disabled
+    isError,
+    isSuccess,
+    error,
+  };
 }
 
 export function useCreateVehicle() {

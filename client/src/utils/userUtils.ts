@@ -1,7 +1,9 @@
 import { AuthUser } from "@/features/auth/types/authType";
 
 export const getUserInitials = (firstName?: string, lastName?: string) => {
-  if (!firstName || !lastName) return "NN";
+  if (!firstName || !lastName || !firstName.trim() || !lastName.trim()) {
+    return "NN";
+  }
   return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
 };
 
