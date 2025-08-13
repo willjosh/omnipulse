@@ -114,7 +114,6 @@ export default function EditWorkOrderPage() {
       if (isCompleting) {
         // First complete the work order
         await completeWorkOrder(workOrderId);
-        console.log("Work order completed successfully");
         notify("Work order completed successfully!", "success");
       }
 
@@ -128,8 +127,30 @@ export default function EditWorkOrderPage() {
           console.error("Error updating work order:", error);
           let errorMessage = "Failed to update work order.";
 
-          if (error?.response?.data?.detail) {
-            errorMessage = error.response.data.detail;
+          if (error?.response?.status === 400) {
+            // Handle 400 Bad Request - usually validation errors
+            if (error?.response?.data?.detail) {
+              errorMessage = error.response.data.detail;
+            } else if (error?.response?.data?.errors) {
+              // Handle validation errors from the API
+              const validationErrors = error.response.data.errors;
+              const errorDetails = Object.entries(validationErrors)
+                .map(
+                  ([field, messages]) =>
+                    `${field}: ${
+                      Array.isArray(messages) ? messages.join(", ") : messages
+                    }`,
+                )
+                .join("; ");
+              errorMessage = `Validation failed: ${errorDetails}`;
+            } else {
+              errorMessage =
+                "Validation failed. Please check your input and try again.";
+            }
+          } else if (error?.response?.status === 404) {
+            errorMessage = "Work order not found.";
+          } else if (error?.response?.status === 409) {
+            errorMessage = "Work order is already completed.";
           } else if (error?.message) {
             errorMessage = error.message;
           }
@@ -144,8 +165,24 @@ export default function EditWorkOrderPage() {
       let errorMessage = "Failed to save work order.";
 
       if (error?.response?.status === 400) {
-        errorMessage =
-          "Work order is not ready for completion or validation failed.";
+        if (error?.response?.data?.detail) {
+          errorMessage = error.response.data.detail;
+        } else if (error?.response?.data?.errors) {
+          // Handle validation errors from the API
+          const validationErrors = error.response.data.errors;
+          const errorDetails = Object.entries(validationErrors)
+            .map(
+              ([field, messages]) =>
+                `${field}: ${
+                  Array.isArray(messages) ? messages.join(", ") : messages
+                }`,
+            )
+            .join("; ");
+          errorMessage = `Validation failed: ${errorDetails}`;
+        } else {
+          errorMessage =
+            "Validation failed. Please check your input and try again.";
+        }
       } else if (error?.response?.status === 404) {
         errorMessage = "Work order not found.";
       } else if (error?.response?.status === 409) {
