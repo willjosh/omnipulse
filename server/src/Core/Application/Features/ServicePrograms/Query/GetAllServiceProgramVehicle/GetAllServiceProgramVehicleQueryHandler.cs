@@ -54,13 +54,12 @@ public class GetAllServiceProgramVehicleQueryHandler : IRequestHandler<GetAllSer
             throw new EntityNotFoundException(nameof(ServiceProgram), nameof(request.ServiceProgramID), request.ServiceProgramID.ToString());
         }
 
-        // TODO: Check if service program is active
-        // if (!serviceProgram.IsActive)
-        // {
-        //     var errorMessage = $"{nameof(ServiceProgram)} with {nameof(request.ServiceProgramID)} {request.ServiceProgramID} is not active.";
-        //     _logger.LogWarning($"{nameof(GetAllServiceProgramVehicleQuery)} - Attempted to access inactive {nameof(ServiceProgram)} with {nameof(request.ServiceProgramID)} {request.ServiceProgramID}");
-        //     throw new BadRequestException(errorMessage);
-        // }
+        if (!serviceProgram.IsActive)
+        {
+            var errorMessage = $"{nameof(ServiceProgram)} with {nameof(request.ServiceProgramID)} {request.ServiceProgramID} is not active.";
+            _logger.LogWarning($"{nameof(GetAllServiceProgramVehicleQuery)} - Attempted to access inactive {nameof(ServiceProgram)} with {nameof(request.ServiceProgramID)} {request.ServiceProgramID}");
+            throw new BadRequestException(errorMessage);
+        }
 
         // Get paged xref records with vehicle navigation properties from repository (domain entities only)
         var xrefResult = await _xrefServiceProgramVehicleRepository.GetAllByServiceProgramIDPagedAsync(request.ServiceProgramID, request.Parameters);

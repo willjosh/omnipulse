@@ -126,7 +126,7 @@ public sealed class InspectionsController : ControllerBase
 
             var inspectionId = await _mediator.Send(command, cancellationToken);
 
-            return CreatedAtAction(nameof(CreateInspection), new { id = inspectionId }, inspectionId); // TODO: Change to nameof(GetInspection)
+            return CreatedAtAction(nameof(GetInspection), new { id = inspectionId }, inspectionId);
         }
         catch (Exception)
         {

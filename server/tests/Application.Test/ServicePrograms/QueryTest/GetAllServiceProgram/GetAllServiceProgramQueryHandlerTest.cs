@@ -73,9 +73,9 @@ public class GetAllServiceProgramQueryHandlerTest
                 ],
                 XrefServiceProgramVehicles =
                 [
-                    new XrefServiceProgramVehicle { ServiceProgramID = 1, VehicleID = 1, AddedAt = FixedDate, VehicleMileageAtAssignment = 10000, ServiceProgram = null!, Vehicle = null! }, // TODO XrefServiceProgramVehicle User
-                    new XrefServiceProgramVehicle { ServiceProgramID = 1, VehicleID = 2, AddedAt = FixedDate, VehicleMileageAtAssignment = 10000, ServiceProgram = null!, Vehicle = null! }, // TODO XrefServiceProgramVehicle User
-                    new XrefServiceProgramVehicle { ServiceProgramID = 1, VehicleID = 3, AddedAt = FixedDate, VehicleMileageAtAssignment = 10000, ServiceProgram = null!, Vehicle = null! } // TODO XrefServiceProgramVehicle User
+                    new XrefServiceProgramVehicle { ServiceProgramID = 1, VehicleID = 1, AddedAt = FixedDate, VehicleMileageAtAssignment = 10000, ServiceProgram = null!, Vehicle = null! },
+                    new XrefServiceProgramVehicle { ServiceProgramID = 1, VehicleID = 2, AddedAt = FixedDate, VehicleMileageAtAssignment = 10000, ServiceProgram = null!, Vehicle = null! },
+                    new XrefServiceProgramVehicle { ServiceProgramID = 1, VehicleID = 3, AddedAt = FixedDate, VehicleMileageAtAssignment = 10000, ServiceProgram = null!, Vehicle = null! }
                 ]
             },
             new ServiceProgram
@@ -92,7 +92,7 @@ public class GetAllServiceProgramQueryHandlerTest
                 ],
                 XrefServiceProgramVehicles =
                 [
-                    new XrefServiceProgramVehicle { ServiceProgramID = 2, VehicleID = 4, AddedAt = FixedDate, VehicleMileageAtAssignment = 10000, ServiceProgram = null!, Vehicle = null! } // TODO XrefServiceProgramVehicle User
+                    new XrefServiceProgramVehicle { ServiceProgramID = 2, VehicleID = 4, AddedAt = FixedDate, VehicleMileageAtAssignment = 10000, ServiceProgram = null!, Vehicle = null! }
                 ]
             },
             new ServiceProgram

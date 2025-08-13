@@ -78,7 +78,6 @@ public sealed class AddVehicleToServiceProgramCommandHandler : IRequestHandler<A
         newXref.ServiceProgram = serviceProgram;
         newXref.Vehicle = vehicle;
         newXref.VehicleMileageAtAssignment = vehicle.Mileage;
-        // newXref.User = null!; // TODO
 
         await _xrefRepository.AddAsync(newXref);
         _logger.LogInformation($"{nameof(XrefServiceProgramVehicle)} created successfully: {nameof(XrefServiceProgramVehicle.ServiceProgramID)}={request.ServiceProgramID}, {nameof(XrefServiceProgramVehicle.VehicleID)}={request.VehicleID}");
