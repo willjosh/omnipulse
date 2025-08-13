@@ -66,37 +66,37 @@ public class InspectionRepository : GenericRepository<Inspection>, IInspectionRe
     {
         if (string.IsNullOrWhiteSpace(sortBy))
         {
-            return query.OrderByDescending(i => i.InspectionStartTime); // Default sort
+            return query.OrderByDescending(i => i.InspectionEndTime); // Default sort maps to submission time
         }
 
         var sortByLower = sortBy.ToLower();
         return sortByLower switch
         {
-            "inspectionstarttime" => sortDescending
-                ? query.OrderByDescending(i => i.InspectionStartTime)
-                : query.OrderBy(i => i.InspectionStartTime),
-            "inspectionendtime" => sortDescending
+            "vehiclename" => sortDescending
+                ? query.OrderByDescending(i => i.Vehicle.Name)
+                : query.OrderBy(i => i.Vehicle.Name),
+            "snapshotformname" => sortDescending
+                ? query.OrderByDescending(i => i.SnapshotFormTitle)
+                : query.OrderBy(i => i.SnapshotFormTitle),
+            "inspectorname" => sortDescending
+                ? query.OrderByDescending(i => (i.User.FirstName + " " + i.User.LastName))
+                : query.OrderBy(i => (i.User.FirstName + " " + i.User.LastName)),
+            "submissiontime" => sortDescending
                 ? query.OrderByDescending(i => i.InspectionEndTime)
                 : query.OrderBy(i => i.InspectionEndTime),
             "vehiclecondition" => sortDescending
                 ? query.OrderByDescending(i => i.VehicleCondition)
                 : query.OrderBy(i => i.VehicleCondition),
-            "odometerreading" => sortDescending
+            "inspectionresults" => sortDescending
+                ? query.OrderByDescending(i => i.InspectionPassFailItems.Count(pf => pf.Passed))
+                : query.OrderBy(i => i.InspectionPassFailItems.Count(pf => pf.Passed)),
+            "faileditems" => sortDescending
+                ? query.OrderByDescending(i => i.InspectionPassFailItems.Count(pf => !pf.Passed))
+                : query.OrderBy(i => i.InspectionPassFailItems.Count(pf => !pf.Passed)),
+            "odometer" => sortDescending
                 ? query.OrderByDescending(i => i.OdometerReading)
                 : query.OrderBy(i => i.OdometerReading),
-            "vehicleid" => sortDescending
-                ? query.OrderByDescending(i => i.VehicleID)
-                : query.OrderBy(i => i.VehicleID),
-            "technicianid" => sortDescending
-                ? query.OrderByDescending(i => i.TechnicianID)
-                : query.OrderBy(i => i.TechnicianID),
-            "createdat" => sortDescending
-                ? query.OrderByDescending(i => i.CreatedAt)
-                : query.OrderBy(i => i.CreatedAt),
-            "updatedat" => sortDescending
-                ? query.OrderByDescending(i => i.UpdatedAt)
-                : query.OrderBy(i => i.UpdatedAt),
-            _ => query.OrderByDescending(i => i.InspectionStartTime) // Default sort for unrecognized fields
+            _ => query.OrderByDescending(i => i.InspectionEndTime) // Default sort for unrecognized fields
         };
     }
 
