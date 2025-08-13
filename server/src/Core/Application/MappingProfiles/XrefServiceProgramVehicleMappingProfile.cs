@@ -18,7 +18,6 @@ public class XrefServiceProgramVehicleMappingProfile : Profile
             .ForMember(dest => dest.AddedAt, opt => opt.Ignore()) // Set by AddVehicleToServiceProgramCommandHandler
             .ForMember(dest => dest.ServiceProgram, opt => opt.Ignore()) // Navigation Property
             .ForMember(dest => dest.Vehicle, opt => opt.Ignore()); // Navigation Property
-                                                                   // .ForMember(dest => dest.User, opt => opt.Ignore()); // Navigation Property // TODO XrefServiceProgramVehicle User
 
         // GetAllServiceProgramVehicle
         CreateMap<XrefServiceProgramVehicle, XrefServiceProgramVehicleDTO>(MemberList.Destination)
@@ -28,6 +27,5 @@ public class XrefServiceProgramVehicleMappingProfile : Profile
             .ForMember(dest => dest.AddedAt, opt => opt.MapFrom(src => src.AddedAt))
             .ForSourceMember(src => src.ServiceProgram, opt => opt.DoNotValidate()) // Navigation Property
             .ForSourceMember(src => src.Vehicle, opt => opt.DoNotValidate()); // Navigation Property
-                                                                              // .ForSourceMember(src => src.User, opt => opt.DoNotValidate()); // Navigation Property // TODO XrefServiceProgramVehicle User
     }
 }

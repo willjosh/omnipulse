@@ -41,9 +41,6 @@ public class XrefServiceProgramVehicleSeeder : IEntitySeeder
             var vehicleId = SeedingHelper.ProjectEntityByIndex<Vehicle, int>(_dbContext, v => v.ID, i - 1, _logger);
             if (vehicleId == 0) continue;
 
-            var userId = SeedingHelper.ProjectEntityByIndex<User, string>(_dbContext, u => u.Id, i - 1, _logger); // TODO
-            if (string.IsNullOrEmpty(userId)) continue;
-
             var vehicle = _dbContext.Vehicles.FirstOrDefault(v => v.ID == vehicleId);
             if (vehicle == null) continue;
 
@@ -55,7 +52,6 @@ public class XrefServiceProgramVehicleSeeder : IEntitySeeder
                 VehicleMileageAtAssignment = vehicle.Mileage,
                 ServiceProgram = null!,
                 Vehicle = null!,
-                // User = null! // TODO XrefServiceProgramVehicle User
             });
         }
 

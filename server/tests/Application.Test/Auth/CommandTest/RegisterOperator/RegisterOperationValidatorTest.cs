@@ -52,7 +52,7 @@ public class RegisterOperationValidatorTest
     [InlineData(null)]
     public async Task Validator_Should_Fail_When_Email_Is_Empty(string? invalidEmail)
     {
-        var command = CreateValidCommand(email: invalidEmail);
+        var command = CreateValidCommand(email: invalidEmail!);
         var result = await _validator.ValidateAsync(command);
         Assert.False(result.IsValid);
         Assert.Contains(result.Errors, e => e.PropertyName == "Email");
@@ -111,7 +111,7 @@ public class RegisterOperationValidatorTest
     [InlineData(null)]
     public async Task Validator_Should_Fail_When_FirstName_Is_Empty(string? invalidFirstName)
     {
-        var command = CreateValidCommand(firstName: invalidFirstName);
+        var command = CreateValidCommand(firstName: invalidFirstName!);
         var result = await _validator.ValidateAsync(command);
         Assert.False(result.IsValid);
         Assert.Contains(result.Errors, e => e.PropertyName == "FirstName");
@@ -123,7 +123,7 @@ public class RegisterOperationValidatorTest
     [InlineData(null)]
     public async Task Validator_Should_Fail_When_LastName_Is_Empty(string? invalidLastName)
     {
-        var command = CreateValidCommand(lastName: invalidLastName);
+        var command = CreateValidCommand(lastName: invalidLastName!);
         var result = await _validator.ValidateAsync(command);
         Assert.False(result.IsValid);
         Assert.Contains(result.Errors, e => e.PropertyName == "LastName");

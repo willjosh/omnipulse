@@ -27,5 +27,4 @@ public abstract class InspectionItemBase
     // ===== Navigation Properties =====
     public required Inspection Inspection { get; set; }
     public required InspectionFormItem InspectionFormItem { get; set; }
-    // public required ICollection<Document> Documents { get; set; } = []; // TODO: File Attachments (photos, etc), 1:N Relationship
 }

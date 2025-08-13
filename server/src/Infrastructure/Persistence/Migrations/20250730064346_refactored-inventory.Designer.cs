@@ -13,7 +13,9 @@ namespace Persistence.Migrations
 {
     [DbContext(typeof(OmnipulseDatabaseContext))]
     [Migration("20250730064346_refactored-inventory")]
+#pragma warning disable CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
     partial class refactoredinventory
+#pragma warning restore CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
