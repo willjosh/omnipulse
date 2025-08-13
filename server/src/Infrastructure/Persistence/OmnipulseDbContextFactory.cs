@@ -21,12 +21,12 @@ public class OmnipulseDbContextFactory : IDesignTimeDbContextFactory<OmnipulseDa
         var optionsBuilder = new DbContextOptionsBuilder<OmnipulseDatabaseContext>();
 
         // Try to get connection string from environment variable
-        var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
+        var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__OmnipulseDatabaseConnection");
 
         if (string.IsNullOrEmpty(connectionString))
         {
             throw new InvalidOperationException(
-                "Connection string not found. Set the ConnectionStrings__DefaultConnection environment variable.");
+                "Connection string not found. Set the ConnectionStrings__OmnipulseDatabaseConnection environment variable.");
         }
 
         optionsBuilder.UseSqlServer(connectionString);

@@ -59,6 +59,7 @@ jobs:
             --resource-group ${{ env.RESOURCE_GROUP }} \
             --image omnipulse.azurecr.io/omnipulse-server:v1 \
             --set-env-vars \
+              ConnectionStrings__DefaultConnection="${{ secrets.DATABASE_CONNECTION_STRING }}" \
               JWT__Key="${{ secrets.JWT_KEY }}" \
               JWT__Issuer="${{ secrets.JWT_ISSUER }}" \
               JWT__Audience="${{ secrets.JWT_AUDIENCE }}" \
