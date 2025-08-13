@@ -3,10 +3,7 @@ import {
   serviceReminderApi,
   convertServiceReminderData,
 } from "../api/serviceReminderApi";
-import {
-  ServiceReminderWithLabels,
-  ServiceReminderFilter,
-} from "../types/serviceReminderType";
+import { ServiceReminderFilter } from "../types/serviceReminderType";
 import { useDebounce } from "@/hooks/useDebounce";
 
 export function useServiceReminders(filter: ServiceReminderFilter = {}) {

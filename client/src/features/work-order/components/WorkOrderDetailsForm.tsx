@@ -17,6 +17,7 @@ import { useTechnicians } from "@/features/technician/hooks/useTechnicians";
 import {
   getTimeOptions,
   combineDateAndTime,
+  combineDateAndTimeLocal,
   extractTimeFromISO,
 } from "@/utils/dateTimeUtils";
 import {
@@ -25,6 +26,33 @@ import {
   WorkOrderStatusEnum,
 } from "../types/workOrderEnum";
 import { VehicleWithLabels } from "@/features/vehicle/types/vehicleType";
+
+// Helper function to parse formatted date strings back to Date objects
+const parseFormattedDate = (
+  formattedDate: string | null | undefined,
+): Date | null => {
+  if (!formattedDate) return null;
+
+  // Try to parse as ISO string first
+  const isoDate = new Date(formattedDate);
+  if (!isNaN(isoDate.getTime())) {
+    return isoDate;
+  }
+
+  // If it's a formatted date string (e.g., "8/13/2024, 12:00:00 PM"), try to parse it
+  // This handles dates formatted by toLocaleString()
+  try {
+    // Handle common formatted date patterns
+    const parsed = new Date(formattedDate);
+    if (!isNaN(parsed.getTime())) {
+      return parsed;
+    }
+  } catch (e) {
+    console.warn("Failed to parse formatted date:", formattedDate);
+  }
+
+  return null;
+};
 
 export interface WorkOrderDetailsFormValues {
   // Basic Details
@@ -553,23 +581,18 @@ const WorkOrderDetailsForm: React.FC<WorkOrderDetailsFormProps> = ({
             <div className="w-1/2 mr-2">
               <LocalizationProvider dateAdapter={AdapterDateFns}>
                 <DatePicker
-                  value={
-                    value.scheduledStartDate &&
-                    !isNaN(new Date(value.scheduledStartDate).getTime())
-                      ? new Date(value.scheduledStartDate)
-                      : null
-                  }
+                  value={parseFormattedDate(value.scheduledStartDate)}
                   onChange={date => {
                     let newTime = scheduledStartTime;
                     if (!newTime) {
                       newTime = timeOptions[0];
                       setScheduledStartTime(newTime);
                     }
-                    const iso = combineDateAndTime(
+                    const scheduledStartIso = combineDateAndTimeLocal(
                       date ? date.toISOString() : "",
                       newTime,
                     );
-                    onChange("scheduledStartDate", iso);
+                    onChange("scheduledStartDate", scheduledStartIso);
                   }}
                   slotProps={{ textField: { size: "small" } }}
                   disabled={disabled}
@@ -583,11 +606,11 @@ const WorkOrderDetailsForm: React.FC<WorkOrderDetailsFormProps> = ({
                 onChange={(_e, newValue) => {
                   setScheduledStartTime(newValue || "");
                   if (value.scheduledStartDate && newValue) {
-                    const iso = combineDateAndTime(
+                    const scheduledStartIso = combineDateAndTimeLocal(
                       value.scheduledStartDate,
                       newValue,
                     );
-                    onChange("scheduledStartDate", iso);
+                    onChange("scheduledStartDate", scheduledStartIso);
                   }
                 }}
                 renderInput={params => (
@@ -609,23 +632,18 @@ const WorkOrderDetailsForm: React.FC<WorkOrderDetailsFormProps> = ({
             <div className="w-1/2 mr-2">
               <LocalizationProvider dateAdapter={AdapterDateFns}>
                 <DatePicker
-                  value={
-                    value.actualStartDate &&
-                    !isNaN(new Date(value.actualStartDate).getTime())
-                      ? new Date(value.actualStartDate)
-                      : null
-                  }
+                  value={parseFormattedDate(value.actualStartDate)}
                   onChange={date => {
                     let newTime = actualStartTime;
                     if (!newTime) {
                       newTime = timeOptions[0];
                       setActualStartTime(newTime);
                     }
-                    const iso = combineDateAndTime(
+                    const actualStartIso = combineDateAndTimeLocal(
                       date ? date.toISOString() : "",
                       newTime,
                     );
-                    onChange("actualStartDate", iso);
+                    onChange("actualStartDate", actualStartIso);
                   }}
                   slotProps={{ textField: { size: "small" } }}
                   disabled={disabled}
@@ -639,11 +657,11 @@ const WorkOrderDetailsForm: React.FC<WorkOrderDetailsFormProps> = ({
                 onChange={(_e, newValue) => {
                   setActualStartTime(newValue || "");
                   if (value.actualStartDate && newValue) {
-                    const iso = combineDateAndTime(
+                    const actualStartIso = combineDateAndTimeLocal(
                       value.actualStartDate,
                       newValue,
                     );
-                    onChange("actualStartDate", iso);
+                    onChange("actualStartDate", actualStartIso);
                   }
                 }}
                 renderInput={params => (
@@ -671,23 +689,18 @@ const WorkOrderDetailsForm: React.FC<WorkOrderDetailsFormProps> = ({
             <div className="w-1/2 mr-2">
               <LocalizationProvider dateAdapter={AdapterDateFns}>
                 <DatePicker
-                  value={
-                    value.scheduledCompletionDate &&
-                    !isNaN(new Date(value.scheduledCompletionDate).getTime())
-                      ? new Date(value.scheduledCompletionDate)
-                      : null
-                  }
+                  value={parseFormattedDate(value.scheduledCompletionDate)}
                   onChange={date => {
                     let newTime = scheduledCompletionTime;
                     if (!newTime) {
                       newTime = timeOptions[0];
                       setScheduledCompletionTime(newTime);
                     }
-                    const iso = combineDateAndTime(
+                    const scheduledCompletionIso = combineDateAndTimeLocal(
                       date ? date.toISOString() : "",
                       newTime,
                     );
-                    onChange("scheduledCompletionDate", iso);
+                    onChange("scheduledCompletionDate", scheduledCompletionIso);
                   }}
                   slotProps={{ textField: { size: "small" } }}
                   disabled={disabled}
@@ -701,11 +714,11 @@ const WorkOrderDetailsForm: React.FC<WorkOrderDetailsFormProps> = ({
                 onChange={(_e, newValue) => {
                   setScheduledCompletionTime(newValue || "");
                   if (value.scheduledCompletionDate && newValue) {
-                    const iso = combineDateAndTime(
+                    const scheduledCompletionIso = combineDateAndTimeLocal(
                       value.scheduledCompletionDate,
                       newValue,
                     );
-                    onChange("scheduledCompletionDate", iso);
+                    onChange("scheduledCompletionDate", scheduledCompletionIso);
                   }
                 }}
                 renderInput={params => (
@@ -730,23 +743,18 @@ const WorkOrderDetailsForm: React.FC<WorkOrderDetailsFormProps> = ({
             <div className="w-1/2 mr-2">
               <LocalizationProvider dateAdapter={AdapterDateFns}>
                 <DatePicker
-                  value={
-                    value.actualCompletionDate &&
-                    !isNaN(new Date(value.actualCompletionDate).getTime())
-                      ? new Date(value.actualCompletionDate)
-                      : null
-                  }
+                  value={parseFormattedDate(value.actualCompletionDate)}
                   onChange={date => {
                     let newTime = actualCompletionTime;
                     if (!newTime) {
                       newTime = timeOptions[0];
                       setActualCompletionTime(newTime);
                     }
-                    const iso = combineDateAndTime(
+                    const actualCompletionIso = combineDateAndTimeLocal(
                       date ? date.toISOString() : "",
                       newTime,
                     );
-                    onChange("actualCompletionDate", iso);
+                    onChange("actualCompletionDate", actualCompletionIso);
                   }}
                   slotProps={{ textField: { size: "small" } }}
                   disabled={disabled}
@@ -760,11 +768,11 @@ const WorkOrderDetailsForm: React.FC<WorkOrderDetailsFormProps> = ({
                 onChange={(_e, newValue) => {
                   setActualCompletionTime(newValue || "");
                   if (value.actualCompletionDate && newValue) {
-                    const iso = combineDateAndTime(
+                    const actualCompletionIso = combineDateAndTimeLocal(
                       value.actualCompletionDate,
                       newValue,
                     );
-                    onChange("actualCompletionDate", iso);
+                    onChange("actualCompletionDate", actualCompletionIso);
                   }
                 }}
                 renderInput={params => (

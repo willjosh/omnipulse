@@ -249,7 +249,6 @@ public class CreateInspectionCommandHandlerTest
             VehicleGroupID = 1,
             Trim = "Standard",
             Mileage = 50000,
-            EngineHours = 1000,
             FuelCapacity = 50,
             FuelType = FuelTypeEnum.PETROL,
             PurchaseDate = FixedCreatedTime.AddYears(-1),

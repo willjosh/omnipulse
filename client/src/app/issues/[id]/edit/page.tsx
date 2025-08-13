@@ -14,7 +14,6 @@ import {
   mapFormToUpdateIssueCommand,
   emptyIssueFormState,
 } from "@/features/issue/utils/issueFormUtils";
-import { combineDateAndTime, extractTimeFromISO } from "@/utils/dateTimeUtils";
 import IssueResolutionForm from "@/features/issue/components/IssueResolutionForm";
 import { IssueStatusEnum } from "@/features/issue/types/issueEnum";
 
@@ -33,9 +32,6 @@ export default function EditIssuePage() {
   const [form, setForm] = useState<IssueFormState>(emptyIssueFormState);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-  // For Reported Date time picker
-  const [reportedTime, setReportedTime] = useState<string>("");
-
   // Prefill time fields when issue loads
   useEffect(() => {
     if (issue) {
@@ -47,7 +43,7 @@ export default function EditIssuePage() {
         description: issue.description || "",
         category: issue.category?.toString() || "",
         status: issue.status?.toString() || "1",
-        reportedByUserID: issue.reportedByUserID,
+        reportedByUserID: issue.reportedByUserID || "",
         resolutionNotes: issue.resolutionNotes || "",
         resolvedDate: issue.resolvedDate || "",
         resolvedByUserID: issue.resolvedByUserID || "",
@@ -70,30 +66,9 @@ export default function EditIssuePage() {
 
   // Save handler
   const handleSave = () => {
-    if (!validate() || !id) return;
+    if (!id || !validate()) return;
 
-    // Only recombine if the user changed date or time
-    let reportedDateToSave = form.reportedDate;
-    if (reportedTime && form.reportedDate) {
-      const originalTime = extractTimeFromISO(form.reportedDate);
-      // Compare only the date part (YYYY-MM-DD)
-      const originalDate = form.reportedDate
-        ? new Date(form.reportedDate).toISOString().split("T")[0]
-        : "";
-      const currentDate = form.reportedDate
-        ? new Date(form.reportedDate).toISOString().split("T")[0]
-        : "";
-      if (reportedTime !== originalTime || currentDate !== originalDate) {
-        reportedDateToSave = combineDateAndTime(
-          form.reportedDate,
-          reportedTime,
-        );
-      }
-    }
-
-    const updatedForm = { ...form, reportedDate: reportedDateToSave };
-
-    updateIssue(mapFormToUpdateIssueCommand(updatedForm, id), {
+    updateIssue(mapFormToUpdateIssueCommand(form, id), {
       onSuccess: () => {
         router.push("/issues");
       },

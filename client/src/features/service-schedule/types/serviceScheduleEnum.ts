@@ -3,3 +3,8 @@ export enum TimeUnitEnum {
   Days = 2,
   Weeks = 3,
 }
+
+export enum ServiceScheduleTypeEnum {
+  TIME = 1,
+  MILEAGE = 2,
+}

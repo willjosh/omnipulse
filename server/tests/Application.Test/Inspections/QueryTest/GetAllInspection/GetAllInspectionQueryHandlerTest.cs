@@ -403,7 +403,6 @@ public class GetAllInspectionQueryHandlerTest
             VehicleGroup = vehicleGroup,
             Trim = "LE",
             Mileage = 50000,
-            EngineHours = 2500,
             FuelCapacity = 60.0,
             FuelType = FuelTypeEnum.PETROL,
             PurchaseDate = FixedDate.AddYears(-3),

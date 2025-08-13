@@ -9,9 +9,7 @@ namespace Application.Features.ServicePrograms.Command.RemoveVehicleFromServiceP
 /// </summary>
 /// <param name="ServiceProgramID">The ID of the Service Program.</param>
 /// <param name="VehicleID">The ID of the Vehicle to remove.</param>
-/// <param name="RemovedByUserID">The ID of the User who removed the Vehicle from the Service Program.</param>
 public record RemoveVehicleFromServiceProgramCommand(
     int ServiceProgramID,
     int VehicleID
-// string RemovedByUserID // TODO
 ) : IRequest<(int ServiceProgramID, int VehicleID)>;

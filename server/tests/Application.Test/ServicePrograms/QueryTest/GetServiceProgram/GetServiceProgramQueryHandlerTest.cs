@@ -86,7 +86,6 @@ public class GetServiceProgramQueryHandlerTest
                     ServiceProgram = null!,
                     Vehicle = null!,
                     VehicleMileageAtAssignment = 10000,
-                    // User = null! // TODO XrefServiceProgramVehicle User
                 }
             ]
         };

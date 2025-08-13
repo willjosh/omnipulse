@@ -10,7 +10,7 @@ using FluentValidation;
 
 using MediatR;
 
-namespace Application.Features.FuelLogging.Command.CreateFuelPurchase;
+namespace Application.Features.FuelPurchases.Command.CreateFuelPurchase;
 
 public class CreateFuelPurchaseCommandHandler : IRequestHandler<CreateFuelPurchaseCommand, int>
 {

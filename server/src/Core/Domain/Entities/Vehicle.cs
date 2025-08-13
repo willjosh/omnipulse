@@ -12,7 +12,7 @@ namespace Domain.Entities;
 /// - VIN (Vehicle Identification Number) must be unique across the entire fleet
 /// - License plate must be unique and have a valid expiration date
 /// - Vehicle must belong to exactly one VehicleGroup
-/// - Mileage and engine hours can only increase over time
+/// - Mileage can only increase over time
 /// </remarks>
 public class Vehicle : BaseEntity
 {
@@ -28,7 +28,6 @@ public class Vehicle : BaseEntity
     public string? AssignedTechnicianID { get; set; }
     public required string Trim { get; set; }
     public required double Mileage { get; set; }
-    public required double EngineHours { get; set; }
     public required double FuelCapacity { get; set; }
     public required FuelTypeEnum FuelType { get; set; }
     public required DateTime PurchaseDate { get; set; }

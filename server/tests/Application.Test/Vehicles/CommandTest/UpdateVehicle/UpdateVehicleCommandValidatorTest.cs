@@ -26,7 +26,6 @@ public class UpdateVehicleCommandValidatorTest
         int vehicleGroupID = 1,
         string trim = "Base",
         double mileage = 50000,
-        double engineHours = 1000,
         double fuelCapacity = 50,
         FuelTypeEnum fuelType = FuelTypeEnum.PETROL,
         DateTime? purchaseDate = null,
@@ -48,7 +47,6 @@ public class UpdateVehicleCommandValidatorTest
             VehicleGroupID: vehicleGroupID,
             Trim: trim,
             Mileage: mileage,
-            EngineHours: engineHours,
             FuelCapacity: fuelCapacity,
             FuelType: fuelType,
             PurchaseDate: purchaseDate ?? new DateTime(2023, 1, 1, 0, 0, 0, DateTimeKind.Utc),
@@ -367,22 +365,6 @@ public class UpdateVehicleCommandValidatorTest
         // Then
         Assert.False(result.IsValid);
         Assert.Contains(result.Errors, e => e.PropertyName == "Mileage");
-    }
-
-    [Theory]
-    [InlineData(-1)]
-    [InlineData(-100)]
-    public async Task Validator_Should_Fail_When_EngineHours_Is_Negative(double engineHours)
-    {
-        // Given
-        var command = CreateValidCommand(engineHours: engineHours);
-
-        // When
-        var result = await _validator.ValidateAsync(command);
-
-        // Then
-        Assert.False(result.IsValid);
-        Assert.Contains(result.Errors, e => e.PropertyName == "EngineHours");
     }
 
     [Theory]

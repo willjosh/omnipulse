@@ -278,7 +278,9 @@ export default function InspectionFormsPage() {
             {/* Content */}
             <div className="px-6 py-4">
               <div className="mb-4">
-                <h3 className="text-sm font-medium text-gray-700 mb-2">ALL</h3>
+                <h3 className="text-sm font-medium text-gray-700 mb-2">
+                  Available Inspection Forms
+                </h3>
                 <div className="space-y-2">
                   {inspectionForms
                     .filter(form => form.isActive)

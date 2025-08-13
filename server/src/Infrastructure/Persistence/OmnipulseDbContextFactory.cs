@@ -20,9 +20,16 @@ public class OmnipulseDbContextFactory : IDesignTimeDbContextFactory<OmnipulseDa
     {
         var optionsBuilder = new DbContextOptionsBuilder<OmnipulseDatabaseContext>();
 
-        // TODO: Add DB URL
-        optionsBuilder.UseSqlServer("URL_HERE");
+        // Try to get connection string from environment variable
+        var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__OmnipulseDatabaseConnection");
 
+        if (string.IsNullOrEmpty(connectionString))
+        {
+            throw new InvalidOperationException(
+                "Connection string not found. Set the ConnectionStrings__OmnipulseDatabaseConnection environment variable.");
+        }
+
+        optionsBuilder.UseSqlServer(connectionString);
         return new OmnipulseDatabaseContext(optionsBuilder.Options);
     }
 }

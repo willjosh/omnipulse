@@ -16,6 +16,20 @@ import SecondaryButton from "@/components/ui/Button/SecondaryButton";
 import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
 import { formatEmptyValueWithUnknown } from "@/utils/emptyValueUtils";
 
+// Helper function to format dates for display
+const formatDateForDisplay = (dateStr: string | null | undefined): string => {
+  if (!dateStr) return "—";
+
+  try {
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return "—";
+
+    return date.toLocaleString();
+  } catch (e) {
+    return "—";
+  }
+};
+
 // Separate component to handle individual issue items
 const IssueItem: React.FC<{ issueId: number; router: any }> = ({
   issueId,
@@ -330,9 +344,7 @@ export default function WorkOrderPage() {
                       Scheduled Start Date
                     </span>
                     <span className="text-sm text-gray-900">
-                      {formatEmptyValueWithUnknown(
-                        workOrder.scheduledStartDate,
-                      )}
+                      {formatDateForDisplay(workOrder.scheduledStartDate)}
                     </span>
                   </div>
 
@@ -341,7 +353,7 @@ export default function WorkOrderPage() {
                       Actual Start Date
                     </span>
                     <span className="text-sm text-gray-900">
-                      {formatEmptyValueWithUnknown(workOrder.actualStartDate)}
+                      {formatDateForDisplay(workOrder.actualStartDate)}
                     </span>
                   </div>
 
@@ -350,9 +362,7 @@ export default function WorkOrderPage() {
                       Scheduled Completion Date
                     </span>
                     <span className="text-sm text-gray-900">
-                      {formatEmptyValueWithUnknown(
-                        workOrder.scheduledCompletionDate,
-                      )}
+                      {formatDateForDisplay(workOrder.scheduledCompletionDate)}
                     </span>
                   </div>
 
@@ -361,9 +371,7 @@ export default function WorkOrderPage() {
                       Actual Completion Date
                     </span>
                     <span className="text-sm text-gray-900">
-                      {formatEmptyValueWithUnknown(
-                        workOrder.actualCompletionDate,
-                      )}
+                      {formatDateForDisplay(workOrder.actualCompletionDate)}
                     </span>
                   </div>
 

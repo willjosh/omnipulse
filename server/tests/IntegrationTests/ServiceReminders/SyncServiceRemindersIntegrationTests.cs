@@ -341,7 +341,7 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
     {
         // ===== Arrange =====
         var vehicleGroupId = await CreateVehicleGroupAsync();
-        var vehicleId = await CreateVehicleAsync(vehicleGroupId, mileage: 80000.0, year: 2018);
+        var vehicleId = await CreateVehicleAsync(vehicleGroupId, mileage: 80000.0);
         var programId = await CreateServiceProgramAsync();
         var taskId = await CreateServiceTaskAsync(estimatedHours: 2.0, estimatedCost: 150m, category: ServiceTaskCategoryEnum.INSPECTION);
         var scheduleId = await CreateMileageBasedServiceScheduleAsync(
@@ -663,7 +663,6 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
             VehicleGroupID: vehicleGroupId,
             Trim: "Base",
             Mileage: 49_000,
-            EngineHours: 300.0,
             FuelCapacity: 50.0,
             FuelType: FuelTypeEnum.PETROL,
             PurchaseDate: DateTime.Today.AddYears(-1),
@@ -952,143 +951,6 @@ public class SyncServiceRemindersIntegrationTests : BaseIntegrationTest
         var after = await GetRemindersInDbByScheduleAsync(scheduleId);
         after.ShouldNotContainNonFinalStatuses();
         after.ShouldContainOnlyFinalStatusesOrLinked();
-    }
-
-    // ===================
-    // ===== HELPERS =====
-    // ===================
-
-    private async Task<int> CreateVehicleGroupAsync()
-    {
-        return await Sender.Send(new CreateVehicleGroupCommand(
-            Name: $"Vehicle Group Name {Faker.Random.AlphaNumeric(5)}",
-            Description: $"Vehicle Group Description {Faker.Random.AlphaNumeric(5)}",
-            IsActive: true
-        ));
-    }
-
-    private async Task<int> CreateVehicleAsync(
-        int vehicleGroupId,
-        double mileage = 10000.0,
-        int year = 2021)
-    {
-        return await Sender.Send(new CreateVehicleCommand(
-            Name: $"Vehicle Name {Faker.Random.AlphaNumeric(5)}",
-            Make: "TestMake",
-            Model: "TestModel",
-            Year: year,
-            VIN: Faker.Vehicle.Vin(),
-            LicensePlate: Faker.Random.Replace("???-###"),
-            LicensePlateExpirationDate: DateTime.Today.AddYears(1),
-            VehicleType: VehicleTypeEnum.BUS,
-            VehicleGroupID: vehicleGroupId,
-            AssignedTechnicianID: null,
-            Trim: "Base",
-            Mileage: mileage,
-            EngineHours: 300.0,
-            FuelCapacity: 50.0,
-            FuelType: FuelTypeEnum.PETROL,
-            PurchaseDate: DateTime.Today.AddYears(-1),
-            PurchasePrice: 20000.00m,
-            Status: VehicleStatusEnum.ACTIVE,
-            Location: "Test Yard"
-        ));
-    }
-
-    private async Task<int> CreateServiceProgramAsync(bool isActive = true)
-    {
-        return await Sender.Send(new CreateServiceProgramCommand(
-            Name: $"Service Program Name {Faker.Random.AlphaNumeric(5)}",
-            Description: $"Service Program Description {Faker.Random.AlphaNumeric(5)}",
-            IsActive: isActive
-        ));
-    }
-
-    private async Task<int> CreateServiceTaskAsync(
-        double estimatedHours = 1.0,
-        decimal estimatedCost = 10m,
-        ServiceTaskCategoryEnum category = ServiceTaskCategoryEnum.PREVENTIVE,
-        bool isActive = true)
-    {
-        return await Sender.Send(new CreateServiceTaskCommand(
-            Name: $"Service Task Name {Faker.Random.AlphaNumeric(5)}",
-            Description: $"Service Task Description {Faker.Random.AlphaNumeric(5)}",
-            EstimatedLabourHours: estimatedHours,
-            EstimatedCost: estimatedCost,
-            Category: category,
-            IsActive: isActive
-        ));
-    }
-
-    private async Task AddVehicleToServiceProgramAsync(int serviceProgramId, int vehicleId)
-    {
-        await Sender.Send(new AddVehicleToServiceProgramCommand(ServiceProgramID: serviceProgramId, VehicleID: vehicleId));
-    }
-
-    private async Task<int> CreateTimeBasedServiceScheduleAsync(
-        int serviceProgramId,
-        List<int> serviceTaskIds,
-        int intervalValue,
-        TimeUnitEnum intervalUnit,
-        int bufferValue,
-        TimeUnitEnum bufferUnit,
-        DateTime? firstServiceDate,
-        string? name = null)
-    {
-        return await Sender.Send(new CreateServiceScheduleCommand(
-            ServiceProgramID: serviceProgramId,
-            Name: name ?? $"Time Schedule {Faker.Random.AlphaNumeric(5)}",
-            ServiceTaskIDs: serviceTaskIds,
-            TimeIntervalValue: intervalValue,
-            TimeIntervalUnit: intervalUnit,
-            TimeBufferValue: bufferValue,
-            TimeBufferUnit: bufferUnit,
-            MileageInterval: null,
-            MileageBuffer: null,
-            FirstServiceDate: firstServiceDate,
-            FirstServiceMileage: null
-        ));
-    }
-
-    private async Task<int> CreateMileageBasedServiceScheduleAsync(
-        int serviceProgramId,
-        List<int> serviceTaskIds,
-        int mileageInterval,
-        int mileageBuffer,
-        int? firstServiceMileage,
-        string? name = null)
-    {
-        return await Sender.Send(new CreateServiceScheduleCommand(
-            ServiceProgramID: serviceProgramId,
-            Name: name ?? $"Mileage Schedule {Faker.Random.AlphaNumeric(5)}",
-            ServiceTaskIDs: serviceTaskIds,
-            TimeIntervalValue: null,
-            TimeIntervalUnit: null,
-            TimeBufferValue: null,
-            TimeBufferUnit: null,
-            MileageInterval: mileageInterval,
-            MileageBuffer: mileageBuffer,
-            FirstServiceDate: null,
-            FirstServiceMileage: firstServiceMileage
-        ));
-    }
-
-    private async Task<SyncServiceRemindersResponse> SyncServiceRemindersAsync()
-    {
-        return await Sender.Send(new SyncServiceRemindersCommand());
-    }
-
-    private async Task<List<ServiceReminderDTO>> GetRemindersForScheduleVehiclePairAsync(int vehicleId, int scheduleId, int pageSize = 100)
-    {
-        var page = await Sender.Send(new GetAllServiceRemindersQuery(new PaginationParameters { PageNumber = 1, PageSize = pageSize }));
-        return [.. page.Items.Where(r => r.VehicleID == vehicleId && r.ServiceScheduleID == scheduleId)];
-    }
-
-    private async Task<List<ServiceReminder>> GetRemindersInDbByScheduleAsync(int scheduleId)
-    {
-        return await DbContext.ServiceReminders
-            .Where(r => r.ServiceScheduleID == scheduleId)
-            .ToListAsync();
     }
 }
 

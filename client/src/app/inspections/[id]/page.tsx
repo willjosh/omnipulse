@@ -165,7 +165,7 @@ export default function InspectionDetailsPage() {
                 value={formatDateTime(inspection.inspectionEndTime)}
               />
               <DetailFieldRow
-                label="Duration"
+                label="Inspection Duration"
                 value={calculateDuration(
                   inspection.inspectionStartTime,
                   inspection.inspectionEndTime,
@@ -208,9 +208,25 @@ export default function InspectionDetailsPage() {
               />
               <DetailFieldRow
                 label="Vehicle Condition"
-                value={formatEmptyValueWithUnknown(
-                  inspection.vehicleConditionLabel,
-                )}
+                value={
+                  inspection.vehicleConditionLabel ? (
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        inspection.vehicleConditionEnum === 1
+                          ? "bg-green-100 text-green-800"
+                          : inspection.vehicleConditionEnum === 2
+                            ? "bg-yellow-100 text-yellow-800"
+                            : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {inspection.vehicleConditionLabel}
+                    </span>
+                  ) : (
+                    formatEmptyValueWithUnknown(
+                      inspection.vehicleConditionLabel,
+                    )
+                  )
+                }
               />
               <DetailFieldRow
                 label="Notes"

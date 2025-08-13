@@ -32,8 +32,10 @@ public class ServiceScheduleConfiguration : IEntityTypeConfiguration<ServiceSche
         builder.HasIndex(ss => new { ss.ServiceProgramID, ss.IsSoftDeleted });
         builder.HasIndex(ss => new { ss.IsSoftDeleted, ss.Name });
 
-        // Unique constraint within service program
-        builder.HasIndex(ss => new { ss.ServiceProgramID, ss.Name }).IsUnique();
+        // Unique constraint within service program for active (non-soft-deleted) schedules only
+        builder.HasIndex(ss => new { ss.ServiceProgramID, ss.Name })
+            .IsUnique()
+            .HasFilter("[IsSoftDeleted] = 0");
 
         // Check Constraints for positive values
         builder.ToTable(t => t.HasCheckConstraint("CK_ServiceSchedule_TimeIntervalValue",

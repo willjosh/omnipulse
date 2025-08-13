@@ -229,7 +229,6 @@ public class GetWorkOrderInvoicePdfQueryHandlerTest
             VehicleType = VehicleTypeEnum.CAR,
             Trim = "SE",
             Mileage = 50000,
-            EngineHours = 1000,
             FuelCapacity = 50.0,
             FuelType = FuelTypeEnum.PETROL,
             PurchaseDate = DateTime.UtcNow.AddYears(-2),

@@ -6,8 +6,8 @@ export interface IssueDetailsFormProps {
     title: string;
     description: string;
     status: string;
-    reportedByUserID: string;
     category: string;
+    reportedByUserID?: string; // Optional for editing existing issues
   };
   errors: { [key: string]: string };
   onChange: (field: string, value: string) => void;

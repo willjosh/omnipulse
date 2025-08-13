@@ -1,4 +1,4 @@
-using Application.Features.FuelLogging.Command.CreateFuelPurchase;
+using Application.Features.FuelPurchases.Command.CreateFuelPurchase;
 using Application.Features.Users.Command.CreateTechnician;
 using Application.Features.VehicleGroups.Command.CreateVehicleGroup;
 using Application.Features.Vehicles.Command.CreateVehicle;
@@ -41,7 +41,6 @@ public class CreateFuelPurchaseIntegrationTests : BaseIntegrationTest
             VehicleGroupID: vehicleGroupId,
             Trim: "Base",
             Mileage: 0,
-            EngineHours: 0,
             FuelCapacity: 70.0,
             FuelType: FuelTypeEnum.DIESEL,
             PurchaseDate: DateTime.UtcNow.AddDays(-1),

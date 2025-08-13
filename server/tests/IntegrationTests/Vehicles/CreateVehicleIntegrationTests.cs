@@ -40,7 +40,6 @@ public class CreateVehicleIntegrationTests : BaseIntegrationTest
             VehicleGroupID: vehicleGroupId,
             Trim: "Base",
             Mileage: 0,
-            EngineHours: 0,
             FuelCapacity: 70.0,
             FuelType: FuelTypeEnum.DIESEL,
             PurchaseDate: DateTime.UtcNow.AddDays(-1),
@@ -68,7 +67,6 @@ public class CreateVehicleIntegrationTests : BaseIntegrationTest
         createdVehicleEntity.VehicleGroupID.Should().Be(createCommand.VehicleGroupID);
         createdVehicleEntity.Trim.Should().Be(createCommand.Trim);
         createdVehicleEntity.Mileage.Should().Be(createCommand.Mileage);
-        createdVehicleEntity.EngineHours.Should().Be(createCommand.EngineHours);
         createdVehicleEntity.FuelCapacity.Should().Be(createCommand.FuelCapacity);
         createdVehicleEntity.FuelType.Should().Be(createCommand.FuelType);
         createdVehicleEntity.PurchaseDate.Should().Be(createCommand.PurchaseDate);

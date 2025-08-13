@@ -33,8 +33,23 @@ export const convertIssueData = (issue: Issue): IssueWithLabels => ({
   status: issue.status as number,
   statusLabel: getIssueStatusLabel(issue.status),
   statusEnum: issue.status as IssueStatusEnum,
-  reportedDate: formatDate(issue.reportedDate),
-  resolvedDate: formatDate(issue.resolvedDate),
+  reportedDate: issue.reportedDate, // Preserve original ISO for editing
+  resolvedDate: issue.resolvedDate, // Preserve original ISO for editing
+});
+
+export const convertIssueDataForDisplay = (issue: Issue): IssueWithLabels => ({
+  ...issue,
+  category: issue.category as number,
+  categoryLabel: getIssueCategoryLabel(issue.category),
+  categoryEnum: issue.category as IssueCategoryEnum,
+  priorityLevel: issue.priorityLevel as number,
+  priorityLevelLabel: getPriorityLevelLabel(issue.priorityLevel),
+  priorityLevelEnum: issue.priorityLevel as PriorityLevelEnum,
+  status: issue.status as number,
+  statusLabel: getIssueStatusLabel(issue.status),
+  statusEnum: issue.status as IssueStatusEnum,
+  reportedDate: formatDate(issue.reportedDate), // Format for display
+  resolvedDate: formatDate(issue.resolvedDate), // Format for display
 });
 
 export const issueApi = {

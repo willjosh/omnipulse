@@ -52,7 +52,6 @@ public class AddServiceReminderToExistingWorkOrderIntegrationTests : BaseIntegra
             AssignedTechnicianID: null,
             Trim: "LE",
             Mileage: 15000.0,
-            EngineHours: 500.0,
             FuelCapacity: 60.0,
             FuelType: FuelTypeEnum.PETROL,
             PurchaseDate: DateTime.Today.AddYears(-2),

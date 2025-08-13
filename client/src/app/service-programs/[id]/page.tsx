@@ -190,6 +190,13 @@ export default function ServiceProgramDetailsPage() {
   const serviceScheduleColumns = [
     { key: "name", header: "Name", width: "200px" },
     {
+      key: "scheduleType",
+      header: "Schedule Type",
+      width: "140px",
+      render: (schedule: ServiceScheduleWithLabels) =>
+        schedule.scheduleTypeLabel,
+    },
+    {
       key: "frequency",
       header: "Frequency",
       width: "150px",

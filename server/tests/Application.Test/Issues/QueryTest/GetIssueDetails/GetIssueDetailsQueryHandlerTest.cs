@@ -68,7 +68,6 @@ public class GetIssueDetailsQueryHandlerTest
             VehicleGroupID = 1,
             Trim = "Base",
             Mileage = 10000,
-            EngineHours = 500,
             FuelCapacity = 40.0,
             FuelType = FuelTypeEnum.PETROL,
             PurchaseDate = DateTime.UtcNow.AddYears(-2),

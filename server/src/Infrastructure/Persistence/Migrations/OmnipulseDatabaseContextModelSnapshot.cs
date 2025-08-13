@@ -1164,6 +1164,10 @@ namespace Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
+                    b.Property<string>("CancelReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<DateTime?>("CompletedDate")
                         .HasColumnType("datetime2");
 
@@ -1176,47 +1180,15 @@ namespace Persistence.Migrations
                     b.Property<double?>("DueMileage")
                         .HasColumnType("float");
 
-                    b.Property<double?>("MeterVariance")
-                        .HasColumnType("float");
-
-                    b.Property<int?>("MileageBuffer")
-                        .HasColumnType("int");
-
-                    b.Property<double?>("MileageInterval")
-                        .HasColumnType("float");
-
-                    b.Property<int>("PriorityLevel")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ServiceProgramID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ServiceProgramName")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("ServiceScheduleID")
                         .HasColumnType("int");
 
-                    b.Property<string>("ServiceScheduleName")
+                    b.Property<string>("Status")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("TimeBufferUnit")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("TimeBufferValue")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("TimeIntervalUnit")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("TimeIntervalValue")
-                        .HasColumnType("int");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("UpdatedAt")
+                        .IsConcurrencyToken()
                         .HasColumnType("datetime2");
 
                     b.Property<int>("VehicleID")
@@ -1229,9 +1201,7 @@ namespace Persistence.Migrations
 
                     b.HasIndex("DueDate");
 
-                    b.HasIndex("PriorityLevel");
-
-                    b.HasIndex("ServiceProgramID");
+                    b.HasIndex("DueMileage");
 
                     b.HasIndex("ServiceScheduleID");
 
@@ -1241,17 +1211,32 @@ namespace Persistence.Migrations
 
                     b.HasIndex("WorkOrderID");
 
+                    b.HasIndex("DueDate", "Status");
+
+                    b.HasIndex("DueMileage", "Status");
+
+                    b.HasIndex("ServiceScheduleID", "Status")
+                        .HasDatabaseName("IX_ServiceReminders_ServiceScheduleID_Status");
+
                     b.HasIndex("Status", "DueDate");
 
-                    b.HasIndex("VehicleID", "DueDate");
+                    b.HasIndex("Status", "DueMileage");
+
+                    b.HasIndex("VehicleID", "Status")
+                        .HasDatabaseName("IX_ServiceReminders_VehicleID_Status");
+
+                    b.HasIndex("VehicleID", "ServiceScheduleID", "Status")
+                        .IsUnique()
+                        .HasDatabaseName("IX_ServiceReminders_VehicleID_ServiceScheduleID_Status_Unique")
+                        .HasFilter("[Status] = 'UPCOMING'");
 
                     b.ToTable("ServiceReminders", null, t =>
                         {
                             t.HasCheckConstraint("CK_ServiceReminder_CompletedDate", "CompletedDate IS NULL OR CompletedDate >= CreatedAt");
 
-                            t.HasCheckConstraint("CK_ServiceReminder_DueDate", "DueDate >= CreatedAt");
+                            t.HasCheckConstraint("CK_ServiceReminder_DueMileage", "DueMileage IS NULL OR DueMileage >= 0");
 
-                            t.HasCheckConstraint("CK_ServiceReminder_DueMileage", "DueMileage >= 0");
+                            t.HasCheckConstraint("CK_ServiceReminder_HasDueTarget", "DueDate IS NOT NULL OR DueMileage IS NOT NULL");
                         });
                 });
 
@@ -1272,7 +1257,7 @@ namespace Persistence.Migrations
                     b.Property<int?>("FirstServiceMileage")
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsActive")
+                    b.Property<bool>("IsSoftDeleted")
                         .HasColumnType("bit");
 
                     b.Property<int?>("MileageBuffer")
@@ -1306,30 +1291,31 @@ namespace Persistence.Migrations
 
                     b.HasKey("ID");
 
-                    b.HasIndex("IsActive");
+                    b.HasIndex("IsSoftDeleted");
 
                     b.HasIndex("Name");
 
                     b.HasIndex("ServiceProgramID");
 
-                    b.HasIndex("IsActive", "MileageInterval")
-                        .HasDatabaseName("IX_ServiceSchedules_MileageBasedActive");
+                    b.HasIndex("IsSoftDeleted", "MileageInterval")
+                        .HasDatabaseName("IX_ServiceSchedules_MileageBased");
 
-                    b.HasIndex("IsActive", "Name");
+                    b.HasIndex("IsSoftDeleted", "Name");
 
-                    b.HasIndex("ServiceProgramID", "IsActive");
+                    b.HasIndex("ServiceProgramID", "IsSoftDeleted");
 
                     b.HasIndex("ServiceProgramID", "Name")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[IsSoftDeleted] = 0");
 
-                    b.HasIndex("IsActive", "TimeIntervalValue", "TimeIntervalUnit")
-                        .HasDatabaseName("IX_ServiceSchedules_TimeBasedActive");
+                    b.HasIndex("IsSoftDeleted", "TimeIntervalValue", "TimeIntervalUnit")
+                        .HasDatabaseName("IX_ServiceSchedules_TimeBased");
 
-                    b.HasIndex("ServiceProgramID", "IsActive", "MileageInterval")
-                        .HasDatabaseName("IX_ServiceSchedules_ProgramMileageActive");
+                    b.HasIndex("ServiceProgramID", "IsSoftDeleted", "MileageInterval")
+                        .HasDatabaseName("IX_ServiceSchedules_ProgramMileage");
 
-                    b.HasIndex("ServiceProgramID", "IsActive", "TimeIntervalValue")
-                        .HasDatabaseName("IX_ServiceSchedules_ProgramTimeActive");
+                    b.HasIndex("ServiceProgramID", "IsSoftDeleted", "TimeIntervalValue")
+                        .HasDatabaseName("IX_ServiceSchedules_ProgramTime");
 
                     b.ToTable("ServiceSchedules", null, t =>
                         {
@@ -1342,6 +1328,8 @@ namespace Persistence.Migrations
                             t.HasCheckConstraint("CK_ServiceSchedule_TimeBufferValue", "TimeBufferValue >= 0");
 
                             t.HasCheckConstraint("CK_ServiceSchedule_TimeIntervalValue", "TimeIntervalValue > 0");
+
+                            t.HasCheckConstraint("CK_ServiceSchedule_XOR_Constraint", "(TimeIntervalValue IS NOT NULL AND TimeIntervalUnit IS NOT NULL AND MileageInterval IS NULL) OR (TimeIntervalValue IS NULL AND TimeIntervalUnit IS NULL AND MileageInterval IS NOT NULL)");
                         });
                 });
 
@@ -1531,9 +1519,6 @@ namespace Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<double>("EngineHours")
-                        .HasColumnType("float");
-
                     b.Property<double>("FuelCapacity")
                         .HasColumnType("float");
 
@@ -1641,9 +1626,6 @@ namespace Persistence.Migrations
                     b.HasIndex("CreatedAt", "Status")
                         .HasDatabaseName("IX_Vehicles_CreatedAtStatus");
 
-                    b.HasIndex("EngineHours", "Status")
-                        .HasDatabaseName("IX_Vehicles_EngineHoursStatus");
-
                     b.HasIndex("LicensePlate", "Status")
                         .HasDatabaseName("IX_Vehicles_LicensePlateStatus");
 
@@ -1692,8 +1674,6 @@ namespace Persistence.Migrations
 
                     b.ToTable("Vehicles", null, t =>
                         {
-                            t.HasCheckConstraint("CK_Vehicle_EngineHours", "EngineHours >= 0");
-
                             t.HasCheckConstraint("CK_Vehicle_FuelCapacity", "FuelCapacity > 0");
 
                             t.HasCheckConstraint("CK_Vehicle_Mileage", "Mileage >= 0");
@@ -2763,10 +2743,6 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.ServiceReminder", b =>
                 {
-                    b.HasOne("Domain.Entities.ServiceProgram", "ServiceProgram")
-                        .WithMany()
-                        .HasForeignKey("ServiceProgramID");
-
                     b.HasOne("Domain.Entities.ServiceSchedule", "ServiceSchedule")
                         .WithMany()
                         .HasForeignKey("ServiceScheduleID")
@@ -2782,8 +2758,6 @@ namespace Persistence.Migrations
                     b.HasOne("Domain.Entities.WorkOrder", "WorkOrder")
                         .WithMany()
                         .HasForeignKey("WorkOrderID");
-
-                    b.Navigation("ServiceProgram");
 
                     b.Navigation("ServiceSchedule");
 

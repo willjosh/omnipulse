@@ -2,7 +2,7 @@ import {
   ServiceTask,
   ServiceTaskWithLabels,
 } from "../../service-task/types/serviceTaskType";
-import { TimeUnitEnum } from "./serviceScheduleEnum";
+import { TimeUnitEnum, ServiceScheduleTypeEnum } from "./serviceScheduleEnum";
 
 export interface ServiceSchedule {
   serviceTasks: ServiceTask[];
@@ -17,13 +17,13 @@ export interface ServiceSchedule {
   mileageBuffer?: number | null;
   firstServiceDate?: string | null;
   firstServiceMileage?: number | null;
-  isActive: boolean;
+  scheduleType: ServiceScheduleTypeEnum;
 }
 
 export interface ServiceScheduleWithLabels
   extends Omit<
     ServiceSchedule,
-    "serviceTasks" | "timeIntervalUnit" | "timeBufferUnit"
+    "serviceTasks" | "timeIntervalUnit" | "timeBufferUnit" | "scheduleType"
   > {
   serviceTasks: ServiceTaskWithLabels[];
   timeIntervalUnit?: number | null;
@@ -32,6 +32,9 @@ export interface ServiceScheduleWithLabels
   timeBufferUnit?: number | null;
   timeBufferUnitLabel?: string | null;
   timeBufferUnitEnum?: TimeUnitEnum | null;
+  scheduleType: number;
+  scheduleTypeLabel: string;
+  scheduleTypeEnum: ServiceScheduleTypeEnum;
 }
 
 export interface CreateServiceScheduleCommand {
@@ -46,7 +49,6 @@ export interface CreateServiceScheduleCommand {
   mileageBuffer?: number | null;
   firstServiceDate?: string | null;
   firstServiceMileage?: number | null;
-  isActive: boolean;
 }
 
 export interface UpdateServiceScheduleCommand

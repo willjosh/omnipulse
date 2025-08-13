@@ -120,7 +120,6 @@ public class GetAllVehicleQueryHandlerTest
                 VehicleGroupID = 2,
                 Trim = "LE",
                 Mileage = 50000,
-                EngineHours = 1000,
                 FuelCapacity = 50.0,
                 FuelType = FuelTypeEnum.PETROL,
                 PurchaseDate = new DateTime(2021, 1, 1, 0, 0, 0, DateTimeKind.Utc),
@@ -153,7 +152,6 @@ public class GetAllVehicleQueryHandlerTest
                 VehicleGroupID = 2,
                 Trim = "LE",
                 Mileage = 30000,
-                EngineHours = 800,
                 FuelCapacity = 60.0,
                 FuelType = FuelTypeEnum.PETROL,
                 PurchaseDate = new DateTime(2021, 6, 1, 0, 0, 0, DateTimeKind.Utc),
@@ -216,7 +214,6 @@ public class GetAllVehicleQueryHandlerTest
         Assert.Equal("GUID123", firstVehicle.AssignedTechnicianID);
         Assert.Equal("LE", firstVehicle.Trim);
         Assert.Equal(50000, firstVehicle.Mileage);
-        Assert.Equal(1000, firstVehicle.EngineHours);
         Assert.Equal(50.0, firstVehicle.FuelCapacity);
         Assert.Equal(FuelTypeEnum.PETROL, firstVehicle.FuelType);
         Assert.Equal(25000.00m, firstVehicle.PurchasePrice);

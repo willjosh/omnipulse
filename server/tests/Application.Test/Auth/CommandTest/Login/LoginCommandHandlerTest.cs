@@ -88,7 +88,7 @@ public class LoginCommandHandlerTest
             .ReturnsAsync(true);
         _mockUserRepository.Setup(r => r.GetRolesAsync(user))
             .ReturnsAsync(roles);
-        _mockJwtService.Setup(j => j.GenerateToken(user.Id, user.Email, roles))
+        _mockJwtService.Setup(j => j.GenerateToken(user.Id, user.Email!, roles))
             .Returns(token);
         _mockJwtService.Setup(j => j.GenerateRefreshToken())
             .Returns(refreshToken);
