@@ -29,9 +29,6 @@ public class IssueMappingProfile : Profile
             .ForMember(dest => dest.ID, opt => opt.Ignore()) // Don't map ID - should not be changed
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore()) // Handled by BaseEntity
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore()) // Handled by BaseEntity
-            .ForMember(dest => dest.ResolvedDate, opt => opt.Ignore()) // Not set here
-            .ForMember(dest => dest.ResolvedByUserID, opt => opt.Ignore()) // Not set here
-            .ForMember(dest => dest.ResolutionNotes, opt => opt.Ignore()) // Not set here
             .ForMember(dest => dest.IssueAttachments, opt => opt.Ignore()) // Navigation collection
             .ForMember(dest => dest.IssueAssignments, opt => opt.Ignore()) // Navigation collection
             .ForMember(dest => dest.Vehicle, opt => opt.Ignore()) // Navigation property
