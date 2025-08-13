@@ -18,6 +18,8 @@ public class DeleteServiceProgramCommandHandlerTest
 {
     private readonly DeleteServiceProgramCommandHandler _commandHandler;
     private readonly Mock<IServiceProgramRepository> _mockServiceProgramRepository = new();
+    private readonly Mock<IServiceScheduleRepository> _mockServiceScheduleRepository = new();
+    private readonly Mock<IServiceReminderRepository> _mockServiceReminderRepository = new();
     private readonly Mock<ISender> _mockSender = new();
     private readonly Mock<IValidator<DeleteServiceProgramCommand>> _mockValidator = new();
     private readonly Mock<IAppLogger<DeleteServiceProgramCommandHandler>> _mockLogger = new();
@@ -26,6 +28,8 @@ public class DeleteServiceProgramCommandHandlerTest
     {
         _commandHandler = new(
             _mockServiceProgramRepository.Object,
+            _mockServiceScheduleRepository.Object,
+            _mockServiceReminderRepository.Object,
             _mockSender.Object,
             _mockValidator.Object,
             _mockLogger.Object);
@@ -65,6 +69,8 @@ public class DeleteServiceProgramCommandHandlerTest
         };
         _mockServiceProgramRepository.Setup(r => r.GetByIdAsync(command.ServiceProgramID)).ReturnsAsync(existingServiceProgram);
         _mockServiceProgramRepository.Setup(r => r.SaveChangesAsync()).ReturnsAsync(1);
+        _mockServiceScheduleRepository.Setup(r => r.GetAllByServiceProgramIDAsync(existingServiceProgram.ID))
+            .ReturnsAsync(new List<ServiceSchedule>());
 
         // Act
         var result = await _commandHandler.Handle(command, default);
@@ -72,7 +78,7 @@ public class DeleteServiceProgramCommandHandlerTest
         // Assert
         Assert.Equal(existingServiceProgram.ID, result);
         _mockServiceProgramRepository.Verify(r => r.GetByIdAsync(existingServiceProgram.ID), Times.Once);
-        _mockServiceProgramRepository.Verify(r => r.Delete(existingServiceProgram), Times.Once);
+        _mockServiceProgramRepository.Verify(r => r.Update(existingServiceProgram), Times.Once);
         _mockServiceProgramRepository.Verify(r => r.SaveChangesAsync(), Times.Once);
     }
 
@@ -87,7 +93,7 @@ public class DeleteServiceProgramCommandHandlerTest
         // Act & Assert
         await Assert.ThrowsAsync<EntityNotFoundException>(() => _commandHandler.Handle(command, default));
         _mockServiceProgramRepository.Verify(r => r.GetByIdAsync(999), Times.Once);
-        _mockServiceProgramRepository.Verify(r => r.Delete(It.IsAny<ServiceProgram>()), Times.Never);
+        _mockServiceProgramRepository.Verify(r => r.Update(It.IsAny<ServiceProgram>()), Times.Never);
         _mockServiceProgramRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
     }
 
@@ -101,7 +107,7 @@ public class DeleteServiceProgramCommandHandlerTest
         // Act & Assert
         await Assert.ThrowsAsync<BadRequestException>(() => _commandHandler.Handle(command, default));
         _mockServiceProgramRepository.Verify(r => r.GetByIdAsync(It.IsAny<int>()), Times.Never);
-        _mockServiceProgramRepository.Verify(r => r.Delete(It.IsAny<ServiceProgram>()), Times.Never);
+        _mockServiceProgramRepository.Verify(r => r.Update(It.IsAny<ServiceProgram>()), Times.Never);
         _mockServiceProgramRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
     }
 }
