@@ -1,5 +1,4 @@
 // Utilities for issue form state, validation, and mapping
-import { toISOorNull } from "@/utils/dateTimeUtils";
 
 export interface IssueFormState {
   vehicleID: string;
@@ -9,7 +8,7 @@ export interface IssueFormState {
   category: string;
   status: string;
   title: string;
-  reportedByUserID: string;
+  reportedByUserID?: string; // Optional for editing existing issues
   resolutionNotes?: string;
   resolvedDate?: string;
   resolvedByUserID?: string;
@@ -21,8 +20,27 @@ export function validateIssueForm(form: IssueFormState) {
   if (!form.priorityLevel) errors.priorityLevel = "Priority is required";
   if (!form.title) errors.title = "Summary is required";
   if (!form.category) errors.category = "Category is required";
-  if (!form.reportedByUserID)
-    errors.reportedByUserID = "Reported By is required";
+
+  // If status is RESOLVED (status === "3"), resolution notes, resolved date, and resolved by user are required
+  if (
+    form.status === "3" &&
+    (!form.resolutionNotes?.trim() ||
+      !form.resolvedDate ||
+      !form.resolvedByUserID)
+  ) {
+    if (!form.resolutionNotes?.trim()) {
+      errors.resolutionNotes =
+        "Resolution notes are required when resolving an issue";
+    }
+    if (!form.resolvedDate) {
+      errors.resolvedDate = "Resolved date is required when resolving an issue";
+    }
+    if (!form.resolvedByUserID) {
+      errors.resolvedByUserID =
+        "Resolved by user is required when resolving an issue";
+    }
+  }
+
   return errors;
 }
 
@@ -35,25 +53,27 @@ export function mapFormToCreateIssueCommand(form: IssueFormState) {
     description: form.description,
     category: Number(form.category),
     status: Number(form.status),
-    reportedByUserID: form.reportedByUserID,
+    reportedByUserID: "",
   };
 }
 
 export function mapFormToUpdateIssueCommand(form: IssueFormState, id: number) {
-  return {
+  const command = {
     issueID: id,
     vehicleID: Number(form.vehicleID),
     priorityLevel: Number(form.priorityLevel),
-    reportedDate: toISOorNull(form.reportedDate),
+    reportedDate: form.reportedDate || null,
     title: form.title,
     description: form.description,
     category: Number(form.category),
     status: Number(form.status),
-    reportedByUserID: form.reportedByUserID,
+    reportedByUserID: form.reportedByUserID || "",
     resolutionNotes: form.resolutionNotes || null,
-    resolvedDate: toISOorNull(form.resolvedDate),
+    resolvedDate: form.resolvedDate || null,
     resolvedByUserID: form.resolvedByUserID || null,
   };
+
+  return command;
 }
 
 export const emptyIssueFormState: IssueFormState = {

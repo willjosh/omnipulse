@@ -71,6 +71,21 @@ const IssueDetailsPage = () => {
     }
   };
 
+  // Helper function to format dates for display
+  const formatDateForDisplay = (
+    dateStr: string | null | undefined,
+  ): React.ReactNode => {
+    if (!dateStr) return <span className="text-gray-400">—</span>;
+    try {
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime()))
+        return <span className="text-gray-400">—</span>;
+      return date.toLocaleString();
+    } catch (e) {
+      return <span className="text-gray-400">—</span>;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <IssueHeader
@@ -137,7 +152,7 @@ const IssueDetailsPage = () => {
                 />
                 <DetailFieldRow
                   label="Reported Date"
-                  value={formatEmptyValueWithUnknown(issue.reportedDate)}
+                  value={formatDateForDisplay(issue.reportedDate)}
                   noBorder
                 />
               </div>
@@ -155,7 +170,7 @@ const IssueDetailsPage = () => {
               <div className="p-3 space-y-2">
                 <DetailFieldRow
                   label="Resolved Date"
-                  value={formatEmptyValueWithUnknown(issue.resolvedDate)}
+                  value={formatDateForDisplay(issue.resolvedDate)}
                 />
                 <DetailFieldRow
                   label="Time to Resolve"
@@ -194,7 +209,7 @@ const IssueDetailsPage = () => {
                       Issue reported
                     </h3>
                     <p className="text-xs text-gray-500">
-                      {formatEmptyValueWithUnknown(issue.reportedDate)} by{" "}
+                      {formatDateForDisplay(issue.reportedDate)} by{" "}
                       {formatEmptyValueWithUnknown(issue.reportedByUserName)}
                     </p>
                   </li>
@@ -214,7 +229,7 @@ const IssueDetailsPage = () => {
                         Issue resolved
                       </h3>
                       <p className="text-xs text-gray-500">
-                        {formatEmptyValueWithUnknown(issue.resolvedDate)} by{" "}
+                        {formatDateForDisplay(issue.resolvedDate)} by{" "}
                         {formatEmptyValueWithUnknown(issue.resolvedByUserName)}
                       </p>
                     </li>

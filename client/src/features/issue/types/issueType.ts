@@ -44,7 +44,7 @@ export interface CreateIssueCommand {
   priorityLevel: PriorityLevelEnum;
   category: IssueCategoryEnum;
   status: IssueStatusEnum;
-  reportedByUserID: string;
+  reportedByUserID?: string | null;
   reportedDate?: string | null;
 }
 
@@ -56,7 +56,7 @@ export interface UpdateIssueCommand {
   priorityLevel: PriorityLevelEnum;
   category: IssueCategoryEnum;
   status: IssueStatusEnum;
-  reportedByUserID: string;
+  reportedByUserID?: string | null;
   reportedDate?: string | null;
   resolutionNotes?: string | null;
   resolvedDate?: string | null;

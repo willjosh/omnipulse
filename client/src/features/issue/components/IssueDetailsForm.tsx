@@ -17,11 +17,10 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Autocomplete, TextField } from "@mui/material";
-import { useTechnicians } from "../../technician/hooks/useTechnicians";
 import { useVehicles } from "../../vehicle/hooks/useVehicles";
 import {
   getTimeOptions,
-  combineDateAndTime,
+  combineDateAndTimeLocal,
   extractTimeFromISO,
 } from "@/utils/dateTimeUtils";
 import { IssueDetailsFormProps } from "@/features/issue/types/issueFormType";
@@ -60,29 +59,28 @@ const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
     vehicleOptions.find((v: VehicleOption) => v.value === value.vehicleID) ||
     null;
 
-  // Fetch technicians for Reported By dropdown
-  const { technicians, isPending: isLoadingTechnicians } = useTechnicians();
-  const usersList = technicians.map(
-    (t: { id: string; firstName: string; lastName: string }) => ({
-      value: String(t.id),
-      label: `${t.firstName} ${t.lastName}`,
-    }),
-  );
-  const [userSearch, setUserSearch] = useState("");
-  const filteredUsers = useMemo(() => {
-    if (!userSearch) return usersList;
-    const searchLower = userSearch.toLowerCase();
-    return usersList.filter((u: { label: string }) =>
-      u.label.toLowerCase().includes(searchLower),
-    );
-  }, [userSearch, usersList]);
-  const selectedUser =
-    usersList.find(
-      (u: { value: string }) => u.value === String(value.reportedByUserID),
-    ) || null;
-
   // Local state for time selection
   const [reportedTime, setReportedTime] = useState<string>("");
+
+  // Helper function to parse formatted dates
+  const parseFormattedDate = (
+    formattedDate: string | null | undefined,
+  ): Date | null => {
+    if (!formattedDate) return null;
+    const isoDate = new Date(formattedDate);
+    if (!isNaN(isoDate.getTime())) {
+      return isoDate;
+    }
+    try {
+      const parsed = new Date(formattedDate);
+      if (!isNaN(parsed.getTime())) {
+        return parsed;
+      }
+    } catch (e) {
+      console.warn("Failed to parse formatted date:", formattedDate);
+    }
+    return null;
+  };
 
   // Prefill reportedTime when value.ReportedDate changes
   useEffect(() => {
@@ -381,19 +379,14 @@ const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
           <div className="w-1/3 mr-4">
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <DatePicker
-                value={
-                  value.reportedDate &&
-                  !isNaN(new Date(value.reportedDate).getTime())
-                    ? new Date(value.reportedDate)
-                    : null
-                }
+                value={parseFormattedDate(value.reportedDate)}
                 onChange={date => {
                   let newTime = reportedTime;
                   if (!newTime) {
                     newTime = timeOptions[0];
                     setReportedTime(newTime);
                   }
-                  const iso = combineDateAndTime(
+                  const iso = combineDateAndTimeLocal(
                     date ? date.toISOString() : "",
                     newTime,
                   );
@@ -410,7 +403,7 @@ const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
               value={reportedTime}
               onChange={(_e, newValue) => {
                 setReportedTime(newValue || "");
-                const iso = combineDateAndTime(
+                const iso = combineDateAndTimeLocal(
                   value.reportedDate,
                   newValue || "",
                 );
@@ -442,78 +435,9 @@ const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
           value={value.description}
           onChange={e => onChange("description", e.target.value)}
           placeholder="Describe the issue in detail..."
-          className="w-full border border-gray-300 rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white min-h-[100px] resize-y"
+          className="w-full border border-gray-300 rounded-3xl px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white min-h-[100px] resize-y"
           disabled={disabled}
         />
-      </FormField>
-      <FormField label="Reported By" required error={errors.reportedByUserID}>
-        <Combobox
-          value={selectedUser}
-          onChange={u => u && onChange("reportedByUserID", u.value)}
-          disabled={disabled || isLoadingTechnicians}
-        >
-          <div className="relative">
-            <ComboboxInput
-              className="w-full border border-gray-300 rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-              displayValue={(user: { value: string; label: string } | null) =>
-                user?.label || ""
-              }
-              onChange={e => setUserSearch(e.target.value)}
-              placeholder="Search users..."
-              disabled={disabled || isLoadingTechnicians}
-            />
-            <ComboboxButton className="absolute inset-y-0 right-0 flex items-center pr-2">
-              <svg
-                className="h-5 w-5 text-gray-400"
-                viewBox="0 0 20 20"
-                fill="none"
-                stroke="currentColor"
-              >
-                <path
-                  d="M7 7l3-3 3 3m0 6l-3 3-3-3"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </ComboboxButton>
-            <ComboboxOptions className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-3xl shadow-lg max-h-60 overflow-auto">
-              {filteredUsers.length === 0 && (
-                <div className="px-4 py-2 text-gray-500">No users found.</div>
-              )}
-              {filteredUsers.map((opt: { value: string; label: string }) => (
-                <ComboboxOption
-                  key={opt.value}
-                  value={opt}
-                  className={({ active, selected }: any) =>
-                    `cursor-pointer select-none px-4 py-2 flex items-center ${active ? "bg-blue-100" : ""}`
-                  }
-                >
-                  {({ selected }: any) => (
-                    <>
-                      <span className="flex-1">{opt.label}</span>
-                      {selected && (
-                        <svg
-                          className="h-5 w-5 text-blue-600 ml-2"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
-                      )}
-                    </>
-                  )}
-                </ComboboxOption>
-              ))}
-            </ComboboxOptions>
-          </div>
-        </Combobox>
       </FormField>
     </FormContainer>
   );
