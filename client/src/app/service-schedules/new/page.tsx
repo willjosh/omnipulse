@@ -242,10 +242,7 @@ function CreateServiceScheduleForm() {
             <SecondaryButton onClick={handleCancel} disabled={isCreating}>
               Cancel
             </SecondaryButton>
-            <PrimaryButton
-              onClick={handleSaveAndAddAnother}
-              disabled={isCreating}
-            >
+            <PrimaryButton onClick={handleSave} disabled={isCreating}>
               {isCreating ? "Saving..." : "Save"}
             </PrimaryButton>
           </>
