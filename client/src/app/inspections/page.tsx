@@ -136,7 +136,7 @@ export default function InspectionListPage() {
           ) : (
             <div className="flex items-center gap-1 text-green-600">
               <CheckCircle size={16} />
-              <span className="text-sm font-medium">Pass</span>
+              <span className="text-sm font-medium">None</span>
             </div>
           )}
         </div>

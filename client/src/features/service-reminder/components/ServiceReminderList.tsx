@@ -233,7 +233,7 @@ const ServiceReminderList: React.FC = () => {
     },
     {
       key: "totalEstimatedLabourHours",
-      header: "Labor Hours",
+      header: "Estimated Labour Hours",
       sortable: true,
       width: "120px",
       render: (reminder: ServiceReminderWithLabels) => (
