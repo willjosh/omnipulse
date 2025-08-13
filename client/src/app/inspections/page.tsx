@@ -46,13 +46,12 @@ export default function InspectionListPage() {
     },
     {
       key: "inspectionFormName",
-      header: "Form Type",
+      header: "Form Name",
       sortable: true,
       width: "180px",
       render: (item: InspectionWithLabels) => (
         <div>
           <div className="font-medium">{item.inspectionFormName}</div>
-          <div className="text-sm text-gray-500">{item.snapshotFormTitle}</div>
         </div>
       ),
     },
@@ -186,7 +185,7 @@ export default function InspectionListPage() {
           Inspection History
         </h1>
         <PrimaryButton onClick={() => setShowSelectFormModal(true)}>
-          <Plus size={18} />
+          <Plus size={16} />
           Start Inspection
         </PrimaryButton>
       </div>
@@ -262,7 +261,9 @@ export default function InspectionListPage() {
             {/* Content */}
             <div className="px-6 py-4">
               <div className="mb-4">
-                <h3 className="text-sm font-medium text-gray-700 mb-2">ALL</h3>
+                <h3 className="text-sm font-medium text-gray-700 mb-2">
+                  Available Inspection Forms
+                </h3>
                 <div className="space-y-2">
                   {inspectionForms
                     .filter(form => form.isActive)

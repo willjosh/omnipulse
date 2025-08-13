@@ -20,6 +20,7 @@ import {
   VEHICLE_ACTION_CONFIG,
 } from "../config/vehicleActions";
 import { DEFAULT_PAGE_SIZE } from "@/components/ui/Table/constants";
+import { Plus } from "lucide-react";
 
 const VehicleList: React.FC = () => {
   const router = useRouter();
@@ -170,7 +171,7 @@ const VehicleList: React.FC = () => {
         <div className="flex items-center gap-3">
           <OptionButton />
           <PrimaryButton onClick={() => router.push("/vehicles/create")}>
-            <span>+</span>
+            <Plus size={16} />
             Add Vehicles
           </PrimaryButton>
         </div>

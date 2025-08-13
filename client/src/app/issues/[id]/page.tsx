@@ -106,10 +106,14 @@ const IssueDetailsPage = () => {
                 <h2 className="text-lg font-semibold text-gray-900">Details</h2>
               </div>
               <div className="p-3 space-y-2">
-                <DetailFieldRow
-                  label="Description"
-                  value={formatEmptyValueWithUnknown(issue.description)}
-                />
+                <div className="flex justify-between items-start py-3 border-b border-gray-100">
+                  <span className="text-sm font-medium text-gray-600">
+                    Description
+                  </span>
+                  <div className="text-sm text-gray-900 max-w-[50%] border border-gray-200 rounded-lg p-2 bg-gray-50">
+                    {formatEmptyValueWithUnknown(issue.description)}
+                  </div>
+                </div>
                 <DetailFieldRow
                   label="Status"
                   value={<StatusBadge status={issue.statusLabel} />}
@@ -134,6 +138,7 @@ const IssueDetailsPage = () => {
                 <DetailFieldRow
                   label="Reported Date"
                   value={formatEmptyValueWithUnknown(issue.reportedDate)}
+                  noBorder
                 />
               </div>
             </div>
@@ -161,6 +166,7 @@ const IssueDetailsPage = () => {
                 <DetailFieldRow
                   label="Resolution Notes"
                   value={formatEmptyValueWithUnknown(issue.resolutionNotes)}
+                  noBorder
                 />
               </div>
             </div>

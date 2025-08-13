@@ -6,8 +6,14 @@ import {
   CreateServiceScheduleCommand,
   UpdateServiceScheduleCommand,
 } from "../types/serviceScheduleType";
-import { TimeUnitEnum } from "../types/serviceScheduleEnum";
-import { getTimeUnitEnumLabel } from "../utils/serviceScheduleEnumHelper";
+import {
+  ServiceScheduleTypeEnum,
+  TimeUnitEnum,
+} from "../types/serviceScheduleEnum";
+import {
+  getServiceScheduleTypeEnumLabel,
+  getTimeUnitEnumLabel,
+} from "../utils/serviceScheduleEnumHelper";
 import { convertServiceTaskData } from "../../service-task/hooks/useServiceTasks";
 
 function formatDate(date?: string | null): string | null {
@@ -28,6 +34,9 @@ export const convertServiceScheduleData = (
   timeBufferUnit: schedule.timeBufferUnit as number,
   timeBufferUnitLabel: getTimeUnitEnumLabel(schedule.timeBufferUnit),
   timeBufferUnitEnum: schedule.timeBufferUnit as TimeUnitEnum,
+  scheduleType: schedule.scheduleType as number,
+  scheduleTypeLabel: getServiceScheduleTypeEnumLabel(schedule.scheduleType),
+  scheduleTypeEnum: schedule.scheduleType as ServiceScheduleTypeEnum,
 });
 
 export const serviceScheduleApi = {

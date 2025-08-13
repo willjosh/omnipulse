@@ -1,5 +1,5 @@
 export const workOrderTableColumns = [
-  { key: "title", header: "Title", width: "250px" },
+  { key: "title", header: "Title & Description", width: "300px" },
   { key: "vehicleName", header: "Vehicle", width: "200px" },
   { key: "workOrderTypeLabel", header: "Type", width: "120px", sortable: true },
   {
@@ -32,5 +32,4 @@ export const workOrderTableColumns = [
   { key: "totalCost", header: "Total Cost", width: "100px" },
   { key: "totalLaborCost", header: "Labor Cost", width: "100px" },
   { key: "totalItemCost", header: "Item Cost", width: "100px" },
-  { key: "description", header: "Description", width: "200px" },
 ];

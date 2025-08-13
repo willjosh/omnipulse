@@ -26,7 +26,7 @@ const initialForm: ServiceScheduleDetailsFormValues = {
   firstServiceDate: "",
   firstServiceMileage: "",
   serviceTaskIDs: [],
-  isActive: true,
+  scheduleType: 1, // Default to TIME-based
   serviceProgramID: "",
 };
 
@@ -104,11 +104,33 @@ function CreateServiceScheduleForm() {
 
   const handleSaveAndAddAnother = () => {
     if (!validate()) return;
+
+    // Ensure the date is properly formatted as ISO string before saving
+    let formattedFirstServiceDate = form.firstServiceDate;
+    if (form.firstServiceDate && form.firstServiceDate !== "") {
+      try {
+        const date = new Date(form.firstServiceDate);
+        if (!isNaN(date.getTime())) {
+          // Preserve the local time by creating a new ISO string
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, "0");
+          const day = String(date.getDate()).padStart(2, "0");
+          const hours = date.getHours();
+          const minutes = date.getMinutes();
+
+          // Store without Z suffix to treat as local time, not UTC
+          formattedFirstServiceDate = `${year}-${month}-${day}T${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:00.000`;
+        }
+      } catch (error) {
+        console.error("Error formatting date:", error);
+      }
+    }
+
     const payload: any = {
       serviceProgramID: Number(form.serviceProgramID),
       name: form.name,
       serviceTaskIDs: form.serviceTaskIDs.map((id: any) => Number(id)),
-      isActive: form.isActive,
+      scheduleType: form.scheduleType,
     };
     if (form.timeIntervalValue)
       payload.timeIntervalValue = Number(form.timeIntervalValue);
@@ -121,7 +143,8 @@ function CreateServiceScheduleForm() {
     if (form.mileageInterval)
       payload.mileageInterval = Number(form.mileageInterval);
     if (form.mileageBuffer) payload.mileageBuffer = Number(form.mileageBuffer);
-    if (form.firstServiceDate) payload.firstServiceDate = form.firstServiceDate;
+    if (formattedFirstServiceDate)
+      payload.firstServiceDate = formattedFirstServiceDate;
     if (form.firstServiceMileage)
       payload.firstServiceMileage = Number(form.firstServiceMileage);
     createServiceSchedule(payload, {
@@ -144,11 +167,33 @@ function CreateServiceScheduleForm() {
 
   const handleSave = () => {
     if (!validate()) return;
+
+    // Ensure the date is properly formatted as ISO string before saving
+    let formattedFirstServiceDate = form.firstServiceDate;
+    if (form.firstServiceDate && form.firstServiceDate !== "") {
+      try {
+        const date = new Date(form.firstServiceDate);
+        if (!isNaN(date.getTime())) {
+          // Preserve the local time by creating a new ISO string
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, "0");
+          const day = String(date.getDate()).padStart(2, "0");
+          const hours = date.getHours();
+          const minutes = date.getMinutes();
+
+          // Store without Z suffix to treat as local time, not UTC
+          formattedFirstServiceDate = `${year}-${month}-${day}T${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:00.000`;
+        }
+      } catch (error) {
+        console.error("Error formatting date:", error);
+      }
+    }
+
     const payload: any = {
       serviceProgramID: Number(form.serviceProgramID),
       name: form.name,
       serviceTaskIDs: form.serviceTaskIDs.map((id: any) => Number(id)),
-      isActive: form.isActive,
+      scheduleType: form.scheduleType,
     };
     if (form.timeIntervalValue)
       payload.timeIntervalValue = Number(form.timeIntervalValue);
@@ -161,7 +206,8 @@ function CreateServiceScheduleForm() {
     if (form.mileageInterval)
       payload.mileageInterval = Number(form.mileageInterval);
     if (form.mileageBuffer) payload.mileageBuffer = Number(form.mileageBuffer);
-    if (form.firstServiceDate) payload.firstServiceDate = form.firstServiceDate;
+    if (formattedFirstServiceDate)
+      payload.firstServiceDate = formattedFirstServiceDate;
     if (form.firstServiceMileage)
       payload.firstServiceMileage = Number(form.firstServiceMileage);
     createServiceSchedule(payload, {
@@ -196,10 +242,7 @@ function CreateServiceScheduleForm() {
             <SecondaryButton onClick={handleCancel} disabled={isCreating}>
               Cancel
             </SecondaryButton>
-            <PrimaryButton
-              onClick={handleSaveAndAddAnother}
-              disabled={isCreating}
-            >
+            <PrimaryButton onClick={handleSave} disabled={isCreating}>
               {isCreating ? "Saving..." : "Save"}
             </PrimaryButton>
           </>
@@ -219,6 +262,7 @@ function CreateServiceScheduleForm() {
           availableVehicles={vehicles}
           availableServicePrograms={servicePrograms}
           disabled={isCreating}
+          showScheduleType={true}
           showServiceProgram={!serviceProgramId}
         />
       </div>

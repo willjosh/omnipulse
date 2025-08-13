@@ -80,8 +80,8 @@ export default function IssuesPage() {
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-semibold text-gray-900">Issues</h1>
         <PrimaryButton onClick={() => router.push("/issues/new")}>
-          <Plus className="w-5 h-5" />
-          <span className="flex items-center">Add Issue</span>
+          <Plus size={16} />
+          Add Issue
         </PrimaryButton>
       </div>
       <div className="flex items-center justify-between mb-6">

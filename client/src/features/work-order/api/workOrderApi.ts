@@ -49,6 +49,31 @@ export const convertWorkOrderData = (
   status: workOrder.status as number,
   statusLabel: getWorkOrderStatusLabel(workOrder.status),
   statusEnum: workOrder.status as WorkOrderStatusEnum,
+  // Preserve original dates for editing, don't format for display
+  scheduledStartDate: workOrder.scheduledStartDate,
+  actualStartDate: workOrder.actualStartDate,
+  scheduledCompletionDate: workOrder.scheduledCompletionDate,
+  actualCompletionDate: workOrder.actualCompletionDate,
+  workOrderLineItems: workOrder.workOrderLineItems.map(
+    convertWorkOrderLineItemData,
+  ),
+});
+
+// Function to format work order data for display purposes
+export const convertWorkOrderDataForDisplay = (
+  workOrder: WorkOrder,
+): WorkOrderWithLabels => ({
+  ...workOrder,
+  workOrderType: workOrder.workOrderType as number,
+  workOrderTypeLabel: getWorkTypeLabel(workOrder.workOrderType),
+  workOrderTypeEnum: workOrder.workOrderType as WorkTypeEnum,
+  priorityLevel: workOrder.priorityLevel as number,
+  priorityLevelLabel: getPriorityLevelLabel(workOrder.priorityLevel),
+  priorityLevelEnum: workOrder.priorityLevel as PriorityLevelEnum,
+  status: workOrder.status as number,
+  statusLabel: getWorkOrderStatusLabel(workOrder.status),
+  statusEnum: workOrder.status as WorkOrderStatusEnum,
+  // Format dates for display
   scheduledStartDate: formatDate(workOrder.scheduledStartDate),
   actualStartDate: formatDate(workOrder.actualStartDate),
   scheduledCompletionDate: formatDate(workOrder.scheduledCompletionDate),

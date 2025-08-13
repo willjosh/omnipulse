@@ -48,7 +48,7 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({
     if (mode === "edit" && existingTechnician) {
       setFormData({
         email: existingTechnician.email,
-        password: "", // password is not editable in edit mode
+        password: "",
         firstName: existingTechnician.firstName,
         lastName: existingTechnician.lastName,
         hireDate: existingTechnician.hireDate.split("T")[0],
@@ -70,7 +70,6 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    // Required text fields
     if (!formData.firstName.trim()) {
       newErrors.firstName = "First Name is required";
     }
@@ -78,7 +77,6 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({
       newErrors.lastName = "Last Name is required";
     }
 
-    // Email validation (only for create mode)
     if (mode === "create") {
       if (!formData.email.trim()) {
         newErrors.email = "Email is required";
@@ -91,7 +89,6 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({
       newErrors.hireDate = "Hire Date is required";
     }
 
-    // Password validation (only for create mode)
     if (mode === "create") {
       if (!formData.password.trim()) {
         newErrors.password = "Password is required";
@@ -246,31 +243,6 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({
             errors.hireDate ? "border-red-300" : "border-gray-300"
           }`}
         />
-      </FormField>
-
-      <FormField label="Status" htmlFor="isActive">
-        <div className="flex items-center space-x-3">
-          <label className="flex items-center">
-            <input
-              type="radio"
-              name="status"
-              checked={formData.isActive === true}
-              onChange={() => handleInputChange("isActive", true)}
-              className="mr-2 text-blue-600"
-            />
-            <span className="text-sm text-gray-700">Active</span>
-          </label>
-          <label className="flex items-center">
-            <input
-              type="radio"
-              name="status"
-              checked={formData.isActive === false}
-              onChange={() => handleInputChange("isActive", false)}
-              className="mr-2 text-blue-600"
-            />
-            <span className="text-sm text-gray-700">Inactive</span>
-          </label>
-        </div>
       </FormField>
 
       <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">

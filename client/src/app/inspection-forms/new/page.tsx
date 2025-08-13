@@ -31,7 +31,6 @@ export default function CreateInspectionFormPage() {
 
   const breadcrumbs = [
     { label: "Inspection Forms", href: "/inspection-forms" },
-    { label: "Create" },
   ];
 
   const validate = () => {

@@ -1,5 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { workOrderApi, convertWorkOrderData } from "../api/workOrderApi";
+import {
+  workOrderApi,
+  convertWorkOrderData,
+  convertWorkOrderDataForDisplay,
+} from "../api/workOrderApi";
 import {
   WorkOrderWithLabels,
   WorkOrderFilter,
@@ -15,7 +19,7 @@ export function useWorkOrders(filter: WorkOrderFilter = {}) {
     queryKey: ["workOrders", debouncedFilter],
     queryFn: async () => {
       const data = await workOrderApi.getWorkOrders(debouncedFilter);
-      return { ...data, items: data.items.map(convertWorkOrderData) };
+      return { ...data, items: data.items.map(convertWorkOrderDataForDisplay) };
     },
   });
 

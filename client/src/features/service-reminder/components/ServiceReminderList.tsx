@@ -83,19 +83,23 @@ const ServiceReminderList: React.FC = () => {
       ),
     },
     {
+      key: "serviceProgramName",
+      header: "Service Program",
+      sortable: true,
+      width: "200px",
+      render: (reminder: ServiceReminderWithLabels) => (
+        <div className="font-medium">
+          {formatEmptyValueWithUnknown(reminder.serviceProgramName)}
+        </div>
+      ),
+    },
+    {
       key: "serviceScheduleName",
       header: "Service Schedule",
       sortable: true,
-      width: "250px",
+      width: "200px",
       render: (reminder: ServiceReminderWithLabels) => (
-        <div>
-          <div className="font-medium">{reminder.serviceScheduleName}</div>
-          {reminder.serviceProgramName && (
-            <div className="text-sm text-gray-500">
-              {formatEmptyValueWithUnknown(reminder.serviceProgramName)}
-            </div>
-          )}
-        </div>
+        <div className="font-medium">{reminder.serviceScheduleName}</div>
       ),
     },
     {
@@ -220,26 +224,21 @@ const ServiceReminderList: React.FC = () => {
       key: "totalEstimatedCost",
       header: "Estimated Cost",
       sortable: true,
-      width: "150px",
+      width: "120px",
       render: (reminder: ServiceReminderWithLabels) => (
-        <div className="text-right">
-          <div className="font-medium">
-            ${reminder.totalEstimatedCost.toFixed(2)}
-          </div>
-          <div className="text-xs text-gray-500">
-            {reminder.totalEstimatedLabourHours}h labor
-          </div>
+        <div className="text-right font-medium">
+          ${reminder.totalEstimatedCost.toFixed(2)}
         </div>
       ),
     },
     {
-      key: "occurrenceNumber",
-      header: "Occurrence",
+      key: "totalEstimatedLabourHours",
+      header: "Labor Hours",
       sortable: true,
       width: "120px",
       render: (reminder: ServiceReminderWithLabels) => (
-        <div className="text-center">
-          <div className="font-medium">{reminder.occurrenceNumber}</div>
+        <div className="text-center font-medium">
+          {reminder.totalEstimatedLabourHours}h
         </div>
       ),
     },

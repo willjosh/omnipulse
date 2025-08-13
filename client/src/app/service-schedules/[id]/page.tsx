@@ -9,11 +9,12 @@ import EmptyState from "@/components/ui/Feedback/EmptyState";
 import ServiceScheduleHeader from "@/features/service-schedule/components/ServiceScheduleHeader";
 import PrimaryButton from "@/components/ui/Button/PrimaryButton";
 import EditIcon from "@/components/ui/Icons/Edit";
-import ArchiveIcon from "@/components/ui/Icons/Archive";
+import { Trash2 } from "lucide-react";
 import ConfirmModal from "@/components/ui/Modal/ConfirmModal";
 import { useDeleteServiceSchedule } from "@/features/service-schedule/hooks/useServiceSchedules";
 import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
 import { BreadcrumbItem } from "@/components/ui/Layout/Breadcrumbs";
+import { ServiceScheduleTypeEnum } from "@/features/service-schedule/types/serviceScheduleEnum";
 
 export default function ServiceScheduleDetailPage() {
   const params = useParams();
@@ -53,6 +54,11 @@ export default function ServiceScheduleDetailPage() {
     });
   };
 
+  const isTimeBased =
+    serviceSchedule.scheduleType === ServiceScheduleTypeEnum.TIME;
+  const isMileageBased =
+    serviceSchedule.scheduleType === ServiceScheduleTypeEnum.MILEAGE;
+
   return (
     <div className="min-h-screen mx-auto bg-gray-50">
       <ServiceScheduleHeader
@@ -70,7 +76,7 @@ export default function ServiceScheduleDetailPage() {
               onClick={() => setDeleteModalOpen(true)}
               disabled={isDeleting}
             >
-              <ArchiveIcon /> Delete
+              <Trash2 size={16} /> Delete
             </PrimaryButton>
             <ConfirmModal
               isOpen={isDeleteModalOpen}
@@ -87,6 +93,10 @@ export default function ServiceScheduleDetailPage() {
       <div className="m-4 px-6 pb-12">
         <FormContainer title="Details" className="max-w-2xl mx-auto">
           <DetailFieldRow label="Name" value={serviceSchedule.name} />
+          <DetailFieldRow
+            label="Schedule Type"
+            value={serviceSchedule.scheduleTypeLabel}
+          />
           <DetailFieldRow
             label="Tasks"
             value={
@@ -106,57 +116,94 @@ export default function ServiceScheduleDetailPage() {
               </div>
             }
           />
-          <DetailFieldRow
-            label="Frequency"
-            value={
-              serviceSchedule.timeIntervalValue &&
-              serviceSchedule.timeIntervalUnitLabel ? (
-                `${serviceSchedule.timeIntervalValue} ${
-                  serviceSchedule.timeIntervalValue === 1
-                    ? serviceSchedule.timeIntervalUnitLabel.replace(/s$/, "")
-                    : serviceSchedule.timeIntervalUnitLabel
-                }`
-              ) : serviceSchedule.mileageInterval ? (
-                `${serviceSchedule.mileageInterval} km`
-              ) : (
-                <span className="text-gray-400">-</span>
-              )
-            }
-          />
-          <DetailFieldRow
-            label="Buffer"
-            value={
-              serviceSchedule.timeBufferValue &&
-              serviceSchedule.timeBufferUnitLabel ? (
-                `${serviceSchedule.timeBufferValue} ${
-                  serviceSchedule.timeBufferValue === 1
-                    ? serviceSchedule.timeBufferUnitLabel.replace(/s$/, "")
-                    : serviceSchedule.timeBufferUnitLabel
-                }`
-              ) : serviceSchedule.mileageBuffer ? (
-                `${serviceSchedule.mileageBuffer} km`
-              ) : (
-                <span className="text-gray-400">-</span>
-              )
-            }
-          />
-          <DetailFieldRow
-            label="First Service"
-            value={
-              serviceSchedule.firstServiceDate ? (
-                new Date(serviceSchedule.firstServiceDate).toLocaleDateString()
-              ) : serviceSchedule.firstServiceMileage ? (
-                `${serviceSchedule.firstServiceMileage} km`
-              ) : (
-                <span className="text-gray-400">-</span>
-              )
-            }
-          />
-          <DetailFieldRow
-            label="Active"
-            value={serviceSchedule.isActive ? "Yes" : "No"}
-            noBorder
-          />
+
+          {/* Time-based fields */}
+          {isTimeBased && (
+            <>
+              <DetailFieldRow
+                label="Time Frequency"
+                value={
+                  serviceSchedule.timeIntervalValue &&
+                  serviceSchedule.timeIntervalUnitLabel ? (
+                    `${serviceSchedule.timeIntervalValue} ${
+                      serviceSchedule.timeIntervalValue === 1
+                        ? serviceSchedule.timeIntervalUnitLabel.replace(
+                            /s$/,
+                            "",
+                          )
+                        : serviceSchedule.timeIntervalUnitLabel
+                    }`
+                  ) : (
+                    <span className="text-gray-400">-</span>
+                  )
+                }
+              />
+              <DetailFieldRow
+                label="Time Buffer"
+                value={
+                  serviceSchedule.timeBufferValue &&
+                  serviceSchedule.timeBufferUnitLabel ? (
+                    `${serviceSchedule.timeBufferValue} ${
+                      serviceSchedule.timeBufferValue === 1
+                        ? serviceSchedule.timeBufferUnitLabel.replace(/s$/, "")
+                        : serviceSchedule.timeBufferUnitLabel
+                    }`
+                  ) : (
+                    <span className="text-gray-400">-</span>
+                  )
+                }
+              />
+              <DetailFieldRow
+                label="First Service Date"
+                value={
+                  serviceSchedule.firstServiceDate ? (
+                    new Date(
+                      serviceSchedule.firstServiceDate,
+                    ).toLocaleDateString()
+                  ) : (
+                    <span className="text-gray-400">-</span>
+                  )
+                }
+              />
+            </>
+          )}
+
+          {/* Mileage-based fields */}
+          {isMileageBased && (
+            <>
+              <DetailFieldRow
+                label="Mileage Frequency"
+                value={
+                  serviceSchedule.mileageInterval ? (
+                    `${serviceSchedule.mileageInterval} km`
+                  ) : (
+                    <span className="text-gray-400">-</span>
+                  )
+                }
+              />
+              <DetailFieldRow
+                label="Mileage Buffer"
+                value={
+                  serviceSchedule.mileageBuffer ? (
+                    `${serviceSchedule.mileageBuffer} km`
+                  ) : (
+                    <span className="text-gray-400">-</span>
+                  )
+                }
+              />
+              <DetailFieldRow
+                label="First Service Mileage"
+                value={
+                  serviceSchedule.firstServiceMileage ? (
+                    `${serviceSchedule.firstServiceMileage} km`
+                  ) : (
+                    <span className="text-gray-400">-</span>
+                  )
+                }
+                noBorder
+              />
+            </>
+          )}
         </FormContainer>
       </div>
     </div>

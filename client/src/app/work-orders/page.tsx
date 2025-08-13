@@ -49,33 +49,27 @@ export default function WorkOrdersPage() {
 
   const { workOrders, pagination, isPending } = useWorkOrders(filter);
 
-  const tableData = useMemo(
-    () =>
-      workOrders.map((workOrder: WorkOrderWithLabels) => ({
-        id: workOrder.id.toString(),
-        title: workOrder.title,
-        vehicleName: workOrder.vehicleName,
-        workOrderTypeLabel: workOrder.workOrderTypeLabel,
-        priorityLevelLabel: workOrder.priorityLevelLabel,
-        statusLabel: workOrder.statusLabel,
-        assignedToUserName: workOrder.assignedToUserName,
-        scheduledStartDate: workOrder.scheduledStartDate || "Not scheduled",
-        actualStartDate: workOrder.actualStartDate || "Not started",
-        startOdometer: workOrder.startOdometer,
-        endOdometer: workOrder.endOdometer || "—",
-        totalCost: workOrder.totalCost
-          ? `$${workOrder.totalCost.toFixed(2)}`
-          : "—",
-        totalLaborCost: workOrder.totalLaborCost
-          ? `$${workOrder.totalLaborCost.toFixed(2)}`
-          : "—",
-        totalItemCost: workOrder.totalItemCost
-          ? `$${workOrder.totalItemCost.toFixed(2)}`
-          : "—",
-        description: workOrder.description || "—",
-      })),
-    [workOrders],
-  );
+  // Override the title column to include description
+  const customColumns = useMemo(() => {
+    return workOrderTableColumns.map(col => {
+      if (col.key === "title") {
+        return {
+          ...col,
+          render: (item: WorkOrderWithLabels) => (
+            <div>
+              <div className="font-medium text-gray-900">{item.title}</div>
+              {item.description && (
+                <div className="text-sm text-gray-500 mt-1">
+                  {item.description}
+                </div>
+              )}
+            </div>
+          ),
+        };
+      }
+      return col;
+    });
+  }, []);
 
   const handlePreviousPage = () => setPage(p => Math.max(1, p - 1));
   const handleNextPage = () =>
@@ -142,10 +136,8 @@ export default function WorkOrdersPage() {
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-semibold text-gray-900">Work Orders</h1>
         <PrimaryButton onClick={() => router.push("/work-orders/new")}>
-          <div className="flex items-center justify-center">
-            <Plus className="w-5 h-5" />
-            <span className="ml-2 flex items-center">Add Work Order</span>
-          </div>
+          <Plus size={16} />
+          Add Work Order
         </PrimaryButton>
       </div>
 
@@ -172,7 +164,7 @@ export default function WorkOrdersPage() {
       </div>
 
       <DataTable
-        columns={workOrderTableColumns}
+        columns={customColumns}
         data={workOrders}
         selectedItems={[]}
         onSelectItem={() => {}}

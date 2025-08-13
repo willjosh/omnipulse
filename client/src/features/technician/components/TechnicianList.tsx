@@ -13,6 +13,7 @@ import {
 } from "../hooks/useTechnicians";
 import { Technician } from "../types/technicianType";
 import { DEFAULT_PAGE_SIZE } from "@/components/ui/Table/constants";
+import { Plus } from "lucide-react";
 
 const TechnicianList: React.FC = () => {
   const router = useRouter();
@@ -79,7 +80,6 @@ const TechnicianList: React.FC = () => {
 
   const handleSearch = (searchTerm: string) => {
     setSearch(searchTerm);
-    // Page reset is handled by useEffect
   };
 
   const handlePageChange = (newPage: number) => {
@@ -159,7 +159,7 @@ const TechnicianList: React.FC = () => {
         <div className="flex items-center gap-3">
           <OptionButton />
           <PrimaryButton onClick={() => router.push("/technician/create")}>
-            <span>+</span>
+            <Plus size={16} />
             Add Technician
           </PrimaryButton>
         </div>

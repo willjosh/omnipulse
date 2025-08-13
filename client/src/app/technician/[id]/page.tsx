@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Edit, ArrowLeft, Mail, Calendar } from "lucide-react";
+import { Edit, ArrowLeft, Mail, Calendar, User } from "lucide-react";
 import { TabNavigation } from "@/components/ui/Tabs";
 import { PrimaryButton } from "@/components/ui/Button";
 import { Loading } from "@/components/ui/Feedback";
@@ -51,10 +51,6 @@ const TechnicianProfilePage = () => {
 
   const handleBack = () => {
     router.push("/technician");
-  };
-
-  const getInitials = (firstName: string, lastName: string) => {
-    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
   };
 
   const formatDate = (dateString: string) => {
@@ -122,19 +118,6 @@ const TechnicianProfilePage = () => {
             <span className="text-sm text-gray-900">
               {getYearsOfService(technician.hireDate)} years
             </span>
-          </div>
-          <div className="flex justify-between items-center py-3 border-b border-gray-100">
-            <span className="text-sm font-medium text-gray-600">Status</span>
-            <div className="flex items-center">
-              <div
-                className={`w-2 h-2 rounded-full mr-2 ${
-                  technician.isActive ? "bg-green-500" : "bg-red-500"
-                }`}
-              ></div>
-              <span className="text-sm text-gray-900">
-                {technician.isActive ? "Active" : "Inactive"}
-              </span>
-            </div>
           </div>
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
             <span className="text-sm font-medium text-gray-600">
@@ -225,8 +208,8 @@ const TechnicianProfilePage = () => {
           </div>
           <div className="flex items-start justify-between">
             <div className="flex items-start space-x-4">
-              <div className="w-22 h-22 bg-primary rounded-3xl flex items-center justify-center text-white font-semibold text-lg">
-                {getInitials(technician.firstName, technician.lastName)}
+              <div className="w-22 h-22 bg-gray-100 rounded-3xl flex items-center justify-center">
+                <User className="w-10 h-10 text-blue-600" />
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900 mb-1">
@@ -236,20 +219,6 @@ const TechnicianProfilePage = () => {
                   {technician.email} • Hired {formatDate(technician.hireDate)}
                 </p>
                 <div className="flex items-center space-x-4 text-sm">
-                  <span
-                    className={`flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                      technician.isActive
-                        ? "bg-green-100 text-green-800"
-                        : "bg-red-100 text-red-800"
-                    }`}
-                  >
-                    <div
-                      className={`w-1.5 h-1.5 rounded-full mr-1.5 ${
-                        technician.isActive ? "bg-green-500" : "bg-red-500"
-                      }`}
-                    ></div>
-                    {technician.isActive ? "Active" : "Inactive"}
-                  </span>
                   <span className="text-gray-600">
                     {getYearsOfService(technician.hireDate)} years of service
                   </span>

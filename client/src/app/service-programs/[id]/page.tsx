@@ -18,7 +18,7 @@ import DataTable from "@/components/ui/Table/DataTable";
 import FilterBar from "@/components/ui/Filter/FilterBar";
 import PaginationControls from "@/components/ui/Table/PaginationControls";
 import { ConfirmModal } from "@/components/ui/Modal";
-import { Archive } from "@/components/ui/Icons";
+import { Trash2 } from "lucide-react";
 import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
 import { ServiceScheduleWithLabels } from "@/features/service-schedule/types/serviceScheduleType";
 import { serviceProgramVehicleTableColumns } from "@/features/service-program/config/serviceProgramVehicleTableColumns";
@@ -88,7 +88,7 @@ export default function ServiceProgramDetailsPage() {
         key: "remove",
         label: "Delete",
         variant: "danger" as const,
-        icon: <Archive />,
+        icon: <Trash2 size={16} />,
         onClick: (vehicle: ServiceProgramVehicleWithDetails) => {
           setConfirmModal({ isOpen: true, vehicle });
         },
@@ -190,6 +190,13 @@ export default function ServiceProgramDetailsPage() {
   const serviceScheduleColumns = [
     { key: "name", header: "Name", width: "200px" },
     {
+      key: "scheduleType",
+      header: "Schedule Type",
+      width: "140px",
+      render: (schedule: ServiceScheduleWithLabels) =>
+        schedule.scheduleTypeLabel,
+    },
+    {
       key: "frequency",
       header: "Frequency",
       width: "150px",
@@ -235,13 +242,6 @@ export default function ServiceProgramDetailsPage() {
         }
         return "-";
       },
-    },
-    {
-      key: "isActive",
-      header: "Active",
-      width: "100px",
-      render: (schedule: ServiceScheduleWithLabels) =>
-        schedule.isActive ? "Yes" : "No",
     },
   ];
 
