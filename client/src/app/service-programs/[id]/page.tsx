@@ -86,7 +86,7 @@ export default function ServiceProgramDetailsPage() {
     () => (spVehicle: ServiceProgramVehicleWithDetails) => [
       {
         key: "remove",
-        label: "Delete",
+        label: "Remove",
         variant: "danger" as const,
         icon: <Trash2 size={16} />,
         onClick: (vehicle: ServiceProgramVehicleWithDetails) => {
