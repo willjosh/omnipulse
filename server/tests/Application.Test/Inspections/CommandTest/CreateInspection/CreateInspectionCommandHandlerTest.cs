@@ -339,6 +339,32 @@ public class CreateInspectionCommandHandlerTest
     }
 
     [Fact]
+    public async Task Handle_Should_Throw_BadRequest_When_Odometer_Less_Than_Vehicle_Mileage()
+    {
+        // ===== Arrange =====
+        var command = CreateValidCommand(odometerReading: 49000.0);
+        SetupValidValidation(command);
+
+        var inspectionForm = CreateMockInspectionForm();
+        var vehicle = CreateMockVehicle();
+        vehicle.Mileage = 50000.0;
+        _mockInspectionFormRepository.Setup(r => r.GetByIdAsync(command.InspectionFormID))
+            .ReturnsAsync(inspectionForm);
+        _mockInspectionFormRepository.Setup(r => r.GetInspectionFormWithItemsAsync(command.InspectionFormID))
+            .ReturnsAsync(inspectionForm);
+        _mockVehicleRepository.Setup(r => r.GetByIdAsync(command.VehicleID))
+            .ReturnsAsync(vehicle);
+        _mockUserRepository.Setup(r => r.GetTechnicianByIdAsync(command.TechnicianID))
+            .ReturnsAsync(CreateMockUser());
+
+        // ===== Act & Assert =====
+        var ex = await Assert.ThrowsAsync<BadRequestException>(() => _commandHandler.Handle(command, CancellationToken.None));
+
+        _mockInspectionRepository.Verify(r => r.AddAsync(It.IsAny<Inspection>()), Times.Never);
+        _mockInspectionRepository.Verify(r => r.SaveChangesAsync(), Times.Never);
+    }
+
+    [Fact]
     public async Task Handle_Should_Throw_BadRequestException_When_Validation_Fails()
     {
         // Arrange
