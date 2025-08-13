@@ -1,11 +1,11 @@
-using System;
-
 using Application.Contracts.UserServices;
 using Application.Features.Inventory.Command.DeleteInventory;
 using Application.Features.Inventory.Command.UpdateInventory;
 using Application.Features.Inventory.Query;
 using Application.Features.Inventory.Query.GetInventory;
 using Application.Models.PaginationModels;
+
+using Domain.Entities;
 
 using MediatR;
 

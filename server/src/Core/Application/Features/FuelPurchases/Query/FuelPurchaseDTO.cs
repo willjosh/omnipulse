@@ -1,6 +1,6 @@
-namespace Application.Features.FuelPurchases.Query.GetAllFuelPurchases;
+namespace Application.Features.FuelPurchases.Query;
 
-public class GetAllFuelPurchasesDTO
+public class FuelPurchaseDTO
 {
     /// <example>1</example>
     public int ID { get; set; }

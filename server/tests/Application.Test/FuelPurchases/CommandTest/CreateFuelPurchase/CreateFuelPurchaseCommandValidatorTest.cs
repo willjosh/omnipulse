@@ -1,5 +1,7 @@
 using Application.Features.FuelPurchases.Command.CreateFuelPurchase;
 
+namespace Application.Test.FuelPurchases.CommandTest.CreateFuelPurchase;
+
 public class CreateFuelPurchaseCommandValidatorTest
 {
     private readonly CreateFuelPurchaseCommandValidator _validator;
@@ -10,19 +12,20 @@ public class CreateFuelPurchaseCommandValidatorTest
     }
 
     private CreateFuelPurchaseCommand CreateValidCommand(
-        int VehicleId = 1,
-        string PurchasedByUserId = "1",
-        DateTime PurchaseDate = default,
-        double OdometerReading = 150000.75,
-        double Volume = 90.7,
-        decimal PricePerUnit = 5.19m,
-        decimal TotalCost = 470.733m,
-        string FuelStation = "Test Fuel Station",
-        string ReceiptNumber = "Test Receipt Number",
-        string? Notes = ""
+        int vehicleId = 1,
+        string purchasedByUserId = "1",
+        DateTime purchaseDate = default,
+        double odometerReading = 150000.75,
+        double volume = 90.7,
+        decimal pricePerUnit = 5.19m,
+        decimal totalCost = 470.733m,
+        string fuelStation = "Test Fuel Station",
+        string receiptNumber = "Test Receipt Number",
+        string? notes = ""
     )
     {
-        return new CreateFuelPurchaseCommand(VehicleId, PurchasedByUserId, new DateTime(2025, 2, 1), OdometerReading, Volume, PricePerUnit, TotalCost, FuelStation, ReceiptNumber, Notes);
+        purchaseDate = purchaseDate == default ? DateTime.UtcNow.AddDays(-1) : purchaseDate;
+        return new CreateFuelPurchaseCommand(vehicleId, purchasedByUserId, purchaseDate, odometerReading, volume, pricePerUnit, totalCost, fuelStation, receiptNumber, notes);
     }
 
     [Fact]
@@ -45,7 +48,7 @@ public class CreateFuelPurchaseCommandValidatorTest
     public async Task Validator_Should_Fail_When_VehicleId_Is_Empty(int invalidVehicleId)
     {
         // Given
-        var command = CreateValidCommand(VehicleId: invalidVehicleId);
+        var command = CreateValidCommand(vehicleId: invalidVehicleId);
 
         // When
         var result = await _validator.ValidateAsync(command);
@@ -61,7 +64,7 @@ public class CreateFuelPurchaseCommandValidatorTest
     public async Task Validator_Should_Fail_When_PurchasedByUserId_Is_Empty(string invalidPurchasedByUserId)
     {
         // Given
-        var command = CreateValidCommand(PurchasedByUserId: invalidPurchasedByUserId);
+        var command = CreateValidCommand(purchasedByUserId: invalidPurchasedByUserId);
 
         // When
         var result = await _validator.ValidateAsync(command);
@@ -76,7 +79,7 @@ public class CreateFuelPurchaseCommandValidatorTest
     public async Task Validator_Should_Fail_When_OdometerReading_Is_Empty(double invalidOdometerReading)
     {
         // Given
-        var command = CreateValidCommand(OdometerReading: invalidOdometerReading);
+        var command = CreateValidCommand(odometerReading: invalidOdometerReading);
 
         // When
         var result = await _validator.ValidateAsync(command);
@@ -92,7 +95,7 @@ public class CreateFuelPurchaseCommandValidatorTest
     public async Task Validator_Should_Fail_When_OdometerReading_Is_Less_Than_Zero(double invalidOdometerReading)
     {
         // Given
-        var command = CreateValidCommand(OdometerReading: invalidOdometerReading);
+        var command = CreateValidCommand(odometerReading: invalidOdometerReading);
 
         // When
         var result = await _validator.ValidateAsync(command);
@@ -127,7 +130,7 @@ public class CreateFuelPurchaseCommandValidatorTest
     public async Task Validator_Should_Fail_When_Volume_Is_Empty(double invalidVolume)
     {
         // Given
-        var command = CreateValidCommand(Volume: invalidVolume);
+        var command = CreateValidCommand(volume: invalidVolume);
 
         // When
         var result = await _validator.ValidateAsync(command);
@@ -143,7 +146,7 @@ public class CreateFuelPurchaseCommandValidatorTest
     public async Task Validator_Should_Fail_When_Volume_Is_Negative(double invalidVolume)
     {
         // Given
-        var command = CreateValidCommand(Volume: invalidVolume);
+        var command = CreateValidCommand(volume: invalidVolume);
 
         // When
         var result = await _validator.ValidateAsync(command);
@@ -158,7 +161,7 @@ public class CreateFuelPurchaseCommandValidatorTest
     public async Task Validator_Should_Fail_When_PricePerUnit_Is_Empty(decimal invalidPricePerUnit)
     {
         // Given
-        var command = CreateValidCommand(PricePerUnit: invalidPricePerUnit);
+        var command = CreateValidCommand(pricePerUnit: invalidPricePerUnit);
 
         // When
         var result = await _validator.ValidateAsync(command);
@@ -174,7 +177,7 @@ public class CreateFuelPurchaseCommandValidatorTest
     public async Task Validator_Should_Fail_When_PricePerUnit_Is_Negative(decimal invalidPricePerUnit)
     {
         // Given
-        var command = CreateValidCommand(PricePerUnit: invalidPricePerUnit);
+        var command = CreateValidCommand(pricePerUnit: invalidPricePerUnit);
 
         // When
         var result = await _validator.ValidateAsync(command);
@@ -189,7 +192,7 @@ public class CreateFuelPurchaseCommandValidatorTest
     public async Task Validator_Should_Fail_When_TotalCost_Is_Empty(decimal invalidTotalCost)
     {
         // Given
-        var command = CreateValidCommand(TotalCost: invalidTotalCost);
+        var command = CreateValidCommand(totalCost: invalidTotalCost);
 
         // When
         var result = await _validator.ValidateAsync(command);
@@ -205,7 +208,7 @@ public class CreateFuelPurchaseCommandValidatorTest
     public async Task Validator_Should_Fail_When_TotalCost_Is_Negative(decimal invalidTotalCost)
     {
         // Given
-        var command = CreateValidCommand(TotalCost: invalidTotalCost);
+        var command = CreateValidCommand(totalCost: invalidTotalCost);
 
         // When
         var result = await _validator.ValidateAsync(command);
@@ -221,7 +224,7 @@ public class CreateFuelPurchaseCommandValidatorTest
     public async Task Validator_Should_Fail_When_TotalCost_Is_Less_Than_Price_Per_Unit(decimal invalidTotalCost)
     {
         // Given
-        var command = CreateValidCommand(TotalCost: invalidTotalCost);
+        var command = CreateValidCommand(totalCost: invalidTotalCost);
 
         // When
         var result = await _validator.ValidateAsync(command);
@@ -237,7 +240,7 @@ public class CreateFuelPurchaseCommandValidatorTest
     public async Task Validator_Should_Fail_When_FuelStation_Is_Empty(string invalidFuelStation)
     {
         // Given
-        var command = CreateValidCommand(FuelStation: invalidFuelStation);
+        var command = CreateValidCommand(fuelStation: invalidFuelStation);
 
         // When
         var result = await _validator.ValidateAsync(command);
@@ -253,7 +256,7 @@ public class CreateFuelPurchaseCommandValidatorTest
     public async Task Validator_Should_Fail_When_ReceiptNumber_Is_Empty(string invalidReceiptNumber)
     {
         // Given
-        var command = CreateValidCommand(ReceiptNumber: invalidReceiptNumber);
+        var command = CreateValidCommand(receiptNumber: invalidReceiptNumber);
 
         // When
         var result = await _validator.ValidateAsync(command);

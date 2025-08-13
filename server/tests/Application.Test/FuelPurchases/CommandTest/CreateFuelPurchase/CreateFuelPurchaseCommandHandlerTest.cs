@@ -13,7 +13,7 @@ using FluentValidation.Results;
 
 using Moq;
 
-namespace Application.Test.CreateFuelPurchases;
+namespace Application.Test.FuelPurchases.CommandTest.CreateFuelPurchase;
 
 public class CreateFuelPurchaseCommandHandlerTest
 {
