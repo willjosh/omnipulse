@@ -160,6 +160,14 @@ public class CreateInspectionCommandHandler : IRequestHandler<CreateInspectionCo
             throw new EntityNotFoundException(typeof(User).ToString(), "ID", request.TechnicianID);
         }
 
+        // Validate odometer reading is not less than current vehicle mileage
+        if (request.OdometerReading.HasValue && request.OdometerReading.Value < vehicle.Mileage)
+        {
+            var errorMessage = $"Odometer reading {request.OdometerReading.Value} cannot be less than the vehicle's current mileage {vehicle.Mileage}";
+            _logger.LogError(errorMessage);
+            throw new BadRequestException(errorMessage);
+        }
+
         // Validate that all required form items have responses
         var activeFormItems = inspectionFormWithItems.InspectionFormItems.Where(fi => fi.IsActive).ToList();
         var requiredFormItemIds = activeFormItems.Where(fi => fi.IsRequired).Select(fi => fi.ID).ToHashSet();

@@ -23,6 +23,8 @@ public class CompleteWorkOrderCommandHandlerTest
     private readonly Mock<IInventoryTransactionRepository> _mockInventoryTransactionRepository;
     private readonly Mock<IServiceReminderRepository> _mockServiceReminderRepository;
     private readonly Mock<IAppLogger<CompleteWorkOrderCommandHandler>> _mockLogger;
+    private readonly Mock<IIssueRepository> _mockIssueRepository;
+    private readonly Mock<IWorkOrderIssueRepository> _mockWorkOrderIssueRepository;
     private readonly CompleteWorkOrderCommandHandler _handler;
 
     public CompleteWorkOrderCommandHandlerTest()
@@ -32,6 +34,8 @@ public class CompleteWorkOrderCommandHandlerTest
         _mockInventoryRepository = new();
         _mockInventoryTransactionRepository = new();
         _mockServiceReminderRepository = new();
+        _mockIssueRepository = new();
+        _mockWorkOrderIssueRepository = new();
         _mockLogger = new();
 
         var config = new MapperConfiguration(cfg =>
@@ -47,6 +51,8 @@ public class CompleteWorkOrderCommandHandlerTest
             _mockInventoryRepository.Object,
             _mockInventoryTransactionRepository.Object,
             _mockServiceReminderRepository.Object,
+            _mockIssueRepository.Object,
+            _mockWorkOrderIssueRepository.Object,
             _mockLogger.Object,
             mapper
         );
