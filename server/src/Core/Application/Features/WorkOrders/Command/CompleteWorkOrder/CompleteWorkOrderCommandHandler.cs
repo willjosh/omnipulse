@@ -20,16 +20,22 @@ public class CompleteWorkOrderCommandHandler : IRequestHandler<CompleteWorkOrder
     private readonly IInventoryRepository _inventoryRepository;
     private readonly IInventoryTransactionRepository _inventoryTransactionRepository;
     private readonly IServiceReminderRepository _serviceReminderRepository;
+    private readonly IIssueRepository _issueRepository;
+    private readonly IWorkOrderIssueRepository _workOrderIssueRepository;
     private readonly IAppLogger<CompleteWorkOrderCommandHandler> _logger;
     private readonly IMapper _mapper;
 
-    public CompleteWorkOrderCommandHandler(IWorkOrderRepository workOrderRepository, IMaintenanceHistoryRepository maintenanceHistoryRepository, IInventoryRepository inventoryRepository, IInventoryTransactionRepository inventoryTransactionRepository, IServiceReminderRepository serviceReminderRepository, IAppLogger<CompleteWorkOrderCommandHandler> logger, IMapper mapper)
+    public CompleteWorkOrderCommandHandler(IWorkOrderRepository workOrderRepository, IMaintenanceHistoryRepository maintenanceHistoryRepository, IInventoryRepository inventoryRepository, IInventoryTransactionRepository inventoryTransactionRepository, IServiceReminderRepository serviceReminderRepository,
+        IIssueRepository issueRepository, IWorkOrderIssueRepository workOrderIssueRepository,
+    IAppLogger<CompleteWorkOrderCommandHandler> logger, IMapper mapper)
     {
         _workOrderRepository = workOrderRepository;
         _maintenanceHistoryRepository = maintenanceHistoryRepository;
         _inventoryRepository = inventoryRepository;
         _inventoryTransactionRepository = inventoryTransactionRepository;
         _serviceReminderRepository = serviceReminderRepository;
+        _issueRepository = issueRepository;
+        _workOrderIssueRepository = workOrderIssueRepository;
         _logger = logger;
         _mapper = mapper;
     }
@@ -112,6 +118,26 @@ public class CompleteWorkOrderCommandHandler : IRequestHandler<CompleteWorkOrder
             serviceReminder.Status = ServiceReminderStatusEnum.COMPLETED;
             _serviceReminderRepository.Update(serviceReminder);
         }
+
+        // remove make the issues related to this work order as resolved
+        var workOrderIssues = await _workOrderIssueRepository.GetByWorkOrderIDAsync(workOrder.ID);
+
+        foreach (var workOrderIssue in workOrderIssues)
+        {
+            if (workOrderIssue?.Issue != null)
+            {
+                _logger.LogInformation($"Resolving issue {workOrderIssue.Issue.ID} for work order {workOrder.ID}");
+                workOrderIssue.Issue.Status = IssueStatusEnum.RESOLVED;
+                workOrderIssue.Issue.PriorityLevel = PriorityLevelEnum.LOW;
+                _issueRepository.Update(workOrderIssue.Issue);
+            }
+            else
+            {
+                _logger.LogCritical($"WorkOrderIssue ID {workOrderIssue?.WorkOrderID} has null Issue reference for WorkOrder {workOrder.ID}");
+            }
+        }
+
+        await _issueRepository.SaveChangesAsync();
 
         await _serviceReminderRepository.SaveChangesAsync();
 
