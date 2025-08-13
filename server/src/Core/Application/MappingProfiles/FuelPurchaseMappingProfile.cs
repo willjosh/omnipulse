@@ -1,6 +1,6 @@
 using Application.Features.FuelPurchases.Command.CreateFuelPurchase;
 using Application.Features.FuelPurchases.Command.UpdateFuelPurchase;
-using Application.Features.FuelPurchases.Query.GetAllFuelPurchases;
+using Application.Features.FuelPurchases.Query;
 
 using AutoMapper;
 
@@ -27,16 +27,6 @@ public class FuelPurchaseMappingProfile : Profile
             .ForMember(dest => dest.Vehicle, opt => opt.Ignore())
             .ForMember(dest => dest.User, opt => opt.Ignore());
 
-        CreateMap<FuelPurchase, GetAllFuelPurchasesDTO>(MemberList.Destination)
-            .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.ID))
-            .ForMember(dest => dest.VehicleId, opt => opt.MapFrom(src => src.VehicleId))
-            .ForMember(dest => dest.FuelStation, opt => opt.MapFrom(src => src.FuelStation))
-            .ForMember(dest => dest.PurchasedByUserId, opt => opt.MapFrom(src => src.PurchasedByUserId))
-            .ForMember(dest => dest.PurchaseDate, opt => opt.MapFrom(src => src.PurchaseDate))
-            .ForMember(dest => dest.OdometerReading, opt => opt.MapFrom(src => src.OdometerReading))
-            .ForMember(dest => dest.Volume, opt => opt.MapFrom(src => src.Volume))
-            .ForMember(dest => dest.PricePerUnit, opt => opt.MapFrom(src => src.PricePerUnit))
-            .ForMember(dest => dest.TotalCost, opt => opt.MapFrom(src => src.TotalCost))
-            ;
+        CreateMap<FuelPurchase, FuelPurchaseDTO>(MemberList.Destination);
     }
 }

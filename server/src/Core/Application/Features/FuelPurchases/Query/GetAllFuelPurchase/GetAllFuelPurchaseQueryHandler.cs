@@ -9,16 +9,16 @@ using FluentValidation;
 
 using MediatR;
 
-namespace Application.Features.FuelPurchases.Query.GetAllFuelPurchases;
+namespace Application.Features.FuelPurchases.Query.GetAllFuelPurchase;
 
-public class GetAllFuelPurchasesQueryHandler : IRequestHandler<GetAllFuelPurchasesQuery, PagedResult<GetAllFuelPurchasesDTO>>
+public class GetAllFuelPurchaseQueryHandler : IRequestHandler<GetAllFuelPurchaseQuery, PagedResult<FuelPurchaseDTO>>
 {
     private readonly IFuelPurchaseRepository _fuelPurchasesRepository;
     private readonly IMapper _mapper;
-    private readonly IAppLogger<GetAllFuelPurchasesQueryHandler> _logger;
-    private readonly IValidator<GetAllFuelPurchasesQuery> _validator;
+    private readonly IAppLogger<GetAllFuelPurchaseQueryHandler> _logger;
+    private readonly IValidator<GetAllFuelPurchaseQuery> _validator;
 
-    public GetAllFuelPurchasesQueryHandler(IFuelPurchaseRepository fuelPurchasesRepository, IMapper mapper, IAppLogger<GetAllFuelPurchasesQueryHandler> logger, IValidator<GetAllFuelPurchasesQuery> validator)
+    public GetAllFuelPurchaseQueryHandler(IFuelPurchaseRepository fuelPurchasesRepository, IMapper mapper, IAppLogger<GetAllFuelPurchaseQueryHandler> logger, IValidator<GetAllFuelPurchaseQuery> validator)
     {
         _fuelPurchasesRepository = fuelPurchasesRepository;
         _mapper = mapper;
@@ -26,7 +26,7 @@ public class GetAllFuelPurchasesQueryHandler : IRequestHandler<GetAllFuelPurchas
         _validator = validator;
     }
 
-    public async Task<PagedResult<GetAllFuelPurchasesDTO>> Handle(GetAllFuelPurchasesQuery request, CancellationToken cancellationToken)
+    public async Task<PagedResult<FuelPurchaseDTO>> Handle(GetAllFuelPurchaseQuery request, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Handling GetAllFuelPurchasesQuery");
         // validate the request
@@ -42,9 +42,9 @@ public class GetAllFuelPurchasesQueryHandler : IRequestHandler<GetAllFuelPurchas
         var result = await _fuelPurchasesRepository.GetAllFuelPurchasesPagedAsync(request.Parameters);
 
         // map the FuelPurchasess to DTOs
-        var fuelPurchasesDTOs = _mapper.Map<List<GetAllFuelPurchasesDTO>>(result.Items);
+        var fuelPurchasesDTOs = _mapper.Map<List<FuelPurchaseDTO>>(result.Items);
 
-        var pagedResult = new PagedResult<GetAllFuelPurchasesDTO>
+        var pagedResult = new PagedResult<FuelPurchaseDTO>
         {
             Items = fuelPurchasesDTOs,
             TotalCount = result.TotalCount,

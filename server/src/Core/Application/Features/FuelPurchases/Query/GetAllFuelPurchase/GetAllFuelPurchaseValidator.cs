@@ -4,11 +4,11 @@ using Domain.Entities;
 
 using FluentValidation;
 
-namespace Application.Features.FuelPurchases.Query.GetAllFuelPurchases;
+namespace Application.Features.FuelPurchases.Query.GetAllFuelPurchase;
 
-public class GetAllFuelPurchasesQueryValidator : AbstractValidator<GetAllFuelPurchasesQuery>
+public class GetAllFuelPurchaseQueryValidator : AbstractValidator<GetAllFuelPurchaseQuery>
 {
-    public GetAllFuelPurchasesQueryValidator()
+    public GetAllFuelPurchaseQueryValidator()
     {
         var fuelPurchasesSortFields = new[] {
             "vehicleid",
