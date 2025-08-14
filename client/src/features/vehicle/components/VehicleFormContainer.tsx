@@ -1,44 +1,66 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { useRouter, useParams } from "next/navigation";
-import {
-  useVehicleFormStore,
-  useVehicleFormData,
-  useVehicleFormMode,
-  useVehicleFormValidation,
-  useVehicleFormStatus,
-  useVehicleFormReferenceData,
-} from "@/features/vehicle/stores/vehicleFormStore";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { FormField } from "@/components/ui/Form";
+import { PrimaryButton, SecondaryButton } from "@/components/ui/Button";
+import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
 import {
   useVehicles,
   useCreateVehicle,
   useUpdateVehicle,
-  useVehicleGroups,
-  useTechnicians,
+  useVehicle,
 } from "@/features/vehicle/hooks/useVehicles";
-import { Vehicle } from "@/features/vehicle/types/vehicleType";
+import {
+  CreateVehicleCommand,
+  UpdateVehicleCommand,
+  Vehicle,
+} from "@/features/vehicle/types/vehicleType";
 import {
   VehicleTypeEnum,
   FuelTypeEnum,
+  VehicleStatusEnum,
 } from "@/features/vehicle/types/vehicleEnum";
-import { getVehicleStatusOptions } from "@/features/vehicle/utils/vehicleEnumHelper";
-import PrimaryButton from "@/components/ui/Button/PrimaryButton";
-import SecondaryButton from "@/components/ui/Button/SecondaryButton";
-import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
+import { useVehicleGroups } from "@/features/vehicle-group/hooks/useVehicleGroups";
+import { useTechnicians } from "@/features/technician/hooks/useTechnicians";
 import { getErrorMessage, getErrorFields } from "@/utils/fieldErrorUtils";
 
 interface VehicleFormProps {
   mode: "create" | "edit";
-  onSave?: (vehicleData: any) => Promise<void>;
-  onCancel?: () => void;
   vehicleData?: Vehicle;
 }
 
-// Helper function to get enum options
+interface VehicleFormData {
+  // Basic vehicle information
+  name: string;
+  year: number | null;
+  make: string;
+  model: string;
+  vin: string;
+  vehicleType: VehicleTypeEnum | "";
+  licensePlate: string;
+  licensePlateExpirationDate: string;
+  fuelType: FuelTypeEnum | "";
+  trim: string;
+  status: VehicleStatusEnum | "";
+
+  // Vehicle group and assignment
+  vehicleGroupID: number;
+  assignedTechnicianID: string | null;
+
+  // Operational data
+  mileage: number | null;
+  fuelCapacity: number | null;
+  location: string;
+
+  // Financial data
+  purchaseDate: string;
+  purchasePrice: number | null;
+}
+
 const getVehicleTypeOptions = () => [
-  { value: VehicleTypeEnum.CAR, label: "Car" },
   { value: VehicleTypeEnum.TRUCK, label: "Truck" },
   { value: VehicleTypeEnum.VAN, label: "Van" },
+  { value: VehicleTypeEnum.CAR, label: "Car" },
   { value: VehicleTypeEnum.MOTORCYCLE, label: "Motorcycle" },
   { value: VehicleTypeEnum.BUS, label: "Bus" },
   { value: VehicleTypeEnum.HEAVY_VEHICLE, label: "Heavy Vehicle" },
@@ -47,6 +69,7 @@ const getVehicleTypeOptions = () => [
 ];
 
 const getFuelTypeOptions = () => [
+  { value: FuelTypeEnum.HYDROGEN, label: "Hydrogen" },
   { value: FuelTypeEnum.PETROL, label: "Petrol" },
   { value: FuelTypeEnum.DIESEL, label: "Diesel" },
   { value: FuelTypeEnum.ELECTRIC, label: "Electric" },
@@ -58,249 +81,290 @@ const getFuelTypeOptions = () => [
   { value: FuelTypeEnum.OTHER, label: "Other" },
 ];
 
-// Note: Vehicle status options are currently hardcoded in vehicleEnumHelper.ts
+const getVehicleStatusOptions = () => [
+  { value: VehicleStatusEnum.ACTIVE, label: "Active" },
+  { value: VehicleStatusEnum.MAINTENANCE, label: "Maintenance" },
+  { value: VehicleStatusEnum.OUT_OF_SERVICE, label: "Out of Service" },
+  { value: VehicleStatusEnum.INACTIVE, label: "Inactive" },
+];
 
-const VehicleForm: React.FC<VehicleFormProps> = ({
-  mode,
-  onSave,
-  onCancel,
-  vehicleData,
-}) => {
+const VehicleForm: React.FC<VehicleFormProps> = ({ mode, vehicleData }) => {
   const router = useRouter();
-  const params = useParams();
   const notify = useNotification();
+  const createVehicleMutation = useCreateVehicle();
+  const updateVehicleMutation = useUpdateVehicle();
+
+  // Get reference data
+  const { vehicleGroups, isPending: isLoadingVehicleGroups } =
+    useVehicleGroups();
+  const { technicians, isPending: isLoadingTechnicians } = useTechnicians();
+
+  const [formData, setFormData] = useState<VehicleFormData>({
+    name: "",
+    year: null,
+    make: "",
+    model: "",
+    vin: "",
+    vehicleType: "",
+    licensePlate: "",
+    licensePlateExpirationDate: "",
+    fuelType: "",
+    trim: "",
+    status: "",
+    vehicleGroupID: 0,
+    assignedTechnicianID: null,
+    mileage: null,
+    fuelCapacity: null,
+    location: "",
+    purchaseDate: "",
+    purchasePrice: null,
+  });
+
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const formData = useVehicleFormData();
-  const formMode = useVehicleFormMode();
-  const { showValidation, validationErrors } = useVehicleFormValidation();
-  const { isLoading, vehicleId } = useVehicleFormStatus();
-
-  const { mutateAsync: createVehicle, isPending: isCreating } =
-    useCreateVehicle();
-  const { mutateAsync: updateVehicle, isPending: isUpdating } =
-    useUpdateVehicle();
-
-  const { vehicleGroups: apiVehicleGroups, isPending: isLoadingGroups } =
-    useVehicleGroups();
-  const { technicians: apiTechnicians, isPending: isLoadingTechnicians } =
-    useTechnicians();
-
-  const {
-    updateFormData,
-    setShowValidation,
-    setValidationErrors,
-    setLoading,
-    resetForm,
-    initializeForEdit,
-    initializeForCreate,
-    isFormComplete,
-    toCreateCommand,
-    toUpdateCommand,
-  } = useVehicleFormStore();
-
+  // Initialize form data for edit mode
   useEffect(() => {
     setErrors({});
-    if (mode === "create") {
-      initializeForCreate();
-    } else if (mode === "edit") {
-      if (vehicleData) {
-        initializeForEdit(vehicleData.id, vehicleData);
-      } else if (params.id) {
-        console.warn("Edit mode requires vehicleData prop or API call");
-        router.push("/vehicles");
-      }
+    if (mode === "edit" && vehicleData) {
+      setFormData({
+        name: vehicleData.name,
+        year: vehicleData.year,
+        make: vehicleData.make,
+        model: vehicleData.model,
+        vin: vehicleData.vin,
+        vehicleType: vehicleData.vehicleType,
+        licensePlate: vehicleData.licensePlate,
+        licensePlateExpirationDate: vehicleData.licensePlateExpirationDate,
+        fuelType: vehicleData.fuelType,
+        trim: vehicleData.trim,
+        status: vehicleData.status,
+        vehicleGroupID: vehicleData.vehicleGroupID,
+        assignedTechnicianID: vehicleData.assignedTechnicianID ?? null,
+        mileage: vehicleData.mileage,
+        fuelCapacity: vehicleData.fuelCapacity,
+        location: vehicleData.location,
+        purchaseDate: vehicleData.purchaseDate.split("T")[0],
+        purchasePrice: vehicleData.purchasePrice,
+      });
     }
-  }, [
-    mode,
-    vehicleData,
-    params.id,
-    initializeForEdit,
-    initializeForCreate,
-    router,
-  ]);
+  }, [mode, vehicleData]);
 
-  const handleInputChange = (field: string, value: any) => {
-    updateFormData({ [field]: value });
+  const handleInputChange = (
+    field: keyof VehicleFormData,
+    value: string | number | boolean | null,
+  ) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: "" }));
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
     }
   };
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    // Required text fields
-    if (!formData.vehicleName.trim()) {
-      newErrors.vehicleName = "Vehicle name is required";
+    if (!formData.name.trim()) {
+      newErrors.name = "Vehicle name is required";
     }
-    if (!formData.make.trim()) {
-      newErrors.make = "Make is required";
-    }
-    if (!formData.model.trim()) {
-      newErrors.model = "Model is required";
-    }
-    if (!formData.trim.trim()) {
-      newErrors.trim = "Trim is required";
-    }
+
     if (!formData.vin.trim()) {
       newErrors.vin = "VIN is required";
+    } else if (formData.vin.length !== 17) {
+      newErrors.vin = "VIN must be 17 characters long";
     }
+
     if (!formData.licensePlate.trim()) {
       newErrors.licensePlate = "License plate is required";
     }
+
     if (!formData.licensePlateExpirationDate) {
       newErrors.licensePlateExpirationDate =
         "License plate expiration date is required";
     }
+
+    if (
+      !formData.year ||
+      formData.year < 1900 ||
+      formData.year > new Date().getFullYear() + 1
+    ) {
+      newErrors.year = "Valid year is required";
+    }
+
+    if (!formData.make.trim()) {
+      newErrors.make = "Make is required";
+    }
+
+    if (!formData.model.trim()) {
+      newErrors.model = "Model is required";
+    }
+
+    if (!formData.trim.trim()) {
+      newErrors.trim = "Trim is required";
+    }
+
+    if (!formData.vehicleType) {
+      newErrors.vehicleType = "Vehicle type is required";
+    }
+
+    if (!formData.fuelType) {
+      newErrors.fuelType = "Fuel type is required";
+    }
+
+    if (!formData.status) {
+      newErrors.status = "Status is required";
+    }
+
+    if (formData.vehicleGroupID === 0) {
+      newErrors.vehicleGroupID = "Vehicle group is required";
+    }
+
+    if (formData.mileage !== null && formData.mileage < 0) {
+      newErrors.mileage = "Mileage cannot be negative";
+    }
+
+    if (formData.fuelCapacity !== null && formData.fuelCapacity <= 0) {
+      newErrors.fuelCapacity = "Fuel capacity must be greater than 0";
+    }
+
     if (!formData.location.trim()) {
       newErrors.location = "Location is required";
     }
+
     if (!formData.purchaseDate) {
       newErrors.purchaseDate = "Purchase date is required";
     }
 
-    // Required number fields
-    if (!formData.year || formData.year <= 0) {
-      newErrors.year = "Valid year is required";
-    }
-    if (formData.mileage === null || formData.mileage < 0) {
-      newErrors.mileage = "Valid mileage is required";
-    }
-    if (formData.engineHours === null || formData.engineHours < 0) {
-      newErrors.engineHours = "Valid engine hours is required";
-    }
-    if (formData.fuelCapacity === null || formData.fuelCapacity <= 0) {
-      newErrors.fuelCapacity = "Valid fuel capacity is required";
-    }
-    if (formData.purchasePrice === null || formData.purchasePrice < 0) {
-      newErrors.purchasePrice = "Valid purchase price is required";
-    }
-
-    // Required dropdown fields
-    if (formData.type === "") {
-      newErrors.type = "Vehicle type is required";
-    }
-    if (formData.fuelType === "") {
-      newErrors.fuelType = "Fuel type is required";
-    }
-    if (formData.status === "") {
-      newErrors.status = "Status is required";
-    }
-    if (!formData.vehicleGroupID || formData.vehicleGroupID === 0) {
-      newErrors.vehicleGroupID = "Vehicle group is required";
-    }
-    if (!formData.assignedTechnicianID) {
-      newErrors.assignedTechnicianID = "Assigned technician is required";
+    if (formData.purchasePrice !== null && formData.purchasePrice < 0) {
+      newErrors.purchasePrice = "Purchase price cannot be negative";
     }
 
     return newErrors;
   };
 
-  const handleSaveVehicle = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const validationErrors = validateForm();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+
+      const missingFields = Object.values(validationErrors);
+      const errorMessage = `Please fill in the following required fields:\n• ${missingFields.join("\n• ")}`;
+      notify(errorMessage, "error");
+      return;
+    }
+
+    setErrors({});
+
     try {
-      setLoading(true);
+      if (mode === "create") {
+        const createCommand: CreateVehicleCommand = {
+          name: formData.name,
+          make: formData.make,
+          model: formData.model,
+          year: formData.year ?? 0,
+          vin: formData.vin,
+          licensePlate: formData.licensePlate,
+          licensePlateExpirationDate: formData.licensePlateExpirationDate,
+          vehicleType: formData.vehicleType as VehicleTypeEnum,
+          vehicleGroupID: formData.vehicleGroupID,
+          trim: formData.trim,
+          mileage: formData.mileage ?? 0,
+          fuelCapacity: formData.fuelCapacity ?? 0,
+          fuelType: formData.fuelType as FuelTypeEnum,
+          purchaseDate: formData.purchaseDate,
+          purchasePrice: formData.purchasePrice ?? 0,
+          status: formData.status as VehicleStatusEnum,
+          location: formData.location,
+          assignedTechnicianID: formData.assignedTechnicianID,
+        };
 
-      // Validate form before attempting to save
-      const validationErrors = validateForm();
-      if (Object.keys(validationErrors).length > 0) {
-        setErrors(validationErrors);
-
-        // Create a summary of missing fields
-        const missingFields = Object.values(validationErrors);
-        const errorMessage = `Please fill in the following required fields:\n• ${missingFields.join("\n• ")}`;
-
-        notify(errorMessage, "error");
-        return;
-      }
-
-      // Clear any existing errors
-      setErrors({});
-
-      if (onSave) {
-        const commandData =
-          formMode === "create" ? toCreateCommand() : toUpdateCommand();
-        await onSave(commandData);
+        await createVehicleMutation.mutateAsync(createCommand);
+        notify("Vehicle created successfully!", "success");
       } else {
-        if (formMode === "create") {
-          const commandData = toCreateCommand();
-          await createVehicle(commandData);
-          notify("Vehicle created successfully!", "success");
-        } else {
-          const commandData = toUpdateCommand();
-          await updateVehicle(commandData);
-          notify("Vehicle updated successfully!", "success");
-        }
+        const updateCommand: UpdateVehicleCommand = {
+          vehicleID: vehicleData!.id,
+          name: formData.name,
+          make: formData.make,
+          model: formData.model,
+          year: formData.year ?? 0,
+          vin: formData.vin,
+          licensePlate: formData.licensePlate,
+          licensePlateExpirationDate: formData.licensePlateExpirationDate,
+          vehicleType: formData.vehicleType as VehicleTypeEnum,
+          vehicleGroupID: formData.vehicleGroupID,
+          trim: formData.trim,
+          mileage: formData.mileage ?? 0,
+          fuelCapacity: formData.fuelCapacity ?? 0,
+          fuelType: formData.fuelType as FuelTypeEnum,
+          purchaseDate: formData.purchaseDate,
+          purchasePrice: formData.purchasePrice ?? 0,
+          status: formData.status as VehicleStatusEnum,
+          location: formData.location,
+          assignedTechnicianID: formData.assignedTechnicianID,
+        };
+
+        await updateVehicleMutation.mutateAsync(updateCommand);
+        notify("Vehicle updated successfully!", "success");
       }
 
-      resetForm();
       router.push("/vehicles");
     } catch (error: any) {
-      const errorMessage = getErrorMessage(
-        error,
-        "Failed to save vehicle. Please check your input and try again.",
-      );
+      let errorMessage =
+        mode === "create"
+          ? getErrorMessage(
+              error,
+              "Failed to create vehicle. Please check your input and try again.",
+            )
+          : getErrorMessage(
+              error,
+              "Failed to update vehicle. Please check your input and try again.",
+            );
 
       const fieldErrors = getErrorFields(error, [
-        "vehicleName",
-        "year",
+        "name",
         "make",
         "model",
-        "trim",
+        "year",
         "vin",
-        "type",
-        "fuelType",
-        "status",
         "licensePlate",
         "licensePlateExpirationDate",
+        "vehicleType",
+        "fuelType",
+        "status",
         "vehicleGroupID",
+        "assignedTechnicianID",
+        "trim",
         "location",
         "mileage",
-        "engineHours",
         "fuelCapacity",
         "purchaseDate",
         "purchasePrice",
       ]);
-
       setErrors(fieldErrors);
       notify(errorMessage, "error");
-    } finally {
-      setLoading(false);
     }
   };
-
-  const isSaving = isLoading || isCreating || isUpdating;
 
   const handleCancel = () => {
-    resetForm();
     setErrors({});
-
-    if (onCancel) {
-      onCancel();
-    } else {
-      router.push("/vehicles");
-    }
+    router.push("/vehicles");
   };
 
-  const originalVehicleName = vehicleData?.name || vehicleId;
-  const pageTitle =
-    formMode === "create"
-      ? "Add New Vehicle"
-      : `Edit Vehicle${originalVehicleName ? ` - ${originalVehicleName}` : ""}`;
-
   const saveButtonText =
-    formMode === "create" ? "Save Vehicle" : "Update Vehicle";
+    mode === "create" ? "Create Vehicle" : "Update Vehicle";
+  const isSaving =
+    mode === "create"
+      ? createVehicleMutation.isPending
+      : updateVehicleMutation.isPending;
 
   return (
-    <div className="max-w-4xl mx-auto my-16">
-      {/* Page Title */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">{pageTitle}</h1>
-      </div>
-
-      {/* Form */}
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
-        <form onSubmit={e => e.preventDefault()} className="space-y-8">
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <form onSubmit={handleSubmit} className="space-y-8">
           {/* Basic Information Section */}
           <div className="space-y-6">
             <h2 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">
@@ -309,43 +373,41 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Vehicle Name */}
-              <div>
-                <label
-                  htmlFor="vehicleName"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Vehicle Name <span className="text-red-500">*</span>
-                </label>
+              <FormField
+                label="Vehicle Name"
+                htmlFor="name"
+                required
+                error={errors.name}
+              >
                 <input
                   type="text"
-                  id="vehicleName"
-                  value={formData.vehicleName}
-                  onChange={e =>
-                    handleInputChange("vehicleName", e.target.value)
-                  }
+                  id="name"
+                  value={formData.name}
+                  onChange={e => handleInputChange("name", e.target.value)}
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    errors.vehicleName ? "border-red-300" : "border-gray-300"
+                    errors.name ? "border-red-300" : "border-gray-300"
                   }`}
                   placeholder="Enter vehicle name"
                 />
-              </div>
+              </FormField>
 
               {/* Year */}
-              <div>
-                <label
-                  htmlFor="year"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Year <span className="text-red-500">*</span>
-                </label>
+              <FormField
+                label="Year"
+                htmlFor="year"
+                required
+                error={errors.year}
+              >
                 <input
                   type="number"
                   id="year"
-                  value={formData.year > 0 ? formData.year : ""}
+                  value={formData.year ?? ""}
                   onChange={e => {
                     const value = e.target.value;
-                    const yearValue = value === "" ? 0 : parseInt(value);
-                    handleInputChange("year", yearValue);
+                    handleInputChange(
+                      "year",
+                      value === "" ? null : parseInt(value),
+                    );
                   }}
                   min="1900"
                   max={new Date().getFullYear() + 1}
@@ -354,16 +416,15 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                   }`}
                   placeholder="Enter year"
                 />
-              </div>
+              </FormField>
 
               {/* Make */}
-              <div>
-                <label
-                  htmlFor="make"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Make <span className="text-red-500">*</span>
-                </label>
+              <FormField
+                label="Make"
+                htmlFor="make"
+                required
+                error={errors.make}
+              >
                 <input
                   type="text"
                   id="make"
@@ -372,18 +433,17 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                     errors.make ? "border-red-300" : "border-gray-300"
                   }`}
-                  placeholder="e.g., Toyota, Ford, BMW"
+                  placeholder="Enter make"
                 />
-              </div>
+              </FormField>
 
               {/* Model */}
-              <div>
-                <label
-                  htmlFor="model"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Model <span className="text-red-500">*</span>
-                </label>
+              <FormField
+                label="Model"
+                htmlFor="model"
+                required
+                error={errors.model}
+              >
                 <input
                   type="text"
                   id="model"
@@ -392,38 +452,12 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                     errors.model ? "border-red-300" : "border-gray-300"
                   }`}
-                  placeholder="e.g., Camry, F-150, 3 Series"
+                  placeholder="Enter model"
                 />
-              </div>
-
-              {/* Trim */}
-              <div>
-                <label
-                  htmlFor="trim"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Trim <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  id="trim"
-                  value={formData.trim}
-                  onChange={e => handleInputChange("trim", e.target.value)}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    errors.trim ? "border-red-300" : "border-gray-300"
-                  }`}
-                  placeholder="e.g., LE, XLT, 320i"
-                />
-              </div>
+              </FormField>
 
               {/* VIN */}
-              <div>
-                <label
-                  htmlFor="vin"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  VIN <span className="text-red-500">*</span>
-                </label>
+              <FormField label="VIN" htmlFor="vin" required error={errors.vin}>
                 <input
                   type="text"
                   id="vin"
@@ -435,28 +469,44 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                     errors.vin ? "border-red-300" : "border-gray-300"
                   }`}
-                  placeholder="17-character VIN"
+                  placeholder="Enter VIN (17 characters)"
                 />
-              </div>
-            </div>
+              </FormField>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Trim */}
+              <FormField
+                label="Trim"
+                htmlFor="trim"
+                required
+                error={errors.trim}
+              >
+                <input
+                  type="text"
+                  id="trim"
+                  value={formData.trim}
+                  onChange={e => handleInputChange("trim", e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                    errors.trim ? "border-red-300" : "border-gray-300"
+                  }`}
+                  placeholder="Enter trim"
+                />
+              </FormField>
+
               {/* Vehicle Type */}
-              <div>
-                <label
-                  htmlFor="type"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Vehicle Type <span className="text-red-500">*</span>
-                </label>
+              <FormField
+                label="Vehicle Type"
+                htmlFor="vehicleType"
+                required
+                error={errors.vehicleType}
+              >
                 <select
-                  id="type"
-                  value={formData.type}
+                  id="vehicleType"
+                  value={formData.vehicleType}
                   onChange={e =>
-                    handleInputChange("type", parseInt(e.target.value))
+                    handleInputChange("vehicleType", parseInt(e.target.value))
                   }
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    errors.type ? "border-red-300" : "border-gray-300"
+                    errors.vehicleType ? "border-red-300" : "border-gray-300"
                   }`}
                 >
                   <option value="">Select vehicle type</option>
@@ -466,16 +516,15 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                     </option>
                   ))}
                 </select>
-              </div>
+              </FormField>
 
               {/* Fuel Type */}
-              <div>
-                <label
-                  htmlFor="fuelType"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Fuel Type <span className="text-red-500">*</span>
-                </label>
+              <FormField
+                label="Fuel Type"
+                htmlFor="fuelType"
+                required
+                error={errors.fuelType}
+              >
                 <select
                   id="fuelType"
                   value={formData.fuelType}
@@ -493,16 +542,15 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                     </option>
                   ))}
                 </select>
-              </div>
+              </FormField>
 
               {/* Status */}
-              <div>
-                <label
-                  htmlFor="status"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Status <span className="text-red-500">*</span>
-                </label>
+              <FormField
+                label="Status"
+                htmlFor="status"
+                required
+                error={errors.status}
+              >
                 <select
                   id="status"
                   value={formData.status}
@@ -520,51 +568,36 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                     </option>
                   ))}
                 </select>
-              </div>
-            </div>
-          </div>
+              </FormField>
 
-          {/* Registration & Assignment Section */}
-          <div className="space-y-6">
-            <h2 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">
-              Registration & Assignment
-            </h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* License Plate */}
-              <div>
-                <label
-                  htmlFor="licensePlate"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  License Plate <span className="text-red-500">*</span>
-                </label>
+              <FormField
+                label="License Plate"
+                htmlFor="licensePlate"
+                required
+                error={errors.licensePlate}
+              >
                 <input
                   type="text"
                   id="licensePlate"
                   value={formData.licensePlate}
                   onChange={e =>
-                    handleInputChange(
-                      "licensePlate",
-                      e.target.value.toUpperCase(),
-                    )
+                    handleInputChange("licensePlate", e.target.value)
                   }
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                     errors.licensePlate ? "border-red-300" : "border-gray-300"
                   }`}
                   placeholder="Enter license plate"
                 />
-              </div>
+              </FormField>
 
               {/* License Plate Expiration Date */}
-              <div>
-                <label
-                  htmlFor="licensePlateExpirationDate"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  License Plate Expiration Date{" "}
-                  <span className="text-red-500">*</span>
-                </label>
+              <FormField
+                label="License Plate Expiration Date"
+                htmlFor="licensePlateExpirationDate"
+                required
+                error={errors.licensePlateExpirationDate}
+              >
                 <input
                   type="date"
                   id="licensePlateExpirationDate"
@@ -585,85 +618,76 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                       : "border-gray-300"
                   }`}
                 />
-              </div>
+              </FormField>
 
               {/* Vehicle Group */}
-              <div>
-                <label
-                  htmlFor="vehicleGroupID"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Vehicle Group <span className="text-red-500">*</span>
-                </label>
+              <FormField
+                label="Vehicle Group"
+                htmlFor="vehicleGroupID"
+                required
+                error={errors.vehicleGroupID}
+              >
                 <select
                   id="vehicleGroupID"
                   value={formData.vehicleGroupID}
-                  onChange={e => {
-                    const groupId = parseInt(e.target.value);
-                    const group = (apiVehicleGroups || []).find(
-                      g => g.id === groupId,
-                    );
-                    handleInputChange("vehicleGroupID", groupId);
-                    handleInputChange("vehicleGroupName", group?.name || "");
-                  }}
+                  onChange={e =>
+                    handleInputChange(
+                      "vehicleGroupID",
+                      parseInt(e.target.value),
+                    )
+                  }
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                     errors.vehicleGroupID ? "border-red-300" : "border-gray-300"
                   }`}
+                  disabled={isLoadingVehicleGroups}
                 >
                   <option value={0}>Select vehicle group</option>
-                  {(apiVehicleGroups || []).map(group => (
+                  {vehicleGroups?.map(group => (
                     <option key={group.id} value={group.id}>
                       {group.name}
                     </option>
                   ))}
                 </select>
-              </div>
+              </FormField>
 
               {/* Assigned Technician */}
-              <div>
-                <label
-                  htmlFor="assignedTechnicianID"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Assigned Technician <span className="text-red-500">*</span>
-                </label>
+              <FormField
+                label="Assigned Technician"
+                htmlFor="assignedTechnicianID"
+                error={errors.assignedTechnicianID}
+              >
                 <select
                   id="assignedTechnicianID"
                   value={formData.assignedTechnicianID || ""}
-                  onChange={e => {
-                    const techId = e.target.value || null;
-                    const tech = (apiTechnicians || []).find(
-                      t => t.id === techId,
-                    );
-                    handleInputChange("assignedTechnicianID", techId);
+                  onChange={e =>
                     handleInputChange(
-                      "assignedTechnicianName",
-                      tech ? `${tech.firstName} ${tech.lastName}` : "",
-                    );
-                  }}
+                      "assignedTechnicianID",
+                      e.target.value || null,
+                    )
+                  }
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                     errors.assignedTechnicianID
                       ? "border-red-300"
                       : "border-gray-300"
                   }`}
+                  disabled={isLoadingTechnicians}
                 >
-                  <option value="">Select technician</option>
-                  {(apiTechnicians || []).map(tech => (
+                  <option value="">No technician assigned</option>
+                  {technicians?.map(tech => (
                     <option key={tech.id} value={tech.id}>
                       {`${tech.firstName} ${tech.lastName}`}
                     </option>
                   ))}
                 </select>
-              </div>
+              </FormField>
 
               {/* Location */}
-              <div className="md:col-span-2">
-                <label
-                  htmlFor="location"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Location <span className="text-red-500">*</span>
-                </label>
+              <FormField
+                label="Location"
+                htmlFor="location"
+                required
+                error={errors.location}
+              >
                 <input
                   type="text"
                   id="location"
@@ -674,7 +698,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                   }`}
                   placeholder="Enter vehicle location"
                 />
-              </div>
+              </FormField>
             </div>
           </div>
 
@@ -684,15 +708,13 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               Operational Data
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Mileage */}
-              <div>
-                <label
-                  htmlFor="mileage"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Mileage <span className="text-red-500">*</span>
-                </label>
+              <FormField
+                label="Mileage (km)"
+                htmlFor="mileage"
+                error={errors.mileage}
+              >
                 <input
                   type="number"
                   id="mileage"
@@ -708,46 +730,16 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                     errors.mileage ? "border-red-300" : "border-gray-300"
                   }`}
-                  placeholder="Enter mileage"
+                  placeholder="Enter mileage in kilometers"
                 />
-              </div>
-
-              {/* Engine Hours */}
-              <div>
-                <label
-                  htmlFor="engineHours"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Engine Hours <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  id="engineHours"
-                  value={formData.engineHours ?? ""}
-                  onChange={e => {
-                    const value = e.target.value;
-                    handleInputChange(
-                      "engineHours",
-                      value === "" ? null : parseFloat(value),
-                    );
-                  }}
-                  min="0"
-                  step="0.1"
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    errors.engineHours ? "border-red-300" : "border-gray-300"
-                  }`}
-                  placeholder="Enter engine hours"
-                />
-              </div>
+              </FormField>
 
               {/* Fuel Capacity */}
-              <div>
-                <label
-                  htmlFor="fuelCapacity"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Fuel Capacity (Liters) <span className="text-red-500">*</span>
-                </label>
+              <FormField
+                label="Fuel Capacity (L)"
+                htmlFor="fuelCapacity"
+                error={errors.fuelCapacity}
+              >
                 <input
                   type="number"
                   id="fuelCapacity"
@@ -764,9 +756,9 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                   className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                     errors.fuelCapacity ? "border-red-300" : "border-gray-300"
                   }`}
-                  placeholder="Enter fuel capacity"
+                  placeholder="Enter fuel capacity in litres"
                 />
-              </div>
+              </FormField>
             </div>
           </div>
 
@@ -778,13 +770,12 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Purchase Date */}
-              <div>
-                <label
-                  htmlFor="purchaseDate"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Purchase Date <span className="text-red-500">*</span>
-                </label>
+              <FormField
+                label="Purchase Date"
+                htmlFor="purchaseDate"
+                required
+                error={errors.purchaseDate}
+              >
                 <input
                   type="date"
                   id="purchaseDate"
@@ -800,16 +791,14 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                     errors.purchaseDate ? "border-red-300" : "border-gray-300"
                   }`}
                 />
-              </div>
+              </FormField>
 
               {/* Purchase Price */}
-              <div>
-                <label
-                  htmlFor="purchasePrice"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Purchase Price ($) <span className="text-red-500">*</span>
-                </label>
+              <FormField
+                label="Purchase Price ($)"
+                htmlFor="purchasePrice"
+                error={errors.purchasePrice}
+              >
                 <input
                   type="number"
                   id="purchasePrice"
@@ -828,7 +817,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
                   }`}
                   placeholder="Enter purchase price"
                 />
-              </div>
+              </FormField>
             </div>
           </div>
 
@@ -838,7 +827,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({
               Cancel
             </SecondaryButton>
 
-            <PrimaryButton onClick={handleSaveVehicle} disabled={isSaving}>
+            <PrimaryButton type="submit" disabled={isSaving}>
               {isSaving ? "Saving..." : saveButtonText}
             </PrimaryButton>
           </div>

@@ -75,7 +75,6 @@ export const serviceProgramVehicleApi = {
               assignedTechnicianID: null,
               trim: "",
               mileage: 0,
-              engineHours: 0,
               fuelCapacity: 0,
               fuelType: FuelTypeEnum.OTHER,
               fuelTypeLabel: "Other",

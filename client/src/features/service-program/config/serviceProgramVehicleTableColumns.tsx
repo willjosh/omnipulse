@@ -59,7 +59,7 @@ export const serviceProgramVehicleTableColumns = [
     sortable: false,
     render: (spVehicle: ServiceProgramVehicleWithDetails) => (
       <span className="text-sm text-primary hover:text-blue-800 cursor-pointer underline">
-        {spVehicle.vehicle.mileage.toLocaleString()} mi
+        {spVehicle.vehicle.mileage.toLocaleString()} km
       </span>
     ),
   },

@@ -5,7 +5,6 @@ import {
 } from "@/features/vehicle/utils/vehicleEnumHelper";
 import { VehicleWithLabels } from "@/features/vehicle/types/vehicleType";
 import React from "react";
-import { formatEmptyValueWithUnknown } from "@/utils/emptyValueUtils";
 
 export const vehicleTableColumns = [
   {
@@ -70,7 +69,7 @@ export const vehicleTableColumns = [
     sortable: true,
     render: (vehicle: VehicleWithLabels) => (
       <span className="text-primary hover:text-blue-800 cursor-pointer underline">
-        {vehicle.mileage.toLocaleString()} mi{" "}
+        {vehicle.mileage.toLocaleString()} km{" "}
       </span>
     ),
   },

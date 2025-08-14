@@ -19,7 +19,6 @@ export default function RegisterPage() {
     firstName: "",
     lastName: "",
     hireDate: "",
-    isActive: true,
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -95,7 +94,7 @@ export default function RegisterPage() {
         firstName: form.firstName,
         lastName: form.lastName,
         hireDate: form.hireDate,
-        isActive: form.isActive,
+        isActive: true,
       },
       {
         onSuccess: (userId: string) => {
@@ -302,23 +301,6 @@ export default function RegisterPage() {
                 {showConfirmPassword ? <EyeClosed /> : <EyeOpen />}
               </button>
             </div>
-          </div>
-
-          <div className="flex items-center">
-            <input
-              id="isActive"
-              name="isActive"
-              type="checkbox"
-              checked={form.isActive}
-              onChange={e => handleChange("isActive", e.target.checked)}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-            />
-            <label
-              htmlFor="isActive"
-              className="ml-2 block text-sm text-gray-900"
-            >
-              Account is active
-            </label>
           </div>
 
           <div className="pt-2">

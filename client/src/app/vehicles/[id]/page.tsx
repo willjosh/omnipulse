@@ -83,17 +83,10 @@ const VehicleDetailsPage = () => {
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
             <span className="text-sm font-medium text-gray-600">Mileage</span>
             <span className="text-sm text-gray-900">
-              {vehicle.mileage.toLocaleString()} mi
+              {vehicle.mileage.toLocaleString()} km
             </span>
           </div>
-          <div className="flex justify-between items-center py-3 border-b border-gray-100">
-            <span className="text-sm font-medium text-gray-600">
-              Engine Hours
-            </span>
-            <span className="text-sm text-gray-900">
-              {vehicle.engineHours} hrs
-            </span>
-          </div>
+
           <div className="flex justify-between items-center py-3 border-b border-gray-100">
             <span className="text-sm font-medium text-gray-600">Status</span>
             <div className="flex items-center">
@@ -325,7 +318,7 @@ const VehicleDetailsPage = () => {
               Current Mileage
             </span>
             <span className="text-sm text-gray-900">
-              {vehicle.mileage.toLocaleString()} mi
+              {vehicle.mileage.toLocaleString()} km
             </span>
           </div>
         </div>
@@ -341,16 +334,7 @@ const VehicleDetailsPage = () => {
             Maintenance Information
           </h3>
         </div>
-        <div className="p-3 space-y-2">
-          <div className="flex justify-between items-center py-3">
-            <span className="text-sm font-medium text-gray-600">
-              Engine Hours
-            </span>
-            <span className="text-sm text-gray-900">
-              {vehicle.engineHours} hrs
-            </span>
-          </div>
-        </div>
+        <div className="p-3 space-y-2"></div>
       </div>
       <div className="bg-white rounded-3xl border border-gray-200">
         <div className="p-4 border-b border-gray-200">
@@ -417,7 +401,7 @@ const VehicleDetailsPage = () => {
                 </p>
                 <div className="flex items-center space-x-4 text-sm">
                   <span className="text-gray-600">
-                    {vehicle.mileage.toLocaleString()} mi
+                    {vehicle.mileage.toLocaleString()} km
                   </span>
                   <div
                     className={`flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(vehicle.status)}`}

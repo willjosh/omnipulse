@@ -321,7 +321,7 @@ const FuelPurchaseForm: React.FC<FuelPurchaseFormProps> = ({
           {/* Volume and Price Per Unit - Side by side */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
-              label="Volume (Liters)"
+              label="Volume (L)"
               required
               error={errors.volume}
               htmlFor="volume"
@@ -338,7 +338,7 @@ const FuelPurchaseForm: React.FC<FuelPurchaseFormProps> = ({
                 className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                   errors.volume ? "border-red-300" : "border-gray-300"
                 }`}
-                placeholder="Enter volume"
+                placeholder="Enter volume in litres"
               />
             </FormField>
 

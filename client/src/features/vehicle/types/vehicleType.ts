@@ -20,7 +20,6 @@ export interface Vehicle {
   assignedTechnicianID?: string | null;
   trim: string;
   mileage: number;
-  engineHours: number;
   fuelCapacity: number;
   fuelType: FuelTypeEnum;
   purchaseDate: string;
@@ -54,7 +53,6 @@ export interface CreateVehicleCommand {
   vehicleGroupID: number;
   trim: string;
   mileage: number;
-  engineHours: number;
   fuelCapacity: number;
   fuelType: FuelTypeEnum;
   purchaseDate: string;
@@ -77,7 +75,6 @@ export interface UpdateVehicleCommand {
   vehicleGroupID: number;
   trim: string;
   mileage: number;
-  engineHours: number;
   fuelCapacity: number;
   fuelType: FuelTypeEnum;
   purchaseDate: string;
