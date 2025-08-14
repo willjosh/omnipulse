@@ -89,30 +89,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return false;
       }
 
-      // Note: You'll need to implement the refresh token endpoint
-      // For now, we'll just return false and logout
-      // const response = await fetch('/api/auth/refresh', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({ refreshToken: refreshTokenValue }),
-      // });
-
-      // const data = await response.json();
-
-      // if (response.ok && data.token) {
-      //   tokenStorage.setToken(data.token);
-      //   if (data.refreshToken) {
-      //     tokenStorage.setRefreshToken(data.refreshToken);
-      //   }
-      //   return true;
-      // } else {
-      //   logout();
-      //   return false;
-      // }
-
-      // For now, just logout if refresh is needed
       logout();
       return false;
     } catch (error) {
@@ -122,7 +98,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Auto-refresh token when it's about to expire
+  // Auto refresh token when it's about to expire
   useEffect(() => {
     if (!state.isAuthenticated) return;
 

@@ -33,11 +33,9 @@ const InspectionDetailsForm: React.FC<InspectionDetailsFormProps> = ({
   onChange,
   disabled = false,
 }) => {
-  // Fetch vehicles and technicians
   const { vehicles, isPending: isLoadingVehicles } = useVehicles();
   const { technicians, isPending: isLoadingTechnicians } = useTechnicians();
 
-  // Vehicle selection state
   const [vehicleSearch, setVehicleSearch] = React.useState("");
   const filteredVehicles = React.useMemo(() => {
     if (!vehicleSearch) return vehicles;
@@ -50,7 +48,6 @@ const InspectionDetailsForm: React.FC<InspectionDetailsFormProps> = ({
   }, [vehicles, vehicleSearch]);
   const selectedVehicle = vehicles.find(v => v.id === value.vehicleID) || null;
 
-  // Technician selection state
   const [technicianSearch, setTechnicianSearch] = React.useState("");
   const filteredTechnicians = React.useMemo(() => {
     if (!technicianSearch) return technicians;

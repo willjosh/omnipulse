@@ -33,8 +33,8 @@ export const convertIssueData = (issue: Issue): IssueWithLabels => ({
   status: issue.status as number,
   statusLabel: getIssueStatusLabel(issue.status),
   statusEnum: issue.status as IssueStatusEnum,
-  reportedDate: issue.reportedDate, // Preserve original ISO for editing
-  resolvedDate: issue.resolvedDate, // Preserve original ISO for editing
+  reportedDate: issue.reportedDate,
+  resolvedDate: issue.resolvedDate,
 });
 
 export const convertIssueDataForDisplay = (issue: Issue): IssueWithLabels => ({
@@ -48,8 +48,8 @@ export const convertIssueDataForDisplay = (issue: Issue): IssueWithLabels => ({
   status: issue.status as number,
   statusLabel: getIssueStatusLabel(issue.status),
   statusEnum: issue.status as IssueStatusEnum,
-  reportedDate: formatDate(issue.reportedDate), // Format for display
-  resolvedDate: formatDate(issue.resolvedDate), // Format for display
+  reportedDate: formatDate(issue.reportedDate),
+  resolvedDate: formatDate(issue.resolvedDate),
 });
 
 export const issueApi = {

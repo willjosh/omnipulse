@@ -47,7 +47,6 @@ const InspectionItemChecklistForm: React.FC<
             key={item.id}
             className="border-b border-gray-200 pb-6 last:border-b-0"
           >
-            {/* First line: Item label and Pass/Fail radio buttons */}
             <div className="flex items-center mb-3">
               <div className="w-1/2">
                 <h3 className="font-medium text-gray-900">
@@ -61,7 +60,6 @@ const InspectionItemChecklistForm: React.FC<
                     </span>
                   )}
                 </h3>
-                {/* Error message for required items */}
                 {errors[`item-${item.id}`] && (
                   <p className="text-red-500 text-sm mt-1">
                     {errors[`item-${item.id}`]}
@@ -69,7 +67,6 @@ const InspectionItemChecklistForm: React.FC<
                 )}
               </div>
 
-              {/* Pass/Fail Radio Buttons - starting at 1/2 width */}
               <div className="w-1/2 flex items-center gap-4">
                 <label className="flex items-center gap-2">
                   <input
@@ -100,7 +97,6 @@ const InspectionItemChecklistForm: React.FC<
               </div>
             </div>
 
-            {/* Second line: Instructions (if any) and Add Remark button */}
             <div className="flex items-start">
               <div className="w-1/2">
                 {item.itemInstructions && (
@@ -110,7 +106,6 @@ const InspectionItemChecklistForm: React.FC<
                 )}
               </div>
 
-              {/* Add Remark Button - starting at 1/2 width */}
               <div className="w-1/2 flex justify-end">
                 <button
                   type="button"
@@ -127,7 +122,6 @@ const InspectionItemChecklistForm: React.FC<
               </div>
             </div>
 
-            {/* Third line: Comment box (when remarks are shown) */}
             {item.showRemarks && (
               <div className="mt-3 flex">
                 <div className="w-1/2"></div>

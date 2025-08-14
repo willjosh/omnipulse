@@ -53,7 +53,6 @@ const ServiceTaskDetailsForm: React.FC<ServiceTaskDetailsFormProps> = ({
   const selectedCategory =
     categoryOptions.find(opt => opt.value === value.category) || null;
 
-  // For IsActive Combobox
   const isActiveOptions = [
     { value: true, label: "Active" },
     { value: false, label: "Inactive" },

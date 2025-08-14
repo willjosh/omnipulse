@@ -38,7 +38,6 @@ const FuelPurchaseForm: React.FC<FuelPurchaseFormProps> = ({
     isPending: isLoadingFuelPurchase,
   } = useFuelPurchase(fuelPurchaseId || "");
 
-  // Get reference data for dropdowns
   const { vehicles, isPending: isLoadingVehicles } = useVehicles();
   const { technicians, isPending: isLoadingTechnicians } = useTechnicians();
 
@@ -119,7 +118,7 @@ const FuelPurchaseForm: React.FC<FuelPurchaseFormProps> = ({
       newErrors.receiptNumber = "Receipt number is required";
     }
 
-    // Validate date is not in the future
+    // Ensure date is not in the future
     const today = new Date();
     const purchaseDate = new Date(formData.purchaseDate);
     if (purchaseDate > today) {
@@ -318,7 +317,7 @@ const FuelPurchaseForm: React.FC<FuelPurchaseFormProps> = ({
             />
           </FormField>
 
-          {/* Volume and Price Per Unit - Side by side */}
+          {/* Volume and Price Per Unit*/}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               label="Volume (L)"
@@ -368,7 +367,7 @@ const FuelPurchaseForm: React.FC<FuelPurchaseFormProps> = ({
             </FormField>
           </div>
 
-          {/* Total Cost - Display only */}
+          {/* Total Cost (Only for display) */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Total Cost

@@ -5,7 +5,7 @@ import FormField from "@/components/ui/Form/FormField";
 export interface ServiceProgramDetailsFormValues {
   name: string;
   description?: string;
-  isActive?: boolean; // Optional for backward compatibility
+  isActive?: boolean;
 }
 
 interface ServiceProgramDetailsFormProps {
@@ -13,7 +13,7 @@ interface ServiceProgramDetailsFormProps {
   errors: Partial<Record<keyof ServiceProgramDetailsFormValues, string>>;
   onChange: (field: keyof ServiceProgramDetailsFormValues, value: any) => void;
   disabled?: boolean;
-  showIsActive?: boolean; // New prop to control whether to show the isActive field
+  showIsActive?: boolean;
 }
 
 const ServiceProgramDetailsForm: React.FC<ServiceProgramDetailsFormProps> = ({

@@ -36,7 +36,6 @@ const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
   statusEditable = true,
 }) => {
   const timeOptions = getTimeOptions();
-  // Search/filter state for vehicle dropdown
   const [vehicleSearch, setVehicleSearch] = useState("");
   const { vehicles, isPending: isLoadingVehicles } = useVehicles();
   const vehicleOptions = useMemo(
@@ -59,10 +58,8 @@ const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
     vehicleOptions.find((v: VehicleOption) => v.value === value.vehicleID) ||
     null;
 
-  // Local state for time selection
   const [reportedTime, setReportedTime] = useState<string>("");
 
-  // Helper function to parse formatted dates
   const parseFormattedDate = (
     formattedDate: string | null | undefined,
   ): Date | null => {
@@ -82,14 +79,13 @@ const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
     return null;
   };
 
-  // Prefill reportedTime when value.ReportedDate changes
   useEffect(() => {
     setReportedTime(extractTimeFromISO(value.reportedDate));
   }, [value.reportedDate]);
 
   return (
     <FormContainer title="Details" className="mt-6 max-w-2xl mx-auto w-full">
-      {/* Asset (Vehicle) Dropdown with search */}
+      {/* VehicleDropdown with search */}
       <FormField label="Asset" required error={errors.vehicleID}>
         <Combobox
           value={selectedVehicle}
@@ -233,7 +229,7 @@ const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
           </div>
         </Combobox>
       </FormField>
-      {/* Status Dropdown */}
+      {/* Priority Level Dropdown */}
       {showStatus && (
         <FormField label="Status" required error={errors.status}>
           <Combobox
@@ -322,7 +318,7 @@ const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
               }
               placeholder="Select category..."
               disabled={disabled}
-              readOnly // disables typing, dropdown only
+              readOnly
             />
             <ComboboxButton className="absolute inset-y-0 right-0 flex items-center pr-2">
               <svg
@@ -428,9 +424,8 @@ const IssueDetailsForm: React.FC<IssueDetailsFormProps> = ({
           disabled={disabled}
         />
       </FormField>
-      {/* Description Field (Rich Text Editor placeholder) */}
+      {/* Description Field */}
       <FormField label="Description" error={errors.description}>
-        {/* TODO: Replace with a real rich text editor (e.g., React Quill, Slate, Tiptap) */}
         <textarea
           value={value.description}
           onChange={e => onChange("description", e.target.value)}

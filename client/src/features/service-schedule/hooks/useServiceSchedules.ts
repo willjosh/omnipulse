@@ -4,11 +4,8 @@ import {
   convertServiceScheduleData,
 } from "../api/serviceScheduleApi";
 import {
-  ServiceSchedule,
   ServiceScheduleWithLabels,
   ServiceScheduleFilter,
-  CreateServiceScheduleCommand,
-  UpdateServiceScheduleCommand,
 } from "../types/serviceScheduleType";
 import { useDebounce } from "@/hooks/useDebounce";
 

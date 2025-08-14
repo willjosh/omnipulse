@@ -37,21 +37,6 @@ export const VehicleStatusList: React.FC = () => {
         </div>
       </div>
 
-      {/* Information Banner */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <div className="flex">
-          <Info className="w-5 h-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" />
-          <div className="text-sm text-blue-700">
-            <p className="font-medium">Predefined Vehicle Statuses</p>
-            <p className="mt-1">
-              These vehicle statuses are predefined system values based on your
-              fleet management needs. Custom status creation will be available
-              when the backend API is implemented.
-            </p>
-          </div>
-        </div>
-      </div>
-
       <DataTable<VehicleStatus>
         data={vehicleStatuses || []}
         columns={vehicleStatusTableColumns}

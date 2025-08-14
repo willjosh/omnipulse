@@ -3,8 +3,6 @@ import { inspectionFormApi } from "../api/inspectionFormApi";
 import {
   InspectionForm,
   InspectionFormFilter,
-  CreateInspectionFormCommand,
-  UpdateInspectionFormCommand,
 } from "../types/inspectionFormType";
 import { useDebounce } from "@/hooks/useDebounce";
 

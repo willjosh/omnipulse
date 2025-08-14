@@ -146,7 +146,7 @@ const InventoryFormContainer: React.FC<InventoryFormContainerProps> = ({
 
       <div className="bg-white rounded-lg shadow">
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Item Information (Read-only) */}
+          {/* Item Information (Only for display) */}
           <div className="bg-gray-50 p-4 rounded-lg">
             <h3 className="text-lg font-medium text-gray-900 mb-4">
               Item Information
@@ -171,7 +171,7 @@ const InventoryFormContainer: React.FC<InventoryFormContainerProps> = ({
             </div>
           </div>
 
-          {/* Editable Fields */}
+          {/* Editable Fields for inventory */}
           <div className="grid grid-cols-2 gap-6">
             <div>
               <label
@@ -302,7 +302,7 @@ const InventoryFormContainer: React.FC<InventoryFormContainerProps> = ({
             </label>
           </div>
 
-          {/* Action Buttons */}
+          {/* Buttons */}
           <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
             <SecondaryButton
               type="button"

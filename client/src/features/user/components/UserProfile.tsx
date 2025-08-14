@@ -93,25 +93,7 @@ export const UserProfile: React.FC = () => {
         )}
       </div>
 
-      {/* Backend Notice */}
-      <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <div className="flex items-start gap-3">
-          <Info size={20} className="text-blue-600 mt-0.5" />
-          <div>
-            <h3 className="text-sm font-semibold text-blue-800 mb-1">
-              Profile Editing Not Yet Implemented
-            </h3>
-            <p className="text-sm text-blue-700">
-              Profile editing functionality is currently in development. You can
-              view your profile information below, but changes cannot be saved
-              at this time.
-            </p>
-          </div>
-        </div>
-      </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Main Profile Information */}
         <div className="lg:col-span-2 space-y-6">
           {/* Personal Information Card */}
           <div className="bg-white rounded-lg border border-[var(--border)] p-6">
@@ -232,7 +214,6 @@ export const UserProfile: React.FC = () => {
           </div>
         </div>
 
-        {/* Sidebar Information */}
         <div className="space-y-6">
           {/* Account Details */}
           <div className="bg-white rounded-lg border border-[var(--border)] p-6">

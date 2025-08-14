@@ -101,7 +101,6 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    // Required text fields
     if (!formData.itemNumber.trim()) {
       newErrors.itemNumber = "Item Number is required";
     }
@@ -124,7 +123,6 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
       newErrors.supplier = "Supplier is required";
     }
 
-    // Required number fields
     if (formData.unitCost <= 0) {
       newErrors.unitCost = "Valid unit cost is required";
     }
@@ -132,7 +130,6 @@ const InventoryModal: React.FC<InventoryModalProps> = ({
       newErrors.weightKG = "Valid weight is required";
     }
 
-    // Required dropdown fields
     if (formData.category === null || formData.category === undefined) {
       newErrors.category = "Category is required";
     }
