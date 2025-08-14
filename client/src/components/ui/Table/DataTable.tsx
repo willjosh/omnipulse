@@ -14,9 +14,6 @@ interface Column<T> {
 interface DataTableProps<T> {
   data: T[];
   columns: Column<T>[];
-  selectedItems: string[];
-  onSelectItem: (id: string) => void;
-  onSelectAll: () => void;
   onRowClick?: (item: T) => void;
   onSort?: (key: string) => void;
   sortBy?: string;
@@ -32,9 +29,6 @@ interface DataTableProps<T> {
 function DataTable<T>({
   data,
   columns,
-  selectedItems,
-  onSelectItem,
-  onSelectAll,
   onRowClick,
   onSort,
   sortBy,
@@ -47,13 +41,6 @@ function DataTable<T>({
   getItemId,
 }: DataTableProps<T>) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-
-  const allSelected =
-    data.length > 0 &&
-    data.every(item => selectedItems.includes(getItemId(item)));
-  const someSelected = data.some(item =>
-    selectedItems.includes(getItemId(item)),
-  );
 
   useEffect(() => {
     if (data.length === 0 && scrollContainerRef.current) {

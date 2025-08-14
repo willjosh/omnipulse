@@ -360,9 +360,6 @@ const ServiceReminderList: React.FC = () => {
       <DataTable<ServiceReminderWithLabels>
         data={serviceReminders || []}
         columns={serviceReminderColumns}
-        selectedItems={[]}
-        onSelectItem={() => {}}
-        onSelectAll={() => {}}
         onRowClick={handleRowClick}
         actions={serviceReminderActions}
         showActions={true}

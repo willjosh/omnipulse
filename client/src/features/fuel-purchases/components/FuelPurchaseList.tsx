@@ -6,30 +6,30 @@ import { OptionButton, PrimaryButton } from "@/components/ui/Button";
 import { ConfirmModal } from "@/components/ui/Modal";
 import { FilterBar } from "@/components/ui/Filter";
 import { Archive, Edit, Details } from "@/components/ui/Icons";
-import { vehicleTableColumns } from "../config/VehicleTableColumns";
+import { fuelPurchaseTableColumns } from "../config/FuelPurchaseTableColumns";
 import {
-  useVehicles,
-  useDeactivateVehicle,
-} from "@/features/vehicle/hooks/useVehicles";
+  useFuelPurchases,
+  useDeleteFuelPurchase,
+} from "../hooks/useFuelPurchases";
 import {
-  Vehicle,
-  VehicleWithLabels,
-} from "@/features/vehicle/types/vehicleType";
+  FuelPurchase,
+  FuelPurchaseWithLabels,
+} from "../types/fuelPurchaseType";
 import {
-  VehicleActionType,
-  VEHICLE_ACTION_CONFIG,
-} from "../config/vehicleActions";
+  FuelPurchaseActionType,
+  FUEL_PURCHASE_ACTION_CONFIG,
+} from "../config/fuelPurchaseActions";
 import { DEFAULT_PAGE_SIZE } from "@/components/ui/Table/constants";
 import { Plus } from "lucide-react";
 
-const VehicleList: React.FC = () => {
+const FuelPurchaseList: React.FC = () => {
   const router = useRouter();
 
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
-  const [sortBy, setSortBy] = useState("name");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [sortBy, setSortBy] = useState("purchaseDate");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
   useEffect(() => {
     setPage(1);
@@ -46,51 +46,51 @@ const VehicleList: React.FC = () => {
     [page, pageSize, sortBy, sortOrder, search],
   );
 
-  const { vehicles, pagination, isPending, isError, error } =
-    useVehicles(filters);
-  const { mutateAsync: deactivateVehicle, isPending: isDeactivating } =
-    useDeactivateVehicle();
+  const { fuelPurchases, pagination, isPending, isError, error } =
+    useFuelPurchases(filters);
+  const { mutateAsync: deleteFuelPurchase, isPending: isDeleting } =
+    useDeleteFuelPurchase();
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
-    vehicle?: VehicleWithLabels;
+    fuelPurchase?: FuelPurchaseWithLabels;
   }>({ isOpen: false });
 
-  const handleArchiveVehicle = async () => {
-    if (!confirmModal.vehicle) return;
+  const handleDeleteFuelPurchase = async () => {
+    if (!confirmModal.fuelPurchase) return;
     try {
-      const vehicleId = confirmModal.vehicle.id.toString();
-      await deactivateVehicle(vehicleId);
+      await deleteFuelPurchase(confirmModal.fuelPurchase.id);
       setConfirmModal({ isOpen: false });
     } catch (error) {
-      console.error("Error archiving vehicle:", error);
+      console.error("Error deleting fuel purchase:", error);
     }
   };
 
-  const vehicleActions = useMemo(
+  const fuelPurchaseActions = useMemo(
     () => [
       {
-        key: VehicleActionType.VIEW,
-        label: VEHICLE_ACTION_CONFIG[VehicleActionType.VIEW].label,
+        key: FuelPurchaseActionType.VIEW,
+        label: FUEL_PURCHASE_ACTION_CONFIG[FuelPurchaseActionType.VIEW].label,
         icon: <Details />,
-        onClick: (vehicle: VehicleWithLabels) => {
-          router.push(`/vehicles/${vehicle.id}`);
+        onClick: (fuelPurchase: FuelPurchaseWithLabels) => {
+          router.push(`/fuel-purchases/${fuelPurchase.id}`);
         },
       },
       {
-        key: VehicleActionType.EDIT,
-        label: VEHICLE_ACTION_CONFIG[VehicleActionType.EDIT].label,
+        key: FuelPurchaseActionType.EDIT,
+        label: FUEL_PURCHASE_ACTION_CONFIG[FuelPurchaseActionType.EDIT].label,
         icon: <Edit />,
-        onClick: (vehicle: VehicleWithLabels) => {
-          router.push(`/vehicles/${vehicle.id}/edit`);
+        onClick: (fuelPurchase: FuelPurchaseWithLabels) => {
+          router.push(`/fuel-purchases/${fuelPurchase.id}/edit`);
         },
       },
       {
-        key: VehicleActionType.ARCHIVE,
-        label: VEHICLE_ACTION_CONFIG[VehicleActionType.ARCHIVE].label,
-        variant: VEHICLE_ACTION_CONFIG[VehicleActionType.ARCHIVE].variant,
+        key: FuelPurchaseActionType.DELETE,
+        label: FUEL_PURCHASE_ACTION_CONFIG[FuelPurchaseActionType.DELETE].label,
+        variant:
+          FUEL_PURCHASE_ACTION_CONFIG[FuelPurchaseActionType.DELETE].variant,
         icon: <Archive />,
-        onClick: (vehicle: VehicleWithLabels) => {
-          setConfirmModal({ isOpen: true, vehicle });
+        onClick: (fuelPurchase: FuelPurchaseWithLabels) => {
+          setConfirmModal({ isOpen: true, fuelPurchase });
         },
       },
     ],
@@ -116,13 +116,13 @@ const VehicleList: React.FC = () => {
     setPage(1);
   };
 
-  const handleRowClick = (vehicle: Vehicle) => {
-    router.push(`/vehicles/${vehicle.id}`);
+  const handleRowClick = (fuelPurchase: FuelPurchase) => {
+    router.push(`/fuel-purchases/${fuelPurchase.id}`);
   };
 
   const emptyState = (
     <div className="text-center py-8">
-      <p className="text-gray-500 mb-2">No vehicles found.</p>
+      <p className="text-gray-500 mb-2">No fuel purchases found.</p>
       <button
         onClick={() => setSearch("")}
         className="text-blue-600 hover:text-blue-800 text-sm"
@@ -136,7 +136,7 @@ const VehicleList: React.FC = () => {
     return (
       <div className="p-6 w-full max-w-none">
         <div className="text-center py-10 text-red-600">
-          Error loading vehicles: {error?.message || "Unknown error"}
+          Error loading fuel purchases: {error?.message || "Unknown error"}
         </div>
       </div>
     );
@@ -145,12 +145,12 @@ const VehicleList: React.FC = () => {
   return (
     <div className="p-6 w-full max-w-none">
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-semibold text-gray-900">Vehicles</h1>
+        <h1 className="text-2xl font-semibold text-gray-900">Fuel Purchases</h1>
         <div className="flex items-center gap-3">
           <OptionButton />
-          <PrimaryButton onClick={() => router.push("/vehicles/create")}>
+          <PrimaryButton onClick={() => router.push("/fuel-purchases/new")}>
             <Plus size={16} />
-            Add Vehicles
+            Add Fuel Purchase
           </PrimaryButton>
         </div>
       </div>
@@ -159,7 +159,7 @@ const VehicleList: React.FC = () => {
         <FilterBar
           searchValue={search}
           onSearchChange={setSearch}
-          searchPlaceholder="Search"
+          searchPlaceholder="Search fuel purchases..."
           onFilterChange={() => {}}
         />
 
@@ -175,15 +175,15 @@ const VehicleList: React.FC = () => {
         />
       </div>
 
-      <DataTable<VehicleWithLabels>
-        data={vehicles || []}
-        columns={vehicleTableColumns}
+      <DataTable<FuelPurchaseWithLabels>
+        data={fuelPurchases || []}
+        columns={fuelPurchaseTableColumns}
         onRowClick={handleRowClick}
-        actions={vehicleActions}
+        actions={fuelPurchaseActions}
         showActions={true}
         fixedLayout={false}
-        loading={isPending || isDeactivating}
-        getItemId={vehicle => vehicle.id.toString()}
+        loading={isPending || isDeleting}
+        getItemId={fuelPurchase => fuelPurchase.id.toString()}
         emptyState={emptyState}
         onSort={handleSort}
         sortBy={sortBy}
@@ -193,14 +193,14 @@ const VehicleList: React.FC = () => {
       <ConfirmModal
         isOpen={confirmModal.isOpen}
         onClose={() => setConfirmModal({ isOpen: false })}
-        onConfirm={handleArchiveVehicle}
-        title="Archive Vehicle"
-        message={`Are you sure you want archive ${confirmModal.vehicle?.name}?`}
-        confirmText="Archive"
+        onConfirm={handleDeleteFuelPurchase}
+        title="Delete Fuel Purchase"
+        message={`Are you sure you want to delete fuel purchase ${confirmModal.fuelPurchase?.receiptNumber}?`}
+        confirmText="Delete"
         cancelText="Cancel"
       />
     </div>
   );
 };
 
-export default VehicleList;
+export default FuelPurchaseList;

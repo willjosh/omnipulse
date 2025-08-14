@@ -262,9 +262,6 @@ export default function WorkOrdersPage() {
       <DataTable
         columns={workOrderTableColumns}
         data={workOrders}
-        selectedItems={[]}
-        onSelectItem={() => {}}
-        onSelectAll={() => {}}
         getItemId={item => item.id.toString()}
         loading={isPending}
         showActions={true}

@@ -74,7 +74,7 @@ export default function ServiceProgramDetailsPage() {
 
   const [activeTab, setActiveTab] = useState("schedules");
   const [isAddDropdownOpen, setIsAddDropdownOpen] = useState(false);
-  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
     vehicle?: ServiceProgramVehicleWithDetails;
@@ -143,24 +143,6 @@ export default function ServiceProgramDetailsPage() {
   const handleAddVehicle = () => {
     router.push(`/service-programs/${id}/vehicles/add`);
     setIsAddDropdownOpen(false);
-  };
-
-  const handleSelectItem = (itemId: string) => {
-    setSelectedItems(prev =>
-      prev.includes(itemId)
-        ? prev.filter(id => id !== itemId)
-        : [...prev, itemId],
-    );
-  };
-
-  const handleSelectAll = () => {
-    if (selectedItems.length === filteredServiceSchedules.length) {
-      setSelectedItems([]);
-    } else {
-      setSelectedItems(
-        filteredServiceSchedules.map(schedule => schedule.id.toString()),
-      );
-    }
   };
 
   const handleRowClick = (schedule: ServiceScheduleWithLabels) => {
@@ -311,9 +293,6 @@ export default function ServiceProgramDetailsPage() {
                   <DataTable
                     data={filteredServiceSchedules}
                     columns={serviceScheduleTableColumns}
-                    selectedItems={selectedItems}
-                    onSelectItem={handleSelectItem}
-                    onSelectAll={handleSelectAll}
                     onRowClick={handleRowClick}
                     loading={isLoadingSchedules}
                     emptyState="No service schedules found"
@@ -373,9 +352,6 @@ export default function ServiceProgramDetailsPage() {
                   <DataTable
                     data={serviceProgramVehicles}
                     columns={serviceProgramVehicleTableColumns}
-                    selectedItems={selectedItems}
-                    onSelectItem={handleSelectItem}
-                    onSelectAll={handleSelectAll}
                     onRowClick={handleVehicleRowClick}
                     loading={isLoadingVehicles}
                     emptyState="No vehicles found"

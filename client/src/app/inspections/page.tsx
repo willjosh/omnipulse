@@ -237,9 +237,6 @@ export default function InspectionListPage() {
       <DataTable
         data={inspections}
         columns={columns}
-        selectedItems={[]}
-        onSelectItem={() => {}}
-        onSelectAll={() => {}}
         onRowClick={handleRowClick}
         loading={isPending}
         emptyState={emptyState}

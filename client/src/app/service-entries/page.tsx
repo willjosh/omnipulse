@@ -198,9 +198,6 @@ export default function ServiceEntriesPage() {
       <DataTable
         data={maintenanceHistories}
         columns={columns}
-        selectedItems={[]}
-        onSelectItem={() => {}}
-        onSelectAll={() => {}}
         onRowClick={handleRowClick}
         loading={isPending}
         emptyState={emptyState}

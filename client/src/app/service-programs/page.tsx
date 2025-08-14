@@ -145,23 +145,6 @@ export default function ServiceProgramsPage() {
     </div>
   );
 
-  const [selectedItems, setSelectedItems] = useState<string[]>([]);
-  const handleSelectItem = (id: string) => {
-    setSelectedItems(items =>
-      items.includes(id)
-        ? items.filter(itemId => itemId !== id)
-        : [...items, id],
-    );
-  };
-  const handleSelectAll = () => {
-    if (servicePrograms.length === 0) return;
-    if (selectedItems.length === servicePrograms.length) {
-      setSelectedItems([]);
-    } else {
-      setSelectedItems(servicePrograms.map(item => item.id.toString()));
-    }
-  };
-
   return (
     <div className="p-6 w-full max-w-none">
       <div className="flex items-center justify-between mb-4">
@@ -200,9 +183,6 @@ export default function ServiceProgramsPage() {
       <DataTable
         data={servicePrograms}
         columns={columns}
-        selectedItems={selectedItems}
-        onSelectItem={handleSelectItem}
-        onSelectAll={handleSelectAll}
         onRowClick={handleRowClick}
         loading={isPending}
         emptyState={emptyState}

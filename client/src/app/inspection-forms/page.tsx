@@ -179,23 +179,6 @@ export default function InspectionFormsPage() {
     </div>
   );
 
-  const [selectedItems, setSelectedItems] = useState<string[]>([]);
-  const handleSelectItem = (id: string) => {
-    setSelectedItems(items =>
-      items.includes(id)
-        ? items.filter(itemId => itemId !== id)
-        : [...items, id],
-    );
-  };
-  const handleSelectAll = () => {
-    if (inspectionForms.length === 0) return;
-    if (selectedItems.length === inspectionForms.length) {
-      setSelectedItems([]);
-    } else {
-      setSelectedItems(inspectionForms.map(item => item.id.toString()));
-    }
-  };
-
   const handleFormSelect = (form: InspectionForm) => {
     setShowSelectFormModal(false);
     router.push(`/inspections/new?formId=${form.id}`);
@@ -245,9 +228,6 @@ export default function InspectionFormsPage() {
       <DataTable
         data={inspectionForms}
         columns={columns}
-        selectedItems={selectedItems}
-        onSelectItem={handleSelectItem}
-        onSelectAll={handleSelectAll}
         onRowClick={handleRowClick}
         loading={isPending}
         emptyState={emptyState}

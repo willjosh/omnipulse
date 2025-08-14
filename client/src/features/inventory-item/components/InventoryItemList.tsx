@@ -27,7 +27,7 @@ import { Plus } from "lucide-react";
 const InventoryItemList = () => {
   const router = useRouter();
   const notify = useNotification();
-  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
@@ -61,27 +61,6 @@ const InventoryItemList = () => {
   const { inventoryItems, pagination, isPending, isError } =
     useInventoryItems(filters);
   const deleteInventoryMutation = useDeleteInventoryItem();
-
-  const handleSelectAll = () => {
-    if (!inventoryItems) return;
-
-    const allItemIds = inventoryItems.map(item => item.id.toString());
-    const allSelected = allItemIds.every(id => selectedItems.includes(id));
-
-    if (allSelected) {
-      setSelectedItems([]);
-    } else {
-      setSelectedItems(allItemIds);
-    }
-  };
-
-  const handleItemSelect = (itemId: string) => {
-    setSelectedItems(prev =>
-      prev.includes(itemId)
-        ? prev.filter(id => id !== itemId)
-        : [...prev, itemId],
-    );
-  };
 
   const handleSort = (sortKey: string) => {
     if (sortBy === sortKey) {
@@ -228,9 +207,6 @@ const InventoryItemList = () => {
         <DataTable<InventoryItemWithLabels>
           data={inventoryItems || []}
           columns={inventoryTableColumns}
-          selectedItems={selectedItems}
-          onSelectItem={handleItemSelect}
-          onSelectAll={handleSelectAll}
           onRowClick={handleRowClick}
           onSort={handleSort}
           sortBy={sortBy}
