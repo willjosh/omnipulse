@@ -218,10 +218,10 @@ public class GetAllInspectionQueryHandlerTest
     }
 
     [Theory]
-    [InlineData("id", false)]
-    [InlineData("id", true)]
-    [InlineData("createdat", false)]
-    [InlineData("updatedat", true)]
+    [InlineData("vehiclename", false)]
+    [InlineData("vehiclename", true)]
+    [InlineData("submissiontime", false)]
+    [InlineData("odometer", true)]
     public async Task Handler_Should_Handle_Sorting_Parameters(string sortBy, bool sortDescending)
     {
         // Arrange

@@ -104,17 +104,14 @@ public class GetAllInspectionQueryValidatorTest
     }
 
     [Theory]
-    [InlineData("id")]
-    [InlineData("inspectionformid")]
-    [InlineData("vehicleid")]
-    [InlineData("technicianid")]
-    [InlineData("inspectionstarttime")]
-    [InlineData("inspectionendtime")]
-    [InlineData("odometerreading")]
+    [InlineData("vehiclename")]
+    [InlineData("snapshotformname")]
+    [InlineData("inspectorname")]
+    [InlineData("submissiontime")]
     [InlineData("vehiclecondition")]
-    [InlineData("snapshotformtitle")]
-    [InlineData("createdat")]
-    [InlineData("updatedat")]
+    [InlineData("inspectionresults")]
+    [InlineData("faileditems")]
+    [InlineData("odometer")]
     public async Task Validator_Should_Pass_When_SortBy_Is_Valid(string validSortBy)
     {
         // Arrange
@@ -221,7 +218,7 @@ public class GetAllInspectionQueryValidatorTest
             pageNumber: 2,
             pageSize: 25,
             search: "safety inspection",
-            sortBy: "inspectionstarttime",
+            sortBy: "submissiontime",
             sortDescending: true);
 
         // Act
