@@ -81,7 +81,7 @@ const ServiceReminderList: React.FC = () => {
       ),
     },
     {
-      key: "serviceProgramName",
+      key: "servicerogramname",
       header: "Service Program",
       sortable: false,
       width: "200px",
@@ -92,7 +92,7 @@ const ServiceReminderList: React.FC = () => {
       ),
     },
     {
-      key: "serviceScheduleName",
+      key: "serviceschedulename",
       header: "Service Schedule",
       sortable: false,
       width: "200px",
@@ -113,7 +113,7 @@ const ServiceReminderList: React.FC = () => {
       ),
     },
     {
-      key: "scheduleType",
+      key: "scheduletype",
       header: "Schedule Type",
       sortable: false,
       width: "150px",
@@ -196,7 +196,7 @@ const ServiceReminderList: React.FC = () => {
       ),
     },
     {
-      key: "currentMileage",
+      key: "currentmileage",
       header: "Current Mileage",
       sortable: false,
       width: "150px",
@@ -207,7 +207,7 @@ const ServiceReminderList: React.FC = () => {
       ),
     },
     {
-      key: "taskCount",
+      key: "taskcount",
       header: "Tasks",
       sortable: false,
       width: "100px",
@@ -219,7 +219,7 @@ const ServiceReminderList: React.FC = () => {
       ),
     },
     {
-      key: "totalEstimatedCost",
+      key: "totalestimatedcost",
       header: "Estimated Cost",
       sortable: false,
       width: "120px",
@@ -230,7 +230,7 @@ const ServiceReminderList: React.FC = () => {
       ),
     },
     {
-      key: "totalEstimatedLabourHours",
+      key: "totalestimatedlabourhours",
       header: "Estimated Labour Hours",
       sortable: false,
       width: "120px",

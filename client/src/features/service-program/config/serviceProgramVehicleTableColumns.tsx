@@ -8,9 +8,9 @@ import React from "react";
 
 export const serviceProgramVehicleTableColumns = [
   {
-    key: "name",
+    key: "vehiclename",
     header: "Vehicle Name",
-    sortable: false,
+    sortable: true,
     render: (spVehicle: ServiceProgramVehicleWithDetails) => (
       <div className="flex items-center">
         <div className="flex-shrink-0">
@@ -74,7 +74,7 @@ export const serviceProgramVehicleTableColumns = [
     ),
   },
   {
-    key: "licensePlate",
+    key: "licenseplate",
     header: "License Plate",
     sortable: false,
     render: (spVehicle: ServiceProgramVehicleWithDetails) => (
@@ -84,7 +84,7 @@ export const serviceProgramVehicleTableColumns = [
     ),
   },
   {
-    key: "assignedTechnician",
+    key: "assignedtechnician",
     header: "Operator",
     sortable: false,
     render: (spVehicle: ServiceProgramVehicleWithDetails) =>
@@ -109,9 +109,9 @@ export const serviceProgramVehicleTableColumns = [
       ),
   },
   {
-    key: "addedAt",
+    key: "addedat",
     header: "Added to Program",
-    sortable: false,
+    sortable: true,
     render: (spVehicle: ServiceProgramVehicleWithDetails) => (
       <span className="text-sm text-gray-600">
         {new Date(spVehicle.addedAt).toLocaleDateString()}
