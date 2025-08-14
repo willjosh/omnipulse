@@ -11,7 +11,6 @@ import { useDebounce } from "@/hooks/useDebounce";
 export function useVehicles(filter: VehicleFilter = {}) {
   const debouncedSearch = useDebounce(filter?.Search || "", 300);
 
-  // Only include Search in filter if it's actually provided and not empty
   const debouncedFilter = { ...filter };
   if (debouncedSearch && debouncedSearch.trim() !== "") {
     debouncedFilter.Search = debouncedSearch;
@@ -59,7 +58,7 @@ export function useVehicle(id: string) {
 
   return {
     vehicle: data,
-    isPending: isValidId ? isPending : false, // Ensure isPending is false when query is disabled
+    isPending: isValidId ? isPending : false,
     isError,
     isSuccess,
     error,
@@ -162,7 +161,7 @@ export function useTechnicians() {
         lastName: tech.lastName,
         email: tech.email,
         isActive: tech.isActive,
-        hireDate: tech.hireDate || "", // Ensure hireDate is included
+        hireDate: tech.hireDate || "",
       }));
     },
   });

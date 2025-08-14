@@ -54,7 +54,6 @@ export function getErrorMessage(error: any, backupMessage: string): string {
       }
     }
 
-    // If it's a validation error with structured format
     if (data.errors && typeof data.errors === "object") {
       const errorMessages = [];
       for (const [field, messages] of Object.entries(data.errors)) {
@@ -75,7 +74,6 @@ export function getErrorMessage(error: any, backupMessage: string): string {
     }
   }
 
-  // Try error message directly
   if (
     error?.message &&
     typeof error.message === "string" &&

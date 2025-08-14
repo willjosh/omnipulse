@@ -5,3 +5,4 @@ export { default as Labor } from "./Labor";
 export { default as Parts } from "./Parts";
 export { default as EyeOpen } from "./EyeOpen";
 export { default as EyeClosed } from "./EyeClosed";
+export { default as SearchIcon } from "./SearchIcon";

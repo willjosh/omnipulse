@@ -22,12 +22,10 @@ const DetailPanel: React.FC<DetailPanelProps> = ({
       className={`fixed inset-0 z-[100] flex ${open ? "" : "pointer-events-none"}`}
       aria-hidden={!open}
     >
-      {/* Overlay */}
       <div
         className={`fixed inset-0 bg-black bg-opacity-30 transition-opacity duration-200 ${open ? "opacity-100" : "opacity-0"}`}
         onClick={onClose}
       />
-      {/* Panel */}
       <aside
         className={`relative bg-white shadow-xl h-full transition-transform duration-300 ${width} ${open ? "translate-x-0" : "translate-x-full"} ${className}`}
         style={{ right: 0 }}

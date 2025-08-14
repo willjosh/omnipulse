@@ -12,7 +12,6 @@ export interface RegisterCommand {
   isActive: boolean;
 }
 
-// Login response - returns full user object with token
 export interface LoginResponse {
   id: string;
   email: string;
@@ -24,10 +23,8 @@ export interface LoginResponse {
   expires: string;
 }
 
-// Register response - returns only the user ID string
 export type RegisterResponse = string;
 
-// User object for internal use
 export interface AuthUser {
   id: string;
   firstName: string;

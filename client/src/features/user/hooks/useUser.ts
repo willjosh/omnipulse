@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { userApi, transformUserData } from "../api/userApi";
-import { User, UpdateUserProfileCommand, UserProfile } from "../types/userType";
+import { UpdateUserProfileCommand, UserProfile } from "../types/userType";
 
 export function useCurrentUser() {
   const { data, isPending, isError, isSuccess, error } = useQuery<UserProfile>({

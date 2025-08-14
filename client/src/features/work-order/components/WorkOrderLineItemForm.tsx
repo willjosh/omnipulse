@@ -18,7 +18,6 @@ import AddPartModal from "./AddPartModal";
 import SecondaryButton from "@/components/ui/Button/SecondaryButton";
 import { Labor, Parts } from "@/components/ui/Icons";
 
-// Helper function to determine item type based on selections
 const determineItemType = (
   hasLabor: boolean,
   hasParts: boolean,
@@ -26,7 +25,7 @@ const determineItemType = (
   if (hasLabor && hasParts) return LineItemTypeEnum.BOTH;
   if (hasLabor) return LineItemTypeEnum.LABOR;
   if (hasParts) return LineItemTypeEnum.ITEM;
-  return LineItemTypeEnum.LABOR; // Default to labor if nothing is selected
+  return LineItemTypeEnum.LABOR; // Default is labor
 };
 
 interface WorkOrderLineItemFormProps {
@@ -66,7 +65,6 @@ const WorkOrderLineItemForm: React.FC<WorkOrderLineItemFormProps> = ({
   const [isExpanded, setIsExpanded] = useState(false);
 
   // Initialize hasLaborAdded and hasPartsAdded based on existing line item data
-  // Show tables if we have data, regardless of type sync
   useEffect(() => {
     const hasLaborData = !!(lineItem.hourlyRate && lineItem.laborHours);
     const hasPartsData = !!(lineItem.inventoryItemID && lineItem.unitPrice);

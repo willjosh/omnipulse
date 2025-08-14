@@ -71,7 +71,7 @@ const AddLaborModal: React.FC<AddLaborModalProps> = ({
     const hourlyRateNum = typeof hourlyRate === "number" ? hourlyRate : 0;
 
     if (!assignedToUserID || laborHoursNum <= 0 || hourlyRateNum <= 0) {
-      return; // Validation
+      return;
     }
 
     onSave({

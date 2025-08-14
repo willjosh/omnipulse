@@ -21,7 +21,6 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
 }) => {
   const router = useRouter();
 
-  // If only one breadcrumb item, show a simple back arrow navigation
   if (items.length === 1) {
     const item = items[0];
     return (
@@ -47,7 +46,6 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
     );
   }
 
-  // For multiple breadcrumb items, show full breadcrumb trail with ">" separator
   return (
     <nav
       className={`flex items-center text-sm ${className}`}

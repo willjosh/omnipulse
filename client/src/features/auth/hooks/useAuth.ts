@@ -10,7 +10,6 @@ export function useLogin() {
   return useMutation({
     mutationFn: authApi.login,
     onSuccess: data => {
-      // Create AuthUser object from LoginResponse
       const user: AuthUser = {
         id: data.id,
         firstName: data.firstName,
@@ -33,8 +32,6 @@ export function useRegister() {
   return useMutation({
     mutationFn: authApi.register,
     onSuccess: (userId: string) => {
-      // Registration only returns user ID, no automatic login
-      // User needs to login separately after registration
       queryClient.invalidateQueries({ queryKey: ["user"] });
     },
   });

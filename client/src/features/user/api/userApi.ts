@@ -1,7 +1,6 @@
 import { agent } from "@/lib/axios/agent";
 import { User, UpdateUserProfileCommand, UserProfile } from "../types/userType";
 
-// Helper to transform user data to UI-friendly format
 export const transformUserData = (user: User): UserProfile => ({
   ...user,
   fullName: `${user.firstName} ${user.lastName}`,

@@ -1,5 +1,3 @@
-// Utilities for issue form state, validation, and mapping
-
 export interface IssueFormState {
   vehicleID: string;
   priorityLevel: string;
@@ -21,7 +19,7 @@ export function validateIssueForm(form: IssueFormState) {
   if (!form.title) errors.title = "Summary is required";
   if (!form.category) errors.category = "Category is required";
 
-  // If status is RESOLVED (status === "3"), resolution notes, resolved date, and resolved by user are required
+  // If status is RESOLVED, resolution notes, resolved date, and resolved by user are required
   if (
     form.status === "3" &&
     (!form.resolutionNotes?.trim() ||

@@ -12,7 +12,6 @@ export const vehicleFilterConfig = [
   {
     key: "vehicleStatus",
     placeholder: "Vehicle Status",
-    // TODO: Currently hardcoded options, will be replaced with API call when vehicle-status backend is ready
     options: [
       { value: "Active", label: "Active" },
       { value: "Inactive", label: "Inactive" },

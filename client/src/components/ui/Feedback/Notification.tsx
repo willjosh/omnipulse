@@ -6,7 +6,7 @@ interface NotificationProps {
   type?: NotificationType;
   message: string;
   onClose?: () => void;
-  duration?: number; // ms
+  duration?: number;
   className?: string;
 }
 

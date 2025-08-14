@@ -30,7 +30,6 @@ interface VehicleFormProps {
 }
 
 interface VehicleFormData {
-  // Basic vehicle information
   name: string;
   year: number | null;
   make: string;
@@ -42,17 +41,11 @@ interface VehicleFormData {
   fuelType: FuelTypeEnum | "";
   trim: string;
   status: VehicleStatusEnum | "";
-
-  // Vehicle group and assignment
   vehicleGroupID: number;
   assignedTechnicianID: string | null;
-
-  // Operational data
   mileage: number | null;
   fuelCapacity: number | null;
   location: string;
-
-  // Financial data
   purchaseDate: string;
   purchasePrice: number | null;
 }
@@ -94,7 +87,6 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ mode, vehicleData }) => {
   const createVehicleMutation = useCreateVehicle();
   const updateVehicleMutation = useUpdateVehicle();
 
-  // Get reference data
   const { vehicleGroups, isPending: isLoadingVehicleGroups } =
     useVehicleGroups();
   const { technicians, isPending: isLoadingTechnicians } = useTechnicians();
@@ -365,7 +357,6 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ mode, vehicleData }) => {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <form onSubmit={handleSubmit} className="space-y-8">
-          {/* Basic Information Section */}
           <div className="space-y-6">
             <h2 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">
               Basic Information

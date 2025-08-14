@@ -8,7 +8,7 @@ interface CookieOptions {
   secure?: boolean;
   sameSite?: "strict" | "lax" | "none";
   path?: string;
-  httpOnly?: boolean; // Note: httpOnly can't be set from client-side JS
+  httpOnly?: boolean;
 }
 
 class CookieManager {
@@ -22,7 +22,7 @@ class CookieManager {
         secure = process.env.NODE_ENV === "production",
         sameSite = "strict",
         path = "/",
-        httpOnly = false, // Note: httpOnly can't be set from client-side JS
+        httpOnly = false,
       } = options;
 
       let cookieString = `${encodeURIComponent(name)}=${encodeURIComponent(value)}`;

@@ -1,111 +1,127 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { VehicleStatus } from "../types/vehicleStatusType";
 import { getAllVehicleStatusOptions } from "../types/vehicleStatusEnum";
-
-// Mock vehicle count data as backend is not implemented yet
-const getMockVehicleCount = (statusId: number) => {
-  const counts: Record<number, number> = {
-    1: 15, // Active vehicles
-    2: 3, // Maintenance vehicles
-    3: 1, // Out of service vehicles
-    4: 5, // Inactive vehicles
-  };
-  return counts[statusId] || 0;
-};
+import { useVehicleStatusData } from "@/features/vehicle/hooks/useVehicles";
 
 export function useVehicleStatuses() {
+  const {
+    activeVehicleCount,
+    inactiveVehicleCount,
+    maintenanceVehicleCount,
+    outOfServiceVehicleCount,
+    isVehicleStatusDataLoading,
+    isError: isVehicleStatusDataError,
+  } = useVehicleStatusData();
+
   const { data, isPending, isError, isSuccess, error } = useQuery<
     VehicleStatus[]
   >({
-    queryKey: ["vehicleStatuses"],
+    queryKey: [
+      "vehicleStatuses",
+      activeVehicleCount,
+      inactiveVehicleCount,
+      maintenanceVehicleCount,
+      outOfServiceVehicleCount,
+    ],
     queryFn: async () => {
       const enumOptions = getAllVehicleStatusOptions();
-      return enumOptions.map(option => ({
-        id: option.value,
-        name: option.label,
-        color: option.color,
-        isActive: true,
-        vehicleCount: getMockVehicleCount(option.value),
-      }));
-    },
-  });
+      return enumOptions.map(option => {
+        let vehicleCount = 0;
 
-  return { vehicleStatuses: data ?? [], isPending, isError, isSuccess, error };
-}
-
-export function useVehicleStatus(id: number) {
-  const { data, isPending, isError, isSuccess, error } =
-    useQuery<VehicleStatus>({
-      queryKey: ["vehicleStatus", id],
-      queryFn: async () => {
-        // Use enum data instead of API call
-        const enumOptions = getAllVehicleStatusOptions();
-        const option = enumOptions.find(opt => opt.value === id);
-        if (!option) {
-          throw new Error(`Vehicle status with id ${id} not found`);
+        switch (option.value) {
+          case 1: // ACTIVE
+            vehicleCount = activeVehicleCount;
+            break;
+          case 2: // MAINTENANCE
+            vehicleCount = maintenanceVehicleCount;
+            break;
+          case 3: // OUT_OF_SERVICE
+            vehicleCount = outOfServiceVehicleCount;
+            break;
+          case 4: // INACTIVE
+            vehicleCount = inactiveVehicleCount;
+            break;
         }
+
         return {
           id: option.value,
           name: option.label,
           color: option.color,
           isActive: true,
-          vehicleCount: getMockVehicleCount(option.value),
+          vehicleCount,
+        };
+      });
+    },
+  });
+
+  return {
+    vehicleStatuses: data ?? [],
+    isPending: isPending || isVehicleStatusDataLoading,
+    isError: isError || isVehicleStatusDataError,
+    isSuccess,
+    error,
+  };
+}
+
+export function useVehicleStatus(id: number) {
+  const {
+    activeVehicleCount,
+    inactiveVehicleCount,
+    maintenanceVehicleCount,
+    outOfServiceVehicleCount,
+    isVehicleStatusDataLoading,
+    isError: isVehicleStatusDataError,
+  } = useVehicleStatusData();
+
+  const { data, isPending, isError, isSuccess, error } =
+    useQuery<VehicleStatus>({
+      queryKey: [
+        "vehicleStatus",
+        id,
+        activeVehicleCount,
+        inactiveVehicleCount,
+        maintenanceVehicleCount,
+        outOfServiceVehicleCount,
+      ],
+      queryFn: async () => {
+        const enumOptions = getAllVehicleStatusOptions();
+        const option = enumOptions.find(opt => opt.value === id);
+        if (!option) {
+          throw new Error(`Vehicle status with id ${id} not found`);
+        }
+
+        let vehicleCount = 0;
+        switch (id) {
+          case 1: // ACTIVE
+            vehicleCount = activeVehicleCount;
+            break;
+          case 2: // MAINTENANCE
+            vehicleCount = maintenanceVehicleCount;
+            break;
+          case 3: // OUT_OF_SERVICE
+            vehicleCount = outOfServiceVehicleCount;
+            break;
+          case 4: // INACTIVE
+            vehicleCount = inactiveVehicleCount;
+            break;
+        }
+
+        return {
+          id: option.value,
+          name: option.label,
+          color: option.color,
+          isActive: true,
+          vehicleCount,
         };
       },
       enabled: !!id,
     });
 
-  return { vehicleStatus: data, isPending, isError, isSuccess, error };
-}
-
-export function useCreateVehicleStatus() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async () => {
-      // Mock create as statuses are currently implemented as enums, so new statuses can't be created
-      console.log(
-        "Create vehicle status - mock implementation (enums are fixed)",
-      );
-      return Promise.resolve();
-    },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["vehicleStatuses"] });
-    },
-  });
-}
-
-export function useUpdateVehicleStatus() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async () => {
-      // Mock create as statuses are currently implemented as enums, so new statuses can't be updated
-      console.log(
-        "Update vehicle status - mock implementation (enums are fixed)",
-      );
-      return Promise.resolve();
-    },
-    onSuccess: async (_data, variables: any) => {
-      await queryClient.invalidateQueries({ queryKey: ["vehicleStatuses"] });
-      await queryClient.invalidateQueries({
-        queryKey: ["vehicleStatus", variables?.id],
-      });
-    },
-  });
-}
-
-export function useDeleteVehicleStatus() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async () => {
-      // Mock create as statuses are currently implemented as enums, so new statuses can't be deleted
-      console.log(
-        "Delete vehicle status - mock implementation (enums are fixed)",
-      );
-      return Promise.resolve();
-    },
-    onSuccess: async (_data, id) => {
-      await queryClient.invalidateQueries({ queryKey: ["vehicleStatuses"] });
-      await queryClient.invalidateQueries({ queryKey: ["vehicleStatus", id] });
-    },
-  });
+  return {
+    vehicleStatus: data,
+    isPending: isPending || isVehicleStatusDataLoading,
+    isError: isError || isVehicleStatusDataError,
+    isSuccess,
+    error,
+  };
 }

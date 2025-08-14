@@ -40,7 +40,6 @@ const IssueResolutionForm: React.FC<IssueResolutionFormProps> = ({
   const [resolvedTime, setResolvedTime] = useState<string>("");
   const [resolvedBySearch, setResolvedBySearch] = useState("");
 
-  // Helper function to parse formatted dates
   const parseFormattedDate = (
     formattedDate: string | null | undefined,
   ): Date | null => {
@@ -60,7 +59,6 @@ const IssueResolutionForm: React.FC<IssueResolutionFormProps> = ({
     return null;
   };
 
-  // Prefill resolvedTime when value.ResolvedDate changes
   useEffect(() => {
     const extractedTime = extractTimeFromISO(value.resolvedDate);
     if (extractedTime && extractedTime !== resolvedTime) {
@@ -68,7 +66,6 @@ const IssueResolutionForm: React.FC<IssueResolutionFormProps> = ({
     }
   }, [value.resolvedDate, resolvedTime]);
 
-  // Resolved By options
   const resolvedByOptions = useMemo(
     () =>
       technicians.map(t => ({

@@ -74,13 +74,9 @@ const StatusDropdown: React.FC<StatusDropdownProps> = ({
       } else {
         // For other status changes, call the update API
         if (onUpdateWorkOrder) {
-          // Optimistically update the UI
           setSelectedStatus(newStatus);
           onStatusChange?.(newStatus);
-
-          // Call the update API
           onUpdateWorkOrder(newStatus);
-          // Don't show success notification here as the main component handles it
         }
       }
 
@@ -102,10 +98,7 @@ const StatusDropdown: React.FC<StatusDropdownProps> = ({
         errorMessage = error.response.data.detail;
       }
 
-      // Show error notification
       notify(errorMessage, "error");
-
-      // Reset to previous status on error
       setSelectedStatus(currentStatus);
     }
   };
@@ -156,7 +149,6 @@ const StatusDropdown: React.FC<StatusDropdownProps> = ({
         </div>
       )}
 
-      {/* Click outside to close */}
       {isOpen && (
         <div className="fixed inset-0 z-0" onClick={() => setIsOpen(false)} />
       )}

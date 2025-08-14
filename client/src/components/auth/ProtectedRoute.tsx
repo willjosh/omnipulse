@@ -28,7 +28,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
       return <>{fallback}</>;
     }
 
-    // Redirect to login
     if (typeof window !== "undefined") {
       window.location.href = "/login";
     }

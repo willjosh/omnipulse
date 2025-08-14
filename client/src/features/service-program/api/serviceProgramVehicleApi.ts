@@ -45,7 +45,7 @@ export const serviceProgramVehicleApi = {
     }>(
       `/api/ServicePrograms/${serviceProgramId}/vehicles${queryString ? `?${queryString}` : ""}`,
     );
-    // Fetch full vehicle details for each service program vehicle
+    // Fetch vehicle details for each service program vehicle
     const enhancedVehicles = await Promise.all(
       serviceProgramVehicles.items.map(async spVehicle => {
         try {
@@ -54,7 +54,7 @@ export const serviceProgramVehicleApi = {
           );
           return { ...spVehicle, vehicle: vehicleDetails };
         } catch (error) {
-          // Return the basic service program vehicle data if vehicle details fetch fails
+          // Return the basic service program vehicle data as a backup
           return {
             ...spVehicle,
             vehicle: {
