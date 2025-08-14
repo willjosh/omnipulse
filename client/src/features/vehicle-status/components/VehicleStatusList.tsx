@@ -49,7 +49,7 @@ export const VehicleStatusList: React.FC = () => {
   }
 
   return (
-    <div className="ml-6 mt-6 space-y-6">
+    <div className="space-y-6 p-6">
       {/* Header */}
       <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
         <div>
