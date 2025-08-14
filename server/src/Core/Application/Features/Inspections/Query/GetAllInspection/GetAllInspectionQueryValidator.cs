@@ -14,14 +14,17 @@ public class GetAllInspectionQueryValidator : AbstractValidator<GetAllInspection
     public GetAllInspectionQueryValidator()
     {
         string[] inspectionSortFields = [
-            "vehiclename",
-            "snapshotformname",
-            "inspectorname",
-            "submissiontime",
+            "id",
+            "inspectionformid",
+            "vehicleid",
+            "technicianid",
+            "inspectionstarttime",
+            "inspectionendtime",
+            "odometerreading",
             "vehiclecondition",
-            "inspectionresults",
-            "faileditems",
-            "odometer"
+            "snapshotformtitle",
+            "createdat",
+            "updatedat"
         ];
 
         RuleFor(x => x.Parameters)
