@@ -1,15 +1,8 @@
-import {
-  FuelTypeEnum,
-  PaymentMethodEnum,
-  FuelPurchaseStatusEnum,
-} from "./fuelPurchaseEnum";
-
 export interface FuelPurchase {
   id: number;
   vehicleId: number;
   vehicleName?: string;
   purchasedByUserId: string;
-  purchasedByUserName?: string;
   purchaseDate: string;
   odometerReading: number;
   volume: number;
@@ -18,25 +11,9 @@ export interface FuelPurchase {
   fuelStation: string;
   receiptNumber: string;
   notes?: string | null;
-  fuelType?: FuelTypeEnum;
-  paymentMethod?: PaymentMethodEnum;
-  status: FuelPurchaseStatusEnum;
-  createdAt?: string;
-  updatedAt?: string;
 }
 
-export interface FuelPurchaseWithLabels
-  extends Omit<FuelPurchase, "fuelType" | "paymentMethod" | "status"> {
-  fuelType: number;
-  fuelTypeLabel: string;
-  fuelTypeEnum: FuelTypeEnum;
-  paymentMethod: number;
-  paymentMethodLabel: string;
-  paymentMethodEnum: PaymentMethodEnum;
-  status: number;
-  statusLabel: string;
-  statusEnum: FuelPurchaseStatusEnum;
-}
+export interface FuelPurchaseWithLabels extends FuelPurchase {}
 
 export interface CreateFuelPurchaseCommand {
   vehicleId: number;
@@ -45,11 +22,10 @@ export interface CreateFuelPurchaseCommand {
   odometerReading: number;
   volume: number;
   pricePerUnit: number;
+  totalCost: number;
   fuelStation: string;
   receiptNumber: string;
   notes?: string | null;
-  fuelType?: FuelTypeEnum;
-  paymentMethod?: PaymentMethodEnum;
 }
 
 export interface UpdateFuelPurchaseCommand {
@@ -63,8 +39,6 @@ export interface UpdateFuelPurchaseCommand {
   fuelStation: string;
   receiptNumber: string;
   notes?: string | null;
-  fuelType?: FuelTypeEnum;
-  paymentMethod?: PaymentMethodEnum;
 }
 
 export interface FuelPurchaseFilter {
@@ -73,9 +47,4 @@ export interface FuelPurchaseFilter {
   SortBy?: string;
   SortDescending?: boolean;
   Search?: string;
-  VehicleId?: number;
-  StartDate?: string;
-  EndDate?: string;
-  FuelType?: FuelTypeEnum;
-  Status?: FuelPurchaseStatusEnum;
 }

@@ -36,9 +36,6 @@ describe("DataTable", () => {
   const defaultProps = {
     data: mockData,
     columns: mockColumns,
-    selectedItems: [],
-    onSelectItem: jest.fn(),
-    onSelectAll: jest.fn(),
     getItemId: (item: any) => item.id,
   };
 

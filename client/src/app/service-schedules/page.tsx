@@ -147,9 +147,6 @@ export default function ServiceScheduleListPage() {
       <DataTable
         data={serviceSchedules}
         columns={columns}
-        selectedItems={[]}
-        onSelectItem={() => {}}
-        onSelectAll={() => {}}
         onRowClick={handleRowClick}
         loading={isPending}
         emptyState={emptyState}

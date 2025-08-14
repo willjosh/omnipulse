@@ -133,9 +133,6 @@ export const IssueListTable: React.FC<IssueListTableProps> = ({
     <DataTable
       columns={columns}
       data={issues}
-      selectedItems={[]}
-      onSelectItem={() => {}}
-      onSelectAll={() => {}}
       getItemId={item => String(item.id)}
       loading={isLoading}
       showActions={false}

@@ -150,9 +150,6 @@ export default function ServiceTaskListPage() {
       <DataTable
         columns={serviceTaskTableColumns}
         data={serviceTasks}
-        selectedItems={[]}
-        onSelectItem={() => {}}
-        onSelectAll={() => {}}
         getItemId={item => item.id.toString()}
         loading={isPending}
         showActions={false}

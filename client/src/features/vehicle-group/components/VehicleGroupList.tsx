@@ -28,7 +28,6 @@ export const VehicleGroupList: React.FC = () => {
     vehicleGroup?: VehicleGroup;
   }>({ isOpen: false, mode: "create" });
 
-  const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
     vehicleGroup?: VehicleGroup;
@@ -111,27 +110,6 @@ export const VehicleGroupList: React.FC = () => {
     [],
   );
 
-  const handleSelectAll = () => {
-    if (!vehicleGroups) return;
-
-    const allGroupIds = vehicleGroups.map(group => group.id.toString());
-    const allSelected = allGroupIds.every(id => selectedGroups.includes(id));
-
-    if (allSelected) {
-      setSelectedGroups([]);
-    } else {
-      setSelectedGroups(allGroupIds);
-    }
-  };
-
-  const handleGroupSelect = (groupId: string) => {
-    setSelectedGroups(prev =>
-      prev.includes(groupId)
-        ? prev.filter(id => id !== groupId)
-        : [...prev, groupId],
-    );
-  };
-
   if (isPending) {
     return <Loading />;
   }
@@ -157,9 +135,6 @@ export const VehicleGroupList: React.FC = () => {
       <DataTable<VehicleGroup>
         data={vehicleGroups || []}
         columns={vehicleGroupTableColumns}
-        selectedItems={selectedGroups}
-        onSelectItem={handleGroupSelect}
-        onSelectAll={handleSelectAll}
         actions={vehicleGroupActions}
         showActions={true}
         loading={isPending}
