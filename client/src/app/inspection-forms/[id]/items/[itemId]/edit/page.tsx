@@ -14,6 +14,7 @@ import {
 import { useInspectionForm } from "@/features/inspection-form/hooks/useInspectionForms";
 import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
 import { InspectionFormItemTypeEnum } from "@/features/inspection-form/types/inspectionFormEnum";
+import { getErrorMessage, getErrorFields } from "@/utils/fieldErrorUtils";
 
 const initialForm: InspectionFormItemDetailsFormValues = {
   itemLabel: "",
@@ -91,7 +92,10 @@ export default function EditInspectionFormItemPage() {
   };
 
   const handleSave = async () => {
-    if (!validate()) return;
+    if (!validate()) {
+      notify("Please fill all required fields", "error");
+      return;
+    }
     setIsSaving(true);
 
     updateInspectionFormItem(
@@ -111,10 +115,42 @@ export default function EditInspectionFormItemPage() {
           notify("Inspection item updated successfully!", "success");
           router.push(`/inspection-forms/${inspectionFormId}`);
         },
-        onError: error => {
+        onError: (error: any) => {
           setIsSaving(false);
           console.error("Failed to update inspection item:", error);
-          notify("Failed to update inspection item", "error");
+
+          // Get dynamic error message from backend
+          const errorMessage = getErrorMessage(
+            error,
+            "Failed to update inspection item. Please check your input and try again.",
+          );
+
+          // Map backend errors to form fields
+          const fieldErrors = getErrorFields(error, [
+            "inspectionFormItemID",
+            "itemLabel",
+            "itemDescription",
+            "itemInstructions",
+            "isRequired",
+          ]);
+
+          // Set field-specific errors
+          const newErrors: typeof errors = {};
+          if (fieldErrors.itemLabel) {
+            newErrors.itemLabel = "Invalid item label";
+          }
+          if (fieldErrors.itemDescription) {
+            newErrors.itemDescription = "Invalid description";
+          }
+          if (fieldErrors.itemInstructions) {
+            newErrors.itemInstructions = "Invalid instructions";
+          }
+          if (fieldErrors.isRequired) {
+            newErrors.isRequired = "Invalid required status";
+          }
+
+          setErrors(newErrors);
+          notify(errorMessage, "error");
         },
       },
     );

@@ -8,6 +8,7 @@ import ServiceProgramDetailsForm, {
 import { PrimaryButton, SecondaryButton } from "@/components/ui/Button";
 import { useCreateServiceProgram } from "@/features/service-program/hooks/useServicePrograms";
 import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
+import { getErrorMessage, getErrorFields } from "@/utils/fieldErrorUtils";
 
 const initialForm: ServiceProgramDetailsFormValues = {
   name: "",
@@ -53,7 +54,10 @@ export default function CreateServiceProgramPage() {
   };
 
   const handleSave = async () => {
-    if (!validate()) return;
+    if (!validate()) {
+      notify("Please fill all required fields", "error");
+      return;
+    }
     setIsSaving(true);
     createServiceProgram(
       { name: form.name, description: form.description, isActive: true },
@@ -65,27 +69,35 @@ export default function CreateServiceProgramPage() {
         },
         onError: (error: any) => {
           setIsSaving(false);
+          console.error("Failed to create service program:", error);
 
-          // Handle specific error types
-          if (error?.response?.status === 409) {
-            // Duplicate name error
-            setErrors({
-              name: "A service program with this name already exists.",
-            });
-            notify("A service program with this name already exists.", "error");
-          } else if (error?.response?.status === 400) {
-            // Validation error
-            const errorMessage =
-              error?.response?.data?.message ||
-              "Validation failed. Please check your input.";
-            notify(errorMessage, "error");
-          } else {
-            // Generic error
-            notify(
-              "Failed to create service program. Please try again.",
-              "error",
-            );
+          // Get dynamic error message from backend
+          const errorMessage = getErrorMessage(
+            error,
+            "Failed to create service program. Please check your input and try again.",
+          );
+
+          // Map backend errors to form fields
+          const fieldErrors = getErrorFields(error, [
+            "name",
+            "description",
+            "isActive",
+          ]);
+
+          // Set field-specific errors
+          const newErrors: typeof errors = {};
+          if (fieldErrors.name) {
+            newErrors.name = "Invalid name";
           }
+          if (fieldErrors.description) {
+            newErrors.description = "Invalid description";
+          }
+          if (fieldErrors.isActive) {
+            newErrors.isActive = "Invalid active status";
+          }
+
+          setErrors(newErrors);
+          notify(errorMessage, "error");
         },
       },
     );

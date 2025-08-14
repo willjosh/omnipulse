@@ -72,7 +72,7 @@ const AddPartModal: React.FC<AddPartModalProps> = ({
     const unitPriceNum = typeof unitPrice === "number" ? unitPrice : 0;
 
     if (!inventoryItemID || quantityNum <= 0 || unitPriceNum <= 0) {
-      return; // Validation
+      return;
     }
 
     onSave({ inventoryItemID, quantity: quantityNum, unitPrice: unitPriceNum });

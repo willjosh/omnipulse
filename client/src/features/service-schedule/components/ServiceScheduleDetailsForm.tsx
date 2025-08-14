@@ -83,7 +83,6 @@ const ServiceScheduleDetailsForm: React.FC<ServiceScheduleDetailsFormProps> = ({
     setFirstServiceTime(extractTimeFromISO(value.firstServiceDate));
   }, [value.firstServiceDate]);
 
-  // Service Task Multi-Select Combobox
   const [taskSearch, setTaskSearch] = React.useState("");
   const filteredTasks = React.useMemo(() => {
     if (!taskSearch) return availableServiceTasks;
@@ -157,7 +156,7 @@ const ServiceScheduleDetailsForm: React.FC<ServiceScheduleDetailsFormProps> = ({
         />
       </FormField>
 
-      {/* Schedule Type Selection - Only show when showScheduleType is true */}
+      {/* Schedule Type Selection (only appears when showScheduleType is true) */}
       {showScheduleType && (
         <FormField
           label="Service Schedule Type"
@@ -239,7 +238,7 @@ const ServiceScheduleDetailsForm: React.FC<ServiceScheduleDetailsFormProps> = ({
         </FormField>
       )}
 
-      {/* Time-based Fields - Only show when Time is selected */}
+      {/* Time-based Fields (only appears when Time is selected) */}
       {value.scheduleType === ServiceScheduleTypeEnum.TIME && (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -413,7 +412,7 @@ const ServiceScheduleDetailsForm: React.FC<ServiceScheduleDetailsFormProps> = ({
             </FormField>
           </div>
 
-          {/* First Service Date - Only show for Time-based schedules */}
+          {/* First Service Date (only appears for Time-based schedules) */}
           <div className="w-2/3">
             <FormField
               label="First Service Date"
@@ -445,12 +444,11 @@ const ServiceScheduleDetailsForm: React.FC<ServiceScheduleDetailsFormProps> = ({
                         // Use the date directly to avoid timezone issues
                         const newDate = new Date(date);
 
-                        // Parse time more robustly
                         let hours = 0;
                         let minutes = 0;
 
                         if (newTime) {
-                          // Handle different time formats: "12:00am", "12am", "12:30am", etc.
+                          // Handle different time formats
                           const timeMatch = newTime.match(
                             /(\d{1,2}):?(\d{0,2})(am|pm)/i,
                           );
@@ -470,16 +468,12 @@ const ServiceScheduleDetailsForm: React.FC<ServiceScheduleDetailsFormProps> = ({
 
                         // Set the time in local timezone
                         newDate.setHours(hours, minutes, 0, 0);
-
-                        // Convert to ISO string but preserve local time
-                        // This creates a date string that represents the local time
                         const year = newDate.getFullYear();
                         const month = String(newDate.getMonth() + 1).padStart(
                           2,
                           "0",
                         );
                         const day = String(newDate.getDate()).padStart(2, "0");
-                        // Store without Z suffix to treat as local time, not UTC
                         const localISOString = `${year}-${month}-${day}T${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:00.000`;
 
                         onChange("firstServiceDate", localISOString);
@@ -499,12 +493,10 @@ const ServiceScheduleDetailsForm: React.FC<ServiceScheduleDetailsFormProps> = ({
                         // Create a new date object and set the time
                         const newDate = new Date(value.firstServiceDate);
 
-                        // Parse time more robustly
                         let hours = 0;
                         let minutes = 0;
 
                         if (newValue) {
-                          // Handle different time formats: "12:00am", "12am", "12:30am", etc.
                           const timeMatch = newValue.match(
                             /(\d{1,2}):?(\d{0,2})(am|pm)/i,
                           );
@@ -525,14 +517,12 @@ const ServiceScheduleDetailsForm: React.FC<ServiceScheduleDetailsFormProps> = ({
                         // Set the time in local timezone
                         newDate.setHours(hours, minutes, 0, 0);
 
-                        // Convert to ISO string but preserve local time
                         const year = newDate.getFullYear();
                         const month = String(newDate.getMonth() + 1).padStart(
                           2,
                           "0",
                         );
                         const day = String(newDate.getDate()).padStart(2, "0");
-                        // Store without Z suffix to treat as local time, not UTC
                         const localISOString = `${year}-${month}-${day}T${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:00.000`;
 
                         onChange("firstServiceDate", localISOString);
@@ -557,7 +547,7 @@ const ServiceScheduleDetailsForm: React.FC<ServiceScheduleDetailsFormProps> = ({
         </>
       )}
 
-      {/* Mileage-based Fields - Only show when Mileage is selected */}
+      {/* Mileage-based Fields (only appears when Mileage is selected) */}
       {value.scheduleType === ServiceScheduleTypeEnum.MILEAGE && (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -588,7 +578,7 @@ const ServiceScheduleDetailsForm: React.FC<ServiceScheduleDetailsFormProps> = ({
             </FormField>
           </div>
 
-          {/* First Service Mileage - Only show for Mileage-based schedules */}
+          {/* First Service Mileage (only appears for Mileage based schedules) */}
           <FormField
             label="First Service Mileage (km)"
             error={errors.firstServiceMileage}
@@ -675,7 +665,6 @@ const ServiceScheduleDetailsForm: React.FC<ServiceScheduleDetailsFormProps> = ({
               )}
             </ComboboxOptions>
           </div>
-          {/* Show selected as chips */}
           <div className="flex flex-wrap gap-2 mt-2">
             {selectedTasks.map(task => (
               <span

@@ -26,16 +26,15 @@ const WorkOrderIssuesForm: React.FC<WorkOrderIssuesFormProps> = ({
   // Fetch issues for the selected vehicle
   const { issues, isPending: isLoadingIssues } = useIssues({
     PageNumber: 1,
-    PageSize: 100, // Get all issues for the vehicle
+    PageSize: 100,
     Search: "",
   });
 
-  // Filter issues by vehicle - only show open issues
+  // Filter issues by vehicle (only show open issues)
   const vehicleIssues = useMemo(() => {
     if (!vehicleID) return [];
 
     return issues.filter((issue: IssueWithLabels) => {
-      // First filter by vehicle (convert to numbers for comparison)
       const issueVehicleID = Number(issue.vehicleID);
       const selectedVehicleID = Number(vehicleID);
 
@@ -43,8 +42,8 @@ const WorkOrderIssuesForm: React.FC<WorkOrderIssuesFormProps> = ({
         return false;
       }
 
-      // Only include open issues (status = 1)
-      return issue.statusEnum === 1; // OPEN
+      // Only include open issues
+      return issue.statusEnum === 1;
     });
   }, [issues, vehicleID]);
 
@@ -89,10 +88,10 @@ const WorkOrderIssuesForm: React.FC<WorkOrderIssuesFormProps> = ({
             style={{
               height:
                 vehicleIssues.length === 0
-                  ? "200px" // Empty state - smaller height
+                  ? "200px"
                   : vehicleIssues.length <= 8
-                    ? `${Math.max(200, vehicleIssues.length * 60 + 80)}px` // Dynamic height based on number of issues
-                    : "500px", // Many issues - reasonable max height with scroll
+                    ? `${Math.max(200, vehicleIssues.length * 60 + 80)}px`
+                    : "500px",
             }}
           >
             <table className="w-full">
@@ -119,10 +118,8 @@ const WorkOrderIssuesForm: React.FC<WorkOrderIssuesFormProps> = ({
                           value.issueIdList?.includes(issue.id),
                         );
                         if (allSelected) {
-                          // If all are selected, deselect all
                           onChange("issueIdList", []);
                         } else {
-                          // If some or none are selected, select all
                           const allIssueIds = vehicleIssues.map(
                             issue => issue.id,
                           );

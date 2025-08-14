@@ -78,4 +78,17 @@ export const serviceScheduleTableColumns = [
       return <div>-</div>;
     },
   },
+  {
+    key: "serviceTasks",
+    header: "Service Tasks",
+    width: "200px",
+    sortable: false,
+    render: (schedule: ServiceScheduleWithLabels) => (
+      <div>
+        {schedule.serviceTasks.length > 0
+          ? schedule.serviceTasks.map(task => task.name).join(", ")
+          : "-"}
+      </div>
+    ),
+  },
 ];

@@ -11,6 +11,7 @@ import {
   useUpdateServiceTask,
 } from "@/features/service-task/hooks/useServiceTasks";
 import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
+import { getErrorMessage, getErrorFields } from "@/utils/fieldErrorUtils";
 
 export default function EditServiceTaskPage() {
   const router = useRouter();
@@ -69,7 +70,10 @@ export default function EditServiceTaskPage() {
   };
 
   const handleSave = async () => {
-    if (!validate() || !form) return;
+    if (!validate() || !form) {
+      notify("Please fill all required fields", "error");
+      return;
+    }
     updateServiceTask(
       {
         ServiceTaskID: id!,
@@ -84,6 +88,49 @@ export default function EditServiceTaskPage() {
         onSuccess: () => {
           notify("Service Task updated successfully!", "success");
           router.push(`/service-tasks/${id}`);
+        },
+        onError: (error: any) => {
+          console.error("Failed to update service task:", error);
+
+          // Get dynamic error message from backend
+          const errorMessage = getErrorMessage(
+            error,
+            "Failed to update service task. Please check your input and try again.",
+          );
+
+          // Map backend errors to form fields
+          const fieldErrors = getErrorFields(error, [
+            "name",
+            "description",
+            "estimatedLabourHours",
+            "estimatedCost",
+            "category",
+            "isActive",
+          ]);
+
+          // Set field-specific errors
+          const newErrors: typeof errors = {};
+          if (fieldErrors.name) {
+            newErrors.name = "Invalid name";
+          }
+          if (fieldErrors.description) {
+            newErrors.description = "Invalid description";
+          }
+          if (fieldErrors.estimatedLabourHours) {
+            newErrors.estimatedLabourHours = "Invalid estimated labour hours";
+          }
+          if (fieldErrors.estimatedCost) {
+            newErrors.estimatedCost = "Invalid estimated cost";
+          }
+          if (fieldErrors.category) {
+            newErrors.category = "Invalid category";
+          }
+          if (fieldErrors.isActive) {
+            newErrors.isActive = "Invalid active status";
+          }
+
+          setErrors(newErrors);
+          notify(errorMessage, "error");
         },
       },
     );

@@ -44,18 +44,43 @@ export function getErrorFields(
 
 export function getErrorMessage(error: any, backupMessage: string): string {
   if (error?.response?.data) {
-    const detail = error.response.data?.detail;
-    const errorMsg = error.response.data?.error;
+    const data = error.response.data;
 
-    // Check if detail exists and is not just whitespace
-    if (detail && typeof detail === "string" && detail.trim()) {
-      return detail;
+    const possibleErrorFields = [data.detail, data.error];
+
+    for (const errorField of possibleErrorFields) {
+      if (errorField && typeof errorField === "string" && errorField.trim()) {
+        return errorField;
+      }
     }
 
-    // Check if error exists and is not just whitespace
-    if (errorMsg && typeof errorMsg === "string" && errorMsg.trim()) {
-      return errorMsg;
+    if (data.errors && typeof data.errors === "object") {
+      const errorMessages = [];
+      for (const [field, messages] of Object.entries(data.errors)) {
+        if (Array.isArray(messages)) {
+          errorMessages.push(...messages);
+        } else if (typeof messages === "string") {
+          errorMessages.push(messages);
+        }
+      }
+      if (errorMessages.length > 0) {
+        const combinedMessage = errorMessages.join("; ");
+        return combinedMessage;
+      }
+    }
+
+    if (typeof data === "string" && data.trim()) {
+      return data;
     }
   }
+
+  if (
+    error?.message &&
+    typeof error.message === "string" &&
+    error.message.trim()
+  ) {
+    return error.message;
+  }
+
   return backupMessage;
 }

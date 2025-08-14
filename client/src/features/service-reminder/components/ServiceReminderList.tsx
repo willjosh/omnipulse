@@ -282,14 +282,8 @@ const ServiceReminderList: React.FC = () => {
 
       setShowWorkOrderModal(false);
       setSelectedReminder(null);
-
-      // Show success feedback (you can add a toast notification here)
-      console.log(
-        `Successfully added work order "${workOrder.title}" to service reminder`,
-      );
     } catch (error) {
       console.error("Error adding work order to service reminder:", error);
-      // You can add error handling here (show error toast, etc.)
     }
   };
 
@@ -424,7 +418,7 @@ const ServiceReminderList: React.FC = () => {
                 </h3>
                 <div className="space-y-2">
                   {(() => {
-                    // Filter work orders to only show those with the same vehicle ID
+                    // Filter work orders to only show vehicles with the same vehicle ID
                     const filteredWorkOrders = workOrders.filter(
                       workOrder =>
                         workOrder.vehicleID === selectedReminder?.vehicleID,

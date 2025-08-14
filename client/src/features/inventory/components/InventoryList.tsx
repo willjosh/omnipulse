@@ -3,7 +3,6 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useInventories, useDeleteInventory } from "../hooks/useInventory";
-import { formatEmptyValueAsString } from "@/utils/emptyValueUtils";
 import { Inventory } from "../types/inventoryType";
 import { Loading } from "@/components/ui/Feedback";
 import EmptyState from "@/components/ui/Feedback/EmptyState";
@@ -17,7 +16,7 @@ import {
   INVENTORY_ACTION_CONFIG,
 } from "../config/inventoryActions";
 import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
-import { Details, Edit, Archive } from "@/components/ui/Icons";
+import { Edit, Archive } from "@/components/ui/Icons";
 import { DEFAULT_PAGE_SIZE } from "@/components/ui/Table/constants";
 
 const InventoryList = () => {
@@ -63,11 +62,6 @@ const InventoryList = () => {
     setPage(1);
   };
 
-  const handleSearch = (searchTerm: string) => {
-    setSearch(searchTerm);
-    // Page reset is handled by useEffect
-  };
-
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
   };
@@ -75,10 +69,6 @@ const InventoryList = () => {
   const handlePageSizeChange = (newPageSize: number) => {
     setPageSize(newPageSize);
     setPage(1);
-  };
-
-  const handleRowClick = (item: Inventory) => {
-    console.log("View inventory:", item.id);
   };
 
   const handleArchiveItem = async () => {
@@ -179,7 +169,6 @@ const InventoryList = () => {
         <DataTable<Inventory>
           data={inventories || []}
           columns={inventoryTableColumns}
-          onRowClick={handleRowClick}
           onSort={handleSort}
           sortBy={sortBy}
           sortOrder={sortOrder}
@@ -187,15 +176,7 @@ const InventoryList = () => {
           showActions={true}
           fixedLayout={false}
           loading={isPending}
-          getItemId={item => {
-            // Use the most unique fields available
-            const name =
-              item?.inventoryItemName ||
-              formatEmptyValueAsString(item?.inventoryItemName);
-            const cost = item?.unitCost || 0;
-            const qty = item?.quantityOnHand || 0;
-            return `inv-${name}-${cost}-${qty}`;
-          }}
+          getItemId={item => item.id.toString()}
           emptyState={emptyState}
         />
       )}

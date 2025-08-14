@@ -4,22 +4,19 @@ import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import PrimaryButton from "@/components/ui/Button/PrimaryButton";
 import { FilterBar } from "@/components/ui/Filter";
-import { PaginationControls } from "@/components/ui/Table";
+import { DataTable, PaginationControls } from "@/components/ui/Table";
 import { useIssues } from "@/features/issue/hooks/useIssues";
 import { IssueWithLabels } from "@/features/issue/types/issueType";
 import { DEFAULT_PAGE_SIZE } from "@/components/ui/Table/constants";
-import {
-  IssueListTable,
-  IssueRow,
-} from "@/features/issue/components/IssueListTable";
+import { formatEmptyValueWithUnknown } from "@/utils/emptyValueUtils";
 
 export default function IssuesPage() {
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
-  const [sortBy, setSortBy] = useState("reporteddate"); // Default sort by reported date
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc"); // Default descending (newest first)
+  const [sortBy, setSortBy] = useState("reporteddate");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
   const filter = useMemo(
     () => ({
@@ -34,22 +31,102 @@ export default function IssuesPage() {
 
   const { issues, pagination, isPending } = useIssues(filter);
 
-  const tableData: IssueRow[] = useMemo(
-    () =>
-      issues.map((issue: IssueWithLabels) => ({
-        id: issue.id,
-        title: issue.title,
-        vehicleName: issue.vehicleName,
-        category: issue.categoryLabel,
-        prioritylevel: issue.priorityLevelLabel,
-        status: issue.statusLabel,
-        reportedByUserName: issue.reportedByUserName,
-        reportedDate: issue.reportedDate || null,
-        resolvedByUserName: issue.resolvedByUserName || null,
-        resolvedDate: issue.resolvedDate || null,
-      })),
-    [issues],
-  );
+  const issueTableColumns = [
+    {
+      key: "title",
+      header: "Title",
+      width: "280px",
+      sortable: true,
+      render: (item: IssueWithLabels) => <div>{item.title}</div>,
+    },
+    {
+      key: "vehiclename",
+      header: "Vehicle",
+      width: "180px",
+      sortable: false,
+      render: (item: IssueWithLabels) => <div>{item.vehicleName}</div>,
+    },
+    {
+      key: "category",
+      header: "Category",
+      sortable: true,
+      render: (item: IssueWithLabels) => <div>{item.categoryLabel}</div>,
+    },
+    {
+      key: "prioritylevel",
+      header: "Priority",
+      sortable: true,
+      render: (item: IssueWithLabels) => <div>{item.priorityLevelLabel}</div>,
+    },
+    {
+      key: "status",
+      header: "Status",
+      sortable: true,
+      render: (item: IssueWithLabels) => <div>{item.statusLabel}</div>,
+    },
+    {
+      key: "reportedbyusername",
+      header: "Reported By",
+      width: "150px",
+      sortable: false,
+      render: (item: IssueWithLabels) =>
+        formatEmptyValueWithUnknown(item.reportedByUserName),
+    },
+    {
+      key: "reporteddate",
+      header: "Reported Date",
+      width: "190px",
+      sortable: true,
+      render: (item: IssueWithLabels) => {
+        if (!item.reportedDate) {
+          return <span className="text-gray-400">—</span>;
+        }
+        const date = new Date(item.reportedDate);
+        if (isNaN(date.getTime())) {
+          return <span className="text-gray-400">—</span>;
+        }
+        return (
+          <div>
+            <div className="font-medium">{date.toLocaleDateString()}</div>
+            <div className="text-sm text-gray-500">
+              {date.toLocaleTimeString()}
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      key: "resolvedbyusername",
+      header: "Resolved By",
+      width: "150px",
+      sortable: false,
+      render: (item: IssueWithLabels) =>
+        formatEmptyValueWithUnknown(item.resolvedByUserName),
+    },
+    {
+      key: "resolveddate",
+      header: "Resolved Date",
+      width: "190px",
+      sortable: true,
+      render: (item: IssueWithLabels) => {
+        if (!item.resolvedDate) {
+          return <span className="text-gray-400">—</span>;
+        }
+        const date = new Date(item.resolvedDate);
+        if (isNaN(date.getTime())) {
+          return <span className="text-gray-400">—</span>;
+        }
+        return (
+          <div>
+            <div className="font-medium">{date.toLocaleDateString()}</div>
+            <div className="text-sm text-gray-500">
+              {date.toLocaleTimeString()}
+            </div>
+          </div>
+        );
+      },
+    },
+  ];
 
   const handlePreviousPage = () => setPage(p => Math.max(1, p - 1));
   const handleNextPage = () =>
@@ -64,7 +141,7 @@ export default function IssuesPage() {
     setPage(1);
   }, [search, sortBy, sortOrder]);
 
-  const handleRowClick = (row: IssueRow) => {
+  const handleRowClick = (row: IssueWithLabels) => {
     router.push(`/issues/${row.id}`);
   };
 
@@ -123,11 +200,15 @@ export default function IssuesPage() {
           />
         )}
       </div>
-      <IssueListTable
-        issues={tableData}
-        isLoading={isPending}
+      <DataTable
+        columns={issueTableColumns}
+        data={issues}
+        getItemId={item => item.id.toString()}
+        loading={isPending}
+        showActions={false}
         emptyState={emptyState}
         onRowClick={handleRowClick}
+        fixedLayout={false}
         onSort={handleSort}
         sortBy={sortBy}
         sortOrder={sortOrder}

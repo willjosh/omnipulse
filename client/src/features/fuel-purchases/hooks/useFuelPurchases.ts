@@ -14,7 +14,6 @@ import { useDebounce } from "@/hooks/useDebounce";
 export function useFuelPurchases(filter: FuelPurchaseFilter = {}) {
   const debouncedSearch = useDebounce(filter?.Search || "", 300);
 
-  // Only include Search in filter if it's actually provided and not empty
   const debouncedFilter = { ...filter };
   if (debouncedSearch && debouncedSearch.trim() !== "") {
     debouncedFilter.Search = debouncedSearch;

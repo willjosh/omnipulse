@@ -8,6 +8,7 @@ import ServiceTaskDetailsForm, {
 import { PrimaryButton, SecondaryButton } from "@/components/ui/Button";
 import { useCreateServiceTask } from "@/features/service-task/hooks/useServiceTasks";
 import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
+import { getErrorMessage, getErrorFields } from "@/utils/fieldErrorUtils";
 
 const initialForm: ServiceTaskDetailsFormValues = {
   name: "",
@@ -57,7 +58,10 @@ export default function CreateServiceTaskPage() {
   };
 
   const handleSave = async () => {
-    if (!validate()) return;
+    if (!validate()) {
+      notify("Please fill all required fields", "error");
+      return;
+    }
     setIsSaving(true);
     createServiceTask(
       {
@@ -74,13 +78,59 @@ export default function CreateServiceTaskPage() {
           notify("Service Task created successfully!", "success");
           router.push("/service-tasks");
         },
-        onError: () => setIsSaving(false),
+        onError: (error: any) => {
+          setIsSaving(false);
+          console.error("Failed to create service task:", error);
+
+          // Get dynamic error message from backend
+          const errorMessage = getErrorMessage(
+            error,
+            "Failed to create service task. Please check your input and try again.",
+          );
+
+          // Map backend errors to form fields
+          const fieldErrors = getErrorFields(error, [
+            "name",
+            "description",
+            "estimatedLabourHours",
+            "estimatedCost",
+            "category",
+            "isActive",
+          ]);
+
+          // Set field-specific errors
+          const newErrors: typeof errors = {};
+          if (fieldErrors.name) {
+            newErrors.name = "Invalid name";
+          }
+          if (fieldErrors.description) {
+            newErrors.description = "Invalid description";
+          }
+          if (fieldErrors.estimatedLabourHours) {
+            newErrors.estimatedLabourHours = "Invalid estimated labour hours";
+          }
+          if (fieldErrors.estimatedCost) {
+            newErrors.estimatedCost = "Invalid estimated cost";
+          }
+          if (fieldErrors.category) {
+            newErrors.category = "Invalid category";
+          }
+          if (fieldErrors.isActive) {
+            newErrors.isActive = "Invalid active status";
+          }
+
+          setErrors(newErrors);
+          notify(errorMessage, "error");
+        },
       },
     );
   };
 
   const handleSaveAndAddAnother = async () => {
-    if (!validate()) return;
+    if (!validate()) {
+      notify("Please fill all required fields", "error");
+      return;
+    }
     setIsSaving(true);
     createServiceTask(
       {
@@ -98,7 +148,50 @@ export default function CreateServiceTaskPage() {
           setForm(initialForm);
           setResetKey(k => k + 1);
         },
-        onError: () => setIsSaving(false),
+        onError: (error: any) => {
+          setIsSaving(false);
+          console.error("Failed to create service task:", error);
+
+          // Get dynamic error message from backend
+          const errorMessage = getErrorMessage(
+            error,
+            "Failed to create service task. Please check your input and try again.",
+          );
+
+          // Map backend errors to form fields
+          const fieldErrors = getErrorFields(error, [
+            "name",
+            "description",
+            "estimatedLabourHours",
+            "estimatedCost",
+            "category",
+            "isActive",
+          ]);
+
+          // Set field-specific errors
+          const newErrors: typeof errors = {};
+          if (fieldErrors.name) {
+            newErrors.name = "Invalid name";
+          }
+          if (fieldErrors.description) {
+            newErrors.description = "Invalid description";
+          }
+          if (fieldErrors.estimatedLabourHours) {
+            newErrors.estimatedLabourHours = "Invalid estimated labour hours";
+          }
+          if (fieldErrors.estimatedCost) {
+            newErrors.estimatedCost = "Invalid estimated cost";
+          }
+          if (fieldErrors.category) {
+            newErrors.category = "Invalid category";
+          }
+          if (fieldErrors.isActive) {
+            newErrors.isActive = "Invalid active status";
+          }
+
+          setErrors(newErrors);
+          notify(errorMessage, "error");
+        },
       },
     );
   };

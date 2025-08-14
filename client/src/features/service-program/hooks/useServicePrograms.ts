@@ -1,10 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { serviceProgramApi } from "../api/serviceProgramApi";
 import {
-  ServiceProgram,
+  ServiceProgramDetailsWithLabels,
   ServiceProgramFilter,
 } from "../types/serviceProgramType";
 import { useDebounce } from "@/hooks/useDebounce";
+import { convertServiceProgramDetailsData } from "../api/serviceProgramApi";
 
 export function useServicePrograms(filter: ServiceProgramFilter = {}) {
   const debouncedSearch = useDebounce(filter?.Search || "", 300);
@@ -39,11 +40,11 @@ export function useServicePrograms(filter: ServiceProgramFilter = {}) {
 
 export function useServiceProgram(id: number) {
   const { data, isPending, isError, isSuccess, error } =
-    useQuery<ServiceProgram>({
+    useQuery<ServiceProgramDetailsWithLabels>({
       queryKey: ["serviceProgram", id],
       queryFn: async () => {
         const data = await serviceProgramApi.getServiceProgram(id);
-        return data;
+        return convertServiceProgramDetailsData(data);
       },
       enabled: !!id,
     });

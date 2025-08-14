@@ -16,11 +16,14 @@ import {
 } from "@/features/issue/utils/issueFormUtils";
 import IssueResolutionForm from "@/features/issue/components/IssueResolutionForm";
 import { IssueStatusEnum } from "@/features/issue/types/issueEnum";
+import { getErrorMessage, getErrorFields } from "@/utils/fieldErrorUtils";
+import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
 
 export default function EditIssuePage() {
   const router = useRouter();
   const params = useParams();
   const id = params?.id ? Number(params.id as string) : undefined;
+  const notify = useNotification();
 
   // Fetch issue data
   const issueId = typeof id === "number" && !isNaN(id) ? id : undefined;
@@ -66,11 +69,81 @@ export default function EditIssuePage() {
 
   // Save handler
   const handleSave = () => {
-    if (!id || !validate()) return;
+    if (!id || !validate()) {
+      notify("Please fill all required fields", "error");
+      return;
+    }
 
     updateIssue(mapFormToUpdateIssueCommand(form, id), {
       onSuccess: () => {
         router.push("/issues");
+      },
+      onError: (error: any) => {
+        console.error("Failed to update issue:", error);
+
+        // Get dynamic error message from backend
+        const errorMessage = getErrorMessage(
+          error,
+          "Failed to update issue. Please check your input and try again.",
+        );
+
+        // Map backend errors to form fields
+        const fieldErrors = getErrorFields(error, [
+          "issueID",
+          "vehicleID",
+          "title",
+          "description",
+          "category",
+          "priorityLevel",
+          "status",
+          "reportedByUserID",
+          "reportedDate",
+          "resolutionNotes",
+          "resolvedDate",
+          "resolvedByUserID",
+        ]);
+
+        // Set field-specific errors
+        const newErrors: { [key: string]: string } = {};
+        if (fieldErrors.issueID) {
+          newErrors.issueID = "Invalid issue ID";
+        }
+        if (fieldErrors.vehicleID) {
+          newErrors.vehicleID = "Invalid vehicle selection";
+        }
+        if (fieldErrors.title) {
+          newErrors.title = "Invalid title";
+        }
+        if (fieldErrors.description) {
+          newErrors.description = "Invalid description";
+        }
+        if (fieldErrors.category) {
+          newErrors.category = "Invalid category";
+        }
+        if (fieldErrors.priorityLevel) {
+          newErrors.priorityLevel = "Invalid priority level";
+        }
+        if (fieldErrors.status) {
+          newErrors.status = "Invalid status";
+        }
+        if (fieldErrors.reportedByUserID) {
+          newErrors.reportedByUserID = "Invalid reported by user";
+        }
+        if (fieldErrors.reportedDate) {
+          newErrors.reportedDate = "Invalid reported date";
+        }
+        if (fieldErrors.resolutionNotes) {
+          newErrors.resolutionNotes = "Invalid resolution notes";
+        }
+        if (fieldErrors.resolvedDate) {
+          newErrors.resolvedDate = "Invalid resolved date";
+        }
+        if (fieldErrors.resolvedByUserID) {
+          newErrors.resolvedByUserID = "Invalid resolved by user";
+        }
+
+        setErrors(newErrors);
+        notify(errorMessage, "error");
       },
     });
   };

@@ -4,7 +4,7 @@ interface DetailFieldRowProps {
   label: string;
   value?: React.ReactNode;
   className?: string;
-  children?: React.ReactNode; // For more complex value rendering
+  children?: React.ReactNode;
   noBorder?: boolean;
 }
 

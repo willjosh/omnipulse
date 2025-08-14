@@ -22,6 +22,7 @@ import { useInspectionFormItems } from "@/features/inspection-form/hooks/useInsp
 import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
 import { VehicleConditionEnum } from "@/features/inspection/types/inspectionEnum";
 import { CreateInspectionCommand } from "@/features/inspection/types/inspectionType";
+import { getErrorMessage, getErrorFields } from "@/utils/fieldErrorUtils";
 
 interface FormErrors {
   details: Partial<Record<keyof InspectionDetailsFormValues, string>>;
@@ -175,7 +176,7 @@ const InspectionCreationContent: React.FC = () => {
     }
 
     // Validate required inspection items
-    checklistForm.items.forEach((item, index) => {
+    checklistForm.items.forEach(item => {
       if (item.isRequired && item.passed === null) {
         newErrors.checklist[`item-${item.id}`] =
           `${item.itemLabel} is required`;
@@ -225,7 +226,7 @@ const InspectionCreationContent: React.FC = () => {
   // Submit handler
   const handleSubmit = async () => {
     if (!validateForm() || !inspectionFormId) {
-      notify("Please fix all validation errors", "error");
+      notify("Please fill all required fields", "error");
       return;
     }
 
@@ -257,9 +258,61 @@ const InspectionCreationContent: React.FC = () => {
       await createInspectionMutation.mutateAsync(command);
       notify("Inspection created successfully", "success");
       router.push("/inspections");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating inspection:", error);
-      notify("Failed to create inspection", "error");
+
+      // Get dynamic error message from backend
+      const errorMessage = getErrorMessage(
+        error,
+        "Failed to create inspection. Please check your input and try again.",
+      );
+
+      // Map backend errors to form fields
+      const fieldErrors = getErrorFields(error, [
+        "inspectionFormID",
+        "vehicleID",
+        "technicianID",
+        "inspectionStartTime",
+        "inspectionEndTime",
+        "odometerReading",
+        "vehicleCondition",
+        "notes",
+        "inspectionItems",
+      ]);
+
+      // Set field-specific errors
+      const newErrors: FormErrors = {
+        details: {},
+        odometer: {},
+        checklist: {},
+        signOff: {},
+      };
+
+      // Map backend field names to form sections
+      if (fieldErrors.vehicleID) {
+        newErrors.details.vehicleID = "Invalid vehicle selection";
+      }
+      if (fieldErrors.technicianID) {
+        newErrors.details.technicianID = "Invalid technician selection";
+      }
+      if (fieldErrors.odometerReading) {
+        newErrors.odometer.odometerReading = "Invalid odometer reading";
+      }
+      if (fieldErrors.vehicleCondition) {
+        newErrors.signOff.vehicleCondition = "Invalid vehicle condition";
+      }
+      if (fieldErrors.inspectionItems) {
+        // Handle inspection items errors - this could be for missing required items
+        checklistForm.items.forEach(item => {
+          if (item.isRequired && item.passed === null) {
+            newErrors.checklist[`item-${item.id}`] =
+              `${item.itemLabel} is required`;
+          }
+        });
+      }
+
+      setErrors(newErrors);
+      notify(errorMessage, "error");
     }
   };
 

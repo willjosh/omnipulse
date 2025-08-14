@@ -9,6 +9,7 @@ import { PrimaryButton, SecondaryButton } from "@/components/ui/Button";
 import { useUpdateInspectionForm } from "@/features/inspection-form/hooks/useInspectionForms";
 import { useInspectionForm } from "@/features/inspection-form/hooks/useInspectionForms";
 import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
+import { getErrorMessage, getErrorFields } from "@/utils/fieldErrorUtils";
 
 const initialForm: InspectionFormDetailsFormValues = {
   title: "",
@@ -73,7 +74,10 @@ export default function EditInspectionFormPage() {
   };
 
   const handleSave = async () => {
-    if (!validate()) return;
+    if (!validate()) {
+      notify("Please fill all required fields", "error");
+      return;
+    }
     setIsSaving(true);
     updateInspectionForm(
       {
@@ -88,7 +92,39 @@ export default function EditInspectionFormPage() {
           notify("Inspection form updated successfully!", "success");
           router.push(`/inspection-forms/${inspectionFormId}`);
         },
-        onError: () => setIsSaving(false),
+        onError: (error: any) => {
+          setIsSaving(false);
+          console.error("Failed to update inspection form:", error);
+
+          // Get dynamic error message from backend
+          const errorMessage = getErrorMessage(
+            error,
+            "Failed to update inspection form. Please check your input and try again.",
+          );
+
+          // Map backend errors to form fields
+          const fieldErrors = getErrorFields(error, [
+            "inspectionFormID",
+            "title",
+            "description",
+            "isActive",
+          ]);
+
+          // Set field-specific errors
+          const newErrors: typeof errors = {};
+          if (fieldErrors.title) {
+            newErrors.title = "Invalid title";
+          }
+          if (fieldErrors.description) {
+            newErrors.description = "Invalid description";
+          }
+          if (fieldErrors.isActive) {
+            newErrors.isActive = "Invalid active status";
+          }
+
+          setErrors(newErrors);
+          notify(errorMessage, "error");
+        },
       },
     );
   };

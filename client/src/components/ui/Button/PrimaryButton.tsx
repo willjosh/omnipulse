@@ -3,7 +3,7 @@ import React from "react";
 interface PrimaryButtonProps {
   children: React.ReactNode;
   onClick?: () => void | Promise<void>;
-  disabled?: boolean; // Add this line
+  disabled?: boolean;
   className?: string;
   type?: "button" | "submit" | "reset";
 }
@@ -11,7 +11,7 @@ interface PrimaryButtonProps {
 const PrimaryButton: React.FC<PrimaryButtonProps> = ({
   children,
   onClick,
-  disabled = false, // Add default value
+  disabled = false,
   className,
   type = "button",
 }) => {

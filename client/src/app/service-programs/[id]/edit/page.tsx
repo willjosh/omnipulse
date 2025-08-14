@@ -13,6 +13,7 @@ import {
   useUpdateServiceProgram,
 } from "@/features/service-program/hooks/useServicePrograms";
 import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
+import { getErrorMessage, getErrorFields } from "@/utils/fieldErrorUtils";
 
 export default function EditServiceProgramPage() {
   const params = useParams();
@@ -81,7 +82,10 @@ export default function EditServiceProgramPage() {
   };
 
   const handleSave = async () => {
-    if (!validate() || !id || !serviceProgram) return;
+    if (!validate() || !id || !serviceProgram) {
+      notify("Please fill all required fields", "error");
+      return;
+    }
     setIsSaving(true);
 
     updateServiceProgram(
@@ -99,27 +103,32 @@ export default function EditServiceProgramPage() {
         },
         onError: (error: any) => {
           setIsSaving(false);
+          console.error("Failed to update service program:", error);
 
-          // Handle specific error types
-          if (error?.response?.status === 409) {
-            // Duplicate name error
-            setErrors({
-              name: "A service program with this name already exists.",
-            });
-            notify("A service program with this name already exists.", "error");
-          } else if (error?.response?.status === 400) {
-            // Validation error
-            const errorMessage =
-              error?.response?.data?.message ||
-              "Validation failed. Please check your input.";
-            notify(errorMessage, "error");
-          } else {
-            // Generic error
-            notify(
-              "Failed to update service program. Please try again.",
-              "error",
-            );
+          const errorMessage = getErrorMessage(
+            error,
+            "Failed to update service program. Please check your input and try again.",
+          );
+
+          const fieldErrors = getErrorFields(error, [
+            "name",
+            "description",
+            "isActive",
+          ]);
+
+          const newErrors: typeof errors = {};
+          if (fieldErrors.name) {
+            newErrors.name = "Invalid name";
           }
+          if (fieldErrors.description) {
+            newErrors.description = "Invalid description";
+          }
+          if (fieldErrors.isActive) {
+            newErrors.isActive = "Invalid active status";
+          }
+
+          setErrors(newErrors);
+          notify(errorMessage, "error");
         },
       },
     );
@@ -166,7 +175,7 @@ export default function EditServiceProgramPage() {
           errors={errors}
           onChange={handleChange}
           disabled={isSaving || isUpdating}
-          showIsActive={true}
+          showIsActive={false}
         />
       </div>
       {/* Footer Actions */}

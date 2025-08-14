@@ -57,10 +57,6 @@ const TechnicianList: React.FC = () => {
     setPage(1);
   };
 
-  const handleSearch = (searchTerm: string) => {
-    setSearch(searchTerm);
-  };
-
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
   };

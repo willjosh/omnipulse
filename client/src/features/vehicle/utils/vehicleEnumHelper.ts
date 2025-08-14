@@ -57,6 +57,8 @@ export const getVehicleIcon = (type: VehicleTypeEnum) => {
 
 export const getFuelTypeLabel = (fuelType: FuelTypeEnum) => {
   switch (fuelType) {
+    case FuelTypeEnum.HYDROGEN:
+      return "Hydrogen";
     case FuelTypeEnum.PETROL:
       return "Petrol";
     case FuelTypeEnum.DIESEL:

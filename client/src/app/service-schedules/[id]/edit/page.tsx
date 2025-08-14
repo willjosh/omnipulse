@@ -15,6 +15,7 @@ import { useVehicles } from "@/features/vehicle/hooks/useVehicles";
 import { useServicePrograms } from "@/features/service-program/hooks/useServicePrograms";
 import { BreadcrumbItem } from "@/components/ui/Layout/Breadcrumbs";
 import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
+import { getErrorMessage, getErrorFields } from "@/utils/fieldErrorUtils";
 
 export default function EditServiceSchedulePage() {
   const router = useRouter();
@@ -121,7 +122,10 @@ export default function EditServiceSchedulePage() {
   };
 
   const handleSave = async () => {
-    if (!validate() || !form) return;
+    if (!validate() || !form) {
+      notify("Please fill all required fields", "error");
+      return;
+    }
 
     // Ensure the date is properly formatted as ISO string before saving
     let formattedFirstServiceDate = form.firstServiceDate;
@@ -174,11 +178,65 @@ export default function EditServiceSchedulePage() {
           notify("Service Schedule updated successfully!", "success");
           router.push(`/service-schedules/${id}`);
         },
-        onError: error => {
-          notify(
-            `Failed to update service schedule: ${error?.message || "Unknown error"}`,
-            "error",
+        onError: (error: any) => {
+          console.error("Failed to update service schedule:", error);
+
+          const errorMessage = getErrorMessage(
+            error,
+            "Failed to update service schedule. Please check your input and try again.",
           );
+
+          const fieldErrors = getErrorFields(error, [
+            "serviceProgramID",
+            "name",
+            "serviceTaskIDs",
+            "timeIntervalValue",
+            "timeIntervalUnit",
+            "timeBufferValue",
+            "timeBufferUnit",
+            "mileageInterval",
+            "mileageBuffer",
+            "firstServiceDate",
+            "firstServiceMileage",
+          ]);
+
+          const newErrors: typeof errors = {};
+          if (fieldErrors.serviceProgramID) {
+            newErrors.serviceProgramID = "Invalid service program";
+          }
+          if (fieldErrors.name) {
+            newErrors.name = "Invalid name";
+          }
+          if (fieldErrors.serviceTaskIDs) {
+            newErrors.serviceTaskIDs = "Invalid service task selection";
+          }
+          if (fieldErrors.timeIntervalValue) {
+            newErrors.timeIntervalValue = "Invalid time interval value";
+          }
+          if (fieldErrors.timeIntervalUnit) {
+            newErrors.timeIntervalUnit = "Invalid time interval unit";
+          }
+          if (fieldErrors.timeBufferValue) {
+            newErrors.timeBufferValue = "Invalid time buffer value";
+          }
+          if (fieldErrors.timeBufferUnit) {
+            newErrors.timeBufferUnit = "Invalid time buffer unit";
+          }
+          if (fieldErrors.mileageInterval) {
+            newErrors.mileageInterval = "Invalid mileage interval";
+          }
+          if (fieldErrors.mileageBuffer) {
+            newErrors.mileageBuffer = "Invalid mileage buffer";
+          }
+          if (fieldErrors.firstServiceDate) {
+            newErrors.firstServiceDate = "Invalid first service date";
+          }
+          if (fieldErrors.firstServiceMileage) {
+            newErrors.firstServiceMileage = "Invalid first service mileage";
+          }
+
+          setErrors(newErrors);
+          notify(errorMessage, "error");
         },
       },
     );

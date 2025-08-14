@@ -5,11 +5,8 @@ import {
   convertSingleInspectionData,
 } from "../api/inspectionApi";
 import {
-  InspectionWithLabels,
-  SingleInspection,
   SingleInspectionWithLabels,
   InspectionFilter,
-  CreateInspectionCommand,
 } from "../types/inspectionType";
 import { useDebounce } from "@/hooks/useDebounce";
 

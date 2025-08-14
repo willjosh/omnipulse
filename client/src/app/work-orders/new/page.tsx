@@ -17,9 +17,12 @@ import {
   emptyWorkOrderFormState,
 } from "@/features/work-order/utils/workOrderFormUtils";
 import { BreadcrumbItem } from "@/components/ui/Layout/Breadcrumbs";
+import { getErrorMessage, getErrorFields } from "@/utils/fieldErrorUtils";
+import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
 
 export default function NewWorkOrderPage() {
   const router = useRouter();
+  const notify = useNotification();
 
   // Form state
   const [form, setForm] = useState<WorkOrderFormState>({
@@ -52,22 +55,182 @@ export default function NewWorkOrderPage() {
 
   // Save Work Order handler
   const handleSave = () => {
-    if (!validate()) return;
+    if (!validate()) {
+      notify("Please fill all required fields", "error");
+      return;
+    }
     createWorkOrder(toCreateWorkOrderCommand(), {
       onSuccess: () => {
         router.push("/work-orders");
+      },
+      onError: (error: any) => {
+        console.error("Failed to create work order:", error);
+
+        const errorMessage = getErrorMessage(
+          error,
+          "Failed to create work order. Please check your input and try again.",
+        );
+
+        const fieldErrors = getErrorFields(error, [
+          "vehicleID",
+          "assignedToUserID",
+          "title",
+          "description",
+          "workOrderType",
+          "priorityLevel",
+          "status",
+          "scheduledStartDate",
+          "actualStartDate",
+          "scheduledCompletionDate",
+          "actualCompletionDate",
+          "startOdometer",
+          "endOdometer",
+          "issueIdList",
+          "workOrderLineItems",
+        ]);
+
+        const newErrors: { [key: string]: string } = {};
+        if (fieldErrors.vehicleID) {
+          newErrors.vehicleID = "Invalid vehicle selection";
+        }
+        if (fieldErrors.assignedToUserID) {
+          newErrors.assignedToUserID = "Invalid assigned user";
+        }
+        if (fieldErrors.title) {
+          newErrors.title = "Invalid title";
+        }
+        if (fieldErrors.description) {
+          newErrors.description = "Invalid description";
+        }
+        if (fieldErrors.workOrderType) {
+          newErrors.workOrderType = "Invalid work order type";
+        }
+        if (fieldErrors.priorityLevel) {
+          newErrors.priorityLevel = "Invalid priority level";
+        }
+        if (fieldErrors.status) {
+          newErrors.status = "Invalid status";
+        }
+        if (fieldErrors.scheduledStartDate) {
+          newErrors.scheduledStartDate = "Invalid scheduled start date";
+        }
+        if (fieldErrors.actualStartDate) {
+          newErrors.actualStartDate = "Invalid actual start date";
+        }
+        if (fieldErrors.scheduledCompletionDate) {
+          newErrors.scheduledCompletionDate =
+            "Invalid scheduled completion date";
+        }
+        if (fieldErrors.actualCompletionDate) {
+          newErrors.actualCompletionDate = "Invalid actual completion date";
+        }
+        if (fieldErrors.startOdometer) {
+          newErrors.startOdometer = "Invalid start odometer";
+        }
+        if (fieldErrors.endOdometer) {
+          newErrors.endOdometer = "Invalid end odometer";
+        }
+        if (fieldErrors.issueIdList) {
+          newErrors.issueIdList = "Invalid issue selection";
+        }
+        if (fieldErrors.workOrderLineItems) {
+          newErrors.workOrderLineItems = "Invalid line items";
+        }
+
+        setErrors(newErrors);
+        notify(errorMessage, "error");
       },
     });
   };
 
   // Save & Add Another handler
   const handleSaveAndAddAnother = () => {
-    if (!validate()) return;
+    if (!validate()) {
+      notify("Please fill all required fields", "error");
+      return;
+    }
     createWorkOrder(toCreateWorkOrderCommand(), {
       onSuccess: () => {
         setForm(emptyWorkOrderFormState);
         setErrors({});
         setResetKey(k => k + 1);
+      },
+      onError: (error: any) => {
+        console.error("Failed to create work order:", error);
+
+        const errorMessage = getErrorMessage(
+          error,
+          "Failed to create work order. Please check your input and try again.",
+        );
+
+        const fieldErrors = getErrorFields(error, [
+          "vehicleID",
+          "assignedToUserID",
+          "title",
+          "description",
+          "workOrderType",
+          "priorityLevel",
+          "status",
+          "scheduledStartDate",
+          "actualStartDate",
+          "scheduledCompletionDate",
+          "actualCompletionDate",
+          "startOdometer",
+          "endOdometer",
+          "issueIdList",
+          "workOrderLineItems",
+        ]);
+
+        const newErrors: { [key: string]: string } = {};
+        if (fieldErrors.vehicleID) {
+          newErrors.vehicleID = "Invalid vehicle selection";
+        }
+        if (fieldErrors.assignedToUserID) {
+          newErrors.assignedToUserID = "Invalid assigned user";
+        }
+        if (fieldErrors.title) {
+          newErrors.title = "Invalid title";
+        }
+        if (fieldErrors.description) {
+          newErrors.description = "Invalid description";
+        }
+        if (fieldErrors.workOrderType) {
+          newErrors.workOrderType = "Invalid work order type";
+        }
+        if (fieldErrors.priorityLevel) {
+          newErrors.priorityLevel = "Invalid priority level";
+        }
+        if (fieldErrors.status) {
+          newErrors.status = "Invalid status";
+        }
+        if (fieldErrors.scheduledStartDate) {
+          newErrors.scheduledStartDate = "Invalid scheduled start date";
+        }
+        if (fieldErrors.actualStartDate) {
+          newErrors.actualStartDate = "Invalid actual start date";
+        }
+        if (fieldErrors.scheduledCompletionDate) {
+          newErrors.scheduledCompletionDate =
+            "Invalid scheduled completion date";
+        }
+        if (fieldErrors.actualCompletionDate) {
+          newErrors.actualCompletionDate = "Invalid actual completion date";
+        }
+        if (fieldErrors.startOdometer) {
+          newErrors.startOdometer = "Invalid start odometer";
+        }
+        if (fieldErrors.endOdometer) {
+          newErrors.endOdometer = "Invalid end odometer";
+        }
+        if (fieldErrors.issueIdList) {
+          newErrors.issueIdList = "Invalid issue selection";
+        }
+        if (fieldErrors.workOrderLineItems) {
+          newErrors.workOrderLineItems = "Invalid line items";
+        }
+
+        setErrors(newErrors);
+        notify(errorMessage, "error");
       },
     });
   };
