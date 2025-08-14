@@ -1,3 +1,5 @@
+using Application.Features.InventoryItemLocations.Command;
+using Application.Features.InventoryItems.Command.CreateInventoryItem;
 using Application.Features.ServicePrograms.Command.AddVehicleToServiceProgram;
 using Application.Features.ServicePrograms.Command.CreateServiceProgram;
 using Application.Features.ServiceReminders.Command.SyncServiceReminders;
@@ -5,6 +7,7 @@ using Application.Features.ServiceReminders.Query;
 using Application.Features.ServiceReminders.Query.GetAllServiceReminders;
 using Application.Features.ServiceSchedules.Command.CreateServiceSchedule;
 using Application.Features.ServiceTasks.Command.CreateServiceTask;
+using Application.Features.Users.Command.CreateTechnician;
 using Application.Features.VehicleGroups.Command.CreateVehicleGroup;
 using Application.Features.Vehicles.Command.CreateVehicle;
 using Application.Models.PaginationModels;
@@ -104,6 +107,90 @@ public abstract class BaseIntegrationTest : IClassFixture<IntegrationTestWebAppF
     // ===================
     // ===== HELPERS =====
     // ===================
+
+    /// <summary>Create a technician user.</summary>
+    protected async Task<Guid> CreateTechnicianAsync(
+        string? email = null,
+        bool isActive = true)
+        => await Sender.Send(new CreateTechnicianCommand(
+            Email: email ?? $"technician_{Faker.Random.AlphaNumeric(6)}@omnipulse.com",
+            Password: Faker.Internet.Password(length: 50, regexPattern: @"[a-zA-Z0-9!@#$%^&*()_+=\-]"),
+            FirstName: Faker.Name.FirstName(),
+            LastName: Faker.Name.LastName(),
+            HireDate: DateTime.UtcNow.AddYears(-1),
+            IsActive: isActive
+        ));
+
+    /// <summary>Create an inventory item.</summary>
+    protected async Task<int> CreateInventoryItemAsync(
+        string? itemNumber = null,
+        string? itemName = null,
+        decimal unitCost = 25.50m,
+        InventoryItemCategoryEnum category = InventoryItemCategoryEnum.ENGINE,
+        InventoryItemUnitCostMeasurementUnitEnum unitCostUnit = InventoryItemUnitCostMeasurementUnitEnum.Unit,
+        bool isActive = true)
+        => await Sender.Send(new CreateInventoryItemCommand(
+            ItemNumber: itemNumber ?? $"ITEM-{Faker.Random.AlphaNumeric(5)}",
+            ItemName: itemName ?? $"Test {nameof(InventoryItem)} {Faker.Random.AlphaNumeric(5)}",
+            Description: $"{nameof(InventoryItem)} Description {Faker.Random.AlphaNumeric(5)}",
+            Category: category,
+            Manufacturer: "Test Manufacturer",
+            ManufacturerPartNumber: $"MPN{Faker.Random.AlphaNumeric(5)}",
+            UniversalProductCode: "123456789012",
+            UnitCost: unitCost,
+            UnitCostMeasurementUnit: unitCostUnit,
+            Supplier: "Test Supplier",
+            WeightKG: 1.0,
+            IsActive: isActive
+        ));
+
+    /// <summary>Create an inventory item location.</summary>
+    protected async Task<int> CreateInventoryItemLocationAsync(
+        string? locationName = null,
+        int capacity = 10000)
+        => await Sender.Send(new CreateInventoryItemLocationCommand(
+            LocationName: locationName ?? $"{nameof(InventoryItemLocation)} Name {Faker.Random.AlphaNumeric(4)}",
+            Address: "123 Test St",
+            Longitude: 151.0,
+            Latitude: -33.0,
+            Capacity: capacity
+        ));
+
+    /// <summary>
+    /// Ensure there is an inventory row for the given item and location with the specified quantity and unit cost.
+    /// Creates the row if missing or updates existing ones.
+    /// </summary>
+    /// <param name="inventoryItemId">The ID of the inventory item.</param>
+    /// <param name="inventoryItemLocationId">The ID of the inventory item location.</param>
+    /// <param name="quantityOnHand">The quantity on hand.</param>
+    /// <param name="unitCost">The unit cost.</param>
+    /// <returns>The inventory ID.</returns>
+    protected async Task<int> EnsureInventoryAsync(int inventoryItemId, int inventoryItemLocationId, int quantityOnHand, decimal unitCost = 25.00m)
+    {
+        var existingForItem = await DbContext.Inventories.Where(i => i.InventoryItemID == inventoryItemId).ToListAsync();
+        if (existingForItem.Count != 0)
+        {
+            foreach (var inv in existingForItem)
+            {
+                inv.QuantityOnHand = quantityOnHand;
+                inv.UnitCost = unitCost;
+            }
+            await DbContext.SaveChangesAsync();
+            return existingForItem.First().ID;
+        }
+
+        var invItem = await DbContext.InventoryItems.FirstAsync(ii => ii.ID == inventoryItemId);
+        var inventoryEntity = Inventory.CreateDefaultInventory(inventoryItemId, unitCost);
+        inventoryEntity.InventoryItemLocationID = inventoryItemLocationId;
+        inventoryEntity.QuantityOnHand = quantityOnHand;
+        inventoryEntity.MinStockLevel = 0;
+        inventoryEntity.MaxStockLevel = 10000;
+        inventoryEntity.InventoryItem = invItem;
+
+        DbContext.Inventories.Add(inventoryEntity);
+        await DbContext.SaveChangesAsync();
+        return inventoryEntity.ID;
+    }
 
     /// <summary>Create a vehicle group.</summary>
     protected async Task<int> CreateVehicleGroupAsync()
