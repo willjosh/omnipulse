@@ -8,7 +8,6 @@ interface Column<T> {
   width?: string;
 }
 
-// Color mapping function to handle all available colors
 const getColorClasses = (color: string): string => {
   const colorMap: Record<string, string> = {
     green: "bg-green-100 text-green-800",

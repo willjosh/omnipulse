@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { useVehicleStatuses } from "../hooks/useVehicleStatus";
 import { VehicleStatus } from "../types/vehicleStatusType";
-import { Settings, Info } from "lucide-react";
+import { Settings } from "lucide-react";
 import { Loading } from "@/components/ui/Feedback";
 import { DataTable } from "@/components/ui/Table";
 import { vehicleStatusTableColumns } from "@/features/vehicle-status/components/VehicleStatusTableColumns";

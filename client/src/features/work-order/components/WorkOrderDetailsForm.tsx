@@ -27,22 +27,17 @@ import {
 } from "../types/workOrderEnum";
 import { VehicleWithLabels } from "@/features/vehicle/types/vehicleType";
 
-// Helper function to parse formatted date strings back to Date objects
 const parseFormattedDate = (
   formattedDate: string | null | undefined,
 ): Date | null => {
   if (!formattedDate) return null;
 
-  // Try to parse as ISO string first
   const isoDate = new Date(formattedDate);
   if (!isNaN(isoDate.getTime())) {
     return isoDate;
   }
 
-  // If it's a formatted date string (e.g., "8/13/2024, 12:00:00 PM"), try to parse it
-  // This handles dates formatted by toLocaleString()
   try {
-    // Handle common formatted date patterns
     const parsed = new Date(formattedDate);
     if (!isNaN(parsed.getTime())) {
       return parsed;

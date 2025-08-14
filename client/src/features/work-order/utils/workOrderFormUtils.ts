@@ -64,7 +64,6 @@ export const validateWorkOrderForm = (
     errors.endOdometer = "End odometer cannot be less than start odometer";
   }
 
-  // Validate completion dates
   if (
     form.scheduledCompletionDate &&
     form.scheduledStartDate &&

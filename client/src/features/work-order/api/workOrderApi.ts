@@ -73,7 +73,6 @@ export const convertWorkOrderDataForDisplay = (
   status: workOrder.status as number,
   statusLabel: getWorkOrderStatusLabel(workOrder.status),
   statusEnum: workOrder.status as WorkOrderStatusEnum,
-  // Format dates for display
   scheduledStartDate: formatDate(workOrder.scheduledStartDate),
   actualStartDate: formatDate(workOrder.actualStartDate),
   scheduledCompletionDate: formatDate(workOrder.scheduledCompletionDate),
@@ -137,13 +136,11 @@ export const workOrderApi = {
     return data;
   },
 
-  // Complete a work order
   completeWorkOrder: async (id: number) => {
     const { data } = await agent.patch(`/api/WorkOrders/${id}/complete`);
     return data;
   },
 
-  // Get invoice PDF for a work order
   getWorkOrderInvoicePdf: async (id: number) => {
     const response = await agent.get(`/api/WorkOrders/${id}/invoice.pdf`, {
       responseType: "blob",

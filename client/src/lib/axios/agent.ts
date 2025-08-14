@@ -1,12 +1,6 @@
 import axios from "axios";
 import { tokenStorage } from "@/lib/auth/tokenStorage";
 
-const sleep = (delay: number) => {
-  return new Promise(resolve => {
-    setTimeout(resolve, delay);
-  });
-};
-
 const baseURL =
   process.env.NODE_ENV === "production"
     ? "https://omnipulse-backend.wonderfulsky-7bfd34c0.australiaeast.azurecontainerapps.io"
@@ -32,7 +26,6 @@ agent.interceptors.request.use(
 agent.interceptors.response.use(
   async response => {
     try {
-      // await sleep(1000);
       return response;
     } catch (error) {
       console.log(error);
@@ -46,19 +39,6 @@ agent.interceptors.response.use(
       const refreshToken = tokenStorage.getRefreshToken();
       if (refreshToken) {
         try {
-          // Note: You'll need to implement the refresh token endpoint
-          // For now, we'll just clear tokens and redirect
-          // const response = await axios.post(`${baseURL}/api/auth/refresh`, {
-          //   refreshToken: refreshToken
-          // });
-          // if (response.data.token) {
-          //   tokenStorage.setToken(response.data.token);
-          //   if (response.data.refreshToken) {
-          //     tokenStorage.setRefreshToken(response.data.refreshToken);
-          //   }
-          //   // Retry the original request
-          //   return agent.request(error.config);
-          // }
         } catch (refreshError) {
           console.error("Token refresh failed:", refreshError);
         }
