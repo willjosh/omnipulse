@@ -82,6 +82,7 @@ ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 WORKDIR /server
 
 # Copy csproj files
+COPY server/omnipulse_server.sln ./
 COPY server/Directory.Build.props ./
 COPY server/src/Api/Api.csproj ./src/Api/
 COPY server/src/Core/Application/Application.csproj ./src/Core/Application/
@@ -89,8 +90,14 @@ COPY server/src/Core/Domain/Domain.csproj ./src/Core/Domain/
 COPY server/src/Infrastructure/Infrastructure/Infrastructure.csproj ./src/Infrastructure/Infrastructure/
 COPY server/src/Infrastructure/Persistence/Persistence.csproj ./src/Infrastructure/Persistence/
 
-# Restore all dependencies including transitive dependencies
-RUN dotnet restore src/Api/Api.csproj
+# Include test project files
+COPY server/tests/Application.Test/Application.Test.csproj ./tests/Application.Test/
+COPY server/tests/Domain.Test/Domain.Test.csproj ./tests/Domain.Test/
+COPY server/tests/FunctionalTests/FunctionalTests.csproj ./tests/FunctionalTests/
+COPY server/tests/IntegrationTests/IntegrationTests.csproj ./tests/IntegrationTests/
+
+# Restore all dependencies
+RUN dotnet restore omnipulse_server.sln
 
 # Copy source code
 COPY server/ .

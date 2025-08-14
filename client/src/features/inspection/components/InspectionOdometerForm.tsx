@@ -1,7 +1,6 @@
 import React from "react";
 import FormContainer from "@/components/ui/Form/FormContainer";
 import FormField from "@/components/ui/Form/FormField";
-import { PrimaryButton } from "@/components/ui/Button";
 
 export interface InspectionOdometerFormValues {
   odometerReading: number | null;
@@ -22,7 +21,10 @@ const InspectionOdometerForm: React.FC<InspectionOdometerFormProps> = ({
 }) => {
   return (
     <FormContainer title="Odometer Reading">
-      <FormField label="Odometer Reading" error={errors.odometerReading}>
+      <FormField
+        label="Vehicle Odometer Reading"
+        error={errors.odometerReading}
+      >
         <input
           type="number"
           min={0}

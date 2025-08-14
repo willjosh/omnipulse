@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { PrimaryButton, SecondaryButton } from "@/components/ui/Button";
+import { PrimaryButton } from "@/components/ui/Button";
 import { EyeOpen, EyeClosed } from "@/components/ui/Icons";
 import { useRegister } from "@/features/auth/hooks/useAuth";
 import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
