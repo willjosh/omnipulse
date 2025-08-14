@@ -8,6 +8,7 @@ import InspectionFormDetailsForm, {
 import { PrimaryButton, SecondaryButton } from "@/components/ui/Button";
 import { useCreateInspectionForm } from "@/features/inspection-form/hooks/useInspectionForms";
 import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
+import { getErrorMessage, getErrorFields } from "@/utils/fieldErrorUtils";
 
 const initialForm: InspectionFormDetailsFormValues = {
   title: "",
@@ -53,7 +54,10 @@ export default function CreateInspectionFormPage() {
   };
 
   const handleSave = async () => {
-    if (!validate()) return;
+    if (!validate()) {
+      notify("Please fill all required fields", "error");
+      return;
+    }
     setIsSaving(true);
     createInspectionForm(
       {
@@ -67,13 +71,47 @@ export default function CreateInspectionFormPage() {
           notify("Inspection form created successfully!", "success");
           router.push("/inspection-forms");
         },
-        onError: () => setIsSaving(false),
+        onError: (error: any) => {
+          setIsSaving(false);
+          console.error("Failed to create inspection form:", error);
+
+          // Get dynamic error message from backend
+          const errorMessage = getErrorMessage(
+            error,
+            "Failed to create inspection form. Please check your input and try again.",
+          );
+
+          // Map backend errors to form fields
+          const fieldErrors = getErrorFields(error, [
+            "title",
+            "description",
+            "isActive",
+          ]);
+
+          // Set field-specific errors
+          const newErrors: typeof errors = {};
+          if (fieldErrors.title) {
+            newErrors.title = "Invalid title";
+          }
+          if (fieldErrors.description) {
+            newErrors.description = "Invalid description";
+          }
+          if (fieldErrors.isActive) {
+            newErrors.isActive = "Invalid active status";
+          }
+
+          setErrors(newErrors);
+          notify(errorMessage, "error");
+        },
       },
     );
   };
 
   const handleSaveAndAddAnother = async () => {
-    if (!validate()) return;
+    if (!validate()) {
+      notify("Please fill all required fields", "error");
+      return;
+    }
     setIsSaving(true);
     createInspectionForm(
       {
@@ -88,7 +126,38 @@ export default function CreateInspectionFormPage() {
           setForm(initialForm);
           setResetKey(k => k + 1);
         },
-        onError: () => setIsSaving(false),
+        onError: (error: any) => {
+          setIsSaving(false);
+          console.error("Failed to create inspection form:", error);
+
+          // Get dynamic error message from backend
+          const errorMessage = getErrorMessage(
+            error,
+            "Failed to create inspection form. Please check your input and try again.",
+          );
+
+          // Map backend errors to form fields
+          const fieldErrors = getErrorFields(error, [
+            "title",
+            "description",
+            "isActive",
+          ]);
+
+          // Set field-specific errors
+          const newErrors: typeof errors = {};
+          if (fieldErrors.title) {
+            newErrors.title = "Invalid title";
+          }
+          if (fieldErrors.description) {
+            newErrors.description = "Invalid description";
+          }
+          if (fieldErrors.isActive) {
+            newErrors.isActive = "Invalid active status";
+          }
+
+          setErrors(newErrors);
+          notify(errorMessage, "error");
+        },
       },
     );
   };

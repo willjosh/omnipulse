@@ -13,9 +13,12 @@ import {
   mapFormToCreateIssueCommand,
   emptyIssueFormState,
 } from "@/features/issue/utils/issueFormUtils";
+import { getErrorMessage, getErrorFields } from "@/utils/fieldErrorUtils";
+import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
 
 export default function CreateIssueHeaderOnly() {
   const router = useRouter();
+  const notify = useNotification();
 
   // Form state
   const [form, setForm] = useState<IssueFormState>({ ...emptyIssueFormState });
@@ -43,21 +46,123 @@ export default function CreateIssueHeaderOnly() {
 
   // Save Issue handler
   const handleSave = () => {
-    if (!validate()) return;
+    if (!validate()) {
+      notify("Please fill all required fields", "error");
+      return;
+    }
     createIssue(toCreateIssueCommand(), {
       onSuccess: () => {
         router.push("/issues");
+      },
+      onError: (error: any) => {
+        console.error("Failed to create issue:", error);
+
+        const errorMessage = getErrorMessage(
+          error,
+          "Failed to create issue. Please check your input and try again.",
+        );
+
+        const fieldErrors = getErrorFields(error, [
+          "vehicleID",
+          "title",
+          "description",
+          "category",
+          "priorityLevel",
+          "status",
+          "reportedByUserID",
+          "reportedDate",
+        ]);
+
+        const newErrors: { [key: string]: string } = {};
+        if (fieldErrors.vehicleID) {
+          newErrors.vehicleID = "Invalid vehicle selection";
+        }
+        if (fieldErrors.title) {
+          newErrors.title = "Invalid title";
+        }
+        if (fieldErrors.description) {
+          newErrors.description = "Invalid description";
+        }
+        if (fieldErrors.category) {
+          newErrors.category = "Invalid category";
+        }
+        if (fieldErrors.priorityLevel) {
+          newErrors.priorityLevel = "Invalid priority level";
+        }
+        if (fieldErrors.status) {
+          newErrors.status = "Invalid status";
+        }
+        if (fieldErrors.reportedByUserID) {
+          newErrors.reportedByUserID = "Invalid reported by user";
+        }
+        if (fieldErrors.reportedDate) {
+          newErrors.reportedDate = "Invalid reported date";
+        }
+
+        setErrors(newErrors);
+        notify(errorMessage, "error");
       },
     });
   };
 
   // Save & Add Another handler
   const handleSaveAndAddAnother = () => {
-    if (!validate()) return;
+    if (!validate()) {
+      notify("Please fill all required fields", "error");
+      return;
+    }
     createIssue(toCreateIssueCommand(), {
       onSuccess: () => {
         setForm(emptyIssueFormState);
         setResetKey(k => k + 1);
+      },
+      onError: (error: any) => {
+        console.error("Failed to create issue:", error);
+
+        const errorMessage = getErrorMessage(
+          error,
+          "Failed to create issue. Please check your input and try again.",
+        );
+
+        const fieldErrors = getErrorFields(error, [
+          "vehicleID",
+          "title",
+          "description",
+          "category",
+          "priorityLevel",
+          "status",
+          "reportedByUserID",
+          "reportedDate",
+        ]);
+
+        const newErrors: { [key: string]: string } = {};
+        if (fieldErrors.vehicleID) {
+          newErrors.vehicleID = "Invalid vehicle selection";
+        }
+        if (fieldErrors.title) {
+          newErrors.title = "Invalid title";
+        }
+        if (fieldErrors.description) {
+          newErrors.description = "Invalid description";
+        }
+        if (fieldErrors.category) {
+          newErrors.category = "Invalid category";
+        }
+        if (fieldErrors.priorityLevel) {
+          newErrors.priorityLevel = "Invalid priority level";
+        }
+        if (fieldErrors.status) {
+          newErrors.status = "Invalid status";
+        }
+        if (fieldErrors.reportedByUserID) {
+          newErrors.reportedByUserID = "Invalid reported by user";
+        }
+        if (fieldErrors.reportedDate) {
+          newErrors.reportedDate = "Invalid reported date";
+        }
+
+        setErrors(newErrors);
+        notify(errorMessage, "error");
       },
     });
   };

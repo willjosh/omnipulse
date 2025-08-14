@@ -1,3 +1,8 @@
+import {
+  ServiceSchedule,
+  ServiceScheduleWithLabels,
+} from "../../service-schedule/types/serviceScheduleType";
+
 // ServiceProgram type for get/query
 export interface ServiceProgram {
   id: number;
@@ -8,6 +13,20 @@ export interface ServiceProgram {
   assignedVehicleCount: number;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface ServiceProgramDetails {
+  id: number;
+  name: string;
+  description?: string | null;
+  isActive: boolean;
+  serviceSchedules: ServiceSchedule[];
+  assignedVehiclesIDs: number[];
+}
+
+export interface ServiceProgramDetailsWithLabels
+  extends Omit<ServiceProgramDetails, "serviceSchedules"> {
+  serviceSchedules: ServiceScheduleWithLabels[];
 }
 
 // Command for creating a service program

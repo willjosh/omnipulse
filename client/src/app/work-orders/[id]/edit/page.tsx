@@ -22,6 +22,7 @@ import {
   emptyWorkOrderFormState,
 } from "@/features/work-order/utils/workOrderFormUtils";
 import { BreadcrumbItem } from "@/components/ui/Layout/Breadcrumbs";
+import { getErrorMessage, getErrorFields } from "@/utils/fieldErrorUtils";
 
 export default function EditWorkOrderPage() {
   const router = useRouter();
@@ -105,7 +106,10 @@ export default function EditWorkOrderPage() {
 
   // Save Work Order handler
   const handleSave = async () => {
-    if (!validate()) return;
+    if (!validate()) {
+      notify("Please fill all required fields", "error");
+      return;
+    }
 
     // Check if status is being changed to "Completed"
     const isCompleting = form.status === 5; // WorkOrderStatusEnum.COMPLETED
@@ -124,74 +128,106 @@ export default function EditWorkOrderPage() {
           router.push(`/work-orders/${workOrderId}`);
         },
         onError: (error: any) => {
-          console.error("Error updating work order:", error);
-          let errorMessage = "Failed to update work order.";
+          console.error("Failed to update work order:", error);
 
-          if (error?.response?.status === 400) {
-            // Handle 400 Bad Request - usually validation errors
-            if (error?.response?.data?.detail) {
-              errorMessage = error.response.data.detail;
-            } else if (error?.response?.data?.errors) {
-              // Handle validation errors from the API
-              const validationErrors = error.response.data.errors;
-              const errorDetails = Object.entries(validationErrors)
-                .map(
-                  ([field, messages]) =>
-                    `${field}: ${
-                      Array.isArray(messages) ? messages.join(", ") : messages
-                    }`,
-                )
-                .join("; ");
-              errorMessage = `Validation failed: ${errorDetails}`;
-            } else {
-              errorMessage =
-                "Validation failed. Please check your input and try again.";
-            }
-          } else if (error?.response?.status === 404) {
-            errorMessage = "Work order not found.";
-          } else if (error?.response?.status === 409) {
-            errorMessage = "Work order is already completed.";
-          } else if (error?.message) {
-            errorMessage = error.message;
+          const errorMessage = getErrorMessage(
+            error,
+            "Failed to update work order. Please check your input and try again.",
+          );
+
+          const fieldErrors = getErrorFields(error, [
+            "workOrderID",
+            "vehicleID",
+            "assignedToUserID",
+            "title",
+            "description",
+            "workOrderType",
+            "priorityLevel",
+            "status",
+            "scheduledStartDate",
+            "actualStartDate",
+            "scheduledCompletionDate",
+            "actualCompletionDate",
+            "startOdometer",
+            "endOdometer",
+            "issueIdList",
+            "workOrderLineItems",
+          ]);
+
+          const newErrors: { [key: string]: string } = {};
+          if (fieldErrors.workOrderID) {
+            newErrors.workOrderID = "Invalid work order ID";
+          }
+          if (fieldErrors.vehicleID) {
+            newErrors.vehicleID = "Invalid vehicle selection";
+          }
+          if (fieldErrors.assignedToUserID) {
+            newErrors.assignedToUserID = "Invalid assigned user";
+          }
+          if (fieldErrors.title) {
+            newErrors.title = "Invalid title";
+          }
+          if (fieldErrors.description) {
+            newErrors.description = "Invalid description";
+          }
+          if (fieldErrors.workOrderType) {
+            newErrors.workOrderType = "Invalid work order type";
+          }
+          if (fieldErrors.priorityLevel) {
+            newErrors.priorityLevel = "Invalid priority level";
+          }
+          if (fieldErrors.status) {
+            newErrors.status = "Invalid status";
+          }
+          if (fieldErrors.scheduledStartDate) {
+            newErrors.scheduledStartDate = "Invalid scheduled start date";
+          }
+          if (fieldErrors.actualStartDate) {
+            newErrors.actualStartDate = "Invalid actual start date";
+          }
+          if (fieldErrors.scheduledCompletionDate) {
+            newErrors.scheduledCompletionDate =
+              "Invalid scheduled completion date";
+          }
+          if (fieldErrors.actualCompletionDate) {
+            newErrors.actualCompletionDate = "Invalid actual completion date";
+          }
+          if (fieldErrors.startOdometer) {
+            newErrors.startOdometer = "Invalid start odometer";
+          }
+          if (fieldErrors.endOdometer) {
+            newErrors.endOdometer = "Invalid end odometer";
+          }
+          if (fieldErrors.issueIdList) {
+            newErrors.issueIdList = "Invalid issue selection";
+          }
+          if (fieldErrors.workOrderLineItems) {
+            newErrors.workOrderLineItems = "Invalid line items";
           }
 
+          setErrors(newErrors);
           notify(errorMessage, "error");
         },
       });
     } catch (error: any) {
       console.error("Error saving work order:", error);
 
-      // Handle specific error cases based on the API response
-      let errorMessage = "Failed to save work order.";
+      const errorMessage = getErrorMessage(
+        error,
+        "Failed to save work order. Please check your input and try again.",
+      );
 
-      if (error?.response?.status === 400) {
-        if (error?.response?.data?.detail) {
-          errorMessage = error.response.data.detail;
-        } else if (error?.response?.data?.errors) {
-          // Handle validation errors from the API
-          const validationErrors = error.response.data.errors;
-          const errorDetails = Object.entries(validationErrors)
-            .map(
-              ([field, messages]) =>
-                `${field}: ${
-                  Array.isArray(messages) ? messages.join(", ") : messages
-                }`,
-            )
-            .join("; ");
-          errorMessage = `Validation failed: ${errorDetails}`;
-        } else {
-          errorMessage =
-            "Validation failed. Please check your input and try again.";
-        }
-      } else if (error?.response?.status === 404) {
-        errorMessage = "Work order not found.";
-      } else if (error?.response?.status === 409) {
-        errorMessage = "Work order is already completed.";
-      } else if (error?.response?.data?.detail) {
-        errorMessage = error.response.data.detail;
+      const fieldErrors = getErrorFields(error, ["workOrderID", "status"]);
+
+      const newErrors: { [key: string]: string } = {};
+      if (fieldErrors.workOrderID) {
+        newErrors.workOrderID = "Invalid work order ID";
+      }
+      if (fieldErrors.status) {
+        newErrors.status = "Invalid status";
       }
 
-      // Show error notification
+      setErrors(newErrors);
       notify(errorMessage, "error");
     }
   };

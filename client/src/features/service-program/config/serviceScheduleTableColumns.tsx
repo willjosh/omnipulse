@@ -6,7 +6,7 @@ export const serviceScheduleTableColumns = [
     key: "name",
     header: "Name",
     width: "200px",
-    sortable: true,
+    sortable: false,
     render: (schedule: ServiceScheduleWithLabels) => <div>{schedule.name}</div>,
   },
   {
@@ -67,15 +67,38 @@ export const serviceScheduleTableColumns = [
     header: "First Service",
     width: "150px",
     sortable: false,
-    render: (schedule: ServiceScheduleWithLabels) => {
-      if (schedule.firstServiceDate) {
-        return (
-          <div>{new Date(schedule.firstServiceDate).toLocaleDateString()}</div>
-        );
-      } else if (schedule.firstServiceMileage) {
-        return <div>{`${schedule.firstServiceMileage} km`}</div>;
-      }
-      return <div>-</div>;
-    },
+    render: (schedule: ServiceScheduleWithLabels) => (
+      <div>
+        {schedule.firstServiceDate
+          ? new Date(schedule.firstServiceDate).toLocaleDateString()
+          : "-"}
+      </div>
+    ),
+  },
+  {
+    key: "firstServiceMileage",
+    header: "First Service Mileage",
+    width: "150px",
+    sortable: false,
+    render: (schedule: ServiceScheduleWithLabels) => (
+      <div>
+        {schedule.firstServiceMileage
+          ? `${schedule.firstServiceMileage} km`
+          : "-"}
+      </div>
+    ),
+  },
+  {
+    key: "serviceTasks",
+    header: "Service Tasks",
+    width: "200px",
+    sortable: false,
+    render: (schedule: ServiceScheduleWithLabels) => (
+      <div>
+        {schedule.serviceTasks.length > 0
+          ? schedule.serviceTasks.map(task => task.name).join(", ")
+          : "-"}
+      </div>
+    ),
   },
 ];

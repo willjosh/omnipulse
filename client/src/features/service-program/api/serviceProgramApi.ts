@@ -4,7 +4,19 @@ import {
   CreateServiceProgramCommand,
   UpdateServiceProgramCommand,
   ServiceProgramFilter,
+  ServiceProgramDetails,
+  ServiceProgramDetailsWithLabels,
 } from "../types/serviceProgramType";
+import { convertServiceScheduleData } from "../../service-schedule/api/serviceScheduleApi";
+
+export const convertServiceProgramDetailsData = (
+  serviceProgram: ServiceProgramDetails,
+): ServiceProgramDetailsWithLabels => ({
+  ...serviceProgram,
+  serviceSchedules: serviceProgram.serviceSchedules.map(
+    convertServiceScheduleData,
+  ),
+});
 
 export const serviceProgramApi = {
   getServicePrograms: async (filter: ServiceProgramFilter = {}) => {
@@ -31,7 +43,7 @@ export const serviceProgramApi = {
   },
 
   getServiceProgram: async (id: number) => {
-    const { data } = await agent.get<ServiceProgram>(
+    const { data } = await agent.get<ServiceProgramDetails>(
       `/api/ServicePrograms/${id}`,
     );
     return data;

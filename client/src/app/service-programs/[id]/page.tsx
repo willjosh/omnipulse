@@ -6,7 +6,6 @@ import { TabNavigation } from "@/components/ui/Tabs";
 import { PrimaryButton } from "@/components/ui/Button";
 import { ChevronDown, Plus } from "lucide-react";
 import { useServiceProgram } from "@/features/service-program/hooks/useServicePrograms";
-import { useServiceSchedules } from "@/features/service-schedule/hooks/useServiceSchedules";
 import {
   useServiceProgramVehicles,
   useRemoveVehicleFromServiceProgram,
@@ -41,17 +40,6 @@ export default function ServiceProgramDetailsPage() {
     isPending: isLoadingProgram,
     isError: isProgramError,
   } = useServiceProgram(id!);
-  const {
-    serviceSchedules,
-    pagination,
-    isPending: isLoadingSchedules,
-  } = useServiceSchedules({
-    PageNumber: page,
-    PageSize: pageSize,
-    Search: search,
-    SortBy: sortBy,
-    SortDescending: sortOrder === "desc",
-  });
 
   const {
     serviceProgramVehicles,
@@ -68,9 +56,25 @@ export default function ServiceProgramDetailsPage() {
   const removeVehicleMutation = useRemoveVehicleFromServiceProgram();
   const notify = useNotification();
 
-  const filteredServiceSchedules = serviceSchedules.filter(
-    schedule => schedule.serviceProgramID === id,
-  );
+  const serviceSchedules = serviceProgram?.serviceSchedules || [];
+  const isLoadingSchedules = isLoadingProgram;
+
+  const filteredServiceSchedules = useMemo(() => {
+    if (!search.trim()) return serviceSchedules;
+
+    return serviceSchedules.filter((schedule: ServiceScheduleWithLabels) =>
+      schedule.name.toLowerCase().includes(search.toLowerCase()),
+    );
+  }, [serviceSchedules, search]);
+
+  const paginatedServiceSchedules = useMemo(() => {
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    return filteredServiceSchedules.slice(startIndex, endIndex);
+  }, [filteredServiceSchedules, page, pageSize]);
+
+  const totalServiceSchedules = filteredServiceSchedules.length;
+  const totalPages = Math.ceil(totalServiceSchedules / pageSize);
 
   const [activeTab, setActiveTab] = useState("schedules");
   const [isAddDropdownOpen, setIsAddDropdownOpen] = useState(false);
@@ -261,12 +265,12 @@ export default function ServiceProgramDetailsPage() {
                 searchPlaceholder="Search"
                 onFilterChange={() => {}}
               />
-              {pagination && (
+              {totalServiceSchedules > 0 && (
                 <PaginationControls
-                  currentPage={pagination.pageNumber}
-                  totalPages={pagination.totalPages}
-                  totalItems={pagination.totalCount}
-                  itemsPerPage={pagination.pageSize}
+                  currentPage={page}
+                  totalPages={totalPages}
+                  totalItems={totalServiceSchedules}
+                  itemsPerPage={pageSize}
                   onPreviousPage={() => handlePageChange(page - 1)}
                   onNextPage={() => handlePageChange(page + 1)}
                   onPageChange={handlePageChange}
@@ -291,7 +295,7 @@ export default function ServiceProgramDetailsPage() {
               <div className="bg-white rounded-lg shadow w-full">
                 <div className="w-full">
                   <DataTable
-                    data={filteredServiceSchedules}
+                    data={paginatedServiceSchedules}
                     columns={serviceScheduleTableColumns}
                     onRowClick={handleRowClick}
                     loading={isLoadingSchedules}
