@@ -120,6 +120,7 @@ flowchart TB
         INFRASTRUCTURE_LAYER
   end
     VEHICLE_API -. HTTP Requests .-> CTRLS
+    CTRLS -. HTTP Responses .-> VEHICLE_API
     LIB_CONFIG -. Axios Instance .-> VEHICLE_API
     APP_PAGES -. routes to .-> VEHICLE_COMPONENTS
     VEHICLE_COMPONENTS -. uses hooks .-> VEHICLE_HOOKS
