@@ -4,8 +4,6 @@ import { useRouter } from "next/navigation";
 import { DataTable, PaginationControls } from "@/components/ui/Table";
 import { FilterBar } from "@/components/ui/Filter";
 import { formatEmptyValueWithUnknown } from "@/utils/emptyValueUtils";
-import { OptionButton } from "@/components/ui/Button";
-import { ConfirmModal } from "@/components/ui/Modal";
 import ModalPortal from "@/components/ui/Modal/ModalPortal";
 import {
   useServiceReminders,
@@ -26,7 +24,7 @@ const ServiceReminderList: React.FC = () => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
-  const [sortBy, setSortBy] = useState("dueDate");
+  const [sortBy, setSortBy] = useState("duedate");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [showWorkOrderModal, setShowWorkOrderModal] = useState(false);
   const [selectedReminder, setSelectedReminder] =
@@ -72,7 +70,7 @@ const ServiceReminderList: React.FC = () => {
 
   const serviceReminderColumns = [
     {
-      key: "vehicleName",
+      key: "vehiclename",
       header: "Vehicle",
       sortable: true,
       width: "200px",
@@ -83,9 +81,9 @@ const ServiceReminderList: React.FC = () => {
       ),
     },
     {
-      key: "serviceProgramName",
+      key: "servicerogramname",
       header: "Service Program",
-      sortable: true,
+      sortable: false,
       width: "200px",
       render: (reminder: ServiceReminderWithLabels) => (
         <div className="font-medium">
@@ -94,9 +92,9 @@ const ServiceReminderList: React.FC = () => {
       ),
     },
     {
-      key: "serviceScheduleName",
+      key: "serviceschedulename",
       header: "Service Schedule",
-      sortable: true,
+      sortable: false,
       width: "200px",
       render: (reminder: ServiceReminderWithLabels) => (
         <div className="font-medium">{reminder.serviceScheduleName}</div>
@@ -115,9 +113,9 @@ const ServiceReminderList: React.FC = () => {
       ),
     },
     {
-      key: "scheduleType",
+      key: "scheduletype",
       header: "Schedule Type",
-      sortable: true,
+      sortable: false,
       width: "150px",
       render: (reminder: ServiceReminderWithLabels) => (
         <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
@@ -126,7 +124,7 @@ const ServiceReminderList: React.FC = () => {
       ),
     },
     {
-      key: "dueDate",
+      key: "duedate",
       header: "Due Date",
       sortable: true,
       width: "180px",
@@ -163,7 +161,7 @@ const ServiceReminderList: React.FC = () => {
       ),
     },
     {
-      key: "dueMileage",
+      key: "duemileage",
       header: "Due Mileage",
       sortable: true,
       width: "180px",
@@ -198,9 +196,9 @@ const ServiceReminderList: React.FC = () => {
       ),
     },
     {
-      key: "currentMileage",
+      key: "currentmileage",
       header: "Current Mileage",
-      sortable: true,
+      sortable: false,
       width: "150px",
       render: (reminder: ServiceReminderWithLabels) => (
         <span className="text-sm">
@@ -209,9 +207,9 @@ const ServiceReminderList: React.FC = () => {
       ),
     },
     {
-      key: "taskCount",
+      key: "taskcount",
       header: "Tasks",
-      sortable: true,
+      sortable: false,
       width: "100px",
       render: (reminder: ServiceReminderWithLabels) => (
         <div className="text-center">
@@ -221,9 +219,9 @@ const ServiceReminderList: React.FC = () => {
       ),
     },
     {
-      key: "totalEstimatedCost",
+      key: "totalestimatedcost",
       header: "Estimated Cost",
-      sortable: true,
+      sortable: false,
       width: "120px",
       render: (reminder: ServiceReminderWithLabels) => (
         <div className="text-right font-medium">
@@ -232,9 +230,9 @@ const ServiceReminderList: React.FC = () => {
       ),
     },
     {
-      key: "totalEstimatedLabourHours",
-      header: "Labor Hours",
-      sortable: true,
+      key: "totalestimatedlabourhours",
+      header: "Estimated Labour Hours",
+      sortable: false,
       width: "120px",
       render: (reminder: ServiceReminderWithLabels) => (
         <div className="text-center font-medium">
@@ -264,8 +262,8 @@ const ServiceReminderList: React.FC = () => {
   };
 
   const handleRowClick = (reminder: ServiceReminderWithLabels) => {
-    // Navigate to vehicle details or service schedule details
-    router.push(`/vehicles/${reminder.vehicleID}`);
+    // Navigate to service schedule details page
+    router.push(`/service-schedules/${reminder.serviceScheduleID}`);
   };
 
   const handleAddWorkOrder = (reminder: ServiceReminderWithLabels) => {
@@ -362,9 +360,6 @@ const ServiceReminderList: React.FC = () => {
       <DataTable<ServiceReminderWithLabels>
         data={serviceReminders || []}
         columns={serviceReminderColumns}
-        selectedItems={[]}
-        onSelectItem={() => {}}
-        onSelectAll={() => {}}
         onRowClick={handleRowClick}
         actions={serviceReminderActions}
         showActions={true}
@@ -425,61 +420,73 @@ const ServiceReminderList: React.FC = () => {
             <div className="px-6 py-4 overflow-y-auto max-h-[60vh]">
               <div className="mb-4">
                 <h3 className="text-sm font-medium text-gray-700 mb-2">
-                  Available Work Orders
+                  Available Work Orders for {selectedReminder?.vehicleName}
                 </h3>
                 <div className="space-y-2">
-                  {workOrders.length > 0 ? (
-                    workOrders.map(workOrder => (
-                      <div
-                        key={workOrder.id}
-                        onClick={() =>
-                          !isAddingWorkOrder && handleWorkOrderSelect(workOrder)
-                        }
-                        className={`p-3 border border-gray-200 rounded-lg transition-colors ${
-                          isAddingWorkOrder
-                            ? "opacity-50 cursor-not-allowed"
-                            : "hover:bg-gray-50 cursor-pointer"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <div className="font-medium text-gray-900">
-                              {workOrder.title}
-                            </div>
-                            {workOrder.description && (
-                              <div className="text-sm text-gray-500 mt-1">
-                                {workOrder.description}
+                  {(() => {
+                    // Filter work orders to only show those with the same vehicle ID
+                    const filteredWorkOrders = workOrders.filter(
+                      workOrder =>
+                        workOrder.vehicleID === selectedReminder?.vehicleID,
+                    );
+
+                    if (filteredWorkOrders.length > 0) {
+                      return filteredWorkOrders.map(workOrder => (
+                        <div
+                          key={workOrder.id}
+                          onClick={() =>
+                            !isAddingWorkOrder &&
+                            handleWorkOrderSelect(workOrder)
+                          }
+                          className={`p-3 border border-gray-200 rounded-lg transition-colors ${
+                            isAddingWorkOrder
+                              ? "opacity-50 cursor-not-allowed"
+                              : "hover:bg-gray-50 cursor-pointer"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <div className="font-medium text-gray-900">
+                                {workOrder.title}
                               </div>
-                            )}
-                            <div className="text-sm text-gray-500 mt-1">
-                              Vehicle: {workOrder.vehicleName} | Status:{" "}
-                              {workOrder.statusLabel}
+                              {workOrder.description && (
+                                <div className="text-sm text-gray-500 mt-1">
+                                  {workOrder.description}
+                                </div>
+                              )}
+                              <div className="text-sm text-gray-500 mt-1">
+                                Vehicle: {workOrder.vehicleName} | Status:{" "}
+                                {workOrder.statusLabel}
+                              </div>
                             </div>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-sm font-medium text-gray-900">
-                              ${workOrder.totalCost?.toFixed(2) || "0.00"}
-                            </div>
-                            <div className="text-xs text-gray-500">
-                              {workOrder.workOrderLineItems.length} items
+                            <div className="text-right">
+                              <div className="text-sm font-medium text-gray-900">
+                                ${workOrder.totalCost?.toFixed(2) || "0.00"}
+                              </div>
+                              <div className="text-xs text-gray-500">
+                                {workOrder.workOrderLineItems.length} items
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-center py-8">
-                      <p className="text-gray-500 mb-2">
-                        No work orders found.
-                      </p>
-                      <button
-                        onClick={() => router.push("/work-orders/new")}
-                        className="text-blue-600 hover:text-blue-700 font-medium"
-                      >
-                        Create New Work Order
-                      </button>
-                    </div>
-                  )}
+                      ));
+                    } else {
+                      return (
+                        <div className="text-center py-8">
+                          <p className="text-gray-500 mb-2">
+                            No work orders found for{" "}
+                            {selectedReminder?.vehicleName}.
+                          </p>
+                          <button
+                            onClick={() => router.push("/work-orders/new")}
+                            className="text-blue-600 hover:text-blue-700 font-medium"
+                          >
+                            Create New Work Order
+                          </button>
+                        </div>
+                      );
+                    }
+                  })()}
                 </div>
               </div>
             </div>

@@ -15,30 +15,58 @@ export default function ServiceScheduleListPage() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+  const [sortBy, setSortBy] = useState("name");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
   React.useEffect(() => {
     setPage(1);
-  }, [search]);
+  }, [search, sortBy, sortOrder]);
 
   const filter = useMemo(
-    () => ({ PageNumber: page, PageSize: pageSize, Search: search }),
-    [page, pageSize, search],
+    () => ({
+      PageNumber: page,
+      PageSize: pageSize,
+      Search: search,
+      SortBy: sortBy,
+      SortDescending: sortOrder === "desc",
+    }),
+    [page, pageSize, search, sortBy, sortOrder],
   );
 
   const { serviceSchedules, pagination, isPending } =
     useServiceSchedules(filter);
 
+  const handleSort = (sortKey: string) => {
+    if (sortBy === sortKey) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(sortKey);
+      setSortOrder("asc");
+    }
+    setPage(1);
+  };
+
   const columns = [
-    { key: "name", header: "Name", sortable: true, width: "200px" },
+    {
+      key: "name",
+      header: "Name",
+      sortable: true,
+      width: "200px",
+      render: (item: ServiceScheduleWithLabels) => <div>{item.name}</div>,
+    },
     {
       key: "scheduleType",
       header: "Schedule Type",
-      render: (item: ServiceScheduleWithLabels) => item.scheduleTypeLabel,
+      sortable: false,
+      render: (item: ServiceScheduleWithLabels) => (
+        <div>{item.scheduleTypeLabel}</div>
+      ),
       width: "140px",
     },
     {
       key: "serviceTasks",
       header: "Tasks",
+      sortable: false,
       render: (item: ServiceScheduleWithLabels) => (
         <div>
           {item.serviceTasks.map(task => (
@@ -51,12 +79,16 @@ export default function ServiceScheduleListPage() {
     {
       key: "timeIntervalValue",
       header: "Frequency",
-      render: (item: ServiceScheduleWithLabels) =>
-        item.timeIntervalValue && item.timeIntervalUnitLabel
-          ? `${item.timeIntervalValue} ${item.timeIntervalUnitLabel}`
-          : item.mileageInterval
-            ? `${item.mileageInterval} km`
-            : "-",
+      sortable: false,
+      render: (item: ServiceScheduleWithLabels) => (
+        <div>
+          {item.timeIntervalValue && item.timeIntervalUnitLabel
+            ? `${item.timeIntervalValue} ${item.timeIntervalUnitLabel}`
+            : item.mileageInterval
+              ? `${item.mileageInterval} km`
+              : "-"}
+        </div>
+      ),
       width: "140px",
     },
   ];
@@ -115,15 +147,15 @@ export default function ServiceScheduleListPage() {
       <DataTable
         data={serviceSchedules}
         columns={columns}
-        selectedItems={[]}
-        onSelectItem={() => {}}
-        onSelectAll={() => {}}
         onRowClick={handleRowClick}
         loading={isPending}
         emptyState={emptyState}
         getItemId={item => item.id.toString()}
         showActions={false}
         fixedLayout={false}
+        onSort={handleSort}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
       />
     </div>
   );

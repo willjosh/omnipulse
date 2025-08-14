@@ -23,7 +23,7 @@ import { DEFAULT_PAGE_SIZE } from "@/components/ui/Table/constants";
 const InventoryList = () => {
   const router = useRouter();
   const notify = useNotification();
-  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
@@ -52,26 +52,6 @@ const InventoryList = () => {
   const { inventories, pagination, isPending, isError } =
     useInventories(filters);
   const deleteInventoryMutation = useDeleteInventory();
-  const handleSelectAll = () => {
-    if (!inventories) return;
-
-    const allItemIds = inventories.map(item => item.id.toString());
-    const allSelected = allItemIds.every(id => selectedItems.includes(id));
-
-    if (allSelected) {
-      setSelectedItems([]);
-    } else {
-      setSelectedItems(allItemIds);
-    }
-  };
-
-  const handleItemSelect = (itemId: string) => {
-    setSelectedItems(prev =>
-      prev.includes(itemId)
-        ? prev.filter(id => id !== itemId)
-        : [...prev, itemId],
-    );
-  };
 
   const handleSort = (sortKey: string) => {
     if (sortBy === sortKey) {
@@ -117,18 +97,6 @@ const InventoryList = () => {
 
   const inventoryActions = useMemo(
     () => [
-      // {
-      //   key: InventoryActionType.VIEW,
-      //   label: INVENTORY_ACTION_CONFIG[InventoryActionType.VIEW].label,
-      //   icon: <Details />,
-      //   onClick: (item: Inventory) => {
-      //     console.log("View inventory:", item.id);
-      //     notify(
-      //       "Viewing Inventory Details - Future Implementation",
-      //       "success",
-      //     );
-      //   },
-      // },
       {
         key: InventoryActionType.EDIT,
         label: INVENTORY_ACTION_CONFIG[InventoryActionType.EDIT].label,
@@ -211,9 +179,6 @@ const InventoryList = () => {
         <DataTable<Inventory>
           data={inventories || []}
           columns={inventoryTableColumns}
-          selectedItems={selectedItems}
-          onSelectItem={handleItemSelect}
-          onSelectAll={handleSelectAll}
           onRowClick={handleRowClick}
           onSort={handleSort}
           sortBy={sortBy}

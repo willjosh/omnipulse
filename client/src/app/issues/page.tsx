@@ -18,10 +18,18 @@ export default function IssuesPage() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+  const [sortBy, setSortBy] = useState("reporteddate"); // Default sort by reported date
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc"); // Default descending (newest first)
 
   const filter = useMemo(
-    () => ({ PageNumber: page, PageSize: pageSize, Search: search }),
-    [page, pageSize, search],
+    () => ({
+      PageNumber: page,
+      PageSize: pageSize,
+      Search: search,
+      SortBy: sortBy,
+      SortDescending: sortOrder === "desc",
+    }),
+    [page, pageSize, search, sortBy, sortOrder],
   );
 
   const { issues, pagination, isPending } = useIssues(filter);
@@ -32,9 +40,9 @@ export default function IssuesPage() {
         id: issue.id,
         title: issue.title,
         vehicleName: issue.vehicleName,
-        categoryLabel: issue.categoryLabel,
-        priorityLevelLabel: issue.priorityLevelLabel,
-        statusLabel: issue.statusLabel,
+        category: issue.categoryLabel,
+        prioritylevel: issue.priorityLevelLabel,
+        status: issue.statusLabel,
         reportedByUserName: issue.reportedByUserName,
         reportedDate: issue.reportedDate || null,
         resolvedByUserName: issue.resolvedByUserName || null,
@@ -54,10 +62,20 @@ export default function IssuesPage() {
 
   React.useEffect(() => {
     setPage(1);
-  }, [search]);
+  }, [search, sortBy, sortOrder]);
 
   const handleRowClick = (row: IssueRow) => {
     router.push(`/issues/${row.id}`);
+  };
+
+  const handleSort = (sortKey: string) => {
+    if (sortBy === sortKey) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(sortKey);
+      setSortOrder("asc");
+    }
+    setPage(1);
   };
 
   const emptyState = (
@@ -84,7 +102,7 @@ export default function IssuesPage() {
           Add Issue
         </PrimaryButton>
       </div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4">
         <FilterBar
           searchValue={search}
           onSearchChange={setSearch}
@@ -110,6 +128,9 @@ export default function IssuesPage() {
         isLoading={isPending}
         emptyState={emptyState}
         onRowClick={handleRowClick}
+        onSort={handleSort}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
       />
     </div>
   );

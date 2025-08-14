@@ -14,22 +14,40 @@ export default function ServiceEntriesPage() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+  const [sortBy, setSortBy] = useState("servicedate");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
   useEffect(() => {
     setPage(1);
-  }, [search]);
+  }, [search, sortBy, sortOrder]);
 
   const filter = useMemo(
-    () => ({ PageNumber: page, PageSize: pageSize, Search: search }),
-    [page, pageSize, search],
+    () => ({
+      PageNumber: page,
+      PageSize: pageSize,
+      Search: search,
+      SortBy: sortBy,
+      SortDescending: sortOrder === "desc",
+    }),
+    [page, pageSize, search, sortBy, sortOrder],
   );
 
   const { maintenanceHistories, pagination, isPending } =
     useMaintenanceHistories(filter);
 
+  const handleSort = (sortKey: string) => {
+    if (sortBy === sortKey) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(sortKey);
+      setSortOrder("asc");
+    }
+    setPage(1);
+  };
+
   const columns = [
     {
-      key: "vehicleName",
+      key: "vehicleid",
       header: "Vehicle",
       sortable: true,
       width: "180px",
@@ -38,7 +56,7 @@ export default function ServiceEntriesPage() {
       ),
     },
     {
-      key: "serviceDate",
+      key: "servicedate",
       header: "Service Date",
       sortable: true,
       width: "140px",
@@ -50,8 +68,9 @@ export default function ServiceEntriesPage() {
       ),
     },
     {
-      key: "serviceTasks",
+      key: "servicetaskid",
       header: "Service Tasks",
+      sortable: true,
       width: "200px",
       render: (item: MaintenanceHistoryWithFormattedDates) => (
         <div>
@@ -73,15 +92,16 @@ export default function ServiceEntriesPage() {
       ),
     },
     {
-      key: "technicianName",
+      key: "technicianid",
       header: "Technician",
+      sortable: true,
       width: "150px",
       render: (item: MaintenanceHistoryWithFormattedDates) => (
         <div>{item.technicianName}</div>
       ),
     },
     {
-      key: "mileageAtService",
+      key: "mileageatservice",
       header: "Mileage",
       sortable: true,
       width: "120px",
@@ -101,7 +121,7 @@ export default function ServiceEntriesPage() {
       ),
     },
     {
-      key: "labourHours",
+      key: "labourhours",
       header: "Labour Hours",
       sortable: true,
       width: "130px",
@@ -112,6 +132,7 @@ export default function ServiceEntriesPage() {
     {
       key: "notes",
       header: "Notes",
+      sortable: false,
       width: "200px",
       render: (item: MaintenanceHistoryWithFormattedDates) => (
         <div>
@@ -177,15 +198,15 @@ export default function ServiceEntriesPage() {
       <DataTable
         data={maintenanceHistories}
         columns={columns}
-        selectedItems={[]}
-        onSelectItem={() => {}}
-        onSelectAll={() => {}}
         onRowClick={handleRowClick}
         loading={isPending}
         emptyState={emptyState}
         getItemId={item => item.maintenanceHistoryID.toString()}
         showActions={false}
         fixedLayout={false}
+        onSort={handleSort}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
       />
     </div>
   );

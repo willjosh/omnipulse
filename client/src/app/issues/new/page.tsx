@@ -62,10 +62,7 @@ export default function CreateIssueHeaderOnly() {
     });
   };
 
-  const breadcrumbs = [
-    { label: "Issues", href: "/issues" },
-    { label: "New Issue" },
-  ];
+  const breadcrumbs = [{ label: "Issues", href: "/issues" }];
 
   return (
     <div>
@@ -76,12 +73,6 @@ export default function CreateIssueHeaderOnly() {
           <>
             <SecondaryButton onClick={() => router.back()}>
               Cancel
-            </SecondaryButton>
-            <SecondaryButton
-              onClick={handleSaveAndAddAnother}
-              disabled={isPending}
-            >
-              {isPending ? "Saving..." : "Save & Add Another"}
             </SecondaryButton>
             <PrimaryButton onClick={handleSave} disabled={isPending}>
               {isPending ? "Saving..." : "Save Issue"}

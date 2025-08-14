@@ -12,7 +12,6 @@ import {
 } from "@/features/work-order/hooks/useWorkOrders";
 import { WorkOrderWithLabels } from "@/features/work-order/types/workOrderType";
 import { DEFAULT_PAGE_SIZE } from "@/components/ui/Table/constants";
-import { workOrderTableColumns } from "@/features/work-order/config/workOrderTableColumns";
 import { ConfirmModal } from "@/components/ui/Modal";
 import { useNotification } from "@/components/ui/Feedback/NotificationProvider";
 
@@ -49,27 +48,124 @@ export default function WorkOrdersPage() {
 
   const { workOrders, pagination, isPending } = useWorkOrders(filter);
 
-  // Override the title column to include description
-  const customColumns = useMemo(() => {
-    return workOrderTableColumns.map(col => {
-      if (col.key === "title") {
-        return {
-          ...col,
-          render: (item: WorkOrderWithLabels) => (
-            <div>
-              <div className="font-medium text-gray-900">{item.title}</div>
-              {item.description && (
-                <div className="text-sm text-gray-500 mt-1">
-                  {item.description}
-                </div>
-              )}
-            </div>
-          ),
-        };
-      }
-      return col;
-    });
-  }, []);
+  const handleSort = (sortKey: string) => {
+    if (sortBy === sortKey) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(sortKey);
+      setSortOrder("asc");
+    }
+    setPage(1);
+  };
+
+  const workOrderTableColumns = [
+    {
+      key: "title",
+      header: "Title & Description",
+      width: "300px",
+      sortable: false,
+      render: (item: WorkOrderWithLabels) => (
+        <div>
+          <div className="font-medium text-gray-900">{item.title}</div>
+          {item.description && (
+            <div className="text-sm text-gray-500 mt-1">{item.description}</div>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: "vehicleid",
+      header: "Vehicle",
+      width: "200px",
+      sortable: false,
+      render: (item: WorkOrderWithLabels) => <div>{item.vehicleName}</div>,
+    },
+    {
+      key: "workordertype",
+      header: "Type",
+      width: "120px",
+      sortable: true,
+      render: (item: WorkOrderWithLabels) => (
+        <div>{item.workOrderTypeLabel}</div>
+      ),
+    },
+    {
+      key: "priority",
+      header: "Priority",
+      width: "100px",
+      sortable: true,
+      render: (item: WorkOrderWithLabels) => (
+        <div>{item.priorityLevelLabel}</div>
+      ),
+    },
+    {
+      key: "status",
+      header: "Status",
+      width: "120px",
+      sortable: true,
+      render: (item: WorkOrderWithLabels) => <div>{item.statusLabel}</div>,
+    },
+    {
+      key: "assignedtouserid",
+      header: "Assigned To",
+      width: "150px",
+      sortable: false,
+      render: (item: WorkOrderWithLabels) => (
+        <div>{item.assignedToUserName}</div>
+      ),
+    },
+    {
+      key: "scheduledstartdate",
+      header: "Scheduled Start",
+      width: "150px",
+      sortable: true,
+      render: (item: WorkOrderWithLabels) => (
+        <div>{item.scheduledStartDate}</div>
+      ),
+    },
+    {
+      key: "actualstartdate",
+      header: "Actual Start",
+      width: "150px",
+      sortable: true,
+      render: (item: WorkOrderWithLabels) => <div>{item.actualStartDate}</div>,
+    },
+    {
+      key: "startodometer",
+      header: "Start Odometer",
+      width: "120px",
+      sortable: true,
+      render: (item: WorkOrderWithLabels) => <div>{item.startOdometer}</div>,
+    },
+    {
+      key: "endodometer",
+      header: "End Odometer",
+      width: "120px",
+      sortable: false,
+      render: (item: WorkOrderWithLabels) => <div>{item.endOdometer}</div>,
+    },
+    {
+      key: "totalcost",
+      header: "Total Cost",
+      width: "100px",
+      sortable: false,
+      render: (item: WorkOrderWithLabels) => <div>{item.totalCost}</div>,
+    },
+    {
+      key: "totallaborcost",
+      header: "Labor Cost",
+      width: "100px",
+      sortable: false,
+      render: (item: WorkOrderWithLabels) => <div>{item.totalLaborCost}</div>,
+    },
+    {
+      key: "totalitemcost",
+      header: "Item Cost",
+      width: "100px",
+      sortable: false,
+      render: (item: WorkOrderWithLabels) => <div>{item.totalItemCost}</div>,
+    },
+  ];
 
   const handlePreviousPage = () => setPage(p => Math.max(1, p - 1));
   const handleNextPage = () =>
@@ -141,7 +237,7 @@ export default function WorkOrdersPage() {
         </PrimaryButton>
       </div>
 
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4">
         <FilterBar
           searchValue={search}
           onSearchChange={setSearch}
@@ -164,11 +260,8 @@ export default function WorkOrdersPage() {
       </div>
 
       <DataTable
-        columns={customColumns}
+        columns={workOrderTableColumns}
         data={workOrders}
-        selectedItems={[]}
-        onSelectItem={() => {}}
-        onSelectAll={() => {}}
         getItemId={item => item.id.toString()}
         loading={isPending}
         showActions={true}
@@ -176,14 +269,7 @@ export default function WorkOrdersPage() {
         emptyState={emptyState}
         onRowClick={handleRowClick}
         fixedLayout={false}
-        onSort={key => {
-          if (sortBy === key) {
-            setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-          } else {
-            setSortBy(key);
-            setSortOrder("asc");
-          }
-        }}
+        onSort={handleSort}
         sortBy={sortBy}
         sortOrder={sortOrder}
       />

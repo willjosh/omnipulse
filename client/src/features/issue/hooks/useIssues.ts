@@ -1,5 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { issueApi, convertIssueData } from "../api/issueApi";
+import {
+  issueApi,
+  convertIssueData,
+  convertIssueDataForDisplay,
+} from "../api/issueApi";
 import {
   IssueWithLabels,
   IssueFilter,
@@ -15,7 +19,7 @@ export function useIssues(filter: IssueFilter) {
     queryKey: ["issues", debouncedFilter],
     queryFn: async () => {
       const data = await issueApi.getIssues(debouncedFilter);
-      return { ...data, items: data.items.map(convertIssueData) };
+      return { ...data, items: data.items.map(convertIssueDataForDisplay) };
     },
   });
 

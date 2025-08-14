@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import FormContainer from "../../../components/ui/Form/FormContainer";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
@@ -13,7 +13,7 @@ import {
 } from "@headlessui/react";
 import {
   getTimeOptions,
-  combineDateAndTime,
+  combineDateAndTimeLocal,
   extractTimeFromISO,
 } from "@/utils/dateTimeUtils";
 
@@ -40,31 +40,65 @@ const IssueResolutionForm: React.FC<IssueResolutionFormProps> = ({
   const [resolvedTime, setResolvedTime] = useState<string>("");
   const [resolvedBySearch, setResolvedBySearch] = useState("");
 
+  // Helper function to parse formatted dates
+  const parseFormattedDate = (
+    formattedDate: string | null | undefined,
+  ): Date | null => {
+    if (!formattedDate) return null;
+    const isoDate = new Date(formattedDate);
+    if (!isNaN(isoDate.getTime())) {
+      return isoDate;
+    }
+    try {
+      const parsed = new Date(formattedDate);
+      if (!isNaN(parsed.getTime())) {
+        return parsed;
+      }
+    } catch (e) {
+      console.warn("Failed to parse formatted date:", formattedDate);
+    }
+    return null;
+  };
+
   // Prefill resolvedTime when value.ResolvedDate changes
   useEffect(() => {
-    setResolvedTime(extractTimeFromISO(value.resolvedDate));
-  }, [value.resolvedDate]);
+    const extractedTime = extractTimeFromISO(value.resolvedDate);
+    if (extractedTime && extractedTime !== resolvedTime) {
+      setResolvedTime(extractedTime);
+    }
+  }, [value.resolvedDate, resolvedTime]);
 
   // Resolved By options
-  const resolvedByOptions = technicians.map(t => ({
-    value: String(t.id),
-    label: `${t.firstName} ${t.lastName}`,
-  }));
-  const filteredResolvedBy = resolvedBySearch
-    ? resolvedByOptions.filter(u =>
-        u.label.toLowerCase().includes(resolvedBySearch.toLowerCase()),
-      )
-    : resolvedByOptions;
+  const resolvedByOptions = useMemo(
+    () =>
+      technicians.map(t => ({
+        value: String(t.id),
+        label: `${t.firstName} ${t.lastName}`,
+      })),
+    [technicians],
+  );
+  const filteredResolvedBy = useMemo(
+    () =>
+      resolvedBySearch
+        ? resolvedByOptions.filter(u =>
+            u.label.toLowerCase().includes(resolvedBySearch.toLowerCase()),
+          )
+        : resolvedByOptions,
+    [resolvedBySearch, resolvedByOptions],
+  );
   const [selectedResolvedBy, setSelectedResolvedBy] = useState<{
     value: string;
     label: string;
   } | null>(null);
+
   useEffect(() => {
     const found =
       resolvedByOptions.find(u => u.value === String(value.resolvedByUserID)) ||
       null;
-    setSelectedResolvedBy(found);
-  }, [resolvedByOptions, value.resolvedByUserID]);
+    if (found?.value !== selectedResolvedBy?.value) {
+      setSelectedResolvedBy(found);
+    }
+  }, [resolvedByOptions, value.resolvedByUserID, selectedResolvedBy?.value]);
 
   return (
     <FormContainer
@@ -80,9 +114,14 @@ const IssueResolutionForm: React.FC<IssueResolutionFormProps> = ({
           value={value.resolutionNotes}
           onChange={e => onChange("resolutionNotes", e.target.value)}
           placeholder="Describe the resolution in detail..."
-          className="w-full border border-gray-300 rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white min-h-[100px] resize-y"
+          className={`w-full border rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white min-h-[100px] resize-y ${
+            errors.resolutionNotes ? "border-red-500" : "border-gray-300"
+          }`}
           disabled={disabled}
         />
+        {errors.resolutionNotes && (
+          <p className="text-red-500 text-sm mt-1">{errors.resolutionNotes}</p>
+        )}
       </div>
       {/* Resolved Date */}
       <div className="mb-4">
@@ -91,25 +130,26 @@ const IssueResolutionForm: React.FC<IssueResolutionFormProps> = ({
           <div className="w-1/3 mr-4">
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <DatePicker
-                value={
-                  value.resolvedDate &&
-                  !isNaN(new Date(value.resolvedDate).getTime())
-                    ? new Date(value.resolvedDate)
-                    : null
-                }
+                value={parseFormattedDate(value.resolvedDate)}
                 onChange={date => {
                   let newTime = resolvedTime;
                   if (!newTime) {
                     newTime = timeOptions[0];
                     setResolvedTime(newTime);
                   }
-                  const iso = combineDateAndTime(
+                  const iso = combineDateAndTimeLocal(
                     date ? date.toISOString() : "",
                     newTime,
                   );
                   onChange("resolvedDate", iso);
                 }}
-                slotProps={{ textField: { size: "small" } }}
+                slotProps={{
+                  textField: {
+                    size: "small",
+                    error: !!errors.resolvedDate,
+                    helperText: errors.resolvedDate,
+                  },
+                }}
                 disabled={disabled}
               />
             </LocalizationProvider>
@@ -120,7 +160,7 @@ const IssueResolutionForm: React.FC<IssueResolutionFormProps> = ({
               value={resolvedTime}
               onChange={(_e, newValue) => {
                 setResolvedTime(newValue || "");
-                const iso = combineDateAndTime(
+                const iso = combineDateAndTimeLocal(
                   value.resolvedDate ?? "",
                   newValue || "",
                 );
@@ -134,6 +174,9 @@ const IssueResolutionForm: React.FC<IssueResolutionFormProps> = ({
             />
           </div>
         </div>
+        {errors.resolvedDate && (
+          <p className="text-red-500 text-sm mt-1">{errors.resolvedDate}</p>
+        )}
       </div>
       {/* Resolved By */}
       <div className="mb-2">
@@ -148,7 +191,9 @@ const IssueResolutionForm: React.FC<IssueResolutionFormProps> = ({
         >
           <div className="relative">
             <ComboboxInput
-              className="w-full border border-gray-300 rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              className={`w-full border rounded-3xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white ${
+                errors.resolvedByUserID ? "border-red-500" : "border-gray-300"
+              }`}
               displayValue={(user: { value: string; label: string } | null) =>
                 user?.label || ""
               }
@@ -208,6 +253,9 @@ const IssueResolutionForm: React.FC<IssueResolutionFormProps> = ({
             </ComboboxOptions>
           </div>
         </Combobox>
+        {errors.resolvedByUserID && (
+          <p className="text-red-500 text-sm mt-1">{errors.resolvedByUserID}</p>
+        )}
       </div>
     </FormContainer>
   );

@@ -44,9 +44,18 @@ export function getErrorFields(
 
 export function getErrorMessage(error: any, backupMessage: string): string {
   if (error?.response?.data) {
-    return (
-      error.response.data?.detail || error.response.data?.error || backupMessage
-    );
+    const detail = error.response.data?.detail;
+    const errorMsg = error.response.data?.error;
+
+    // Check if detail exists and is not just whitespace
+    if (detail && typeof detail === "string" && detail.trim()) {
+      return detail;
+    }
+
+    // Check if error exists and is not just whitespace
+    if (errorMsg && typeof errorMsg === "string" && errorMsg.trim()) {
+      return errorMsg;
+    }
   }
   return backupMessage;
 }

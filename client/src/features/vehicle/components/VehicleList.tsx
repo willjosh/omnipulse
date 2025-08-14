@@ -24,7 +24,7 @@ import { Plus } from "lucide-react";
 
 const VehicleList: React.FC = () => {
   const router = useRouter();
-  const [selectedVehicles, setSelectedVehicles] = useState<string[]>([]);
+
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
@@ -96,28 +96,6 @@ const VehicleList: React.FC = () => {
     ],
     [router],
   );
-
-  // Handle selection functions
-  const handleSelectAll = () => {
-    if (!vehicles) return;
-    const allVehicleIds = vehicles.map(vehicle => vehicle.id.toString());
-    const allSelected = allVehicleIds.every(id =>
-      selectedVehicles.includes(id),
-    );
-    if (allSelected) {
-      setSelectedVehicles([]);
-    } else {
-      setSelectedVehicles(allVehicleIds);
-    }
-  };
-
-  const handleVehicleSelect = (vehicleId: string) => {
-    setSelectedVehicles(prev =>
-      prev.includes(vehicleId)
-        ? prev.filter(id => id !== vehicleId)
-        : [...prev, vehicleId],
-    );
-  };
 
   const handleSort = (sortKey: string) => {
     if (sortBy === sortKey) {
@@ -200,9 +178,6 @@ const VehicleList: React.FC = () => {
       <DataTable<VehicleWithLabels>
         data={vehicles || []}
         columns={vehicleTableColumns}
-        selectedItems={selectedVehicles}
-        onSelectItem={handleVehicleSelect}
-        onSelectAll={handleSelectAll}
         onRowClick={handleRowClick}
         actions={vehicleActions}
         showActions={true}

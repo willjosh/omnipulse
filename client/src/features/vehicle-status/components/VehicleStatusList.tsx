@@ -9,30 +9,7 @@ import { DataTable } from "@/components/ui/Table";
 import { vehicleStatusTableColumns } from "@/features/vehicle-status/components/VehicleStatusTableColumns";
 
 export const VehicleStatusList: React.FC = () => {
-  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
-
   const { vehicleStatuses, isPending, isError, error } = useVehicleStatuses();
-
-  const handleSelectAll = () => {
-    if (!vehicleStatuses) return;
-
-    const allStatusIds = vehicleStatuses.map(status => status.id.toString());
-    const allSelected = allStatusIds.every(id => selectedStatuses.includes(id));
-
-    if (allSelected) {
-      setSelectedStatuses([]);
-    } else {
-      setSelectedStatuses(allStatusIds);
-    }
-  };
-
-  const handleStatusSelect = (statusId: string) => {
-    setSelectedStatuses(prev =>
-      prev.includes(statusId)
-        ? prev.filter(id => id !== statusId)
-        : [...prev, statusId],
-    );
-  };
 
   if (isPending) {
     return <Loading />;
@@ -49,7 +26,7 @@ export const VehicleStatusList: React.FC = () => {
   }
 
   return (
-    <div className="ml-6 mt-6 space-y-6">
+    <div className="space-y-6 p-6">
       {/* Header */}
       <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
         <div>
@@ -78,10 +55,7 @@ export const VehicleStatusList: React.FC = () => {
       <DataTable<VehicleStatus>
         data={vehicleStatuses || []}
         columns={vehicleStatusTableColumns}
-        selectedItems={selectedStatuses}
-        onSelectItem={handleStatusSelect}
-        onSelectAll={handleSelectAll}
-        actions={[]} // No actions for read-only enum data
+        actions={[]}
         showActions={false}
         loading={isPending}
         fixedLayout={false}

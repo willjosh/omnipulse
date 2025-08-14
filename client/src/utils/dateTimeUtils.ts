@@ -11,6 +11,8 @@ export function getTimeOptions(): string[] {
 export function combineDateAndTime(dateStr: string, timeStr: string): string {
   if (!dateStr || !timeStr) return "";
   const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return "";
+
   const [time, meridian] = timeStr.split(/(am|pm)/);
   let [hours, minutes] = time.split(":").map(Number);
   if (meridian === "pm" && hours !== 12) hours += 12;

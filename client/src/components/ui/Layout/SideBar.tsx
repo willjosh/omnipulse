@@ -60,7 +60,7 @@ const navItems: NavItem[] = [
     ],
   },
   { label: "Technicians", icon: User, path: "/technician" },
-  { label: "Fuel History", icon: Fuel, path: "/fuel-entries" },
+  { label: "Fuel Purchases", icon: Fuel, path: "/fuel-purchases" },
   {
     label: "Inventories",
     icon: Boxes,

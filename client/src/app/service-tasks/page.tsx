@@ -7,17 +7,8 @@ import { useServiceTasks } from "@/features/service-task/hooks/useServiceTasks";
 import { ServiceTaskWithLabels } from "@/features/service-task/types/serviceTaskType";
 import { getServiceTaskCategoryLabel } from "@/features/service-task/utils/serviceTaskEnumHelper";
 import { DEFAULT_PAGE_SIZE } from "@/components/ui/Table/constants";
-import { serviceTaskTableColumns } from "@/features/service-task/config/ServiceTaskTableColumns";
 import { FilterBar } from "@/components/ui/Filter";
 import { Plus } from "lucide-react";
-import {
-  Listbox,
-  ListboxButton,
-  ListboxOptions,
-  ListboxOption,
-} from "@headlessui/react";
-import { ChevronDown } from "lucide-react";
-import { serviceTaskSortOptions } from "@/features/service-task/config/serviceTaskOptions";
 
 export default function ServiceTaskListPage() {
   const router = useRouter();
@@ -26,7 +17,7 @@ export default function ServiceTaskListPage() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [sortBy, setSortBy] = useState("createdat");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
   React.useEffect(() => {
     setPage(1);
@@ -45,21 +36,59 @@ export default function ServiceTaskListPage() {
 
   const { serviceTasks, pagination, isPending } = useServiceTasks(filter);
 
-  console.log(serviceTasks);
+  const handleSort = (sortKey: string) => {
+    if (sortBy === sortKey) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(sortKey);
+      setSortOrder("asc");
+    }
+    setPage(1);
+  };
 
-  const tableData = useMemo(
-    () =>
-      serviceTasks.map((task: ServiceTaskWithLabels) => ({
-        id: task.id.toString(),
-        name: task.name,
-        description: task.description || "-",
-        estimatedLabourHours: task.estimatedLabourHours,
-        estimatedCost: `$${(task.estimatedCost ?? 0).toFixed(2)}`,
-        categoryLabel: getServiceTaskCategoryLabel(task.categoryEnum),
-        isActive: task.isActive ? "Yes" : "No",
-      })),
-    [serviceTasks],
-  );
+  const serviceTaskTableColumns = [
+    {
+      key: "name",
+      header: "Name",
+      width: "250px",
+      sortable: true,
+      render: (item: ServiceTaskWithLabels) => <div>{item.name}</div>,
+    },
+    {
+      key: "description",
+      header: "Description",
+      width: "320px",
+      sortable: false,
+      render: (item: ServiceTaskWithLabels) => (
+        <div>{item.description || "-"}</div>
+      ),
+    },
+    {
+      key: "category",
+      header: "Category",
+      sortable: true,
+      render: (item: ServiceTaskWithLabels) => (
+        <div>{getServiceTaskCategoryLabel(item.categoryEnum)}</div>
+      ),
+    },
+    {
+      key: "estimatedlabourhours",
+      header: "Estimated Labour Hours",
+      width: "200px",
+      sortable: true,
+      render: (item: ServiceTaskWithLabels) => (
+        <div>{item.estimatedLabourHours}</div>
+      ),
+    },
+    {
+      key: "estimatedcost",
+      header: "Estimated Cost",
+      sortable: true,
+      render: (item: ServiceTaskWithLabels) => (
+        <div>${(item.estimatedCost ?? 0).toFixed(2)}</div>
+      ),
+    },
+  ];
 
   const handlePreviousPage = () => setPage(p => Math.max(1, p - 1));
   const handleNextPage = () =>
@@ -91,63 +120,13 @@ export default function ServiceTaskListPage() {
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-semibold text-gray-900">Service Tasks</h1>
         <div className="flex items-center gap-2">
-          <Listbox
-            value={`${sortBy}-${sortOrder}`}
-            onChange={val => {
-              const [field, order] = val.split("-");
-              setSortBy(field);
-              setSortOrder(order as "asc" | "desc");
-            }}
-          >
-            {({ open }) => (
-              <div className="relative">
-                <ListboxButton className="flex items-center justify-between px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 transition-colors h-9 min-w-[80px] max-w-[200px]">
-                  <span className="truncate">Sort by:</span>
-                  <span className="mx-3 font-semibold truncate">
-                    {serviceTaskSortOptions.find(
-                      (o: { value: string; label: string }) =>
-                        o.value === `${sortBy}-${sortOrder}`,
-                    )?.label || "Sort"}
-                  </span>
-                  <ChevronDown className="w-4 h-4 ml-auto" />
-                </ListboxButton>
-                <ListboxOptions className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-gray-200 z-20 focus:outline-none">
-                  {serviceTaskSortOptions.map(
-                    (opt: { value: string; label: string }) => (
-                      <ListboxOption
-                        key={opt.value}
-                        value={opt.value}
-                        className={({
-                          active,
-                          selected,
-                        }: {
-                          active: boolean;
-                          selected: boolean;
-                        }) =>
-                          `w-full text-left px-4 py-2 text-sm cursor-pointer transition-colors ${
-                            selected
-                              ? "bg-blue-100 text-blue-700 font-semibold"
-                              : active
-                                ? "bg-blue-50 text-blue-700"
-                                : "text-gray-700"
-                          }`
-                        }
-                      >
-                        {opt.label}
-                      </ListboxOption>
-                    ),
-                  )}
-                </ListboxOptions>
-              </div>
-            )}
-          </Listbox>
           <PrimaryButton onClick={() => router.push("/service-tasks/new")}>
             <Plus size={16} />
             Add Service Task
           </PrimaryButton>
         </div>
       </div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4">
         <FilterBar
           searchValue={search}
           onSearchChange={setSearch}
@@ -170,24 +149,14 @@ export default function ServiceTaskListPage() {
       </div>
       <DataTable
         columns={serviceTaskTableColumns}
-        data={tableData}
-        selectedItems={[]}
-        onSelectItem={() => {}}
-        onSelectAll={() => {}}
-        getItemId={item => item.id}
+        data={serviceTasks}
+        getItemId={item => item.id.toString()}
         loading={isPending}
         showActions={false}
         emptyState={emptyState}
         onRowClick={handleRowClick}
         fixedLayout={false}
-        onSort={key => {
-          if (sortBy === key) {
-            setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-          } else {
-            setSortBy(key);
-            setSortOrder("asc");
-          }
-        }}
+        onSort={handleSort}
         sortBy={sortBy}
         sortOrder={sortOrder}
       />

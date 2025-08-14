@@ -17,7 +17,7 @@ import { Plus } from "lucide-react";
 
 const TechnicianList: React.FC = () => {
   const router = useRouter();
-  const [selectedTechnicians, setSelectedTechnicians] = useState<string[]>([]);
+
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
@@ -46,27 +46,6 @@ const TechnicianList: React.FC = () => {
   const { technicians, pagination, isPending, isError } =
     useTechnicians(filters);
   const deactivateTechnicianMutation = useDeactivateTechnician();
-
-  const handleSelectAll = () => {
-    if (!technicians) return;
-    const allTechnicianIds = technicians.map(technician => technician.id);
-    const allSelected = allTechnicianIds.every(id =>
-      selectedTechnicians.includes(id),
-    );
-    if (allSelected) {
-      setSelectedTechnicians([]);
-    } else {
-      setSelectedTechnicians(allTechnicianIds);
-    }
-  };
-
-  const handleTechnicianSelect = (technicianId: string) => {
-    setSelectedTechnicians(prev =>
-      prev.includes(technicianId)
-        ? prev.filter(id => id !== technicianId)
-        : [...prev, technicianId],
-    );
-  };
 
   const handleSort = (sortKey: string) => {
     if (sortBy === sortKey) {
@@ -188,9 +167,6 @@ const TechnicianList: React.FC = () => {
       <DataTable<Technician>
         data={technicians || []}
         columns={technicianTableColumns}
-        selectedItems={selectedTechnicians}
-        onSelectItem={handleTechnicianSelect}
-        onSelectAll={handleSelectAll}
         onRowClick={handleRowClick}
         onSort={handleSort}
         sortBy={sortBy}
