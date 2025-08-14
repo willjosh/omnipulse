@@ -28,6 +28,7 @@ public class FuelPurchaseMappingProfile : Profile
             .ForMember(dest => dest.User, opt => opt.Ignore());
 
         CreateMap<FuelPurchase, FuelPurchaseDTO>(MemberList.Destination)
-            .ForMember(dest => dest.VehicleName, opt => opt.MapFrom(src => src.Vehicle.Name));
+            .ForMember(dest => dest.VehicleName, opt => opt.MapFrom(src => src.Vehicle.Name))
+            .ForMember(dest => dest.PurchasedByUserName, opt => opt.MapFrom(src => src.User.GetFullName()));
     }
 }

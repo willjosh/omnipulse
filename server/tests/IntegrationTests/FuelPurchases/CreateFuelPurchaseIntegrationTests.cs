@@ -92,5 +92,10 @@ public class CreateFuelPurchaseIntegrationTests : BaseIntegrationTest
         createdFuelPurchaseEntity.FuelStation.Should().Be(createCommand.FuelStation);
         createdFuelPurchaseEntity.ReceiptNumber.Should().Be(createCommand.ReceiptNumber);
         createdFuelPurchaseEntity.Notes.Should().Be(createCommand.Notes);
+
+        // Also assert the vehicle mileage has been updated to the odometer reading
+        var vehicleEntity = await DbContext.Vehicles.FindAsync(vehicleId);
+        vehicleEntity.Should().NotBeNull();
+        vehicleEntity!.Mileage.Should().Be(createCommand.OdometerReading);
     }
 }

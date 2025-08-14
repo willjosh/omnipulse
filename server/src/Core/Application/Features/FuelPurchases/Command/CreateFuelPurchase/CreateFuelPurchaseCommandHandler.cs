@@ -58,6 +58,14 @@ public class CreateFuelPurchaseCommandHandler : IRequestHandler<CreateFuelPurcha
         // add new fuel purchase
         var newFuelPurchase = await _fuelPurchaseRepository.AddAsync(fuelPurchase);
 
+        // Update vehicle mileage if odometer reading is equal or higher
+        var vehicle = await _vehicleRepository.GetByIdAsync(fuelPurchase.VehicleId);
+        if (vehicle is not null && fuelPurchase.OdometerReading >= vehicle.Mileage)
+        {
+            vehicle.Mileage = fuelPurchase.OdometerReading;
+            _vehicleRepository.Update(vehicle);
+        }
+
         // save changes
         await _fuelPurchaseRepository.SaveChangesAsync();
 

@@ -68,6 +68,14 @@ public sealed class UpdateFuelPurchaseCommandHandler : IRequestHandler<UpdateFue
         // Recalculate derived values if needed
         existing.CalculateTotalCost();
 
+        // Update vehicle mileage if odometer reading is equal or higher
+        var vehicle = await _vehicleRepository.GetByIdAsync(existing.VehicleId);
+        if (vehicle is not null && existing.OdometerReading >= vehicle.Mileage)
+        {
+            vehicle.Mileage = existing.OdometerReading;
+            _vehicleRepository.Update(vehicle);
+        }
+
         // Persist
         _fuelPurchaseRepository.Update(existing);
         await _fuelPurchaseRepository.SaveChangesAsync();
