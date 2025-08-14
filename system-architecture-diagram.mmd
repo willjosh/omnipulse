@@ -119,7 +119,8 @@ flowchart TB
         DOMAIN_LAYER
         INFRASTRUCTURE_LAYER
   end
-    VEHICLE_API -. HTTP Requests .-> CTRLS
+    VEHICLE_API L_VEHICLE_API_CTRLS_0@== HTTP Requests ==> CTRLS
+    CTRLS L_CTRLS_VEHICLE_API_0@== HTTP Responses ==> VEHICLE_API
     LIB_CONFIG -. Axios Instance .-> VEHICLE_API
     APP_PAGES -. routes to .-> VEHICLE_COMPONENTS
     VEHICLE_COMPONENTS -. uses hooks .-> VEHICLE_HOOKS
@@ -141,14 +142,14 @@ flowchart TB
     APPLICATION_LAYER --> DOMAIN_LAYER
     INFRA_SERVICES_GRAPH -. implements .-> APPLICATION_CONTRACTS_GRAPH
     PDF_SVC -. uses template .-> PDF_TEMPLATE
-    CTRLS -. "[Request Data Flow] 1. Controller creates request (command/query). Let's say we want to create a vehicle so we create a CreateVehicleCommand." .-> APP_REQUEST_GRAPH
-    APP_REQUEST_GRAPH -. "[Request Data Flow] 2. Send command to validator" .-> APP_VEHICLE_VALIDATORS
-    APP_VEHICLE_VALIDATORS -. "[Request Data Flow] 3. Validator validated command. Send command to handler" .-> APP_VEHICLE_HANDLERS
-    APP_VEHICLE_HANDLERS -. "[Request Data Flow] 4. Send command to AutoMapper" .-> VEHICLE_MAPPER
-    VEHICLE_MAPPER -. "[Request Data Flow] 5. AutoMapper mapped command to Vehicle domain entity. Send Vehicle domain entity back to handler" .-> APP_VEHICLE_HANDLERS
-    APP_VEHICLE_HANDLERS -. "[Request Data Flow] 6. Handler validated business rules. Send Vehicle domain entity to repository." .-> REPOS
-    REPOS -. "[Request Data Flow] 7. Repository persisted Vehicle domain entity. Send ID of persisted Vehicle domain entity back to handler." .-> APP_VEHICLE_HANDLERS
-    APP_VEHICLE_HANDLERS -. "[Request Data Flow] 8. Send ID of persisted Vehicle domain entity back to controller." .-> CTRLS
+    CTRLS L_CTRLS_APP_REQUEST_GRAPH_0@-- "[Request Data Flow] 1. Controller creates request (command/query). Let's say we want to create a vehicle so we create a CreateVehicleCommand." --> APP_REQUEST_GRAPH
+    APP_REQUEST_GRAPH L_APP_REQUEST_GRAPH_APP_VEHICLE_VALIDATORS_0@-- "[Request Data Flow] 2. Send command to validator" --> APP_VEHICLE_VALIDATORS
+    APP_VEHICLE_VALIDATORS L_APP_VEHICLE_VALIDATORS_APP_VEHICLE_HANDLERS_0@-- "[Request Data Flow] 3. Validator validated command. Send command to handler" --> APP_VEHICLE_HANDLERS
+    APP_VEHICLE_HANDLERS L_APP_VEHICLE_HANDLERS_VEHICLE_MAPPER_0@-- "[Request Data Flow] 4. Send command to AutoMapper" --> VEHICLE_MAPPER
+    VEHICLE_MAPPER L_VEHICLE_MAPPER_APP_VEHICLE_HANDLERS_0@-- "[Request Data Flow] 5. AutoMapper mapped command to Vehicle domain entity. Send Vehicle domain entity back to handler" --> APP_VEHICLE_HANDLERS
+    APP_VEHICLE_HANDLERS L_APP_VEHICLE_HANDLERS_REPOS_0@-- "[Request Data Flow] 6. Handler validated business rules. Send Vehicle domain entity to repository." --> REPOS
+    REPOS L_REPOS_APP_VEHICLE_HANDLERS_0@-- "[Request Data Flow] 7. Repository persisted Vehicle domain entity. Send ID of persisted Vehicle domain entity back to handler." --> APP_VEHICLE_HANDLERS
+    APP_VEHICLE_HANDLERS L_APP_VEHICLE_HANDLERS_CTRLS_0@-- "[Request Data Flow] 8. Send ID of persisted Vehicle domain entity back to controller." --> CTRLS
     APIGW -. registers middleware .-> MIDDLEWARE
     APIGW -. registers controllers .-> CTRLS
     APIGW -. registers swagger .-> SWAGGER
@@ -183,3 +184,23 @@ flowchart TB
     style DOMAIN_LAYER         stroke-width:3px,stroke:blue, color:blue
     style INFRASTRUCTURE_LAYER stroke-width:3px,stroke:blue, color:blue
     style FRONTEND_GRAPH stroke-width:3px,stroke:red, color:red
+    linkStyle 0 stroke:#AA00FF,fill:none
+    linkStyle 1 stroke:#AA00FF,fill:none
+    linkStyle 24 stroke:#2962FF,fill:none
+    linkStyle 25 stroke:#2962FF,fill:none
+    linkStyle 26 stroke:#2962FF,fill:none
+    linkStyle 27 stroke:#2962FF,fill:none
+    linkStyle 28 stroke:#2962FF,fill:none
+    linkStyle 29 stroke:#2962FF,fill:none
+    linkStyle 30 stroke:#2962FF,fill:none
+    linkStyle 31 stroke:#2962FF,fill:none
+    L_VEHICLE_API_CTRLS_0@{ animation: fast }
+    L_CTRLS_VEHICLE_API_0@{ animation: fast }
+    L_CTRLS_APP_REQUEST_GRAPH_0@{ animation: slow }
+    L_APP_REQUEST_GRAPH_APP_VEHICLE_VALIDATORS_0@{ animation: slow }
+    L_APP_VEHICLE_VALIDATORS_APP_VEHICLE_HANDLERS_0@{ animation: slow }
+    L_APP_VEHICLE_HANDLERS_VEHICLE_MAPPER_0@{ animation: slow }
+    L_VEHICLE_MAPPER_APP_VEHICLE_HANDLERS_0@{ animation: slow }
+    L_APP_VEHICLE_HANDLERS_REPOS_0@{ animation: slow }
+    L_REPOS_APP_VEHICLE_HANDLERS_0@{ animation: slow }
+    L_APP_VEHICLE_HANDLERS_CTRLS_0@{ animation: slow }

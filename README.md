@@ -130,28 +130,9 @@ docker compose -f docker-compose.dev.yml exec server-dev bash -lc \
 --filter "TestCategory!=Functional&TestCategory!=Integration"'
 ```
 
-#### Run Intgration Tests
+#### ⚠️ Known local test limitation (macOS/Apple Silicon):
 
-```bash
-docker compose -f docker-compose.dev.yml exec server-dev bash -lc \
-'cd /server && dotnet test omnipulse_server.sln --no-build --nologo \
-  --filter "TestCategory=Integration"'
-```
-
-#### Run Functional Tests
-
-```bash
-docker compose -f docker-compose.dev.yml exec server-dev bash -lc \
-'cd /server && dotnet test omnipulse_server.sln --no-build --nologo \
-  --filter "TestCategory=Functional"'
-```
-
-#### Run All Tests
-
-```bash
-docker compose -f docker-compose.dev.yml exec server-dev bash -lc \
-'cd /server && dotnet test omnipulse_server.sln --no-build --nologo'
-```
+Running Integration tests, Functional tests, or All tests in bulk is currently not working locally. They may pass one-by-one but fail when run together due to DB/migration contention and Apple-Silicon Docker performance. Run Unit tests only locally, or execute individual Integration/Functional tests one at a time if needed. The CI pipeline remains the source of truth for full test runs.
 
 ### Documentation
 
