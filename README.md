@@ -118,6 +118,32 @@ docker logs <db-container-name>
 5. Set the startup projects to Api project
 6. `dotnet run`
 
+### Documentation
+
+The backend documentation can be generated and served using DocFX.
+
+Navigate to the documentation directory:
+
+```bash
+cd server/docs/DocFX
+```
+
+Install DocFX via Homebrew:
+
+```bash
+brew install docfx
+```
+
+Build and serve the documentation:
+
+```bash
+docfx metadata
+docfx build
+docfx serve _site
+```
+
+Access the documentation at http://localhost:8080
+
 ## Frontend
 
 ```bash
