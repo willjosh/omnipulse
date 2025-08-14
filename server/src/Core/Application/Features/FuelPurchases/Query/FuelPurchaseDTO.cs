@@ -14,6 +14,9 @@ public class FuelPurchaseDTO
     /// <example>566ae2d4-a781-4690-84c0-f8b284868e43</example>
     public required string PurchasedByUserId { get; set; }
 
+    /// <example>Jane Doe</example>
+    public string? PurchasedByUserName { get; set; }
+
     public required DateTime PurchaseDate { get; set; }
 
     /// <example>45000.5</example>
