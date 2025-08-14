@@ -1,0 +1,160 @@
+---
+config:
+  theme: base
+---
+
+graph TB
+    %% Frontend
+    subgraph "Frontend"
+        CLIENT["Next.js Client UI <br>• React Query <br>• Forms"]
+    end
+
+    %% Backend
+    subgraph BACKEND_GRAPH["Backend - ASP.NET Core"]
+        %% API Layer
+        subgraph API_LAYER["API Layer"]
+            APIGW["Web Host <br>• Program.cs"]
+            MIDDLEWARE["Middleware <br>• JWT Bearer Auth <br>• CORS Policies <br>• Global Exception Handlers <br>• HTTPS Redirection"]
+            CTRLS["Controllers - REST <br>• Vehicles <br>• WorkOrders <br>• Inspections <br>• ..."]
+            SWAGGER["Swagger UI / OpenAPI"]
+        end
+
+        %% Application Layer
+        subgraph APPLICATION_LAYER["Application Layer"]
+            subgraph APPLICATION_CONTRACTS_GRAPH["Contracts/Interfaces"]
+                AUTH_USER_DTO["Auth User DTO"]
+                I_JWT_SVC["JWT Service Interface"]
+                I_LOGGER_SVC["Logger Interface"]
+                I_REPOS["Repository Interfaces <br>• IGenericRepository"]
+                I_SVC["Service Interfaces <br>• IInvoicePdfService <br>• IServiceReminderStatusUpdater"]
+                I_CURRENT_USER_SVC["Current User Service Interface"]
+            end
+
+            subgraph APP_EXCEPTIONS_GRAPH["Exceptions"]
+                EXCEPTIONS["Custom Exceptions"]
+            end
+
+            subgraph FEATURES_GRAPH["Features"]
+                subgraph APP_VEHICLE_GRAPH["Vehicles"]
+                    subgraph APP_REQUEST_GRAPH["Requests"]
+                        APP_VEHICLE_COMMANDS["Commands <br>• CreateVehicleCommand <br>• UpdateVehicleCommand <br>• DeleteVehicleCommand"]
+                        APP_VEHICLE_QUERIES["Queries <br>• GetVehicleByIdQuery <br>• GetAllVehiclesQuery"]
+                    end
+                    APP_VEHICLE_VALIDATORS["Validators <br>• CreateVehicleValidator <br>• UpdateVehicleValidator <br>• DeleteVehicleValidator"]
+                    APP_VEHICLE_HANDLERS["Handlers <br>• CreateVehicleHandler <br>• UpdateVehicleHandler <br>• DeleteVehicleHandler"]
+                end
+            end
+
+            subgraph MAPPER_GRAPH["Mapping Profiles <br>• Uses AutoMapper"]
+                VEHICLE_MAPPER["Vehicle Mapping Profile"]
+            end
+
+            APPLICATION_DI_REG["Application Service Registration <br>• Register AutoMapper, MediatR, FluentValidation into the DI container"]
+        end
+
+        %% Domain Layer
+        subgraph DOMAIN_LAYER["Domain Layer"]
+            subgraph DOMAIN_ENTITIES_GRAPH["Entities"]
+                DOMAIN_ENTITIES["Vehicle <br>• ID: integer <br>• Name: string <br>• etc."]
+            end
+        end
+
+        %% Infrastructure Layer
+        subgraph INFRASTRUCTURE_LAYER["Infrastructure Layer"]
+            %% Infrastructure
+            subgraph INFRASTRUCTURE_GRAPH["Infrastructure"]
+                subgraph BACKGROUND_SERVICES_GRAPH["Background Services"]
+                    UPDATE_SERVICE_REMINDER_STATUS_BG_SVC["UpdateServiceReminderStatusBackgroundService"]
+                end
+
+                subgraph INFRA_SERVICES_GRAPH["Services"]
+                    LOGGER_SVC["Logger"]
+                    PDF_SVC["PDF Generator"]
+                    PDF_TEMPLATE["PDF Template"]
+                    CURRENT_USER_SVC["Current User Service"]
+                    JWT_SVC["JWT Service"]
+                end
+
+                INFRASTRUCTURE_DI_REG["Infrastructure Service Registration"]
+            end
+
+            %% Persistence
+            subgraph PERSISTENCE_GRAPH["Persistence (Database)"]
+                DB_CONTEXT["MS SQL Database <br>• EF Core DbContext <br>• OmnipulseDatabaseContext"]
+                REPOS["Repositories <br>• GenericRepository <br>• Entity Repositories"]
+                SEEDERS["Seeders <br>• Dev Only"]
+                PERSISTENCE_DI_REG["Persistence Service Registration"]
+            end
+        end
+    end
+
+    %% Layers
+    API_LAYER --> APPLICATION_LAYER
+    API_LAYER --> INFRASTRUCTURE_LAYER
+    APPLICATION_LAYER --> DOMAIN_LAYER
+
+    %% Infrastructure Services
+    INFRA_SERVICES_GRAPH -. "implements" .-> APPLICATION_CONTRACTS_GRAPH
+
+    %% PDF Generation
+    PDF_SVC -. "uses template" .-> PDF_TEMPLATE
+
+    %% Request Data Flow
+    CTRLS -. "[Request Data Flow] 1. Controller creates request (command/query). Let's say we want to create a vehicle so we create a CreateVehicleCommand." .-> APP_REQUEST_GRAPH
+    APP_REQUEST_GRAPH -. "[Request Data Flow] 2. Send command to validator" .-> APP_VEHICLE_VALIDATORS
+    APP_VEHICLE_VALIDATORS -. "[Request Data Flow] 3. Validator validated command. Send command to handler" .-> APP_VEHICLE_HANDLERS
+    APP_VEHICLE_HANDLERS -. "[Request Data Flow] 4. Send command to AutoMapper" .-> VEHICLE_MAPPER
+    VEHICLE_MAPPER -. "[Request Data Flow] 5. AutoMapper mapped command to Vehicle domain entity. Send Vehicle domain entity back to handler" .-> APP_VEHICLE_HANDLERS
+    APP_VEHICLE_HANDLERS -. "[Request Data Flow] 6. Handler validated business rules. Send Vehicle domain entity to repository." .-> REPOS
+    REPOS -. "[Request Data Flow] 7. Repository persisted Vehicle domain entity. Send ID of persisted Vehicle domain entity back to handler." .-> APP_VEHICLE_HANDLERS
+    APP_VEHICLE_HANDLERS -. "[Request Data Flow] 8. Send ID of persisted Vehicle domain entity back to controller." .-> CTRLS
+
+    %% API Layer
+    APIGW -. "registers middleware" .-> MIDDLEWARE
+    APIGW -. "registers controllers" .-> CTRLS
+    APIGW -. "registers swagger" .-> SWAGGER
+    APIGW -. "registers Application services" .-> APPLICATION_DI_REG
+    APIGW -. "registers Infrastructure services" .-> INFRASTRUCTURE_DI_REG
+    APIGW -. "registers Persistence services" .-> PERSISTENCE_DI_REG
+    CTRLS -. "uses" .-> FEATURES_GRAPH
+    CTRLS -. "uses" .-> APPLICATION_CONTRACTS_GRAPH
+    MIDDLEWARE -. "uses" .-> APP_EXCEPTIONS_GRAPH
+
+    %% Application Layer
+    APP_VEHICLE_HANDLERS -. "uses" .-> APPLICATION_CONTRACTS_GRAPH
+    APP_VEHICLE_HANDLERS -. "uses" .-> APP_EXCEPTIONS_GRAPH
+    APP_VEHICLE_HANDLERS -. "uses" .-> APP_VEHICLE_VALIDATORS
+
+    %% Domain Layer
+
+    %% Infrastructure Layer
+
+
+    %% Persistence Layer
+    REPOS -. "uses" .-> DB_CONTEXT
+    SEEDERS -. "uses" .-> DB_CONTEXT
+
+    %% ========================================
+    %% Style
+    %% ========================================
+    style API_LAYER            stroke-width:3px,stroke:blue, color:blue
+    style APPLICATION_LAYER    stroke-width:3px,stroke:blue, color:blue
+    style DOMAIN_LAYER         stroke-width:3px,stroke:blue, color:blue
+    style INFRASTRUCTURE_LAYER stroke-width:3px,stroke:blue, color:blue
+
+    %% Application Layer - Subgraphs
+    style APPLICATION_CONTRACTS_GRAPH stroke-width:3px,stroke:green, color:green
+    style APP_EXCEPTIONS_GRAPH        stroke-width:3px,stroke:green, color:green
+    style FEATURES_GRAPH              stroke-width:3px,stroke:green, color:green
+    style APP_VEHICLE_GRAPH           stroke-width:3px,stroke:green, color:green
+    style APP_REQUEST_GRAPH           stroke-width:3px,stroke:green, color:green
+    style MAPPER_GRAPH                stroke-width:3px,stroke:green, color:green
+
+    %% Domain Layer - Subgraphs
+    style DOMAIN_ENTITIES_GRAPH stroke-width:3px,stroke:green, color:green
+
+    %% Infrastructure Layer - Subgraphs
+    style INFRASTRUCTURE_GRAPH      stroke-width:3px,stroke:green, color:green
+    style BACKGROUND_SERVICES_GRAPH stroke-width:3px,stroke:green, color:green
+    style INFRA_SERVICES_GRAPH      stroke-width:3px,stroke:green, color:green
+    style PERSISTENCE_GRAPH         stroke-width:3px,stroke:green, color:green
